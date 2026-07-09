@@ -1,0 +1,162 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  passwordHash   String
+  name           String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  familyMembers  FamilyMember[]
+  incomes        Income[]
+  expenses       Expense[]
+  files          File[]
+  aiConversations AiConversation[]
+}
+
+model Family {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  members     FamilyMember[]
+  incomes     Income[]
+  expenses    Expense[]
+  assets      Asset[]
+  liabilities Liability[]
+  files       File[]
+  aiConversations AiConversation[]
+}
+
+model FamilyMember {
+  id        String   @id @default(cuid())
+  familyId  String
+  userId    String
+  role      String
+  createdAt DateTime @default(now())
+  family    Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([familyId, userId])
+  @@index([familyId])
+  @@index([userId])
+}
+
+model Income {
+  id          String   @id @default(cuid())
+  familyId    String
+  createdBy   String
+  category    String
+  amount      Decimal  @db.Decimal(15, 2)
+  description String?
+  source      String?
+  date        DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  family      Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@index([createdBy])
+  @@index([date])
+  @@index([category])
+}
+
+model Expense {
+  id            String   @id @default(cuid())
+  familyId      String
+  createdBy     String
+  category      String
+  amount        Decimal  @db.Decimal(15, 2)
+  description   String?
+  paymentMethod String?
+  date          DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  family        Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  user          User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@index([createdBy])
+  @@index([date])
+  @@index([category])
+}
+
+model Asset {
+  id          String   @id @default(cuid())
+  familyId    String
+  name        String
+  type        String
+  category    String?
+  value       Decimal  @db.Decimal(15, 2)
+  costBasis   Decimal? @db.Decimal(15, 2)
+  currency    String   @default("CNY")
+  purchaseDate DateTime?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  family      Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@index([type])
+}
+
+model Liability {
+  id          String   @id @default(cuid())
+  familyId    String
+  name        String
+  type        String
+  amount      Decimal  @db.Decimal(15, 2)
+  interestRate Decimal? @db.Decimal(5, 4)
+  startDate   DateTime?
+  endDate     DateTime?
+  currency    String   @default("CNY")
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  family      Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@index([type])
+}
+
+model File {
+  id         String   @id @default(cuid())
+  familyId   String
+  userId     String
+  name       String
+  path       String
+  type       String
+  phash      String?
+  size       Int
+  mimeType   String
+  uploadedAt DateTime @default(now())
+  family     Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@index([userId])
+}
+
+model AiConversation {
+  id         String   @id @default(cuid())
+  familyId   String
+  userId     String
+  content    String
+  response   String
+  type       String
+  createdAt  DateTime @default(now())
+  family     Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@index([userId])
+}
