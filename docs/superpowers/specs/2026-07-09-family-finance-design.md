@@ -152,6 +152,15 @@
 - **手动录入**：表单填写收入、支出、资产、负债
 - **智能录入**：通过大模型对话输入自然语言（如"我今天发工资10000元"）
 - **图片识别**：上传消费截图、收据发票，自动识别并录入
+- **重复录入检测**：录入前自动检测是否为重复条目，提示用户确认
+
+**重复检测机制**：
+- **内容相似度检测**：基于金额、日期、描述、分类等字段计算相似度
+  - 金额相同 + 日期相同 + 描述相似 → 高置信度重复
+  - 金额相近 + 日期相近 + 分类相同 → 可能重复
+- **图片哈希检测**：上传图片时计算感知哈希值（pHash），与历史图片对比
+- **重复提示**：检测到可能重复时，展示相似条目，让用户选择是否继续录入
+- **阈值可调**：重复检测的相似度阈值可配置
 
 **智能录入示例**：
 ```
@@ -160,6 +169,11 @@
 
 用户：今天在超市花了350元买日用品
 系统：已记录支出 - 日常开销：350元（分类：日用品）
+
+用户：昨天超市花了350元
+系统：检测到可能重复的条目：
+      - 2026-07-08 日常开销 350元 日用品
+      请问这是同一条记录吗？[是，跳过 / 否，继续录入]
 ```
 
 ### 4.3 报表生成模块
@@ -208,7 +222,7 @@
 | liabilities | 负债记录 | id, family_id, user_id, type, name, amount, created_at |
 | incomes | 收入记录 | id, family_id, user_id, type, amount, description, date |
 | expenses | 支出记录 | id, family_id, user_id, type, amount, description, date |
-| files | 文件记录 | id, family_id, user_id, name, path, type, uploaded_at |
+| files | 文件记录 | id, family_id, user_id, name, path, type, phash, uploaded_at |
 | ai_conversations | AI对话记录 | id, family_id, user_id, content, response, created_at |
 
 ### 5.2 数据模型关系
@@ -250,6 +264,7 @@ families ───> assets, liabilities, incomes, expenses, files
 |-----|-----|------|
 | POST | /api/transactions | 录入交易（收入/支出） |
 | GET | /api/transactions | 获取交易列表 |
+| POST | /api/transactions/check-duplicate | 检测交易是否重复 |
 | POST | /api/assets | 添加资产 |
 | GET | /api/assets | 获取资产列表 |
 | POST | /api/liabilities | 添加负债 |
