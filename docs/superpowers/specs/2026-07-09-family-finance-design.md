@@ -36,14 +36,22 @@
 ### 2.2 资产负债表映射
 
 **资产**：
-- 流动资产：现金、银行存款、短期投资、应收账款（他人欠家庭的钱）
-- 非流动资产：房产、车辆、长期投资、家具家电等固定资产
+- **流动资产**：现金、银行存款、短期投资（1年以内）、应收账款（他人欠家庭的钱）
+- **非流动资产**：房产、车辆、长期投资、家具家电等固定资产
+- **投资资产**（按类型细分）：
+  - 股票：上市公司股票、基金份额
+  - 长期国债：国债、债券基金、固定收益产品
+  - 黄金：实物黄金、黄金ETF、黄金期货
+  - 现金：现金、活期存款、货币基金
+  - 其他：理财产品、私募股权、收藏品等
 
 **负债**：
 - 流动负债：信用卡欠款、短期借款、应付账款（家庭欠他人的钱）
 - 非流动负债：房贷、车贷、长期借款
 
 **净资产**：总资产 - 总负债
+
+**投资配置比例**：各投资类型占投资资产总额的百分比，实时计算并可视化展示
 
 ### 2.3 利润表映射
 
@@ -144,6 +152,15 @@
 - **手动录入**：表单填写收入、支出、资产、负债
 - **智能录入**：通过大模型对话输入自然语言（如"我今天发工资10000元"）
 - **图片识别**：上传消费截图、收据发票，自动识别并录入
+- **重复录入检测**：录入前自动检测是否为重复条目，提示用户确认
+
+**重复检测机制**：
+- **内容相似度检测**：基于金额、日期、描述、分类等字段计算相似度
+  - 金额相同 + 日期相同 + 描述相似 → 高置信度重复
+  - 金额相近 + 日期相近 + 分类相同 → 可能重复
+- **图片哈希检测**：上传图片时计算感知哈希值（pHash），与历史图片对比
+- **重复提示**：检测到可能重复时，展示相似条目，让用户选择是否继续录入
+- **阈值可调**：重复检测的相似度阈值可配置
 
 **智能录入示例**：
 ```
@@ -152,6 +169,11 @@
 
 用户：今天在超市花了350元买日用品
 系统：已记录支出 - 日常开销：350元（分类：日用品）
+
+用户：昨天超市花了350元
+系统：检测到可能重复的条目：
+      - 2026-07-08 日常开销 350元 日用品
+      请问这是同一条记录吗？[是，跳过 / 否，继续录入]
 ```
 
 ### 4.3 报表生成模块
@@ -160,7 +182,14 @@
 - **资产负债表**：实时计算家庭总资产、总负债、净资产，饼图展示资产分布
 - **利润表**：按时间周期（月/季/年）统计收入、支出、结余，柱状图对比
 - **现金流量表**：分类统计经营/投资/筹资活动现金流，折线图趋势
+- **投资配置分析**：展示投资资产配置比例（股票、长期国债、黄金、现金、其他），环形图可视化
 - **自定义报表**：支持按时间范围、分类维度筛选
+
+**动态仪表板**：
+- 所有报表数据实时更新，数据变化后自动刷新
+- 支持自动刷新和手动刷新两种模式
+- 投资配置比例实时计算并展示
+- 关键指标卡片实时显示（总资产、净资产、本月结余、投资组合总价值）
 
 ### 4.4 文件管理模块
 
@@ -189,11 +218,11 @@
 | users | 用户信息 | id, email, password_hash, name |
 | families | 家庭信息 | id, name, description, created_at |
 | family_members | 家庭成员关系 | id, family_id, user_id, role |
-| assets | 资产记录 | id, family_id, user_id, type, name, amount, created_at |
+| assets | 资产记录 | id, family_id, user_id, category, type, name, amount, value_date |
 | liabilities | 负债记录 | id, family_id, user_id, type, name, amount, created_at |
 | incomes | 收入记录 | id, family_id, user_id, type, amount, description, date |
 | expenses | 支出记录 | id, family_id, user_id, type, amount, description, date |
-| files | 文件记录 | id, family_id, user_id, name, path, type, uploaded_at |
+| files | 文件记录 | id, family_id, user_id, name, path, type, phash, uploaded_at |
 | ai_conversations | AI对话记录 | id, family_id, user_id, content, response, created_at |
 
 ### 5.2 数据模型关系
@@ -235,6 +264,7 @@ families ───> assets, liabilities, incomes, expenses, files
 |-----|-----|------|
 | POST | /api/transactions | 录入交易（收入/支出） |
 | GET | /api/transactions | 获取交易列表 |
+| POST | /api/transactions/check-duplicate | 检测交易是否重复 |
 | POST | /api/assets | 添加资产 |
 | GET | /api/assets | 获取资产列表 |
 | POST | /api/liabilities | 添加负债 |
@@ -248,6 +278,7 @@ families ───> assets, liabilities, incomes, expenses, files
 | GET | /api/reports/income-statement | 获取利润表 |
 | GET | /api/reports/cash-flow | 获取现金流量表 |
 | GET | /api/reports/overview | 获取财务概览 |
+| GET | /api/reports/investment-allocation | 获取投资配置比例（股票/国债/黄金/现金/其他） |
 
 ### 6.5 AI 对话
 
