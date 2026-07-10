@@ -65,6 +65,7 @@ export default function AIPage() {
       const history = await getHistory(currentFamily.id);
       const formatted: Message[] = history
         .filter((h: ConversationRecord) => h.type === 'chat')
+        .reverse()
         .flatMap((h: ConversationRecord) => [
           { role: 'user' as const, content: h.content },
           { role: 'assistant' as const, content: h.response || h.content },
@@ -88,7 +89,18 @@ export default function AIPage() {
       setAiConfigured(configured);
       setMessages((prev) => [...prev, { role: 'assistant', content: response, actions }]);
     } catch (error: any) {
-      const msg = error.response?.data?.error || '请求失败，请稍后重试';
+      let msg: string;
+      if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+        msg = 'AI 响应超时，请稍后重试。如果数据已记录，可以在对应页面查看。';
+      } else if (error.response?.status === 429) {
+        msg = '请求过于频繁，请稍等片刻再试。';
+      } else if (error.response?.data?.error) {
+        msg = error.response.data.error;
+      } else if (!error.response) {
+        msg = '网络连接失败，请检查后端服务是否正常运行。';
+      } else {
+        msg = '请求失败，请稍后重试';
+      }
       setMessages((prev) => [...prev, { role: 'assistant', content: msg }]);
     } finally {
       setLoading(false);
