@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getFamilies, createFamily, inviteMember, removeMember } from '../services/familyService';
 import type { Family } from '../types';
 import { useAuthStore } from '../store/useAuthStore';
+import { useFamilyStore } from '../store/useFamilyStore';
 
 const FamiliesPage = () => {
   const [families, setFamilies] = useState<Family[]>([]);
@@ -15,6 +16,7 @@ const FamiliesPage = () => {
   const [inviteRole, setInviteRole] = useState<'admin' | 'member' | 'viewer'>('member');
   const [error, setError] = useState('');
   const { user } = useAuthStore();
+  const { setFamilies: setStoreFamilies, setCurrentFamily } = useFamilyStore();
 
   useEffect(() => {
     loadFamilies();
@@ -24,6 +26,7 @@ const FamiliesPage = () => {
     try {
       const data = await getFamilies();
       setFamilies(data);
+      setStoreFamilies(data);
     } catch (err) {
       console.error('加载家庭列表失败:', err);
     } finally {
@@ -36,7 +39,10 @@ const FamiliesPage = () => {
     setError('');
     try {
       const newFamily = await createFamily(newFamilyName, newFamilyDesc);
-      setFamilies([...families, newFamily]);
+      const updatedFamilies = [...families, newFamily];
+      setFamilies(updatedFamilies);
+      setStoreFamilies(updatedFamilies);
+      setCurrentFamily(newFamily);
       setShowCreateModal(false);
       setNewFamilyName('');
       setNewFamilyDesc('');

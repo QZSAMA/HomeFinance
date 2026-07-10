@@ -3,6 +3,7 @@ import { useFamilyStore } from '../store/useFamilyStore';
 import {
   getLiabilities,
   createLiability,
+  updateLiability,
   deleteLiability,
   type Liability,
 } from '../services/financeService';
@@ -21,6 +22,8 @@ const LiabilitiesPage = () => {
   const [liabilities, setLiabilities] = useState<Liability[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     name: '',
@@ -69,22 +72,52 @@ const LiabilitiesPage = () => {
     }
 
     try {
-      const newLiability = await createLiability(currentFamily.id, {
-        name: formData.name,
-        type: formData.type,
-        amount,
-        interestRate: formData.interestRate ? parseFloat(formData.interestRate) : undefined,
-        startDate: formData.startDate || undefined,
-        endDate: formData.endDate || undefined,
-        currency: formData.currency,
-        description: formData.description || undefined,
-      });
-      setLiabilities([newLiability, ...liabilities]);
-      setShowAddModal(false);
+      if (editingId) {
+        const updatedLiability = await updateLiability(currentFamily.id, editingId, {
+          name: formData.name,
+          type: formData.type,
+          amount,
+          interestRate: formData.interestRate ? parseFloat(formData.interestRate) : undefined,
+          startDate: formData.startDate || undefined,
+          endDate: formData.endDate || undefined,
+          currency: formData.currency,
+          description: formData.description || undefined,
+        });
+        setLiabilities(liabilities.map((l) => (l.id === editingId ? updatedLiability : l)));
+        setShowEditModal(false);
+      } else {
+        const newLiability = await createLiability(currentFamily.id, {
+          name: formData.name,
+          type: formData.type,
+          amount,
+          interestRate: formData.interestRate ? parseFloat(formData.interestRate) : undefined,
+          startDate: formData.startDate || undefined,
+          endDate: formData.endDate || undefined,
+          currency: formData.currency,
+          description: formData.description || undefined,
+        });
+        setLiabilities([newLiability, ...liabilities]);
+        setShowAddModal(false);
+      }
       resetForm();
     } catch (err: any) {
-      setError(err.response?.data?.error || '创建失败');
+      setError(err.response?.data?.error || '操作失败');
     }
+  };
+
+  const handleEdit = (liability: Liability) => {
+    setEditingId(liability.id);
+    setFormData({
+      name: liability.name,
+      type: liability.type,
+      amount: liability.amount.toString(),
+      interestRate: liability.interestRate?.toString() || '',
+      startDate: liability.startDate || '',
+      endDate: liability.endDate || '',
+      currency: liability.currency,
+      description: liability.description || '',
+    });
+    setShowEditModal(true);
   };
 
   const resetForm = () => {
@@ -196,6 +229,12 @@ const LiabilitiesPage = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
+                      onClick={() => handleEdit(liability)}
+                      className="text-indigo-600 hover:text-indigo-900 mr-3"
+                    >
+                      编辑
+                    </button>
+                    <button
                       onClick={() => handleDelete(liability.id)}
                       className="text-red-600 hover:text-red-900"
                     >
@@ -209,10 +248,10 @@ const LiabilitiesPage = () => {
         )}
       </div>
 
-      {showAddModal && (
+      {(showAddModal || showEditModal) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">新增负债</h2>
+            <h2 className="text-xl font-bold mb-4">{showEditModal ? '编辑负债' : '新增负债'}</h2>
             {error && <div className="mb-4 text-red-600 text-sm bg-red-50 p-3 rounded">{error}</div>}
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
@@ -296,6 +335,7 @@ const LiabilitiesPage = () => {
                   type="button"
                   onClick={() => {
                     setShowAddModal(false);
+                    setShowEditModal(false);
                     resetForm();
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"

@@ -79,7 +79,11 @@ frontend/src/
 │   ├── FamiliesPage.tsx
 │   ├── TransactionsPage.tsx
 │   ├── AssetsPage.tsx
-│   └── LiabilitiesPage.tsx
+│   ├── LiabilitiesPage.tsx
+│   ├── BalanceSheetPage.tsx      # 资产负债表
+│   ├── IncomeStatementPage.tsx   # 利润表
+│   ├── CashFlowPage.tsx          # 现金流量表
+│   └── InvestmentPage.tsx        # 投资配置
 ├── services/            # API 服务层
 │   ├── api.ts           # Axios 配置
 │   ├── authService.ts   # 认证服务
@@ -419,7 +423,9 @@ families ───> incomes, expenses, assets, liabilities, files
   "totalLiabilities": 200000,
   "netWorth": 300000,
   "assets": { "STOCK": 100000, "CASH": 50000 },
-  "liabilities": { "LOAN": 200000 }
+  "liabilities": { "LOAN": 200000 },
+  "assetList": [...],
+  "liabilityList": [...]
 }
 ```
 
@@ -440,7 +446,9 @@ families ───> incomes, expenses, assets, liabilities, files
   "totalExpense": 8000,
   "netIncome": 7000,
   "incomeByCategory": { "工资": 10000 },
-  "expenseByCategory": { "餐饮": 2000 }
+  "expenseByCategory": { "餐饮": 2000 },
+  "incomes": [...],
+  "expenses": [...]
 }
 ```
 
@@ -460,6 +468,7 @@ families ───> incomes, expenses, assets, liabilities, files
   "operating": { "income": 10000, "expense": 5000, "net": 5000 },
   "investing": { "income": 5000, "expense": 3000, "net": 2000 },
   "financing": { "income": 0, "expense": 0, "net": 0 },
+  "other": { "income": 0, "expense": 0 },
   "netCashFlow": 7000
 }
 ```
@@ -474,11 +483,103 @@ families ───> incomes, expenses, assets, liabilities, files
 ```json
 {
   "balanceSheet": { "totalAssets": 500000, "totalLiabilities": 200000, "netWorth": 300000 },
-  "incomeStatement": { "thisMonthIncome": 10000, "thisMonthExpense": 8000 },
-  "investmentAllocation": [...],
+  "incomeStatement": { "thisMonthIncome": 10000, "thisMonthExpense": 8000, "incomeChange": 10.5, "expenseChange": -5.2 },
+  "investmentAllocation": [{ "category": "STOCK", "value": 100000, "percentage": 20 }],
   "recentTransactions": { "incomes": [...], "expenses": [...] }
 }
 ```
+
+### 财务数据更新接口
+
+#### PUT /api/families/:familyId/incomes/:id
+
+更新收入记录
+
+请求头：`Authorization: Bearer <token>`
+
+请求体：
+```json
+{
+  "category": "工资",
+  "amount": 12000,
+  "description": "调整后月薪",
+  "source": "公司",
+  "date": "2026-07-01"
+}
+```
+
+#### DELETE /api/families/:familyId/incomes/:id
+
+删除收入记录
+
+请求头：`Authorization: Bearer <token>`
+
+#### PUT /api/families/:familyId/expenses/:id
+
+更新支出记录
+
+请求头：`Authorization: Bearer <token>`
+
+请求体：
+```json
+{
+  "category": "餐饮",
+  "amount": 400,
+  "description": "超市购物",
+  "paymentMethod": "微信支付",
+  "date": "2026-07-09"
+}
+```
+
+#### DELETE /api/families/:familyId/expenses/:id
+
+删除支出记录
+
+请求头：`Authorization: Bearer <token>`
+
+#### PUT /api/families/:familyId/assets/:id
+
+更新资产记录
+
+请求头：`Authorization: Bearer <token>`
+
+请求体：
+```json
+{
+  "name": "现金",
+  "type": "CASH",
+  "value": 15000,
+  "currency": "CNY"
+}
+```
+
+#### DELETE /api/families/:familyId/assets/:id
+
+删除资产记录
+
+请求头：`Authorization: Bearer <token>`
+
+#### PUT /api/families/:familyId/liabilities/:id
+
+更新负债记录
+
+请求头：`Authorization: Bearer <token>`
+
+请求体：
+```json
+{
+  "name": "房贷",
+  "type": "MORTGAGE",
+  "amount": 180000,
+  "currency": "CNY"
+}
+```
+
+#### DELETE /api/families/:familyId/liabilities/:id
+
+删除负债记录
+
+请求头：`Authorization: Bearer <token>`
 
 ---
 

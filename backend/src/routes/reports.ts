@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { prisma } from '../app';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { cacheMiddleware } from '../middleware/cache';
 import { toNumber } from '../utils/decimal';
 
 const router = Router({ mergeParams: true });
@@ -17,7 +18,7 @@ const checkFamilyAccess = async (familyId: string, userId: string) => {
   return membership;
 };
 
-router.get('/balance-sheet', authMiddleware, async (req: AuthRequest, res) => {
+router.get('/balance-sheet', authMiddleware, cacheMiddleware(300), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const membership = await checkFamilyAccess(familyId, req.userId!);
@@ -57,7 +58,7 @@ router.get('/balance-sheet', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-router.get('/income-statement', authMiddleware, async (req: AuthRequest, res) => {
+router.get('/income-statement', authMiddleware, cacheMiddleware(300), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const membership = await checkFamilyAccess(familyId, req.userId!);
@@ -115,7 +116,7 @@ router.get('/income-statement', authMiddleware, async (req: AuthRequest, res) =>
   }
 });
 
-router.get('/cash-flow', authMiddleware, async (req: AuthRequest, res) => {
+router.get('/cash-flow', authMiddleware, cacheMiddleware(300), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const membership = await checkFamilyAccess(familyId, req.userId!);
@@ -203,7 +204,7 @@ router.get('/cash-flow', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-router.get('/summary', authMiddleware, async (req: AuthRequest, res) => {
+router.get('/summary', authMiddleware, cacheMiddleware(300), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const membership = await checkFamilyAccess(familyId, req.userId!);

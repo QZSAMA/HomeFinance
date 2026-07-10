@@ -5,6 +5,10 @@ import {
   getExpenses,
   createIncome,
   createExpense,
+  updateIncome,
+  updateExpense,
+  deleteIncome,
+  deleteExpense,
   checkIncomeDuplicate,
   checkExpenseDuplicate,
   type Income,
@@ -18,6 +22,8 @@ const TransactionsPage = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     amount: '',
     category: '',
@@ -98,28 +104,83 @@ const TransactionsPage = () => {
 
     try {
       if (activeTab === 'income') {
-        const newIncome = await createIncome(currentFamily.id, {
-          amount,
-          category: formData.category,
-          description: formData.description || undefined,
-          date: formData.date,
-          source: formData.source || undefined,
-        });
-        setIncomes([newIncome, ...incomes]);
+        if (editingId) {
+          const updatedIncome = await updateIncome(currentFamily.id, editingId, {
+            amount,
+            category: formData.category,
+            description: formData.description || undefined,
+            date: formData.date,
+            source: formData.source || undefined,
+          });
+          setIncomes(incomes.map((item) => (item.id === editingId ? updatedIncome : item)));
+          setShowEditModal(false);
+        } else {
+          const newIncome = await createIncome(currentFamily.id, {
+            amount,
+            category: formData.category,
+            description: formData.description || undefined,
+            date: formData.date,
+            source: formData.source || undefined,
+          });
+          setIncomes([newIncome, ...incomes]);
+          setShowAddModal(false);
+        }
       } else {
-        const newExpense = await createExpense(currentFamily.id, {
-          amount,
-          category: formData.category,
-          description: formData.description || undefined,
-          date: formData.date,
-          paymentMethod: formData.paymentMethod || undefined,
-        });
-        setExpenses([newExpense, ...expenses]);
+        if (editingId) {
+          const updatedExpense = await updateExpense(currentFamily.id, editingId, {
+            amount,
+            category: formData.category,
+            description: formData.description || undefined,
+            date: formData.date,
+            paymentMethod: formData.paymentMethod || undefined,
+          });
+          setExpenses(expenses.map((item) => (item.id === editingId ? updatedExpense : item)));
+          setShowEditModal(false);
+        } else {
+          const newExpense = await createExpense(currentFamily.id, {
+            amount,
+            category: formData.category,
+            description: formData.description || undefined,
+            date: formData.date,
+            paymentMethod: formData.paymentMethod || undefined,
+          });
+          setExpenses([newExpense, ...expenses]);
+          setShowAddModal(false);
+        }
       }
-      setShowAddModal(false);
       resetForm();
     } catch (err: any) {
       setError(err.response?.data?.error || '提交失败');
+    }
+  };
+
+  const handleEdit = (item: Income | Expense) => {
+    setEditingId(item.id);
+    setFormData({
+      amount: item.amount.toString(),
+      category: item.category,
+      description: item.description || '',
+      date: item.date,
+      source: 'source' in item ? item.source || '' : '',
+      paymentMethod: 'paymentMethod' in item ? item.paymentMethod || '' : '',
+    });
+    setShowEditModal(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!currentFamily) return;
+    if (!confirm('确定要删除这条记录吗？')) return;
+
+    try {
+      if (activeTab === 'income') {
+        await deleteIncome(currentFamily.id, id);
+        setIncomes(incomes.filter((item) => item.id !== id));
+      } else {
+        await deleteExpense(currentFamily.id, id);
+        setExpenses(expenses.filter((item) => item.id !== id));
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.error || '删除失败');
     }
   };
 
@@ -209,6 +270,9 @@ const TransactionsPage = () => {
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       金额
                     </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      操作
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -227,6 +291,20 @@ const TransactionsPage = () => {
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-green-600">
                             +{formatMoney(item.amount)}
                           </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                            <button
+                              onClick={() => handleEdit(item)}
+                              className="text-indigo-600 hover:text-indigo-900 mr-3"
+                            >
+                              编辑
+                            </button>
+                            <button
+                              onClick={() => handleDelete(item.id)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              删除
+                            </button>
+                          </td>
                         </tr>
                       ))
                     : expenses.map((item) => (
@@ -243,6 +321,20 @@ const TransactionsPage = () => {
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-red-600">
                             -{formatMoney(item.amount)}
                           </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                            <button
+                              onClick={() => handleEdit(item)}
+                              className="text-indigo-600 hover:text-indigo-900 mr-3"
+                            >
+                              编辑
+                            </button>
+                            <button
+                              onClick={() => handleDelete(item.id)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              删除
+                            </button>
+                          </td>
                         </tr>
                       ))}
                 </tbody>
@@ -256,10 +348,12 @@ const TransactionsPage = () => {
         </div>
       </div>
 
-      {showAddModal && (
+      {(showAddModal || showEditModal) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">新增{activeTab === 'income' ? '收入' : '支出'}</h2>
+            <h2 className="text-xl font-bold mb-4">
+              {showEditModal ? '编辑' : '新增'}{activeTab === 'income' ? '收入' : '支出'}
+            </h2>
             {error && <div className="mb-4 text-red-600 text-sm bg-red-50 p-3 rounded">{error}</div>}
             {duplicateWarning && (
               <div className="mb-4 text-yellow-700 text-sm bg-yellow-50 p-3 rounded">
@@ -353,6 +447,7 @@ const TransactionsPage = () => {
                   type="button"
                   onClick={() => {
                     setShowAddModal(false);
+                    setShowEditModal(false);
                     resetForm();
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"

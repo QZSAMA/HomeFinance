@@ -4,9 +4,8 @@ import { useFamilyStore } from '../store/useFamilyStore';
 import type { Family } from '../types';
 
 const FamilySelector = () => {
-  const [families, setFamilies] = useState<Family[]>([]);
   const [loading, setLoading] = useState(true);
-  const { currentFamily, setCurrentFamily } = useFamilyStore();
+  const { currentFamily, setCurrentFamily, families, setFamilies } = useFamilyStore();
 
   useEffect(() => {
     loadFamilies();

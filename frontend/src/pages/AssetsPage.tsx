@@ -3,6 +3,7 @@ import { useFamilyStore } from '../store/useFamilyStore';
 import {
   getAssets,
   createAsset,
+  updateAsset,
   deleteAsset,
   type Asset,
 } from '../services/financeService';
@@ -22,6 +23,8 @@ const AssetsPage = () => {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     name: '',
@@ -70,22 +73,52 @@ const AssetsPage = () => {
     }
 
     try {
-      const newAsset = await createAsset(currentFamily.id, {
-        name: formData.name,
-        type: formData.type,
-        category: formData.category || undefined,
-        value,
-        costBasis: formData.costBasis ? parseFloat(formData.costBasis) : undefined,
-        currency: formData.currency,
-        purchaseDate: formData.purchaseDate || undefined,
-        description: formData.description || undefined,
-      });
-      setAssets([newAsset, ...assets]);
-      setShowAddModal(false);
+      if (editingId) {
+        const updatedAsset = await updateAsset(currentFamily.id, editingId, {
+          name: formData.name,
+          type: formData.type,
+          category: formData.category || undefined,
+          value,
+          costBasis: formData.costBasis ? parseFloat(formData.costBasis) : undefined,
+          currency: formData.currency,
+          purchaseDate: formData.purchaseDate || undefined,
+          description: formData.description || undefined,
+        });
+        setAssets(assets.map((a) => (a.id === editingId ? updatedAsset : a)));
+        setShowEditModal(false);
+      } else {
+        const newAsset = await createAsset(currentFamily.id, {
+          name: formData.name,
+          type: formData.type,
+          category: formData.category || undefined,
+          value,
+          costBasis: formData.costBasis ? parseFloat(formData.costBasis) : undefined,
+          currency: formData.currency,
+          purchaseDate: formData.purchaseDate || undefined,
+          description: formData.description || undefined,
+        });
+        setAssets([newAsset, ...assets]);
+        setShowAddModal(false);
+      }
       resetForm();
     } catch (err: any) {
-      setError(err.response?.data?.error || '创建失败');
+      setError(err.response?.data?.error || '操作失败');
     }
+  };
+
+  const handleEdit = (asset: Asset) => {
+    setEditingId(asset.id);
+    setFormData({
+      name: asset.name,
+      type: asset.type,
+      category: asset.category || '',
+      value: asset.value.toString(),
+      costBasis: asset.costBasis?.toString() || '',
+      currency: asset.currency,
+      purchaseDate: asset.purchaseDate || '',
+      description: asset.description || '',
+    });
+    setShowEditModal(true);
   };
 
   const resetForm = () => {
@@ -197,6 +230,12 @@ const AssetsPage = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
+                      onClick={() => handleEdit(asset)}
+                      className="text-indigo-600 hover:text-indigo-900 mr-3"
+                    >
+                      编辑
+                    </button>
+                    <button
                       onClick={() => handleDelete(asset.id)}
                       className="text-red-600 hover:text-red-900"
                     >
@@ -210,10 +249,10 @@ const AssetsPage = () => {
         )}
       </div>
 
-      {showAddModal && (
+      {(showAddModal || showEditModal) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">新增资产</h2>
+            <h2 className="text-xl font-bold mb-4">{showEditModal ? '编辑资产' : '新增资产'}</h2>
             {error && <div className="mb-4 text-red-600 text-sm bg-red-50 p-3 rounded">{error}</div>}
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
@@ -286,6 +325,7 @@ const AssetsPage = () => {
                   type="button"
                   onClick={() => {
                     setShowAddModal(false);
+                    setShowEditModal(false);
                     resetForm();
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"

@@ -6,6 +6,12 @@ import FamiliesPage from './pages/FamiliesPage';
 import TransactionsPage from './pages/TransactionsPage';
 import AssetsPage from './pages/AssetsPage';
 import LiabilitiesPage from './pages/LiabilitiesPage';
+import BalanceSheetPage from './pages/BalanceSheetPage';
+import IncomeStatementPage from './pages/IncomeStatementPage';
+import CashFlowPage from './pages/CashFlowPage';
+import InvestmentPage from './pages/InvestmentPage';
+import AIPage from './pages/AIPage';
+import AIAnalysisPage from './pages/AIAnalysisPage';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -61,6 +67,66 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <LiabilitiesPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports/balance-sheet"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <BalanceSheetPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports/income-statement"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <IncomeStatementPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports/cash-flow"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <CashFlowPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports/investment"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <InvestmentPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/ai"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <AIPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports/ai-analysis"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <AIAnalysisPage />
               </Layout>
             </ProtectedRoute>
           }

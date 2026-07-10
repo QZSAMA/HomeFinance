@@ -1,0 +1,14 @@
+node_modules/
+.env
+.env.local
+.env.*.local
+dist/
+build/
+.next/
+.nuxt/
+.vscode/
+.idea/
+.DS_Store
+*.log
+prisma/migrations/
+.trae/
