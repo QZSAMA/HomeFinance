@@ -49,6 +49,49 @@ services:
       timeout: 20s
       retries: 3
 
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: family-finance-backend
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/family_finance?schema=public
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-change-this-in-production}
+      JWT_EXPIRES_IN: 7d
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: family-finance
+      AI_BASE_URL: ${AI_BASE_URL:-}
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-ark-code-latest}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: family-finance-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   redis_data:
