@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useFamilyStore } from '../store/useFamilyStore';
 import { getSummary, type SummaryResponse } from '../services/reportService';
+import IncomeExpenseChart from '../components/charts/IncomeExpenseChart';
+import AssetAllocationChart from '../components/charts/AssetAllocationChart';
 
 const DashboardPage = () => {
   const { currentFamily } = useFamilyStore();
@@ -31,28 +33,6 @@ const DashboardPage = () => {
 
   const formatMoney = (amount: number) => {
     return new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(amount);
-  };
-
-  const getCategoryLabel = (category: string) => {
-    const labels: Record<string, string> = {
-      STOCK: '股票/基金',
-      BOND: '长期国债',
-      GOLD: '黄金',
-      CASH: '现金',
-      OTHER: '其他',
-    };
-    return labels[category] || category;
-  };
-
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      STOCK: 'bg-blue-500',
-      BOND: 'bg-green-500',
-      GOLD: 'bg-yellow-500',
-      CASH: 'bg-gray-500',
-      OTHER: 'bg-purple-500',
-    };
-    return colors[category] || 'bg-gray-400';
   };
 
   if (!currentFamily) {
@@ -181,36 +161,25 @@ const DashboardPage = () => {
                 {summary.incomeStatement.expenseChange.toFixed(1)}%
               </span>
             </div>
+            <div className="pt-2">
+              <IncomeExpenseChart
+                thisMonthIncome={summary.incomeStatement.thisMonthIncome}
+                thisMonthExpense={summary.incomeStatement.thisMonthExpense}
+                lastMonthIncome={summary.incomeStatement.lastMonthIncome}
+                lastMonthExpense={summary.incomeStatement.lastMonthExpense}
+              />
+            </div>
           </div>
         </div>
 
         {/* 投资配置 */}
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">投资配置</h3>
-          {summary.investmentAllocation.every((a) => a.value === 0) ? (
-            <div className="text-center py-8 text-gray-500">
-              暂无资产数据，请先添加资产
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {summary.investmentAllocation.map((item) => (
-                <div key={item.category}>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-600">{getCategoryLabel(item.category)}</span>
-                    <span className="text-gray-900 font-medium">
-                      {item.percentage}% ({formatMoney(item.value)})
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div
-                      className={`${getCategoryColor(item.category)} h-3 rounded-full transition-all duration-500`}
-                      style={{ width: `${item.percentage}%` }}
-                    ></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <AssetAllocationChart
+            allocation={summary.investmentAllocation}
+            totalValue={summary.balanceSheet.totalAssets}
+            centerLabel="总资产"
+          />
         </div>
       </div>
 

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useFamilyStore } from '../store/useFamilyStore';
+import { getCashFlow } from '../services/reportService';
+import CashFlowChart from '../components/charts/CashFlowChart';
 
 interface CashFlowData {
   operating: {
@@ -43,17 +45,12 @@ const CashFlowPage = () => {
     if (!currentFamily) return;
     setLoading(true);
     try {
-      let url = `/api/families/${currentFamily.id}/reports/cash-flow`;
-      const params = new URLSearchParams();
-      if (startDate) params.append('startDate', startDate);
-      if (endDate) params.append('endDate', endDate);
-      if (params.size > 0) url += `?${params.toString()}`;
-
-      const response = await fetch(url);
-      const result = await response.json();
-      if (response.ok) {
-        setData(result);
-      }
+      const result = await getCashFlow(
+        currentFamily.id,
+        startDate || undefined,
+        endDate || undefined
+      );
+      setData(result);
     } catch (err) {
       console.error('加载现金流量表失败:', err);
     } finally {
@@ -151,6 +148,22 @@ const CashFlowPage = () => {
           </div>
         </div>
       </div>
+
+      {/* 现金流对比柱状图 */}
+      {loading ? null : data ? (
+        <div className="bg-white rounded-lg shadow mb-6">
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900">现金流对比</h2>
+          </div>
+          <div className="p-6">
+            <CashFlowChart
+              operating={data.operating}
+              investing={data.investing}
+              financing={data.financing}
+            />
+          </div>
+        </div>
+      ) : null}
 
       <div className="space-y-6">
         <div className="bg-white rounded-lg shadow">

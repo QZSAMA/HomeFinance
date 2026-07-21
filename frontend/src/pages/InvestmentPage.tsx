@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useFamilyStore } from '../store/useFamilyStore';
+import { getSummary } from '../services/reportService';
+import AssetAllocationChart from '../components/charts/AssetAllocationChart';
 
 interface InvestmentAllocation {
   category: string;
@@ -43,14 +45,11 @@ const InvestmentPage = () => {
     if (!currentFamily) return;
     setLoading(true);
     try {
-      const response = await fetch(`/api/families/${currentFamily.id}/reports/summary`);
-      const result = await response.json();
-      if (response.ok) {
-        setData({
-          totalAssets: result.balanceSheet.totalAssets,
-          allocation: result.investmentAllocation || [],
-        });
-      }
+      const summary = await getSummary(currentFamily.id);
+      setData({
+        totalAssets: summary.balanceSheet.totalAssets,
+        allocation: summary.investmentAllocation || [],
+      });
     } catch (err) {
       console.error('加载投资配置失败:', err);
     } finally {
@@ -60,12 +59,6 @@ const InvestmentPage = () => {
 
   const formatMoney = (amount: number) => {
     return new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(amount);
-  };
-
-  const getGradientRotation = () => {
-    const total = data?.allocation.reduce((sum, item) => sum + item.percentage, 0) || 0;
-    if (total === 0) return 0;
-    return (data?.allocation[0]?.percentage || 0) / total * 360;
   };
 
   if (!currentFamily) {
@@ -109,47 +102,11 @@ const InvestmentPage = () => {
             {loading ? (
               <div className="text-center py-8 text-gray-500">加载中...</div>
             ) : (
-              <div className="relative w-64 h-64">
-                <svg className="w-full h-full transform -rotate-90">
-                  <circle
-                    cx="128"
-                    cy="128"
-                    r="100"
-                    fill="none"
-                    stroke="#e5e7eb"
-                    strokeWidth="30"
-                  />
-                  {data?.allocation.map((item, index) => {
-                    const accumulatedPercentage = data.allocation
-                      .slice(0, index)
-                      .reduce((sum, prev) => sum + prev.percentage, 0);
-                    const circumference = 2 * Math.PI * 100;
-                    const offset = (accumulatedPercentage / 100) * circumference;
-                    const length = (item.percentage / 100) * circumference;
-
-                    return (
-                      <circle
-                        key={item.category}
-                        cx="128"
-                        cy="128"
-                        r="100"
-                        fill="none"
-                        stroke={categoryColors[item.category]}
-                        strokeWidth="30"
-                        strokeDasharray={`${length} ${circumference}`}
-                        strokeDashoffset={-offset}
-                        strokeLinecap="round"
-                      />
-                    );
-                  })}
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <div className="text-3xl font-bold text-gray-900">
-                    {loading ? '--' : formatMoney(data?.totalAssets || 0)}
-                  </div>
-                  <div className="text-sm text-gray-500">总资产</div>
-                </div>
-              </div>
+              <AssetAllocationChart
+                allocation={data?.allocation || []}
+                totalValue={data?.totalAssets}
+                centerLabel="总资产"
+              />
             )}
           </div>
         </div>

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getFamilies } from '../services/familyService';
 import { useFamilyStore } from '../store/useFamilyStore';
-import type { Family } from '../types';
 
 const FamilySelector = () => {
   const [loading, setLoading] = useState(true);
