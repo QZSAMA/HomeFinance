@@ -130,3 +130,36 @@ export const createTestBudgetData = (overrides: Partial<{
   updatedAt: new Date(),
   ...overrides,
 });
+
+export const createTestRecurringData = (overrides: Partial<{
+  id: string;
+  familyId: string;
+  createdBy: string;
+  type: string;
+  category: string;
+  amount: number;
+  description: string | null;
+  frequency: string;
+  interval: number;
+  nextDate: Date;
+  endDate: Date | null;
+  isActive: boolean;
+  lastExecutedAt: Date | null;
+}> = {}) => ({
+  id: 'recurring_test_1',
+  familyId: 'family_test_1',
+  createdBy: 'user_test_1',
+  type: 'INCOME',
+  category: '工资',
+  amount: 15000,
+  description: '月度工资',
+  frequency: 'MONTHLY',
+  interval: 1,
+  nextDate: new Date('2026-08-01'),
+  endDate: null,
+  isActive: true,
+  lastExecutedAt: null,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  ...overrides,
+});

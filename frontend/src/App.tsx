@@ -14,6 +14,7 @@ import AIPage from './pages/AIPage';
 import AIAnalysisPage from './pages/AIAnalysisPage';
 import FilesPage from './pages/FilesPage';
 import BudgetPage from './pages/BudgetPage';
+import RecurringPage from './pages/RecurringPage';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -149,6 +150,16 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <BudgetPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/recurring"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <RecurringPage />
               </Layout>
             </ProtectedRoute>
           }

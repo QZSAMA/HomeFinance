@@ -27,6 +27,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { path: '/reports/ai-analysis', label: 'AI 分析', icon: '📈' },
     { path: '/files', label: '文件管理', icon: '📁' },
     { path: '/budgets', label: '预算管理', icon: '🎯' },
+    { path: '/recurring', label: '定期记账', icon: '🔁' },
     { path: '/ai', label: 'AI 助手', icon: '🤖' },
   ];
 

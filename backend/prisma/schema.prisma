@@ -20,6 +20,7 @@ model User {
   files          File[]
   aiConversations AiConversation[]
   budgets        Budget[]
+  recurringTransactions RecurringTransaction[]
 }
 
 model Family {
@@ -36,6 +37,7 @@ model Family {
   files       File[]
   aiConversations AiConversation[]
   budgets     Budget[]
+  recurringTransactions RecurringTransaction[]
 }
 
 model FamilyMember {
@@ -179,4 +181,27 @@ model Budget {
 
   @@index([familyId])
   @@index([category])
+}
+
+model RecurringTransaction {
+  id              String   @id @default(cuid())
+  familyId        String
+  family          Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  type            String
+  category        String
+  amount          Decimal  @db.Decimal(15, 2)
+  description     String?
+  frequency       String
+  interval        Int      @default(1)
+  nextDate        DateTime
+  endDate         DateTime?
+  isActive        Boolean  @default(true)
+  lastExecutedAt  DateTime?
+  createdBy       String
+  user            User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([familyId])
+  @@index([nextDate])
 }

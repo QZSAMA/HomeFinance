@@ -36,6 +36,7 @@ import fileRoutes from './routes/files';
 import aiRoutes from './routes/ai';
 import budgetRoutes from './routes/budgets';
 import exportRoutes from './routes/export';
+import recurringRoutes from './routes/recurring';
 import { ensureBucket } from './config/minio';
 
 app.use('/api/auth', authRoutes);
@@ -49,6 +50,7 @@ app.use('/api/families/:familyId/files', fileRoutes);
 app.use('/api/families/:familyId/ai', aiRoutes);
 app.use('/api/families/:familyId/budgets', budgetRoutes);
 app.use('/api/families/:familyId/export', exportRoutes);
+app.use('/api/families/:familyId/recurring', recurringRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
