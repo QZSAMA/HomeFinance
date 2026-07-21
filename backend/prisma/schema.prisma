@@ -19,6 +19,7 @@ model User {
   expenses       Expense[]
   files          File[]
   aiConversations AiConversation[]
+  budgets        Budget[]
 }
 
 model Family {
@@ -34,6 +35,7 @@ model Family {
   liabilities Liability[]
   files       File[]
   aiConversations AiConversation[]
+  budgets     Budget[]
 }
 
 model FamilyMember {
@@ -159,4 +161,22 @@ model AiConversation {
 
   @@index([familyId])
   @@index([userId])
+}
+
+model Budget {
+  id        String   @id @default(cuid())
+  familyId  String
+  family    Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  category  String
+  amount    Decimal  @db.Decimal(15, 2)
+  period    String   @default("MONTHLY")
+  startDate DateTime
+  endDate   DateTime?
+  createdBy String
+  user      User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([familyId])
+  @@index([category])
 }

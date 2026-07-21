@@ -13,6 +13,7 @@ import InvestmentPage from './pages/InvestmentPage';
 import AIPage from './pages/AIPage';
 import AIAnalysisPage from './pages/AIAnalysisPage';
 import FilesPage from './pages/FilesPage';
+import BudgetPage from './pages/BudgetPage';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -138,6 +139,16 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <FilesPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/budgets"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <BudgetPage />
               </Layout>
             </ProtectedRoute>
           }

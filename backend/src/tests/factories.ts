@@ -107,3 +107,26 @@ export const createTestFileData = (overrides: Partial<{
   uploadedAt: new Date(),
   ...overrides,
 });
+
+export const createTestBudgetData = (overrides: Partial<{
+  id: string;
+  familyId: string;
+  createdBy: string;
+  category: string;
+  amount: number;
+  period: string;
+  startDate: Date;
+  endDate: Date | null;
+}> = {}) => ({
+  id: 'budget_test_1',
+  familyId: 'family_test_1',
+  createdBy: 'user_test_1',
+  category: '餐饮',
+  amount: 5000,
+  period: 'MONTHLY',
+  startDate: new Date('2026-07-01'),
+  endDate: null,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  ...overrides,
+});
