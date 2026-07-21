@@ -21,6 +21,7 @@ model User {
   aiConversations AiConversation[]
   budgets        Budget[]
   recurringTransactions RecurringTransaction[]
+  goals          Goal[]
 }
 
 model Family {
@@ -38,6 +39,7 @@ model Family {
   aiConversations AiConversation[]
   budgets     Budget[]
   recurringTransactions RecurringTransaction[]
+  goals       Goal[]
 }
 
 model FamilyMember {
@@ -204,4 +206,21 @@ model RecurringTransaction {
 
   @@index([familyId])
   @@index([nextDate])
+}
+
+model Goal {
+  id            String   @id @default(cuid())
+  familyId      String
+  family        Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  title         String
+  type          String   // "SAVING" | "DEBT_PAYOFF" | "INVESTMENT"
+  targetAmount  Decimal  @db.Decimal(15, 2)
+  deadline      DateTime?
+  isCompleted   Boolean  @default(false)
+  createdBy     String
+  user          User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([familyId])
 }

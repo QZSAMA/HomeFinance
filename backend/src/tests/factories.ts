@@ -163,3 +163,26 @@ export const createTestRecurringData = (overrides: Partial<{
   updatedAt: new Date(),
   ...overrides,
 });
+
+export const createTestGoalData = (overrides: Partial<{
+  id: string;
+  familyId: string;
+  createdBy: string;
+  title: string;
+  type: string;
+  targetAmount: number;
+  deadline: Date | null;
+  isCompleted: boolean;
+}> = {}) => ({
+  id: 'goal_test_1',
+  familyId: 'family_test_1',
+  createdBy: 'user_test_1',
+  title: '买房首付',
+  type: 'SAVING',
+  targetAmount: 1000000,
+  deadline: null,
+  isCompleted: false,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  ...overrides,
+});

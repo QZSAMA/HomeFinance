@@ -17,6 +17,7 @@ import BudgetPage from './pages/BudgetPage';
 import RecurringPage from './pages/RecurringPage';
 import ComparePage from './pages/ComparePage';
 import ImportPage from './pages/ImportPage';
+import GoalsPage from './pages/GoalsPage';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -182,6 +183,16 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <ImportPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/goals"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <GoalsPage />
               </Layout>
             </ProtectedRoute>
           }

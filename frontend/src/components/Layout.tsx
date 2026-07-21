@@ -30,6 +30,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { path: '/recurring', label: '定期记账', icon: '🔁' },
     { path: '/compare', label: '家庭对比', icon: '⚖️' },
     { path: '/import', label: '数据导入', icon: '📥' },
+    { path: '/goals', label: '财务目标', icon: '⭐' },
     { path: '/ai', label: 'AI 助手', icon: '🤖' },
   ];
 
