@@ -50,12 +50,25 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
     const { content } = chatSchema.parse(req.body);
 
     // 获取家庭财务上下文，帮助 AI 理解用户指令
-    const [recentIncomes, recentExpenses, assets, liabilities] = await Promise.all([
+    const [recentIncomes, recentExpenses, assets, liabilities, recentChats] = await Promise.all([
       prisma.income.findMany({ where: { familyId }, orderBy: { date: 'desc' }, take: 5 }),
       prisma.expense.findMany({ where: { familyId }, orderBy: { date: 'desc' }, take: 5 }),
       prisma.asset.findMany({ where: { familyId }, orderBy: { value: 'desc' }, take: 10 }),
       prisma.liability.findMany({ where: { familyId }, orderBy: { amount: 'desc' }, take: 10 }),
+      prisma.aiConversation.findMany({
+        where: { familyId, type: 'chat' },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      }),
     ]);
+
+    // 历史对话按时间升序（旧→新），映射为 {role, content} 数组
+    const historyMessages = recentChats
+      .reverse()
+      .flatMap(h => [
+        { role: 'user' as const, content: h.content },
+        { role: 'assistant' as const, content: h.response },
+      ]);
 
     // 调用 AI 解析意图
     const parsed = await chatWithActions(content, {
@@ -63,7 +76,7 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
       recentExpenses: recentExpenses.map(e => ({ category: e.category, amount: toNumber(e.amount), date: e.date })),
       assets: assets.map(a => ({ name: a.name, type: a.type, value: toNumber(a.value) })),
       liabilities: liabilities.map(l => ({ name: l.name, type: l.type, amount: toNumber(l.amount) })),
-    });
+    }, historyMessages);
 
     // 执行 AI 返回的动作
     let actionResults: any[] = [];

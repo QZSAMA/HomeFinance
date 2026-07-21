@@ -172,7 +172,8 @@ export async function chatWithActions(
     recentExpenses?: Array<{ category: string; amount: number; date: Date }>;
     assets?: Array<{ name: string; type: string; value: number }>;
     liabilities?: Array<{ name: string; type: string; amount: number }>;
-  }
+  },
+  history?: Array<{ role: 'user' | 'assistant'; content: string }>
 ): Promise<ParsedAIResponse> {
   if (!isAIConfigured()) {
     return parseLocalActions(userMessage);
@@ -199,10 +200,12 @@ export async function chatWithActions(
   }
 
   try {
-    const content = await callChatAPI([
+    const messages: ChatMessage[] = [
       { role: 'system', content: ACTION_SYSTEM_PROMPT + contextPrompt },
+      ...(history || []),
       { role: 'user', content: userMessage },
-    ]);
+    ];
+    const content = await callChatAPI(messages);
 
     // 尝试解析 JSON 响应
     const cleaned = content

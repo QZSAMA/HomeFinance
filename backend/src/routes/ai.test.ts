@@ -91,6 +91,7 @@ describe('AI Routes', () => {
     mockedPrisma.liability.findMany.mockResolvedValue([]);
     mockedPrisma.income.findMany.mockResolvedValue([]);
     mockedPrisma.expense.findMany.mockResolvedValue([]);
+    mockedPrisma.aiConversation.findMany.mockResolvedValue([]);
     mockedExecuteActions.mockResolvedValue([]);
   });
 
@@ -159,6 +160,55 @@ describe('AI Routes', () => {
         .send({ content: '你好' });
 
       expect(res.status).toBe(403);
+    });
+
+    test('passes conversation history to chatWithActions', async () => {
+      // 模拟 2 条历史对话（按 createdAt 升序）
+      const older = new Date('2026-07-01T10:00:00Z');
+      const newer = new Date('2026-07-02T10:00:00Z');
+      mockedPrisma.aiConversation.findMany.mockResolvedValue([
+        { id: 'h2', content: '我工资多少', response: '你的工资是 15000', type: 'chat', createdAt: newer },
+        { id: 'h1', content: '工资 15000', response: '已记录工资', type: 'chat', createdAt: older },
+      ]);
+      mockedChatWithActions.mockResolvedValue({ reply: '你刚才说工资 15000', actions: [] });
+      mockedPrisma.aiConversation.create.mockResolvedValue({});
+
+      await request(app)
+        .post('/api/families/family_1/ai/chat')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ content: '我刚才说了什么' });
+
+      expect(mockedPrisma.aiConversation.findMany).toHaveBeenCalledWith(expect.objectContaining({
+        where: expect.objectContaining({ familyId: 'family_1', type: 'chat' }),
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      }));
+      // chatWithActions 第 3 个参数应为 history 数组，长度 4（2 条对话 × 2 message）
+      const callArgs = mockedChatWithActions.mock.calls[0] as any[];
+      const historyArg = callArgs[2] as any[];
+      expect(Array.isArray(historyArg)).toBe(true);
+      expect(historyArg).toHaveLength(4);
+      // 升序：第一条应是 user role（最早对话）
+      expect(historyArg[0]).toEqual({ role: 'user', content: '工资 15000' });
+      expect(historyArg[1]).toEqual({ role: 'assistant', content: '已记录工资' });
+      expect(historyArg[2]).toEqual({ role: 'user', content: '我工资多少' });
+      expect(historyArg[3]).toEqual({ role: 'assistant', content: '你的工资是 15000' });
+    });
+
+    test('passes empty history when no prior conversations', async () => {
+      mockedPrisma.aiConversation.findMany.mockResolvedValue([]);
+      mockedChatWithActions.mockResolvedValue({ reply: '你好', actions: [] });
+      mockedPrisma.aiConversation.create.mockResolvedValue({});
+
+      await request(app)
+        .post('/api/families/family_1/ai/chat')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ content: '你好' });
+
+      const callArgs = mockedChatWithActions.mock.calls[0] as any[];
+      const historyArg = callArgs[2] as any[];
+      expect(Array.isArray(historyArg)).toBe(true);
+      expect(historyArg).toHaveLength(0);
     });
   });
 
