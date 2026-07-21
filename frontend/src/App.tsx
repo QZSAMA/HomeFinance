@@ -16,6 +16,7 @@ import FilesPage from './pages/FilesPage';
 import BudgetPage from './pages/BudgetPage';
 import RecurringPage from './pages/RecurringPage';
 import ComparePage from './pages/ComparePage';
+import ImportPage from './pages/ImportPage';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -171,6 +172,16 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <ComparePage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/import"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ImportPage />
               </Layout>
             </ProtectedRoute>
           }
