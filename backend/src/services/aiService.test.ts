@@ -1,5 +1,24 @@
 import { chatCompletion, analyzeFinance, parseReceiptOCR } from './aiService';
 
+jest.mock('../config/ai', () => ({
+  AI_CONFIG: {
+    baseURL: 'https://test.api.com',
+    apiKey: 'test-key',
+    model: 'test-model',
+    maxTokens: 100,
+    temperature: 0.5,
+  },
+  isAIConfigured: jest.fn().mockReturnValue(true),
+}));
+
+jest.mock('./aiActions', () => ({
+  parseLocalActions: jest.fn().mockReturnValue({ reply: '', actions: [] }),
+}));
+
+jest.mock('../app', () => ({
+  prisma: {},
+}));
+
 describe('aiService', () => {
   let fetchSpy: jest.SpyInstance;
 
@@ -38,7 +57,7 @@ describe('aiService', () => {
       expect(init.method).toBe('POST');
     });
 
-    test('throws error when API returns non-ok status', async () => {
+    test('throws AIError when API returns non-ok status', async () => {
       fetchSpy.mockResolvedValue({
         ok: false,
         status: 429,
@@ -47,15 +66,15 @@ describe('aiService', () => {
 
       await expect(
         chatCompletion([{ role: 'user', content: 'Hi' }])
-      ).rejects.toThrow('AI API error: 429');
+      ).rejects.toThrow('AI 服务调用失败');
     });
 
-    test('throws error when fetch itself fails', async () => {
-      fetchSpy.mockRejectedValue(new Error('Network error'));
+    test('throws AIError when fetch fails with network error', async () => {
+      fetchSpy.mockRejectedValue(new TypeError('Failed to fetch'));
 
       await expect(
         chatCompletion([{ role: 'user', content: 'Hi' }])
-      ).rejects.toThrow('Network error');
+      ).rejects.toThrow('AI 服务连接失败');
     });
   });
 

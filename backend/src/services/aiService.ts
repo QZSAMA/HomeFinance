@@ -239,7 +239,7 @@ export async function chatWithActions(
     // JSON 解析失败，降级到本地解析器
     if (error instanceof AIError) throw error;
     const local = parseLocalActions(userMessage);
-    return { reply: local.reply || content || userMessage, actions: local.actions };
+    return { reply: local.reply || userMessage, actions: local.actions };
   }
 }
 

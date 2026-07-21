@@ -12,6 +12,7 @@ import CashFlowPage from './pages/CashFlowPage';
 import InvestmentPage from './pages/InvestmentPage';
 import AIPage from './pages/AIPage';
 import AIAnalysisPage from './pages/AIAnalysisPage';
+import FilesPage from './pages/FilesPage';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -127,6 +128,16 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <AIAnalysisPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/files"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <FilesPage />
               </Layout>
             </ProtectedRoute>
           }

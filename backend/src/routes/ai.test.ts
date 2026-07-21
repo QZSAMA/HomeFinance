@@ -38,19 +38,34 @@ jest.mock('../config/redis', () => ({
   },
 }));
 
+jest.mock('../config/ai', () => ({
+  AI_CONFIG: { baseURL: '', apiKey: '', model: 'test', maxTokens: 100, temperature: 0.5 },
+  isAIConfigured: jest.fn().mockReturnValue(true),
+}));
+
 jest.mock('../services/aiService', () => ({
-  chatCompletion: jest.fn(),
+  chatWithActions: jest.fn(),
   analyzeFinance: jest.fn(),
   parseReceiptOCR: jest.fn(),
+  AIError: class AIError extends Error {
+    statusCode: number;
+    constructor(msg: string, code: number = 500) { super(msg); this.statusCode = code; }
+  },
+}));
+
+jest.mock('../services/aiActions', () => ({
+  executeActions: jest.fn().mockResolvedValue([]),
 }));
 
 import { prisma } from '../app';
-import { chatCompletion, analyzeFinance, parseReceiptOCR } from '../services/aiService';
+import { chatWithActions, analyzeFinance, parseReceiptOCR } from '../services/aiService';
+import { executeActions } from '../services/aiActions';
 
 const mockedPrisma = prisma as any;
-const mockedChatCompletion = chatCompletion as jest.MockedFunction<typeof chatCompletion>;
+const mockedChatWithActions = chatWithActions as jest.MockedFunction<typeof chatWithActions>;
 const mockedAnalyzeFinance = analyzeFinance as jest.MockedFunction<typeof analyzeFinance>;
 const mockedParseReceiptOCR = parseReceiptOCR as jest.MockedFunction<typeof parseReceiptOCR>;
+const mockedExecuteActions = executeActions as jest.MockedFunction<typeof executeActions>;
 
 const app = express();
 app.use(express.json());
@@ -76,11 +91,12 @@ describe('AI Routes', () => {
     mockedPrisma.liability.findMany.mockResolvedValue([]);
     mockedPrisma.income.findMany.mockResolvedValue([]);
     mockedPrisma.expense.findMany.mockResolvedValue([]);
+    mockedExecuteActions.mockResolvedValue([]);
   });
 
   describe('POST /api/families/:familyId/ai/chat', () => {
     test('returns AI response and saves conversation', async () => {
-      mockedChatCompletion.mockResolvedValue('AI回复内容');
+      mockedChatWithActions.mockResolvedValue({ reply: 'AI回复内容', actions: [] });
       mockedPrisma.aiConversation.create.mockResolvedValue({});
 
       const res = await request(app)
@@ -90,8 +106,30 @@ describe('AI Routes', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.response).toBe('AI回复内容');
-      expect(mockedChatCompletion).toHaveBeenCalled();
-      expect(mockedPrisma.aiConversation.create).toHaveBeenCalledTimes(2);
+      expect(mockedChatWithActions).toHaveBeenCalled();
+      expect(mockedPrisma.aiConversation.create).toHaveBeenCalledTimes(1);
+    });
+
+    test('executes actions and returns results', async () => {
+      mockedChatWithActions.mockResolvedValue({
+        reply: '已记录支出',
+        actions: [{ type: 'create_expense', data: { amount: 50, category: '餐饮' } }],
+      });
+      mockedExecuteActions.mockResolvedValue([
+        { type: 'create_expense', status: 'success', message: '已创建支出：餐饮 ¥50.00' },
+      ]);
+      mockedPrisma.aiConversation.create.mockResolvedValue({});
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/chat')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ content: '午饭花了50块' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.response).toBe('已记录支出');
+      expect(res.body.actions).toHaveLength(1);
+      expect(res.body.actions[0].status).toBe('success');
+      expect(mockedExecuteActions).toHaveBeenCalled();
     });
 
     test('rejects empty content', async () => {
