@@ -15,6 +15,7 @@ import {
   type Expense,
 } from '../services/financeService';
 import { exportIncomes, exportExpenses } from '../services/exportService';
+import { suggestCategory } from '../services/categoryService';
 
 const TransactionsPage = () => {
   const { currentFamily } = useFamilyStore();
@@ -199,6 +200,23 @@ const TransactionsPage = () => {
       alert(err.response?.data?.error || '导出失败');
     } finally {
       setExporting(false);
+    }
+  };
+
+  const handleDescriptionBlur = async () => {
+    checkDuplicate();
+    if (!currentFamily || !formData.description.trim() || formData.category) return;
+    try {
+      const suggested = await suggestCategory(
+        currentFamily.id,
+        activeTab.toUpperCase() as 'INCOME' | 'EXPENSE',
+        formData.description
+      );
+      if (suggested) {
+        setFormData((prev) => ({ ...prev, category: suggested }));
+      }
+    } catch (err) {
+      // 静默失败
     }
   };
 
@@ -463,10 +481,10 @@ const TransactionsPage = () => {
                     setFormData({ ...formData, description: e.target.value });
                     setDuplicateWarning(null);
                   }}
-                  onBlur={checkDuplicate}
+                  onBlur={handleDescriptionBlur}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   rows={2}
-                  placeholder="描述信息（可选）"
+                  placeholder="描述信息（可选，失焦自动推荐类别）"
                 />
               </div>
               <div className="flex space-x-3">
