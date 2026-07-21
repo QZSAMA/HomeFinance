@@ -15,6 +15,7 @@ import AIAnalysisPage from './pages/AIAnalysisPage';
 import FilesPage from './pages/FilesPage';
 import BudgetPage from './pages/BudgetPage';
 import RecurringPage from './pages/RecurringPage';
+import ComparePage from './pages/ComparePage';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -160,6 +161,16 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <RecurringPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/compare"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ComparePage />
               </Layout>
             </ProtectedRoute>
           }
