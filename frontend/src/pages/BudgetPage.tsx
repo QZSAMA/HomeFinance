@@ -242,6 +242,7 @@ const BudgetPage = () => {
                     type="number"
                     step="0.01"
                     min="0.01"
+                    inputMode="decimal"
                     value={formData.amount}
                     onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) })}
                     required

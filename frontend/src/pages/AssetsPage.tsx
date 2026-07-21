@@ -284,6 +284,7 @@ const AssetsPage = () => {
                 <input
                   type="number"
                   step="0.01"
+                  inputMode="decimal"
                   value={formData.value}
                   onChange={(e) => setFormData({ ...formData, value: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -295,6 +296,7 @@ const AssetsPage = () => {
                 <input
                   type="number"
                   step="0.01"
+                  inputMode="decimal"
                   value={formData.costBasis}
                   onChange={(e) => setFormData({ ...formData, costBasis: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"

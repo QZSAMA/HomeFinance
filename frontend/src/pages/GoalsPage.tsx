@@ -260,6 +260,7 @@ const GoalsPage = () => {
                 <input
                   type="number"
                   step="0.01"
+                  inputMode="decimal"
                   value={formData.targetAmount}
                   onChange={(e) => setFormData({ ...formData, targetAmount: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"

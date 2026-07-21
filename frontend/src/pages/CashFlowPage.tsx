@@ -122,7 +122,7 @@ const CashFlowPage = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
         <div className="bg-white rounded-lg shadow p-6">
           <div className="text-sm text-gray-500 mb-1">经营现金流</div>
           <div className={`text-xl font-bold ${(data?.operating.net || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -174,7 +174,7 @@ const CashFlowPage = () => {
             {loading ? (
               <div className="text-center py-8 text-gray-500">加载中...</div>
             ) : (
-              <div className="grid grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
                 <div>
                   <div className="text-sm text-gray-500 mb-1">经营收入</div>
                   <div className="text-lg font-bold text-green-600">{formatMoney(data?.operating.income || 0)}</div>
@@ -202,7 +202,7 @@ const CashFlowPage = () => {
             {loading ? (
               <div className="text-center py-8 text-gray-500">加载中...</div>
             ) : (
-              <div className="grid grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
                 <div>
                   <div className="text-sm text-gray-500 mb-1">投资收入</div>
                   <div className="text-lg font-bold text-green-600">{formatMoney(data?.investing.income || 0)}</div>
@@ -230,7 +230,7 @@ const CashFlowPage = () => {
             {loading ? (
               <div className="text-center py-8 text-gray-500">加载中...</div>
             ) : (
-              <div className="grid grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
                 <div>
                   <div className="text-sm text-gray-500 mb-1">其他收入</div>
                   <div className="text-lg font-bold text-green-600">{formatMoney(data?.other.income || 0)}</div>

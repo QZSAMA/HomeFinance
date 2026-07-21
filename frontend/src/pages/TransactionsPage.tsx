@@ -411,6 +411,7 @@ const TransactionsPage = () => {
                 <input
                   type="number"
                   step="0.01"
+                  inputMode="decimal"
                   value={formData.amount}
                   onChange={(e) => {
                     setFormData({ ...formData, amount: e.target.value });
