@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useFamilyStore } from '../store/useFamilyStore';
 import { getBalanceSheet } from '../services/reportService';
+import { exportBalanceSheet } from '../services/exportService';
 import {
   BarChart,
   Bar,
@@ -51,6 +52,7 @@ const BalanceSheetPage = () => {
   const { currentFamily } = useFamilyStore();
   const [data, setData] = useState<BalanceSheetData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     if (currentFamily) {
@@ -78,6 +80,18 @@ const BalanceSheetPage = () => {
   const formatPercentage = (value: number, total: number) => {
     if (total === 0) return '0%';
     return `${((value / total) * 100).toFixed(1)}%`;
+  };
+
+  const handleExport = async () => {
+    if (!currentFamily) return;
+    setExporting(true);
+    try {
+      await exportBalanceSheet(currentFamily.id);
+    } catch (err: any) {
+      alert(err.response?.data?.error || '导出失败');
+    } finally {
+      setExporting(false);
+    }
   };
 
   // 构造资产 vs 负债对比图表数据：合并所有类型，每项展示资产和负债金额
@@ -111,6 +125,13 @@ const BalanceSheetPage = () => {
           <h1 className="text-2xl font-bold text-gray-900">资产负债表</h1>
           <p className="text-gray-500 mt-1">家庭财务状况概览</p>
         </div>
+        <button
+          onClick={handleExport}
+          disabled={exporting}
+          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+        >
+          {exporting ? '导出中...' : '导出 Excel'}
+        </button>
       </div>
 
       <div className="grid grid-cols-3 gap-6 mb-8">

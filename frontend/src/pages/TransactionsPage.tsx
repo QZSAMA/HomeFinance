@@ -14,6 +14,7 @@ import {
   type Income,
   type Expense,
 } from '../services/financeService';
+import { exportIncomes, exportExpenses } from '../services/exportService';
 
 const TransactionsPage = () => {
   const { currentFamily } = useFamilyStore();
@@ -34,6 +35,7 @@ const TransactionsPage = () => {
   });
   const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [exporting, setExporting] = useState(false);
 
   const incomeCategories = ['工资', '奖金', '投资收益', '兼职收入', '租金收入', '其他收入'];
   const expenseCategories = ['餐饮', '交通', '购物', '娱乐', '医疗', '教育', '住房', '水电', '通讯', '其他支出'];
@@ -184,6 +186,22 @@ const TransactionsPage = () => {
     }
   };
 
+  const handleExport = async () => {
+    if (!currentFamily) return;
+    setExporting(true);
+    try {
+      if (activeTab === 'income') {
+        await exportIncomes(currentFamily.id);
+      } else {
+        await exportExpenses(currentFamily.id);
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.error || '导出失败');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       amount: '',
@@ -213,15 +231,24 @@ const TransactionsPage = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">交易记录</h1>
-        <button
-          onClick={() => {
-            resetForm();
-            setShowAddModal(true);
-          }}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-        >
-          + 新增记录
-        </button>
+        <div className="flex items-center">
+          <button
+            onClick={handleExport}
+            disabled={exporting}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 mr-2"
+          >
+            {exporting ? '导出中...' : '导出 Excel'}
+          </button>
+          <button
+            onClick={() => {
+              resetForm();
+              setShowAddModal(true);
+            }}
+            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+          >
+            + 新增记录
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow">
