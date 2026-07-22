@@ -22,4 +22,8 @@ module.exports = {
       statements: 60,
     },
   },
+  // 集成测试（连接真实 DB）默认排除，通过 npm run test:integration 单独运行
+  testPathIgnorePatterns: process.env.RUN_INTEGRATION
+    ? []
+    : ['<rootDir>/src/tests/database.integration.test.ts'],
 };
