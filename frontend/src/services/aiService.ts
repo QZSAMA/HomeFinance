@@ -48,7 +48,12 @@ export const getAnalysis = async (familyId: string): Promise<{ report: string; a
 };
 
 export const sendOCR = async (familyId: string, image: string): Promise<{ data: OCRResult; aiConfigured: boolean }> => {
-  const response = await api.post<{ data: OCRResult; aiConfigured: boolean }>(`/families/${familyId}/ai/ocr`, { image });
+  // OCR 需要 Tesseract.js 本地文字提取 + AI 解析，大图片可能较慢，设 120 秒超时
+  const response = await api.post<{ data: OCRResult; aiConfigured: boolean }>(
+    `/families/${familyId}/ai/ocr`,
+    { image },
+    { timeout: 120000 }
+  );
   return response.data;
 };
 

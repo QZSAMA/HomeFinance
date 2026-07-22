@@ -9,6 +9,36 @@ import {
   type ActionResult,
 } from '../services/aiService';
 
+/**
+ * 压缩图片：将图片缩放到 maxWidth 以内，转为 JPEG base64
+ * 避免 5MB+ 的手机照片直接上传导致 body too large / OCR 过慢
+ */
+async function compressImage(file: File, maxWidth: number, quality: number): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 interface Message {
   role: 'user' | 'assistant';
   content: string;
@@ -138,11 +168,8 @@ export default function AIPage() {
 
     setImageLoading(true);
     try {
-      const base64 = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(file);
-      });
+      // 先压缩图片，避免 base64 过大导致请求失败
+      const base64 = await compressImage(file, 1600, 0.85);
 
       const { data } = await sendOCR(currentFamily.id, base64);
       const summary = data.amount
