@@ -1,9 +1,14 @@
 import { AI_CONFIG, isAIConfigured } from '../config/ai';
 import { parseLocalActions, type AIAction, type ParsedAIResponse } from './aiActions';
+import { extractTextFromImage } from './ocrService';
 
 interface ChatMessage {
   role: string;
-  content: string;
+  // 支持纯文本（string）和多模态内容（OpenAI 兼容的 content 数组，含图片）
+  content: string | Array<
+    | { type: 'text'; text: string }
+    | { type: 'image_url'; image_url: { url: string } }
+  >;
 }
 
 export class AIError extends Error {
@@ -68,7 +73,11 @@ async function callChatAPI(messages: ChatMessage[]): Promise<string> {
 }
 
 function generateFallbackResponse(messages: ChatMessage[]): string {
-  const userMessage = messages[messages.length - 1]?.content || '';
+  const lastContent = messages[messages.length - 1]?.content;
+  // content 可能是 string（文本）或数组（多模态，含图片）
+  const userMessage = typeof lastContent === 'string'
+    ? lastContent
+    : lastContent?.map((c) => (c.type === 'text' ? c.text : '[图片]')).join('') || '';
   const lower = userMessage.toLowerCase();
 
   const fallbackResponses: { keywords: string[]; reply: string }[] = [
@@ -352,40 +361,66 @@ export async function parseReceiptOCR(imageBase64: string): Promise<{
   description?: string;
   raw?: string;
 }> {
+  // 第一步：本地 Tesseract.js OCR 提取文字（免费，无需 AI API）
+  let rawText = '';
+  try {
+    rawText = await extractTextFromImage(imageBase64);
+  } catch (err) {
+    throw new AIError(
+      `本地 OCR 文字提取失败：${err instanceof Error ? err.message : '未知错误'}`,
+      500
+    );
+  }
+
+  if (!rawText) {
+    return {
+      amount: undefined,
+      date: undefined,
+      category: undefined,
+      description: undefined,
+      raw: '未识别到文字内容，请确保图片清晰后再试。',
+    };
+  }
+
+  // 第二步：如果 AI 未配置，直接返回原始文字（用户可自行查看）
   if (!isAIConfigured()) {
     return {
       amount: undefined,
       date: undefined,
       category: undefined,
       description: undefined,
-      raw: 'AI 服务未配置，无法识别图片内容。请在 backend/.env 中配置 AI_API_KEY 后重试。',
+      raw: `本地 OCR 识别结果（AI 未配置，未做结构化解析）：\n${rawText}`,
     };
   }
 
-  const systemPrompt = `你是一位票据识别助手。用户会提供一张收据或发票的图片（base64 编码）。
-请识别图片中的关键信息，并以 JSON 格式返回，字段包括：
-- amount: 金额（数字）
+  // 第三步：用 AI（文本模型即可）将原始文字解析为结构化 JSON
+  const systemPrompt = `你是一位票据识别助手。用户会提供一段从收据/发票图片中 OCR 提取的原始文字。
+请从中识别关键信息，并以 JSON 格式返回，字段包括：
+- amount: 金额（数字，单位元）
 - date: 日期（YYYY-MM-DD 格式）
-- category: 消费类别（如 餐饮、交通、购物、娱乐、医疗、教育、日用、其他）
+- category: 消费类别（从以下选一：餐饮、交通、购物、娱乐、医疗、教育、日用、其他）
 - description: 简短描述
 
-只返回 JSON，不要包含其他文字。如果无法识别，返回 {"error": "无法识别"}。`;
+只返回 JSON，不要包含其他文字或 markdown 代码块标记。
+如果文字中无法识别出有效信息，返回 {"error": "无法识别"}。`;
 
   try {
     const content = await callChatAPI([
       { role: 'system', content: systemPrompt },
-      { role: 'user', content: `请识别以下票据图片：\n${imageBase64}` },
+      { role: 'user', content: `以下是 OCR 提取的票据文字，请解析为 JSON：\n\n${rawText}` },
     ]);
 
     try {
       return JSON.parse(content);
     } catch {
-      return { raw: content };
+      // AI 返回非 JSON，返回原始 OCR 文字 + AI 回复
+      return { raw: `${content}\n\n--- OCR 原始文字 ---\n${rawText}` };
     }
   } catch (error) {
     if (error instanceof AIError) throw error;
+    // AI 解析失败，降级返回原始 OCR 文字
     return {
-      raw: `OCR 识别失败：${error instanceof Error ? error.message : '未知错误'}`,
+      raw: `OCR 文字已识别，但 AI 解析失败。原始文字：\n${rawText}`,
     };
   }
 }
