@@ -6,6 +6,7 @@ import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { uploadFileBuffer, getFileUrl, deleteFile } from '../config/minio';
 import { computePHash, isSimilarImage } from '../utils/phash';
 import { toNumber } from '../utils/decimal';
+import { parsePagination, paginateResponse } from '../utils/pagination';
 
 const router = Router({ mergeParams: true });
 
@@ -39,12 +40,9 @@ router.get('/', authMiddleware, async (req: AuthRequest, res) => {
       return res.status(403).json({ error: '无权访问该家庭' });
     }
 
-    const files = await prisma.file.findMany({
-      where: { familyId },
-      orderBy: { uploadedAt: 'desc' }
-    });
+    const pagination = parsePagination(req);
 
-    const filesWithUrls = await Promise.all(
+    const attachUrls = async (files: any[]) => Promise.all(
       files.map(async (file) => {
         let url = '';
         try {
@@ -55,6 +53,27 @@ router.get('/', authMiddleware, async (req: AuthRequest, res) => {
         return { ...file, url };
       })
     );
+
+    if (pagination) {
+      const [files, total] = await Promise.all([
+        prisma.file.findMany({
+          where: { familyId },
+          orderBy: { uploadedAt: 'desc' },
+          skip: pagination.skip,
+          take: pagination.take,
+        }),
+        prisma.file.count({ where: { familyId } }),
+      ]);
+      const filesWithUrls = await attachUrls(files);
+      return res.json(paginateResponse(filesWithUrls, total, pagination));
+    }
+
+    const files = await prisma.file.findMany({
+      where: { familyId },
+      orderBy: { uploadedAt: 'desc' }
+    });
+
+    const filesWithUrls = await attachUrls(files);
 
     res.json(filesWithUrls);
   } catch (error) {

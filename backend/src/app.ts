@@ -4,6 +4,10 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
+import { validateSecurityEnv } from './config/security';
+
+// 启动时校验安全配置（JWT_SECRET 未设置/弱默认值/长度不足时抛错退出）
+validateSecurityEnv();
 
 export const prisma = new PrismaClient();
 

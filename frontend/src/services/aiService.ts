@@ -23,9 +23,15 @@ export interface OCRResult {
   date?: string;
   category?: string;
   description?: string;
+  type?: 'income' | 'expense';
   raw?: string;
   rawText?: string;
   source: OCRSource;
+}
+
+export interface AIAction {
+  type: string;
+  data: Record<string, any>;
 }
 
 export interface OCRResponse {
@@ -33,6 +39,7 @@ export interface OCRResponse {
   aiConfigured: boolean;
   visionConfigured: boolean;
   fileId: string | null;
+  proposedActions?: AIAction[];
 }
 
 export interface ActionResult {
@@ -66,6 +73,14 @@ export const sendOCR = async (familyId: string, image: string): Promise<OCRRespo
     { image },
     { timeout: 120000 }
   );
+  return response.data;
+};
+
+export const executeProposedActions = async (
+  familyId: string,
+  actions: AIAction[]
+): Promise<{ actions: ActionResult[]; aiConfigured: boolean }> => {
+  const response = await api.post(`/families/${familyId}/ai/execute-actions`, { actions });
   return response.data;
 };
 

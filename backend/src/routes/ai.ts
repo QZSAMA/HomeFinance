@@ -3,8 +3,8 @@ import { z } from 'zod';
 import { prisma } from '../app';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { rateLimitMiddleware } from '../middleware/rateLimit';
-import { chatWithActions, analyzeFinance, parseReceiptOCR, AIError } from '../services/aiService';
-import { executeActions } from '../services/aiActions';
+import { chatWithActions, analyzeFinance, parseReceiptOCR, ocrToActions, AIError } from '../services/aiService';
+import { executeActions, type AIAction } from '../services/aiActions';
 import { toNumber } from '../utils/decimal';
 import { isAIConfigured, isVisionConfigured } from '../config/ai';
 import { storeOcrImage } from '../services/fileStorageService';
@@ -195,13 +195,16 @@ router.post('/ocr', authMiddleware, rateLimitMiddleware(20, 60), async (req: Aut
     // 2. 并行 OCR + 合并（Tesseract 本地 + 视觉多模态 LLM）
     const data = await parseReceiptOCR(image);
 
-    // 3. 落库对话记录（关联 fileId）
+    // 3. 转换为提议动作（不执行，由前端用户确认后调用 /execute-actions）
+    const proposedActions = ocrToActions(data);
+
+    // 4. 落库对话记录（关联 fileId）
     await prisma.aiConversation.create({
       data: {
         familyId,
         userId,
         content: 'OCR 识别',
-        response: JSON.stringify(data),
+        response: JSON.stringify({ data, proposedActions }),
         type: 'ocr',
         fileId: stored?.fileId ?? null,
       }
@@ -212,6 +215,7 @@ router.post('/ocr', authMiddleware, rateLimitMiddleware(20, 60), async (req: Aut
       aiConfigured: isAIConfigured(),
       visionConfigured: isVisionConfigured(),
       fileId: stored?.fileId ?? null,
+      proposedActions,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -222,6 +226,55 @@ router.post('/ocr', authMiddleware, rateLimitMiddleware(20, 60), async (req: Aut
       return res.status(error.statusCode).json({ error: error.message });
     }
     console.error('OCR 识别未知错误:', error);
+    res.status(500).json({ error: '服务器内部错误，请稍后重试' });
+  }
+});
+
+const executeActionsSchema = z.object({
+  actions: z.array(z.object({
+    type: z.string(),
+    data: z.record(z.any()),
+  })).min(1, '动作不能为空'),
+});
+
+router.post('/execute-actions', authMiddleware, rateLimitMiddleware(20, 60), async (req: AuthRequest, res) => {
+  try {
+    const familyId = req.params.familyId as string;
+    const userId = req.userId!;
+    const membership = await checkFamilyAccess(familyId, userId);
+    if (!membership) {
+      return res.status(403).json({ error: '无权访问该家庭' });
+    }
+
+    const { actions } = executeActionsSchema.parse(req.body);
+
+    const actionResults = await executeActions(familyId, userId, actions as AIAction[]);
+
+    // 落库对话记录（便于历史追溯）
+    const summary = actionResults.map(r => r.message).join('; ');
+    await prisma.aiConversation.create({
+      data: {
+        familyId,
+        userId,
+        content: `[确认记账] ${actions.map(a => a.type).join(', ')}`,
+        response: summary,
+        type: 'chat',
+      }
+    });
+
+    res.json({
+      actions: actionResults,
+      aiConfigured: isAIConfigured(),
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors[0].message });
+    }
+    if (error instanceof AIError) {
+      console.error('执行动作错误:', error.message);
+      return res.status(error.statusCode).json({ error: error.message });
+    }
+    console.error('执行动作未知错误:', error);
     res.status(500).json({ error: '服务器内部错误，请稍后重试' });
   }
 });

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../app';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { parsePagination, paginateResponse } from '../utils/pagination';
 
 const router = Router({ mergeParams: true });
 
@@ -33,6 +34,20 @@ router.get('/', authMiddleware, async (req: AuthRequest, res) => {
     const membership = await checkFamilyAccess(familyId, req.userId!);
     if (!membership) {
       return res.status(403).json({ error: '无权访问该家庭' });
+    }
+
+    const pagination = parsePagination(req);
+    if (pagination) {
+      const [incomes, total] = await Promise.all([
+        prisma.income.findMany({
+          where: { familyId },
+          orderBy: { date: 'desc' },
+          skip: pagination.skip,
+          take: pagination.take,
+        }),
+        prisma.income.count({ where: { familyId } }),
+      ]);
+      return res.json(paginateResponse(incomes, total, pagination));
     }
 
     const incomes = await prisma.income.findMany({

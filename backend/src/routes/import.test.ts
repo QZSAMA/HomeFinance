@@ -143,8 +143,51 @@ describe('Import Routes', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.successCount).toBe(2);
+      expect(res.body.failedRows).toEqual([]);
       expect(mockedPrisma.income.create).toHaveBeenCalledTimes(1);
       expect(mockedPrisma.expense.create).toHaveBeenCalledTimes(1);
+    });
+
+    test('returns failedRows for invalid items', async () => {
+      mockedPrisma.expense.create.mockResolvedValue({});
+
+      const res = await request(app)
+        .post('/api/families/fam_1/import/confirm')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({
+          items: [
+            { date: '2026-07-01', description: '餐饮', amount: 35, type: 'EXPENSE', category: '餐饮' },
+            { date: '2026-07-02', description: '缺金额', type: 'EXPENSE' },
+            { date: '2026-07-03', description: '类型错误', amount: 10, type: 'UNKNOWN' },
+          ],
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.successCount).toBe(1);
+      expect(res.body.failedRows).toHaveLength(2);
+      expect(res.body.failedRows[0].row).toBe(2);
+      expect(res.body.failedRows[0].errors).toBeDefined();
+      expect(res.body.failedRows[1].row).toBe(3);
+      expect(mockedPrisma.expense.create).toHaveBeenCalledTimes(1);
+    });
+
+    test('returns empty failedRows when all valid', async () => {
+      mockedPrisma.income.create.mockResolvedValue({});
+      mockedPrisma.expense.create.mockResolvedValue({});
+
+      const res = await request(app)
+        .post('/api/families/fam_1/import/confirm')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({
+          items: [
+            { date: '2026-07-01', description: '工资', amount: 5000, type: 'INCOME' },
+            { date: '2026-07-02', description: '交通', amount: 20, type: 'EXPENSE' },
+          ],
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.successCount).toBe(2);
+      expect(res.body.failedRows).toEqual([]);
     });
 
     test('rejects empty items with 400', async () => {

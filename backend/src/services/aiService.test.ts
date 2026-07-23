@@ -1,4 +1,4 @@
-import { chatCompletion, analyzeFinance, parseReceiptOCR } from './aiService';
+import { chatCompletion, analyzeFinance, parseReceiptOCR, ocrToActions } from './aiService';
 
 jest.mock('../config/ai', () => ({
   AI_CONFIG: {
@@ -25,10 +25,12 @@ jest.mock('./aiActions', () => ({
 
 // Mock OCR 服务：extractTextFromImage（Tesseract）+ extractViaVision（视觉 LLM）+ mergeOcrResults（合并）
 // mergeOcrResults 也 mock，parseReceiptOCR 测试只验证编排逻辑，合并逻辑在 ocrService.test.ts 独立测试
+// cleanOcrText 提供简单透传实现，避免 runTesseractPath 调用时 TypeError
 jest.mock('./ocrService', () => ({
   extractTextFromImage: jest.fn(),
   extractViaVision: jest.fn(),
   mergeOcrResults: jest.fn(),
+  cleanOcrText: jest.fn((text: string) => text),
 }));
 
 jest.mock('../app', () => ({
@@ -342,6 +344,120 @@ describe('aiService', () => {
       expect(visionArg).toBeNull();
 
       warnSpy.mockRestore();
+    });
+
+    test('AI 返回含 type=income → runTesseractPath 解析出 type 字段传给 mergeOcrResults', async () => {
+      mockedExtractTextFromImage.mockResolvedValue('收到转账 +15000 工资');
+      fetchSpy.mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          choices: [
+            {
+              message: {
+                role: 'assistant',
+                content: JSON.stringify({
+                  type: 'income',
+                  amount: 15000,
+                  date: '2026-07-23',
+                  category: '工资',
+                  description: '工资',
+                }),
+              },
+            },
+          ],
+        }),
+      } as any);
+
+      await parseReceiptOCR('base64image');
+
+      expect(mockedMergeOcrResults).toHaveBeenCalledTimes(1);
+      const [tesseractArg] = mockedMergeOcrResults.mock.calls[0];
+      expect(tesseractArg!.type).toBe('income');
+      expect(tesseractArg!.amount).toBe(15000);
+      expect(tesseractArg!.category).toBe('工资');
+    });
+  });
+
+  describe('ocrToActions', () => {
+    test('无 amount → 返回空数组', () => {
+      const result = ocrToActions({ source: 'tesseract' });
+      expect(result).toEqual([]);
+    });
+
+    test('amount <= 0 → 返回空数组', () => {
+      const result = ocrToActions({ amount: 0, source: 'tesseract' });
+      expect(result).toEqual([]);
+    });
+
+    test('type=income + 合法类别 → create_income action', () => {
+      const result = ocrToActions({
+        amount: 15000,
+        type: 'income',
+        category: '工资',
+        description: '七月工资',
+        date: '2026-07-23',
+        source: 'tesseract',
+      });
+      expect(result).toHaveLength(1);
+      expect(result[0].type).toBe('create_income');
+      expect(result[0].data.amount).toBe(15000);
+      expect(result[0].data.category).toBe('工资');
+      expect(result[0].data.description).toBe('七月工资');
+      expect(result[0].data.date).toBe('2026-07-23');
+    });
+
+    test('type=expense + 合法类别 → create_expense action', () => {
+      const result = ocrToActions({
+        amount: 35,
+        type: 'expense',
+        category: '餐饮',
+        description: '麦当劳',
+        source: 'vision',
+      });
+      expect(result).toHaveLength(1);
+      expect(result[0].type).toBe('create_expense');
+      expect(result[0].data.amount).toBe(35);
+      expect(result[0].data.category).toBe('餐饮');
+    });
+
+    test('无 type（默认）→ create_expense action', () => {
+      const result = ocrToActions({
+        amount: 50,
+        category: '交通',
+        source: 'merged',
+      });
+      expect(result).toHaveLength(1);
+      expect(result[0].type).toBe('create_expense');
+    });
+
+    test('支出类别不在白名单 → 归"其他支出"', () => {
+      const result = ocrToActions({
+        amount: 100,
+        type: 'expense',
+        category: '未知类别',
+        source: 'tesseract',
+      });
+      expect(result[0].data.category).toBe('其他支出');
+    });
+
+    test('收入类别不在白名单 → 归"其他收入"', () => {
+      const result = ocrToActions({
+        amount: 200,
+        type: 'income',
+        category: '奇怪收入',
+        source: 'tesseract',
+      });
+      expect(result[0].data.category).toBe('其他收入');
+    });
+
+    test('无 date → action.data 不含 date 字段', () => {
+      const result = ocrToActions({
+        amount: 35,
+        type: 'expense',
+        category: '餐饮',
+        source: 'tesseract',
+      });
+      expect(result[0].data.date).toBeUndefined();
     });
   });
 });

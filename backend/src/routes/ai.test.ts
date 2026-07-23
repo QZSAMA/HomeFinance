@@ -49,6 +49,7 @@ jest.mock('../services/aiService', () => ({
   chatWithActions: jest.fn(),
   analyzeFinance: jest.fn(),
   parseReceiptOCR: jest.fn(),
+  ocrToActions: jest.fn().mockReturnValue([]),
   AIError: class AIError extends Error {
     statusCode: number;
     constructor(msg: string, code: number = 500) { super(msg); this.statusCode = code; }
@@ -64,7 +65,7 @@ jest.mock('../services/fileStorageService', () => ({
 }));
 
 import { prisma } from '../app';
-import { chatWithActions, analyzeFinance, parseReceiptOCR } from '../services/aiService';
+import { chatWithActions, analyzeFinance, parseReceiptOCR, ocrToActions } from '../services/aiService';
 import { executeActions } from '../services/aiActions';
 import { storeOcrImage } from '../services/fileStorageService';
 
@@ -72,6 +73,7 @@ const mockedPrisma = prisma as any;
 const mockedChatWithActions = chatWithActions as jest.MockedFunction<typeof chatWithActions>;
 const mockedAnalyzeFinance = analyzeFinance as jest.MockedFunction<typeof analyzeFinance>;
 const mockedParseReceiptOCR = parseReceiptOCR as jest.MockedFunction<typeof parseReceiptOCR>;
+const mockedOcrToActions = ocrToActions as jest.MockedFunction<typeof ocrToActions>;
 const mockedExecuteActions = executeActions as jest.MockedFunction<typeof executeActions>;
 const mockedStoreOcrImage = storeOcrImage as jest.MockedFunction<typeof storeOcrImage>;
 
@@ -103,6 +105,8 @@ describe('AI Routes', () => {
     mockedExecuteActions.mockResolvedValue([]);
     // OCR 存储默认返回 null（不阻塞 OCR 主流程）
     mockedStoreOcrImage.mockResolvedValue(null);
+    // ocrToActions 默认返回空数组（不提议任何动作）
+    mockedOcrToActions.mockReturnValue([]);
   });
 
   describe('POST /api/families/:familyId/ai/chat', () => {
@@ -321,6 +325,107 @@ describe('AI Routes', () => {
         .send({});
 
       expect(res.status).toBe(400);
+    });
+
+    test('识别成功 + amount>0 → 响应含 proposedActions，executeActions 未被调用', async () => {
+      mockedParseReceiptOCR.mockResolvedValue({
+        amount: 35,
+        type: 'expense',
+        category: '餐饮',
+        description: '麦当劳',
+        source: 'tesseract',
+      });
+      mockedOcrToActions.mockReturnValue([
+        { type: 'create_expense', data: { amount: 35, category: '餐饮', description: '麦当劳' } },
+      ]);
+      mockedPrisma.aiConversation.create.mockResolvedValue({});
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/ocr')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ image: 'base64string' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.proposedActions).toHaveLength(1);
+      expect(res.body.proposedActions[0].type).toBe('create_expense');
+      expect(res.body.proposedActions[0].data.amount).toBe(35);
+      // 关键：/ocr 端点不执行动作，只返回提议
+      expect(mockedExecuteActions).not.toHaveBeenCalled();
+      // ocrToActions 被调用，收到 parseReceiptOCR 的结果
+      expect(mockedOcrToActions).toHaveBeenCalledTimes(1);
+      const ocrToActionsArg = mockedOcrToActions.mock.calls[0][0];
+      expect(ocrToActionsArg.amount).toBe(35);
+    });
+
+    test('识别失败（无 amount）→ proposedActions 为空数组', async () => {
+      mockedParseReceiptOCR.mockResolvedValue({
+        raw: 'AI 未能从 OCR 文字中识别出结构化信息',
+        source: 'tesseract',
+      });
+      mockedOcrToActions.mockReturnValue([]);
+      mockedPrisma.aiConversation.create.mockResolvedValue({});
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/ocr')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ image: 'base64string' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.proposedActions).toEqual([]);
+      expect(res.body.data.raw).toContain('未能');
+    });
+  });
+
+  describe('POST /api/families/:familyId/ai/execute-actions', () => {
+    test('合法 actions → 调用 executeActions，返回 ActionResult[]', async () => {
+      const actionResult = { type: 'create_expense' as const, status: 'success' as const, message: '已创建支出：餐饮 ¥35.00', record: { id: 'exp_1' } };
+      mockedExecuteActions.mockResolvedValue([actionResult]);
+      mockedPrisma.aiConversation.create.mockResolvedValue({});
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/execute-actions')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ actions: [{ type: 'create_expense', data: { amount: 35, category: '餐饮' } }] });
+
+      expect(res.status).toBe(200);
+      expect(res.body.actions).toHaveLength(1);
+      expect(res.body.actions[0].status).toBe('success');
+      expect(res.body.actions[0].record.id).toBe('exp_1');
+      expect(mockedExecuteActions).toHaveBeenCalledTimes(1);
+      // 落库对话记录
+      expect(mockedPrisma.aiConversation.create).toHaveBeenCalledTimes(1);
+      const createArgs = mockedPrisma.aiConversation.create.mock.calls[0][0];
+      expect(createArgs.data.content).toContain('[确认记账]');
+      expect(createArgs.data.type).toBe('chat');
+    });
+
+    test('空 actions 数组 → 400', async () => {
+      const res = await request(app)
+        .post('/api/families/family_1/ai/execute-actions')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ actions: [] });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBeDefined();
+    });
+
+    test('未认证 → 401', async () => {
+      const res = await request(app)
+        .post('/api/families/family_1/ai/execute-actions')
+        .send({ actions: [{ type: 'create_expense', data: { amount: 35 } }] });
+
+      expect(res.status).toBe(401);
+    });
+
+    test('非家庭成员 → 403', async () => {
+      mockedPrisma.familyMember.findUnique.mockResolvedValue(null);
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/execute-actions')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ actions: [{ type: 'create_expense', data: { amount: 35 } }] });
+
+      expect(res.status).toBe(403);
     });
   });
 

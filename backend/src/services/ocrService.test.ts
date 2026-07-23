@@ -12,12 +12,65 @@ jest.mock('../config/ai', () => ({
   isVisionConfigured: jest.fn().mockReturnValue(true),
 }));
 
-import { mergeOcrResults, extractViaVision, type ParsedOCR } from './ocrService';
+import { mergeOcrResults, extractViaVision, cleanOcrText, type ParsedOCR } from './ocrService';
 import { isVisionConfigured, AI_VISION_CONFIG } from '../config/ai';
 
 const mockedIsVisionConfigured = isVisionConfigured as jest.MockedFunction<typeof isVisionConfigured>;
 
 describe('ocrService', () => {
+  describe('cleanOcrText', () => {
+    test('过滤手机截图 UI 噪音行（状态栏/导航/tab 栏），保留含金额行', () => {
+      const raw = `11:10
+5G WiFi 信号
+搜索
+交易记录 全部 支出 收入
+7月
+支出 404.195 收入 0.00
+滴滴快车 -14.50 交通
+丽华园 -4.00 餐饮
+首页
+我的
+发现
+消息`;
+      const result = cleanOcrText(raw);
+      // 纯时间行、状态栏、导航按钮、tab 栏单独行被过滤
+      expect(result).not.toMatch(/^11:10$/m);
+      expect(result).not.toMatch(/5G/);
+      expect(result).not.toMatch(/^搜索$/m);
+      expect(result).not.toMatch(/^首页$/m);
+      expect(result).not.toMatch(/^我的$/m);
+      // 含金额行保留
+      expect(result).toContain('滴滴快车 -14.50 交通');
+      expect(result).toContain('丽华园 -4.00 餐饮');
+    });
+
+    test('含金额的噪音行不被过滤（如 "支出 404.195 收入 0.00" 含数字）', () => {
+      const raw = `支出 404.195 收入 0.00
+11:10`;
+      const result = cleanOcrText(raw);
+      // "支出 404.195 收入 0.00" 匹配标签栏噪音模式但含金额 → 保留
+      expect(result).toContain('支出 404.195 收入 0.00');
+      // "11:10" 是纯时间行且无金额 → 过滤
+      expect(result).not.toMatch(/^11:10$/m);
+    });
+
+    test('连续空行合并为单个空行', () => {
+      const raw = '麦当劳 35.00\n\n\n\n\n肯德基 50.00';
+      const result = cleanOcrText(raw);
+      expect(result).toBe('麦当劳 35.00\n\n肯德基 50.00');
+    });
+
+    test('空字符串输入安全返回空串', () => {
+      expect(cleanOcrText('')).toBe('');
+    });
+
+    test('尾部空行被去除', () => {
+      const raw = '麦当劳 35.00\n\n\n';
+      const result = cleanOcrText(raw);
+      expect(result).toBe('麦当劳 35.00');
+    });
+  });
+
   describe('mergeOcrResults', () => {
     test('两者都 null → source=tesseract，raw 含失败提示', () => {
       const result = mergeOcrResults(null, null);
@@ -78,6 +131,20 @@ describe('ocrService', () => {
       const vision: ParsedOCR = { amount: 35 };
       const result = mergeOcrResults(tesseract, vision);
       expect(result.rawText).toBe('原始 OCR 文字内容');
+    });
+
+    test('两者都有 type → vision 优先', () => {
+      const tesseract: ParsedOCR = { amount: 35, type: 'expense' };
+      const vision: ParsedOCR = { amount: 35, type: 'income' };
+      const result = mergeOcrResults(tesseract, vision);
+      expect(result.type).toBe('income');
+    });
+
+    test('仅 tesseract 有 type → 透传', () => {
+      const tesseract: ParsedOCR = { amount: 35, type: 'income' };
+      const vision: ParsedOCR = { amount: 35 };
+      const result = mergeOcrResults(tesseract, vision);
+      expect(result.type).toBe('income');
     });
   });
 

@@ -67,9 +67,16 @@ router.post('/confirm', authMiddleware, async (req: AuthRequest, res) => {
     }
 
     let successCount = 0;
-    for (const raw of items) {
-      const parsed = itemSchema.safeParse(raw);
-      if (!parsed.success) continue;
+    const failedRows: Array<{ row: number; errors: string[] }> = [];
+    for (let i = 0; i < items.length; i++) {
+      const parsed = itemSchema.safeParse(items[i]);
+      if (!parsed.success) {
+        failedRows.push({
+          row: i + 1,
+          errors: parsed.error.issues.map((e) => `${e.path.join('.')}: ${e.message}`),
+        });
+        continue;
+      }
       const item = parsed.data;
       if (item.type === 'INCOME') {
         await prisma.income.create({
@@ -97,7 +104,7 @@ router.post('/confirm', authMiddleware, async (req: AuthRequest, res) => {
       successCount++;
     }
 
-    res.json({ successCount });
+    res.json({ successCount, failedRows });
   } catch (error) {
     console.error('确认导入错误:', error);
     res.status(500).json({ error: '服务器内部错误' });

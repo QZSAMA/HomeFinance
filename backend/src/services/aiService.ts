@@ -1,6 +1,6 @@
 import { AI_CONFIG, isAIConfigured, isVisionConfigured } from '../config/ai';
 import { parseLocalActions, type AIAction, type ParsedAIResponse } from './aiActions';
-import { extractTextFromImage, extractViaVision, mergeOcrResults, type ParsedOCR, type MergedOCR } from './ocrService';
+import { extractTextFromImage, extractViaVision, mergeOcrResults, cleanOcrText, type ParsedOCR, type MergedOCR } from './ocrService';
 
 interface ChatMessage {
   role: string;
@@ -374,6 +374,41 @@ export async function parseReceiptOCR(imageBase64: string): Promise<MergedOCR> {
   return mergeOcrResults(tesseract, vision);
 }
 
+// 预设类别白名单（与 aiActions.ts 的 categoryMap 保持一致）
+const VALID_EXPENSE_CATEGORIES = ['餐饮', '交通', '日用', '娱乐', '医疗', '教育', '水电通讯', '购物', '居住', '其他支出'];
+const VALID_INCOME_CATEGORIES = ['工资', '奖金', '投资收益', '兼职收入', '租金收入', '其他收入'];
+
+/**
+ * 将 OCR 识别结果转换为 AIAction 数组，用于自动记账
+ * - 无 amount → 返回空数组（不创建记录）
+ * - type=income → create_income
+ * - type=expense 或默认 → create_expense
+ * - 类别不在预设列表 → 归"其他支出"/"其他收入"
+ */
+export function ocrToActions(data: MergedOCR): AIAction[] {
+  if (!data.amount || data.amount <= 0) {
+    return [];
+  }
+
+  const isIncome = data.type === 'income';
+  const validCategories = isIncome ? VALID_INCOME_CATEGORIES : VALID_EXPENSE_CATEGORIES;
+  const category = data.category && validCategories.includes(data.category)
+    ? data.category
+    : (isIncome ? '其他收入' : '其他支出');
+
+  const actionType = isIncome ? 'create_income' : 'create_expense';
+  const actionData: Record<string, any> = {
+    amount: data.amount,
+    category,
+    description: data.description || undefined,
+  };
+  if (data.date) {
+    actionData.date = data.date;
+  }
+
+  return [{ type: actionType as any, data: actionData }];
+}
+
 /**
  * Tesseract 路径：本地 OCR 提取文字 → AI 文本模型解析为结构化 JSON
  * 返回 null 表示完全失败（如 Tesseract 抛错）
@@ -414,20 +449,27 @@ async function runTesseractPath(imageBase64: string): Promise<ParsedOCR> {
   }
 
   // 第三步：用 AI（文本模型即可）将原始文字解析为结构化 JSON
-  const systemPrompt = `你是一位票据识别助手。用户会提供一段从收据/发票图片中 OCR 提取的原始文字。
+  // 先清洗 OCR 文字，去除手机截图 UI 噪音（状态栏、导航栏等），提升 AI 识别率
+  const cleanedText = cleanOcrText(rawText);
+  const systemPrompt = `你是一位票据识别助手。用户会提供一段从收据、发票或账单截图中 OCR 提取的原始文字。
 请从中识别关键信息，并以 JSON 格式返回，字段包括：
+- type: 交易类型，"income"（收入/收款）或 "expense"（支出/消费），默认 "expense"
 - amount: 金额（数字，单位元）
-- date: 日期（YYYY-MM-DD 格式）
-- category: 消费类别（从以下选一：餐饮、交通、购物、娱乐、医疗、教育、日用、其他）
-- description: 简短描述
+- date: 日期（YYYY-MM-DD 格式，若文字中有日期则提取，否则留空）
+- category: 类别。支出从以下选一：餐饮、交通、购物、娱乐、医疗、教育、日用、水电通讯、居住、其他支出；收入从以下选一：工资、奖金、投资收益、兼职收入、租金收入、其他收入
+- description: 简短描述（如商家名称或交易摘要）
+
+示例：
+- "微信支付 麦当劳 -35.00" → {"type":"expense","amount":35,"category":"餐饮","description":"麦当劳"}
+- "收到转账 +15000 工资" → {"type":"income","amount":15000,"category":"工资","description":"工资"}
 
 只返回 JSON，不要包含其他文字或 markdown 代码块标记。
-如果文字中无法识别出有效信息，返回 {"error": "无法识别"}。`;
+如果文字中无法识别出有效金额信息，返回 {"error": "无法识别"}。`;
 
   try {
     const content = await callChatAPI([
       { role: 'system', content: systemPrompt },
-      { role: 'user', content: `以下是 OCR 提取的票据文字，请解析为 JSON：\n\n${rawText}` },
+      { role: 'user', content: `以下是 OCR 提取的票据文字，请解析为 JSON：\n\n${cleanedText}` },
     ]);
 
     try {
@@ -445,6 +487,7 @@ async function runTesseractPath(imageBase64: string): Promise<ParsedOCR> {
         date: parsed.date,
         category: parsed.category,
         description: parsed.description,
+        type: parsed.type === 'income' || parsed.type === 'expense' ? parsed.type : undefined,
         rawText,
       };
     } catch {

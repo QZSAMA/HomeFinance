@@ -5,8 +5,10 @@ import {
   getHistory,
   sendOCR,
   undoAction,
+  executeProposedActions,
   type ConversationRecord,
   type ActionResult,
+  type AIAction,
 } from '../services/aiService';
 
 /**
@@ -43,6 +45,16 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   actions?: ActionResult[];
+  proposedActions?: AIAction[];
+  rawText?: string;
+}
+
+interface ManualForm {
+  type: 'expense' | 'income';
+  amount: string;
+  category: string;
+  description: string;
+  date: string;
 }
 
 const actionTypeLabels: Record<string, string> = {
@@ -77,6 +89,9 @@ export default function AIPage() {
   const [imageLoading, setImageLoading] = useState(false);
   const [aiConfigured, setAiConfigured] = useState(true);
   const [undoingId, setUndoingId] = useState<string | null>(null);
+  const [confirmingIdx, setConfirmingIdx] = useState<number | null>(null);
+  const [manualForms, setManualForms] = useState<Record<number, ManualForm>>({});
+  const [manualSubmitting, setManualSubmitting] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -171,24 +186,100 @@ export default function AIPage() {
       // 先压缩图片，避免 base64 过大导致请求失败
       const base64 = await compressImage(file, 1600, 0.85);
 
-      const { data, fileId } = await sendOCR(currentFamily.id, base64);
+      const { data, fileId, proposedActions } = await sendOCR(currentFamily.id, base64);
       const sourceLabel =
         data.source === 'vision' ? '[AI视觉]' :
         data.source === 'merged' ? '[合并]' : '[本地OCR]';
+      const typeLabel = data.type === 'income' ? '收入' : data.type === 'expense' ? '支出' : '-';
       const summary = data.amount
-        ? `识别结果 ${sourceLabel}：\n- 金额：${data.amount} 元\n- 日期：${data.date || '-'}\n- 类别：${data.category || '-'}\n- 描述：${data.description || '-'}${fileId ? '\n- 原图已归档' : ''}`
+        ? `识别结果 ${sourceLabel}：\n- 类型：${typeLabel}\n- 金额：${data.amount} 元\n- 日期：${data.date || '-'}\n- 类别：${data.category || '-'}\n- 描述：${data.description || '-'}${fileId ? '\n- 原图已归档' : ''}`
         : data.raw || '无法识别图片内容';
 
       setMessages((prev) => [
         ...prev,
         { role: 'user', content: `[上传图片: ${file.name}]` },
-        { role: 'assistant', content: summary },
+        {
+          role: 'assistant',
+          content: summary,
+          proposedActions: proposedActions && proposedActions.length > 0 ? proposedActions : undefined,
+          rawText: data.rawText,
+        },
       ]);
     } catch (error: any) {
       const msg = error.response?.data?.error || '图片识别失败，请稍后重试';
       setMessages((prev) => [...prev, { role: 'assistant', content: msg }]);
     } finally {
       setImageLoading(false);
+    }
+  };
+
+  const handleConfirmActions = async (messageIdx: number) => {
+    if (!currentFamily) return;
+    const msg = messages[messageIdx];
+    if (!msg?.proposedActions || msg.proposedActions.length === 0) return;
+
+    setConfirmingIdx(messageIdx);
+    try {
+      const { actions } = await executeProposedActions(currentFamily.id, msg.proposedActions);
+      // 确认成功：清空 proposedActions，设置已执行的 actions（触发撤销按钮 UI）
+      setMessages((prev) => prev.map((m, idx) => {
+        if (idx !== messageIdx) return m;
+        return { ...m, proposedActions: undefined, actions };
+      }));
+    } catch (error: any) {
+      alert(error.response?.data?.error || '确认记账失败，请稍后重试');
+    } finally {
+      setConfirmingIdx(null);
+    }
+  };
+
+  const updateManualForm = (idx: number, field: keyof ManualForm, value: string) => {
+    setManualForms((prev) => {
+      const existing: ManualForm = prev[idx] || {
+        type: 'expense',
+        amount: '',
+        category: '',
+        description: '',
+        date: new Date().toISOString().slice(0, 10),
+      };
+      return { ...prev, [idx]: { ...existing, [field]: value } };
+    });
+  };
+
+  const handleManualSubmit = async (messageIdx: number) => {
+    if (!currentFamily) return;
+    const form = manualForms[messageIdx];
+    if (!form || !form.amount || Number(form.amount) <= 0) {
+      alert('请填写有效金额');
+      return;
+    }
+
+    const action: AIAction = {
+      type: form.type === 'income' ? 'create_income' : 'create_expense',
+      data: {
+        amount: Number(form.amount),
+        category: form.category || (form.type === 'income' ? '其他收入' : '其他支出'),
+        ...(form.description ? { description: form.description } : {}),
+        ...(form.date ? { date: form.date } : {}),
+      },
+    };
+
+    setManualSubmitting(messageIdx);
+    try {
+      const { actions } = await executeProposedActions(currentFamily.id, [action]);
+      setMessages((prev) => prev.map((m, idx) => {
+        if (idx !== messageIdx) return m;
+        return { ...m, rawText: undefined, actions };
+      }));
+      setManualForms((prev) => {
+        const next = { ...prev };
+        delete next[messageIdx];
+        return next;
+      });
+    } catch (error: any) {
+      alert(error.response?.data?.error || '手动记账失败，请稍后重试');
+    } finally {
+      setManualSubmitting(null);
     }
   };
 
@@ -253,6 +344,89 @@ export default function AIPage() {
                 >
                   <pre className="whitespace-pre-wrap font-sans text-sm">{msg.content}</pre>
                 </div>
+                {/* 提议动作卡片（OCR 识别后待确认） */}
+                {msg.proposedActions && msg.proposedActions.length > 0 && (
+                  <div className="mt-2 space-y-2">
+                    {msg.proposedActions.map((action, actionIdx) => (
+                      <div
+                        key={actionIdx}
+                        className="px-3 py-2 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-800 text-sm"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <span className="mr-2">📝</span>
+                            <div>
+                              <span className="text-xs font-medium text-gray-500 mr-2">
+                                {actionTypeLabels[action.type] || action.type}
+                              </span>
+                              <span>
+                                {action.data.category} ¥{Number(action.data.amount || 0).toFixed(2)}
+                                {action.data.description ? ` (${action.data.description})` : ''}
+                              </span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => handleConfirmActions(idx)}
+                            disabled={confirmingIdx === idx}
+                            className="ml-2 px-3 py-1 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+                          >
+                            {confirmingIdx === idx ? '记账中...' : '确认记账'}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* 手动记账兜底：OCR 有文字但 AI 未识别出结构化信息时展示 */}
+                {msg.role === 'assistant' && msg.rawText && !msg.proposedActions && !msg.actions && (
+                  <div className="mt-2 p-3 rounded-lg border border-amber-200 bg-amber-50">
+                    <p className="text-xs text-amber-700 mb-2">AI 未能自动识别，可手动填写后记账：</p>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <select
+                        value={manualForms[idx]?.type || 'expense'}
+                        onChange={(e) => updateManualForm(idx, 'type', e.target.value)}
+                        className="px-2 py-1.5 border border-gray-300 rounded text-sm"
+                      >
+                        <option value="expense">支出</option>
+                        <option value="income">收入</option>
+                      </select>
+                      <input
+                        type="number"
+                        placeholder="金额"
+                        value={manualForms[idx]?.amount || ''}
+                        onChange={(e) => updateManualForm(idx, 'amount', e.target.value)}
+                        className="px-2 py-1.5 border border-gray-300 rounded text-sm"
+                      />
+                      <input
+                        type="text"
+                        placeholder="类别（如餐饮）"
+                        value={manualForms[idx]?.category || ''}
+                        onChange={(e) => updateManualForm(idx, 'category', e.target.value)}
+                        className="px-2 py-1.5 border border-gray-300 rounded text-sm"
+                      />
+                      <input
+                        type="text"
+                        placeholder="描述（可选）"
+                        value={manualForms[idx]?.description || ''}
+                        onChange={(e) => updateManualForm(idx, 'description', e.target.value)}
+                        className="px-2 py-1.5 border border-gray-300 rounded text-sm"
+                      />
+                      <input
+                        type="date"
+                        value={manualForms[idx]?.date || new Date().toISOString().slice(0, 10)}
+                        onChange={(e) => updateManualForm(idx, 'date', e.target.value)}
+                        className="px-2 py-1.5 border border-gray-300 rounded text-sm"
+                      />
+                      <button
+                        onClick={() => handleManualSubmit(idx)}
+                        disabled={manualSubmitting === idx}
+                        className="col-span-2 px-3 py-1.5 bg-amber-600 text-white rounded hover:bg-amber-700 disabled:opacity-50 transition-colors text-sm"
+                      >
+                        {manualSubmitting === idx ? '记账中...' : '手动记账'}
+                      </button>
+                    </div>
+                  </div>
+                )}
                 {/* 操作结果卡片 */}
                 {msg.actions && msg.actions.length > 0 && (
                   <div className="mt-2 space-y-2">

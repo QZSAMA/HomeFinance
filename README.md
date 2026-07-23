@@ -48,8 +48,9 @@
 git clone https://github.com/QZSAMA/HomeFinance.git
 cd HomeFinance
 
-# 2. 复制环境变量并修改（至少修改 JWT_SECRET）
+# 2. 复制环境变量并修改（生产环境必须修改 JWT_SECRET 和 MINIO_ROOT_PASSWORD）
 cp .env.example .env
+# 生成强 JWT_SECRET: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 # 3. 一键启动所有服务
 docker-compose up -d
@@ -61,7 +62,7 @@ docker-compose logs -f backend
 启动后访问：
 - 前端：http://localhost
 - 后端 API：http://localhost:8080
-- MinIO 控制台：http://localhost:9001（minioadmin/minioadmin）
+- MinIO 控制台：http://localhost:9001（默认 minioadmin/minioadmin，生产环境请通过 .env 修改）
 
 数据库迁移会自动执行（`prisma migrate deploy`），无需手动操作。
 
@@ -181,14 +182,15 @@ HomeFinance/
 
 | 变量 | 说明 | 默认 |
 |------|------|------|
-| `JWT_SECRET` | JWT 签名密钥（生产必改） | - |
+| `JWT_SECRET` | JWT 签名密钥（生产必改，至少 32 字符，启动时校验） | `change-this-in-production` |
 | `CORS_ORIGIN` | 允许的前端来源 | `http://localhost` |
+| `MINIO_ROOT_USER` | MinIO 管理员用户名（生产必改） | `minioadmin` |
+| `MINIO_ROOT_PASSWORD` | MinIO 管理员密码（生产必改） | `minioadmin` |
 | `AI_BASE_URL` | AI 服务地址 | Volcano Ark |
 | `AI_API_KEY` | AI API Key（留空禁用 AI） | - |
 | `AI_MODEL` | AI 模型名 | `ark-code-latest` |
 | `DATABASE_URL` | PostgreSQL 连接串 | docker-compose 内置 |
 | `REDIS_URL` | Redis 连接串 | docker-compose 内置 |
-| `MINIO_*` | MinIO 连接配置 | docker-compose 内置 |
 
 详见 `.env.example`。
 

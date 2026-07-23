@@ -40,6 +40,57 @@ export async function extractTextFromImage(imageBase64: string): Promise<string>
   return (data.text || '').trim();
 }
 
+/**
+ * 清洗 OCR 提取的原始文字，去除手机截图常见的 UI 噪音行
+ * 保留含金额/数字的行，过滤状态栏、导航栏等无关文字
+ */
+export function cleanOcrText(rawText: string): string {
+  if (!rawText) return '';
+
+  // UI 噪音行的匹配模式（整行匹配才过滤）
+  const noisePatterns = [
+    /^\d{1,2}:\d{2}(\s|$)/,           // 纯时间 "11:10"
+    /^\d{1,2}:\d{2}:\d{2}(\s|$)/,     // 纯时间 "11:10:30"
+    /(5G|4G|LTE|WiFi|无线网|电量|信号|蓝牙|飞行模式)/, // 状态栏
+    /^(搜索|返回|关闭|更多|完成|确定|取消)(\s|$)/,     // 导航按钮
+    /^(交易记录|全部|支出|收入|转账|退款|订单|账单|明细)(\s*$)/, // 标签栏单独行
+    /^(首页|我的|发现|消息)(\s*$)/,    // 底部 tab 栏
+  ];
+
+  // 金额/数字相关行应保留
+  const amountPattern = /(元|￥|¥|\d+\.\d{2}|\d+\.?\d*\s*(元|块|RMB|rmb))/;
+
+  const lines = rawText.split(/\r?\n/);
+  const cleaned: string[] = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      // 合并连续空行：仅当上一行非空时才保留一个空行
+      if (cleaned.length > 0 && cleaned[cleaned.length - 1] !== '') {
+        cleaned.push('');
+      }
+      continue;
+    }
+
+    // 噪音行过滤：匹配噪音模式 且 不含金额信息 → 跳过
+    const isNoise = noisePatterns.some((p) => p.test(trimmed));
+    const hasAmount = amountPattern.test(trimmed);
+    if (isNoise && !hasAmount) {
+      continue;
+    }
+
+    cleaned.push(trimmed);
+  }
+
+  // 去除尾部空行
+  while (cleaned.length > 0 && cleaned[cleaned.length - 1] === '') {
+    cleaned.pop();
+  }
+
+  return cleaned.join('\n');
+}
+
 // ===== 结构化 OCR 结果类型 =====
 
 export interface ParsedOCR {
@@ -47,6 +98,7 @@ export interface ParsedOCR {
   date?: string;
   category?: string;
   description?: string;
+  type?: 'income' | 'expense';
   raw?: string;
   rawText?: string; // Tesseract 原始文字（调试用）
 }
@@ -59,12 +111,17 @@ export interface MergedOCR extends ParsedOCR {
 
 // ===== 视觉多模态 LLM 识别 =====
 
-const VISION_SYSTEM_PROMPT = `你是一位票据识别助手。用户会提供一张收据或发票的图片。
+const VISION_SYSTEM_PROMPT = `你是一位票据识别助手。用户会提供一张收据、发票或账单截图的图片。
 请识别图片中的关键信息，并以 JSON 格式返回，字段包括：
+- type: 交易类型，"income"（收入/收款）或 "expense"（支出/消费），默认 "expense"
 - amount: 金额（数字，单位元）
 - date: 日期（YYYY-MM-DD 格式）
-- category: 消费类别（从以下选一：餐饮、交通、购物、娱乐、医疗、教育、日用、其他）
-- description: 简短描述
+- category: 类别。支出从以下选一：餐饮、交通、购物、娱乐、医疗、教育、日用、水电通讯、居住、其他支出；收入从以下选一：工资、奖金、投资收益、兼职收入、租金收入、其他收入
+- description: 简短描述（如商家名称或交易摘要）
+
+示例：
+- 微信支付麦当劳 -35.00 → {"type":"expense","amount":35,"date":"2026-07-23","category":"餐饮","description":"麦当劳"}
+- 收到转账 +15000 工资 → {"type":"income","amount":15000,"date":"2026-07-23","category":"工资","description":"工资"}
 
 只返回 JSON，不要包含其他文字或 markdown 代码块标记。
 如果无法识别，返回 {"error": "无法识别"}。`;
@@ -132,6 +189,7 @@ export async function extractViaVision(imageBase64: string): Promise<ParsedOCR> 
       date: parsed.date,
       category: parsed.category,
       description: parsed.description,
+      type: parsed.type === 'income' || parsed.type === 'expense' ? parsed.type : undefined,
     };
   } catch {
     return { raw: content };
@@ -176,13 +234,14 @@ export function mergeOcrResults(
     date: vision.date ?? tesseract.date,
     category: vision.category ?? tesseract.category,
     description: vision.description ?? tesseract.description,
+    type: vision.type ?? tesseract.type,
     rawText: tesseract.rawText, // 保留 Tesseract 原始文字供调试
     raw: vision.raw || tesseract.raw,
   };
 
   // 判断是否真正合并（两个字段来源不同）
-  const visionFields = ['amount', 'date', 'category', 'description'] as const;
-  const tesseractFields = ['amount', 'date', 'category', 'description'] as const;
+  const visionFields = ['amount', 'date', 'category', 'description', 'type'] as const;
+  const tesseractFields = ['amount', 'date', 'category', 'description', 'type'] as const;
   const hasVision = visionFields.some((f) => vision[f] !== undefined);
   const hasTesseract = tesseractFields.some((f) => tesseract[f] !== undefined);
 

@@ -66,11 +66,22 @@ export default function FilesPage() {
 
   const handleDelete = async (id: string) => {
     if (!currentFamily) return;
-    if (!confirm('确定删除此文件？')) return;
+    if (!window.confirm('确定删除此文件？')) return;
+
+    // 先从 UI 移除（避免 img 继续加载已删除的 presigned URL 触发重渲染）
+    const target = files.find((f) => f.id === id);
+    setFiles((prev) => prev.filter((f) => f.id !== id));
+
     try {
       await deleteFile(currentFamily.id, id);
-      setFiles((prev) => prev.filter((f) => f.id !== id));
     } catch (err: any) {
+      // 失败则回滚
+      if (target) {
+        setFiles((prev) => {
+          const next = [...prev, target];
+          return next.sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime());
+        });
+      }
       setError(err.response?.data?.error || '删除失败');
     }
   };
@@ -153,7 +164,15 @@ export default function FilesPage() {
             >
               <div className="h-40 bg-gray-100 flex items-center justify-center">
                 {isImage(file.mimeType) && file.url ? (
-                  <img src={file.url} alt={file.name} className="h-full w-full object-cover" />
+                  <img
+                    src={file.url}
+                    alt={file.name}
+                    loading="lazy"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).style.display = 'none';
+                    }}
+                    className="h-full w-full object-cover"
+                  />
                 ) : (
                   <div className="text-4xl text-gray-300">
                     {file.mimeType.includes('pdf') ? '📄' :
