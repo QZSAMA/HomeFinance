@@ -432,6 +432,14 @@ async function runTesseractPath(imageBase64: string): Promise<ParsedOCR> {
 
     try {
       const parsed = JSON.parse(content);
+      // AI 返回 {error: "无法识别"} 时，所有结构化字段为 undefined
+      // 但必须设置 raw 包含原始 OCR 文字，否则前端显示"无法识别图片内容"而丢失已识别的文字
+      if (parsed.error) {
+        return {
+          raw: `AI 未能从 OCR 文字中识别出结构化信息。原始文字：\n${rawText}`,
+          rawText,
+        };
+      }
       return {
         amount: typeof parsed.amount === 'number' ? parsed.amount : undefined,
         date: parsed.date,

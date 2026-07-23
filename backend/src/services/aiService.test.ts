@@ -279,6 +279,36 @@ describe('aiService', () => {
       expect(tesseractArg!.raw).toContain('支付宝 50元 超市');
     });
 
+    test('AI 返回 {error:"无法识别"} → runTesseractPath 应返回 raw 含原始 OCR 文字（而非所有字段 undefined）', async () => {
+      // 场景：OCR 文字太乱（如微信账单截图），AI 无法提取结构化信息
+      const messyOcrText = '11:10 5G 搜索 交易记录\n全部支出 转账 退款 订单\n7月\n支出 404.195 收入 0.00\n滴滴快车 -14.50 交通\n丽华园 -4.00 餐饮';
+      mockedExtractTextFromImage.mockResolvedValue(messyOcrText);
+      fetchSpy.mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          choices: [
+            {
+              message: {
+                role: 'assistant',
+                content: JSON.stringify({ error: '无法识别' }),
+              },
+            },
+          ],
+        }),
+      } as any);
+
+      await parseReceiptOCR('messyimage');
+
+      expect(mockedMergeOcrResults).toHaveBeenCalledTimes(1);
+      const [tesseractArg] = mockedMergeOcrResults.mock.calls[0];
+      // 关键：AI 无法识别时，raw 必须包含原始 OCR 文字，不能所有字段都是 undefined
+      expect(tesseractArg!.raw).toBeDefined();
+      expect(tesseractArg!.raw).toContain(messyOcrText);
+      expect(tesseractArg!.rawText).toBe(messyOcrText);
+      // amount 等结构化字段应该为 undefined（AI 没识别出来）
+      expect(tesseractArg!.amount).toBeUndefined();
+    });
+
     test('视觉路径失败但已配置 → 记录 warn 日志，mergeOcrResults 收到 (tesseract, null)', async () => {
       mockedIsVisionConfigured.mockReturnValue(true);
       mockedExtractTextFromImage.mockResolvedValue('小炒肉饭 35.00');

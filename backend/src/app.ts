@@ -43,6 +43,7 @@ import compareRoutes from './routes/compare';
 import importRoutes from './routes/import';
 import goalRoutes from './routes/goals';
 import { ensureBucket } from './config/minio';
+import { connectRedis } from './config/redis';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/families', familyRoutes);
@@ -64,6 +65,9 @@ app.use('/api/families/:familyId/goals', goalRoutes);
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   ensureBucket().catch(console.error);
+  connectRedis().catch((err) => {
+    console.error('Redis 连接失败，缓存和限流功能将降级运行:', err instanceof Error ? err.message : err);
+  });
 });
 
 export default app;
