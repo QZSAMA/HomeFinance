@@ -6,7 +6,8 @@ import { rateLimitMiddleware } from '../middleware/rateLimit';
 import { chatWithActions, analyzeFinance, parseReceiptOCR, AIError } from '../services/aiService';
 import { executeActions } from '../services/aiActions';
 import { toNumber } from '../utils/decimal';
-import { isAIConfigured } from '../config/ai';
+import { isAIConfigured, isVisionConfigured } from '../config/ai';
+import { storeOcrImage } from '../services/fileStorageService';
 
 const router = Router({ mergeParams: true });
 
@@ -180,26 +181,38 @@ router.post('/analyze', authMiddleware, rateLimitMiddleware(10, 60), async (req:
 router.post('/ocr', authMiddleware, rateLimitMiddleware(20, 60), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
-    const membership = await checkFamilyAccess(familyId, req.userId!);
+    const userId = req.userId!;
+    const membership = await checkFamilyAccess(familyId, userId);
     if (!membership) {
       return res.status(403).json({ error: '无权访问该家庭' });
     }
 
     const { image } = ocrSchema.parse(req.body);
 
+    // 1. 持久化原图到 MinIO（失败不阻塞 OCR）
+    const stored = await storeOcrImage(userId, familyId, image);
+
+    // 2. 并行 OCR + 合并（Tesseract 本地 + 视觉多模态 LLM）
     const data = await parseReceiptOCR(image);
 
+    // 3. 落库对话记录（关联 fileId）
     await prisma.aiConversation.create({
       data: {
         familyId,
-        userId: req.userId!,
+        userId,
         content: 'OCR 识别',
         response: JSON.stringify(data),
         type: 'ocr',
+        fileId: stored?.fileId ?? null,
       }
     });
 
-    res.json({ data, aiConfigured: isAIConfigured() });
+    res.json({
+      data,
+      aiConfigured: isAIConfigured(),
+      visionConfigured: isVisionConfigured(),
+      fileId: stored?.fileId ?? null,
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: error.errors[0].message });

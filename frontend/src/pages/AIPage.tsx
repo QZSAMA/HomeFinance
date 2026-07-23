@@ -171,9 +171,12 @@ export default function AIPage() {
       // 先压缩图片，避免 base64 过大导致请求失败
       const base64 = await compressImage(file, 1600, 0.85);
 
-      const { data } = await sendOCR(currentFamily.id, base64);
+      const { data, fileId } = await sendOCR(currentFamily.id, base64);
+      const sourceLabel =
+        data.source === 'vision' ? '[AI视觉]' :
+        data.source === 'merged' ? '[合并]' : '[本地OCR]';
       const summary = data.amount
-        ? `识别结果：\n- 金额：${data.amount} 元\n- 日期：${data.date || '-'}\n- 类别：${data.category || '-'}\n- 描述：${data.description || '-'}`
+        ? `识别结果 ${sourceLabel}：\n- 金额：${data.amount} 元\n- 日期：${data.date || '-'}\n- 类别：${data.category || '-'}\n- 描述：${data.description || '-'}${fileId ? '\n- 原图已归档' : ''}`
         : data.raw || '无法识别图片内容';
 
       setMessages((prev) => [

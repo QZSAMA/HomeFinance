@@ -1,6 +1,6 @@
-import { AI_CONFIG, isAIConfigured } from '../config/ai';
+import { AI_CONFIG, isAIConfigured, isVisionConfigured } from '../config/ai';
 import { parseLocalActions, type AIAction, type ParsedAIResponse } from './aiActions';
-import { extractTextFromImage } from './ocrService';
+import { extractTextFromImage, extractViaVision, mergeOcrResults, type ParsedOCR, type MergedOCR } from './ocrService';
 
 interface ChatMessage {
   role: string;
@@ -354,14 +354,32 @@ ${Number(debtRatio) < 30 ? '✅ 负债率健康' : Number(debtRatio) < 50 ? '⚠
 💡 提示：当前 AI 服务未配置，本报告由本地规则生成。如需更智能的个性化分析，请在 backend/.env 中配置 AI_API_KEY。`;
 }
 
-export async function parseReceiptOCR(imageBase64: string): Promise<{
-  amount?: number;
-  date?: string;
-  category?: string;
-  description?: string;
-  raw?: string;
-}> {
-  // 第一步：本地 Tesseract.js OCR 提取文字（免费，无需 AI API）
+export async function parseReceiptOCR(imageBase64: string): Promise<MergedOCR> {
+  // 并行启动两条 OCR 路径：Tesseract 本地 + 视觉多模态 LLM
+  const [tesseractResult, visionResult] = await Promise.allSettled([
+    runTesseractPath(imageBase64),
+    isVisionConfigured()
+      ? extractViaVision(imageBase64)
+      : Promise.reject(new Error('视觉模型未配置')),
+  ]);
+
+  const tesseract = tesseractResult.status === 'fulfilled' ? tesseractResult.value : null;
+  const vision = visionResult.status === 'fulfilled' ? visionResult.value : null;
+
+  // 视觉路径失败时记录日志（便于排查配置问题）
+  if (visionResult.status === 'rejected' && isVisionConfigured()) {
+    console.warn('视觉 OCR 路径失败:', visionResult.reason);
+  }
+
+  return mergeOcrResults(tesseract, vision);
+}
+
+/**
+ * Tesseract 路径：本地 OCR 提取文字 → AI 文本模型解析为结构化 JSON
+ * 返回 null 表示完全失败（如 Tesseract 抛错）
+ */
+async function runTesseractPath(imageBase64: string): Promise<ParsedOCR> {
+  // 第一步：本地 Tesseract.js OCR 提取文字
   let rawText = '';
   try {
     rawText = await extractTextFromImage(imageBase64);
@@ -379,6 +397,7 @@ export async function parseReceiptOCR(imageBase64: string): Promise<{
       category: undefined,
       description: undefined,
       raw: '未识别到文字内容，请确保图片清晰后再试。',
+      rawText: '',
     };
   }
 
@@ -390,6 +409,7 @@ export async function parseReceiptOCR(imageBase64: string): Promise<{
       category: undefined,
       description: undefined,
       raw: `本地 OCR 识别结果（AI 未配置，未做结构化解析）：\n${rawText}`,
+      rawText,
     };
   }
 
@@ -411,16 +431,24 @@ export async function parseReceiptOCR(imageBase64: string): Promise<{
     ]);
 
     try {
-      return JSON.parse(content);
+      const parsed = JSON.parse(content);
+      return {
+        amount: typeof parsed.amount === 'number' ? parsed.amount : undefined,
+        date: parsed.date,
+        category: parsed.category,
+        description: parsed.description,
+        rawText,
+      };
     } catch {
       // AI 返回非 JSON，返回原始 OCR 文字 + AI 回复
-      return { raw: `${content}\n\n--- OCR 原始文字 ---\n${rawText}` };
+      return { raw: `${content}\n\n--- OCR 原始文字 ---\n${rawText}`, rawText };
     }
   } catch (error) {
     if (error instanceof AIError) throw error;
     // AI 解析失败，降级返回原始 OCR 文字
     return {
       raw: `OCR 文字已识别，但 AI 解析失败。原始文字：\n${rawText}`,
+      rawText,
     };
   }
 }

@@ -41,6 +41,8 @@ jest.mock('../config/redis', () => ({
 jest.mock('../config/ai', () => ({
   AI_CONFIG: { baseURL: '', apiKey: '', model: 'test', maxTokens: 100, temperature: 0.5 },
   isAIConfigured: jest.fn().mockReturnValue(true),
+  AI_VISION_CONFIG: { baseURL: '', apiKey: '', model: '', maxTokens: 4096, temperature: 0.3 },
+  isVisionConfigured: jest.fn().mockReturnValue(false),
 }));
 
 jest.mock('../services/aiService', () => ({
@@ -57,15 +59,21 @@ jest.mock('../services/aiActions', () => ({
   executeActions: jest.fn().mockResolvedValue([]),
 }));
 
+jest.mock('../services/fileStorageService', () => ({
+  storeOcrImage: jest.fn(),
+}));
+
 import { prisma } from '../app';
 import { chatWithActions, analyzeFinance, parseReceiptOCR } from '../services/aiService';
 import { executeActions } from '../services/aiActions';
+import { storeOcrImage } from '../services/fileStorageService';
 
 const mockedPrisma = prisma as any;
 const mockedChatWithActions = chatWithActions as jest.MockedFunction<typeof chatWithActions>;
 const mockedAnalyzeFinance = analyzeFinance as jest.MockedFunction<typeof analyzeFinance>;
 const mockedParseReceiptOCR = parseReceiptOCR as jest.MockedFunction<typeof parseReceiptOCR>;
 const mockedExecuteActions = executeActions as jest.MockedFunction<typeof executeActions>;
+const mockedStoreOcrImage = storeOcrImage as jest.MockedFunction<typeof storeOcrImage>;
 
 const app = express();
 app.use(express.json());
@@ -93,6 +101,8 @@ describe('AI Routes', () => {
     mockedPrisma.expense.findMany.mockResolvedValue([]);
     mockedPrisma.aiConversation.findMany.mockResolvedValue([]);
     mockedExecuteActions.mockResolvedValue([]);
+    // OCR 存储默认返回 null（不阻塞 OCR 主流程）
+    mockedStoreOcrImage.mockResolvedValue(null);
   });
 
   describe('POST /api/families/:familyId/ai/chat', () => {
@@ -237,14 +247,16 @@ describe('AI Routes', () => {
   });
 
   describe('POST /api/families/:familyId/ai/ocr', () => {
-    test('returns parsed receipt data', async () => {
+    test('returns parsed receipt data with source label', async () => {
       mockedParseReceiptOCR.mockResolvedValue({
         amount: 125.5,
         date: '2026-07-10',
         category: '餐饮',
         description: '午餐',
+        source: 'tesseract',
       });
       mockedPrisma.aiConversation.create.mockResolvedValue({});
+      mockedStoreOcrImage.mockResolvedValue(null);
 
       const res = await request(app)
         .post('/api/families/family_1/ai/ocr')
@@ -253,7 +265,53 @@ describe('AI Routes', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.data.amount).toBe(125.5);
+      expect(res.body.data.source).toBe('tesseract');
+      expect(res.body.visionConfigured).toBe(false);
+      expect(res.body.fileId).toBeNull();
       expect(mockedParseReceiptOCR).toHaveBeenCalledWith('base64string');
+      expect(mockedStoreOcrImage).toHaveBeenCalledWith('user_1', 'family_1', 'base64string');
+    });
+
+    test('存储成功 → 响应含 fileId，aiConversation.create 收到 fileId', async () => {
+      mockedParseReceiptOCR.mockResolvedValue({
+        amount: 35,
+        source: 'tesseract',
+      });
+      mockedStoreOcrImage.mockResolvedValue({ fileId: 'file_123', path: 'user_1/family_1/receipts/2026/07/23/xxx.jpg' });
+      mockedPrisma.aiConversation.create.mockResolvedValue({});
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/ocr')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ image: 'base64string' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.fileId).toBe('file_123');
+      // aiConversation.create 应收到 fileId: 'file_123'
+      const createArgs = mockedPrisma.aiConversation.create.mock.calls[0][0];
+      expect(createArgs.data.fileId).toBe('file_123');
+      expect(createArgs.data.type).toBe('ocr');
+    });
+
+    test('存储失败不阻塞 OCR → 响应仍含 data，fileId 为 null', async () => {
+      mockedParseReceiptOCR.mockResolvedValue({
+        amount: 35,
+        source: 'tesseract',
+      });
+      mockedStoreOcrImage.mockResolvedValue(null);
+      mockedPrisma.aiConversation.create.mockResolvedValue({});
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/ocr')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ image: 'base64string' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.amount).toBe(35);
+      expect(res.body.fileId).toBeNull();
+      // aiConversation.create 应收到 fileId: null
+      const createArgs = mockedPrisma.aiConversation.create.mock.calls[0][0];
+      expect(createArgs.data.fileId).toBeNull();
     });
 
     test('rejects missing image', async () => {

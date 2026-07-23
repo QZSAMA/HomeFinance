@@ -12,8 +12,11 @@ export interface ConversationRecord {
   content: string;
   response: string;
   type: 'chat' | 'analysis' | 'ocr';
+  fileId: string | null;
   createdAt: string;
 }
+
+export type OCRSource = 'vision' | 'tesseract' | 'merged';
 
 export interface OCRResult {
   amount?: number;
@@ -21,6 +24,15 @@ export interface OCRResult {
   category?: string;
   description?: string;
   raw?: string;
+  rawText?: string;
+  source: OCRSource;
+}
+
+export interface OCRResponse {
+  data: OCRResult;
+  aiConfigured: boolean;
+  visionConfigured: boolean;
+  fileId: string | null;
 }
 
 export interface ActionResult {
@@ -47,9 +59,9 @@ export const getAnalysis = async (familyId: string): Promise<{ report: string; a
   return response.data;
 };
 
-export const sendOCR = async (familyId: string, image: string): Promise<{ data: OCRResult; aiConfigured: boolean }> => {
+export const sendOCR = async (familyId: string, image: string): Promise<OCRResponse> => {
   // OCR 需要 Tesseract.js 本地文字提取 + AI 解析，大图片可能较慢，设 120 秒超时
-  const response = await api.post<{ data: OCRResult; aiConfigured: boolean }>(
+  const response = await api.post<OCRResponse>(
     `/families/${familyId}/ai/ocr`,
     { image },
     { timeout: 120000 }

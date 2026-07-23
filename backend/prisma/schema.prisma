@@ -147,6 +147,7 @@ model File {
   uploadedAt DateTime @default(now())
   family     Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aiConversations AiConversation[]
 
   @@index([familyId])
   @@index([userId])
@@ -159,9 +160,11 @@ model AiConversation {
   content    String
   response   String
   type       String
+  fileId     String?
   createdAt  DateTime @default(now())
   family     Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  file       File?    @relation(fields: [fileId], references: [id], onDelete: SetNull)
 
   @@index([familyId])
   @@index([userId])

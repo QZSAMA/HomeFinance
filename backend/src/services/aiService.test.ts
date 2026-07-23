@@ -9,30 +9,62 @@ jest.mock('../config/ai', () => ({
     temperature: 0.5,
   },
   isAIConfigured: jest.fn().mockReturnValue(true),
+  AI_VISION_CONFIG: {
+    baseURL: 'https://vision.api.com',
+    apiKey: 'vision-key',
+    model: 'vision-model',
+    maxTokens: 4096,
+    temperature: 0.3,
+  },
+  isVisionConfigured: jest.fn().mockReturnValue(false),
 }));
 
 jest.mock('./aiActions', () => ({
   parseLocalActions: jest.fn().mockReturnValue({ reply: '', actions: [] }),
 }));
 
-// Mock 本地 OCR 服务 —— parseReceiptOCR 现在先调用本地 Tesseract.js 提取文字
+// Mock OCR 服务：extractTextFromImage（Tesseract）+ extractViaVision（视觉 LLM）+ mergeOcrResults（合并）
+// mergeOcrResults 也 mock，parseReceiptOCR 测试只验证编排逻辑，合并逻辑在 ocrService.test.ts 独立测试
 jest.mock('./ocrService', () => ({
   extractTextFromImage: jest.fn(),
+  extractViaVision: jest.fn(),
+  mergeOcrResults: jest.fn(),
 }));
 
 jest.mock('../app', () => ({
   prisma: {},
 }));
 
+import { isVisionConfigured } from '../config/ai';
+import { extractTextFromImage, extractViaVision, mergeOcrResults } from './ocrService';
+
+const mockedIsVisionConfigured = isVisionConfigured as jest.MockedFunction<typeof isVisionConfigured>;
+const mockedExtractTextFromImage = extractTextFromImage as jest.MockedFunction<typeof extractTextFromImage>;
+const mockedExtractViaVision = extractViaVision as jest.MockedFunction<typeof extractViaVision>;
+const mockedMergeOcrResults = mergeOcrResults as jest.MockedFunction<typeof mergeOcrResults>;
+
 describe('aiService', () => {
   let fetchSpy: jest.SpyInstance;
 
   beforeEach(() => {
     fetchSpy = jest.spyOn(global, 'fetch').mockImplementation();
+    // 每个测试前重置 vision 配置为 false（Tesseract-only）
+    mockedIsVisionConfigured.mockReturnValue(false);
+    // mergeOcrResults 默认返回一个合理的 MergedOCR，单个测试可覆盖
+    mockedMergeOcrResults.mockImplementation(((t: any, v: any) => ({
+      amount: v?.amount ?? t?.amount,
+      date: v?.date ?? t?.date,
+      category: v?.category ?? t?.category,
+      description: v?.description ?? t?.description,
+      raw: v?.raw || t?.raw,
+      rawText: t?.rawText,
+      source: v && t ? 'merged' : v ? 'vision' : 'tesseract',
+    })) as any);
   });
 
   afterEach(() => {
     fetchSpy.mockRestore();
+    jest.clearAllMocks();
   });
 
   describe('chatCompletion', () => {
@@ -117,17 +149,14 @@ describe('aiService', () => {
   });
 
   describe('parseReceiptOCR', () => {
-    const { extractTextFromImage } = require('./ocrService');
-
     beforeEach(() => {
-      extractTextFromImage.mockReset();
+      mockedExtractTextFromImage.mockReset();
+      mockedExtractViaVision.mockReset();
+      mockedMergeOcrResults.mockClear();
     });
 
-    test('本地 OCR 提取文字 + AI 解析为结构化 JSON', async () => {
-      // Mock 本地 OCR 返回票据文字
-      extractTextFromImage.mockResolvedValue('小炒肉饭 35.00\n日期 2026-07-10');
-
-      // Mock AI 解析返回结构化 JSON
+    test('Tesseract 成功 + 视觉未配置 → 只走 Tesseract 路径，mergeOcrResults 收到 (tesseractResult, null)', async () => {
+      mockedExtractTextFromImage.mockResolvedValue('小炒肉饭 35.00\n日期 2026-07-10');
       fetchSpy.mockResolvedValue({
         ok: true,
         json: async () => ({
@@ -147,13 +176,17 @@ describe('aiService', () => {
         }),
       } as any);
 
-      const result = await parseReceiptOCR('base64imagestring');
+      await parseReceiptOCR('base64imagestring');
 
-      expect(result.amount).toBe(35);
-      expect(result.category).toBe('餐饮');
-      expect(result.description).toBe('小炒肉饭');
-      // 验证调用了本地 OCR
-      expect(extractTextFromImage).toHaveBeenCalledWith('base64imagestring');
+      // 视觉未配置 → extractViaVision 不应被调用
+      expect(mockedExtractViaVision).not.toHaveBeenCalled();
+      // mergeOcrResults 第一个参数是 Tesseract 结果（含 amount），第二个是 null
+      expect(mockedMergeOcrResults).toHaveBeenCalledTimes(1);
+      const [tesseractArg, visionArg] = mockedMergeOcrResults.mock.calls[0];
+      expect(tesseractArg!.amount).toBe(35);
+      expect(tesseractArg!.category).toBe('餐饮');
+      expect(tesseractArg!.description).toBe('小炒肉饭');
+      expect(visionArg).toBeNull();
       // 验证 AI 收到的是 OCR 文字（文本，不是 image_url 数组）
       const [, init] = fetchSpy.mock.calls[0];
       const body = JSON.parse(init.body);
@@ -162,19 +195,68 @@ describe('aiService', () => {
       expect(body.messages[1].content).toContain('35.00');
     });
 
-    test('OCR 未识别到文字时返回提示', async () => {
-      extractTextFromImage.mockResolvedValue('');
+    test('Tesseract 成功 + 视觉成功 → 两路径并行，mergeOcrResults 收到 (tesseract, vision)', async () => {
+      mockedIsVisionConfigured.mockReturnValue(true);
+      mockedExtractTextFromImage.mockResolvedValue('小炒肉饭 35.00');
+      mockedExtractViaVision.mockResolvedValue({
+        amount: 35.5,
+        date: '2026-07-10',
+        category: '餐饮',
+        description: '小炒肉饭（视觉识别）',
+      });
+      fetchSpy.mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          choices: [
+            {
+              message: {
+                role: 'assistant',
+                content: JSON.stringify({ amount: 35, date: '2026-07-10', category: '餐饮', description: '小炒肉饭' }),
+              },
+            },
+          ],
+        }),
+      } as any);
 
-      const result = await parseReceiptOCR('blankimage');
+      await parseReceiptOCR('base64image');
 
-      expect(result.amount).toBeUndefined();
-      expect(result.raw).toContain('未识别到文字内容');
-      // 不应调用 AI
-      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(mockedExtractTextFromImage).toHaveBeenCalledWith('base64image');
+      expect(mockedExtractViaVision).toHaveBeenCalledWith('base64image');
+      expect(mockedMergeOcrResults).toHaveBeenCalledTimes(1);
+      const [tesseractArg, visionArg] = mockedMergeOcrResults.mock.calls[0];
+      expect(tesseractArg!.amount).toBe(35);
+      expect(visionArg!.amount).toBe(35.5);
+      expect(visionArg!.description).toBe('小炒肉饭（视觉识别）');
     });
 
-    test('AI 返回非 JSON 时降级返回原始 OCR 文字', async () => {
-      extractTextFromImage.mockResolvedValue('支付宝 50元 超市');
+    test('Tesseract 失败 + 视觉未配置 → mergeOcrResults 收到 (null, null)', async () => {
+      mockedExtractTextFromImage.mockRejectedValue(new Error('tesseract worker crash'));
+
+      await parseReceiptOCR('badimage');
+
+      // Tesseract 抛错被 Promise.allSettled 吞掉 → tesseract=null
+      // 视觉未配置 → vision=null
+      expect(mockedMergeOcrResults).toHaveBeenCalledWith(null, null);
+      // 不应抛出（旧架构会抛 AIError，新架构不会）
+      expect(mockedMergeOcrResults).toHaveBeenCalledTimes(1);
+    });
+
+    test('Tesseract 返回空文字 → runTesseractPath 返回 raw 提示，不调用 AI', async () => {
+      mockedExtractTextFromImage.mockResolvedValue('');
+
+      await parseReceiptOCR('blankimage');
+
+      // OCR 返回空 → runTesseractPath 直接返回 raw 提示，不调 AI
+      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(mockedMergeOcrResults).toHaveBeenCalledTimes(1);
+      const [tesseractArg, visionArg] = mockedMergeOcrResults.mock.calls[0];
+      expect(tesseractArg!.amount).toBeUndefined();
+      expect(tesseractArg!.raw).toContain('未识别到文字内容');
+      expect(visionArg).toBeNull();
+    });
+
+    test('AI 返回非 JSON → runTesseractPath 降级返回 raw（含 AI 回复 + OCR 原文）', async () => {
+      mockedExtractTextFromImage.mockResolvedValue('支付宝 50元 超市');
       fetchSpy.mockResolvedValue({
         ok: true,
         json: async () => ({
@@ -189,16 +271,47 @@ describe('aiService', () => {
         }),
       } as any);
 
-      const result = await parseReceiptOCR('someimage');
+      await parseReceiptOCR('someimage');
 
-      expect(result.raw).toContain('这是一笔超市购物');
-      expect(result.raw).toContain('支付宝 50元 超市');
+      expect(mockedMergeOcrResults).toHaveBeenCalledTimes(1);
+      const [tesseractArg] = mockedMergeOcrResults.mock.calls[0];
+      expect(tesseractArg!.raw).toContain('这是一笔超市购物');
+      expect(tesseractArg!.raw).toContain('支付宝 50元 超市');
     });
 
-    test('本地 OCR 抛错时抛出 AIError', async () => {
-      extractTextFromImage.mockRejectedValue(new Error('tesseract worker crash'));
+    test('视觉路径失败但已配置 → 记录 warn 日志，mergeOcrResults 收到 (tesseract, null)', async () => {
+      mockedIsVisionConfigured.mockReturnValue(true);
+      mockedExtractTextFromImage.mockResolvedValue('小炒肉饭 35.00');
+      mockedExtractViaVision.mockRejectedValue(new Error('vision API 401'));
+      fetchSpy.mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          choices: [
+            {
+              message: {
+                role: 'assistant',
+                content: JSON.stringify({ amount: 35, category: '餐饮' }),
+              },
+            },
+          ],
+        }),
+      } as any);
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
 
-      await expect(parseReceiptOCR('badimage')).rejects.toThrow('本地 OCR 文字提取失败');
+      await parseReceiptOCR('base64image');
+
+      // 视觉失败但已配置 → 应记录 warn
+      expect(warnSpy).toHaveBeenCalledWith(
+        '视觉 OCR 路径失败:',
+        expect.any(Error)
+      );
+      // mergeOcrResults 收到 (tesseract, null)
+      expect(mockedMergeOcrResults).toHaveBeenCalledTimes(1);
+      const [tesseractArg, visionArg] = mockedMergeOcrResults.mock.calls[0];
+      expect(tesseractArg!.amount).toBe(35);
+      expect(visionArg).toBeNull();
+
+      warnSpy.mockRestore();
     });
   });
 });
