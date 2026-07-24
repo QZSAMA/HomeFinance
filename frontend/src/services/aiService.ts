@@ -40,6 +40,7 @@ export interface OCRResponse {
   visionConfigured: boolean;
   fileId: string | null;
   proposedActions?: AIAction[];
+  duplicateFlags?: boolean[];
 }
 
 export interface ActionResult {

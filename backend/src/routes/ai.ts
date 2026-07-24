@@ -23,6 +23,88 @@ const checkFamilyAccess = async (familyId: string, userId: string) => {
   return membership;
 };
 
+// 重复检测：检查 proposedActions 中每条是否与近 7 天已有记录重复（相同金额 + 类型 + 日期）
+async function checkDuplicateActions(
+  familyId: string,
+  actions: AIAction[]
+): Promise<boolean[]> {
+  if (actions.length === 0) return [];
+
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  // 收集所有支出和收入的查询条件
+  const expenseConditions: { amount: any; date?: any; category?: string }[] = [];
+  const incomeConditions: { amount: any; date?: any; category?: string }[] = [];
+
+  for (const action of actions) {
+    const amount = action.data.amount ? toNumber(action.data.amount) : undefined;
+    if (amount === undefined) continue;
+
+    const condition: { amount: any; date?: any; category?: string } = { amount };
+    if (action.data.date) {
+      const dayStart = new Date(action.data.date);
+      dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(dayStart);
+      dayEnd.setDate(dayEnd.getDate() + 1);
+      condition.date = { gte: dayStart, lt: dayEnd };
+    }
+    if (action.data.category) {
+      condition.category = action.data.category;
+    }
+
+    if (action.type === 'create_expense') {
+      expenseConditions.push(condition);
+    } else if (action.type === 'create_income') {
+      incomeConditions.push(condition);
+    }
+  }
+
+  // 批量查询近 7 天的记录
+  const [recentExpenses, recentIncomes] = await Promise.all([
+    expenseConditions.length > 0
+      ? prisma.expense.findMany({
+          where: {
+            familyId,
+            createdAt: { gte: sevenDaysAgo },
+            OR: expenseConditions as any,
+          },
+          select: { amount: true, date: true, category: true },
+        })
+      : [],
+    incomeConditions.length > 0
+      ? prisma.income.findMany({
+          where: {
+            familyId,
+            createdAt: { gte: sevenDaysAgo },
+            OR: incomeConditions as any,
+          },
+          select: { amount: true, date: true, category: true },
+        })
+      : [],
+  ]);
+
+  // 逐条比对
+  return actions.map((action) => {
+    const amount = action.data.amount ? toNumber(action.data.amount) : undefined;
+    if (amount === undefined) return false;
+
+    const records = action.type === 'create_expense' ? recentExpenses : recentIncomes;
+    return records.some((r) => {
+      const rAmount = toNumber(r.amount);
+      if (rAmount !== amount) return false;
+      // 如果 action 有日期，检查日期是否匹配
+      if (action.data.date) {
+        const rDate = new Date(r.date);
+        const aDate = new Date(action.data.date);
+        return rDate.toDateString() === aDate.toDateString();
+      }
+      // 没有日期则只按金额+类别匹配
+      return true;
+    });
+  });
+}
+
 const chatSchema = z.object({
   content: z.string().min(1, '内容不能为空'),
 });
@@ -198,13 +280,16 @@ router.post('/ocr', authMiddleware, rateLimitMiddleware(20, 60), async (req: Aut
     // 3. 转换为提议动作（不执行，由前端用户确认后调用 /execute-actions）
     const proposedActions = ocrToActions(data);
 
+    // 3.5 重复检测：检查每条 action 是否与近 7 天已有记录重复（相同金额 + 类型 + 日期）
+    const duplicateFlags = await checkDuplicateActions(familyId, proposedActions);
+
     // 4. 落库对话记录（关联 fileId）
     await prisma.aiConversation.create({
       data: {
         familyId,
         userId,
         content: 'OCR 识别',
-        response: JSON.stringify({ data, proposedActions }),
+        response: JSON.stringify({ data, proposedActions, duplicateFlags }),
         type: 'ocr',
         fileId: stored?.fileId ?? null,
       }
@@ -216,6 +301,7 @@ router.post('/ocr', authMiddleware, rateLimitMiddleware(20, 60), async (req: Aut
       visionConfigured: isVisionConfigured(),
       fileId: stored?.fileId ?? null,
       proposedActions,
+      duplicateFlags,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

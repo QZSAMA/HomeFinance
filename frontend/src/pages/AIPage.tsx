@@ -47,6 +47,7 @@ interface Message {
   actions?: ActionResult[];
   proposedActions?: AIAction[];
   rawText?: string;
+  duplicateFlags?: boolean[];
 }
 
 interface ManualForm {
@@ -87,11 +88,14 @@ export default function AIPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
+  const [ocrProgress, setOcrProgress] = useState('');
   const [aiConfigured, setAiConfigured] = useState(true);
   const [undoingId, setUndoingId] = useState<string | null>(null);
   const [confirmingIdx, setConfirmingIdx] = useState<number | null>(null);
   const [manualForms, setManualForms] = useState<Record<number, ManualForm>>({});
   const [manualSubmitting, setManualSubmitting] = useState<number | null>(null);
+  // 行内可编辑的 proposedActions 副本：{ [messageIdx]: AIAction[] }
+  const [editableActions, setEditableActions] = useState<Record<number, AIAction[]>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -182,18 +186,33 @@ export default function AIPage() {
     if (!file || !currentFamily) return;
 
     setImageLoading(true);
+    setOcrProgress('正在压缩图片...');
     try {
       // 先压缩图片，避免 base64 过大导致请求失败
       const base64 = await compressImage(file, 1600, 0.85);
+      setOcrProgress('正在 OCR 识别 + AI 解析（约 10-30 秒）...');
 
-      const { data, fileId, proposedActions } = await sendOCR(currentFamily.id, base64);
+      const { data, fileId, proposedActions, duplicateFlags } = await sendOCR(currentFamily.id, base64);
       const sourceLabel =
         data.source === 'vision' ? '[AI视觉]' :
         data.source === 'merged' ? '[合并]' : '[本地OCR]';
-      const typeLabel = data.type === 'income' ? '收入' : data.type === 'expense' ? '支出' : '-';
-      const summary = data.amount
-        ? `识别结果 ${sourceLabel}：\n- 类型：${typeLabel}\n- 金额：${data.amount} 元\n- 日期：${data.date || '-'}\n- 类别：${data.category || '-'}\n- 描述：${data.description || '-'}${fileId ? '\n- 原图已归档' : ''}`
-        : data.raw || '无法识别图片内容';
+
+      // 优先用 proposedActions 数量生成摘要（多笔交易场景）
+      let summary: string;
+      if (proposedActions && proposedActions.length > 0) {
+        const itemCount = proposedActions.length;
+        const totalAmount = proposedActions.reduce((sum, a) => sum + Number(a.data.amount || 0), 0);
+        const hasIncome = proposedActions.some(a => a.type === 'create_income');
+        const hasExpense = proposedActions.some(a => a.type === 'create_expense');
+        const typeText = hasIncome && hasExpense ? '收支混合' : hasIncome ? '收入' : '支出';
+        summary = `识别结果 ${sourceLabel}：\n- 共 ${itemCount} 笔交易（${typeText}）\n- 合计金额：¥${totalAmount.toFixed(2)}${fileId ? '\n- 原图已归档' : ''}`;
+      } else if (data.amount) {
+        // 单条交易（旧格式兼容）
+        const typeLabel = data.type === 'income' ? '收入' : data.type === 'expense' ? '支出' : '-';
+        summary = `识别结果 ${sourceLabel}：\n- 类型：${typeLabel}\n- 金额：${data.amount} 元\n- 日期：${data.date || '-'}\n- 类别：${data.category || '-'}\n- 描述：${data.description || '-'}${fileId ? '\n- 原图已归档' : ''}`;
+      } else {
+        summary = data.raw || '无法识别图片内容';
+      }
 
       setMessages((prev) => [
         ...prev,
@@ -203,6 +222,7 @@ export default function AIPage() {
           content: summary,
           proposedActions: proposedActions && proposedActions.length > 0 ? proposedActions : undefined,
           rawText: data.rawText,
+          duplicateFlags,
         },
       ]);
     } catch (error: any) {
@@ -210,27 +230,86 @@ export default function AIPage() {
       setMessages((prev) => [...prev, { role: 'assistant', content: msg }]);
     } finally {
       setImageLoading(false);
+      setOcrProgress('');
     }
   };
 
   const handleConfirmActions = async (messageIdx: number) => {
     if (!currentFamily) return;
     const msg = messages[messageIdx];
-    if (!msg?.proposedActions || msg.proposedActions.length === 0) return;
+    // 优先用编辑后的副本，回退到原始 proposedActions
+    const actionsToConfirm = editableActions[messageIdx] || msg?.proposedActions;
+    if (!actionsToConfirm || actionsToConfirm.length === 0) {
+      alert('没有可确认的记账项');
+      return;
+    }
 
     setConfirmingIdx(messageIdx);
     try {
-      const { actions } = await executeProposedActions(currentFamily.id, msg.proposedActions);
-      // 确认成功：清空 proposedActions，设置已执行的 actions（触发撤销按钮 UI）
+      const { actions } = await executeProposedActions(currentFamily.id, actionsToConfirm);
+      // 确认成功：清空 proposedActions + editableActions，设置已执行的 actions
       setMessages((prev) => prev.map((m, idx) => {
         if (idx !== messageIdx) return m;
         return { ...m, proposedActions: undefined, actions };
       }));
+      setEditableActions((prev) => {
+        const next = { ...prev };
+        delete next[messageIdx];
+        return next;
+      });
     } catch (error: any) {
       alert(error.response?.data?.error || '确认记账失败，请稍后重试');
     } finally {
       setConfirmingIdx(null);
     }
+  };
+
+  // 初始化某条消息的可编辑副本（首次渲染 proposedActions 时调用）
+  const initEditable = (messageIdx: number, actions: AIAction[]) => {
+    setEditableActions((prev) => {
+      if (prev[messageIdx]) return prev; // 已初始化则不覆盖
+      return { ...prev, [messageIdx]: actions.map((a) => ({ ...a, data: { ...a.data } })) };
+    });
+  };
+
+  // 更新某条消息的第 actionIdx 个 action 的字段
+  const updateEditableAction = (
+    messageIdx: number,
+    actionIdx: number,
+    field: 'type' | 'amount' | 'category' | 'description' | 'date',
+    value: string,
+  ) => {
+    setEditableActions((prev) => {
+      const list = prev[messageIdx];
+      if (!list || !list[actionIdx]) return prev;
+      const next = [...list];
+      const action = { ...next[actionIdx], data: { ...next[actionIdx].data } };
+      if (field === 'type') {
+        action.type = value === 'income' ? 'create_income' : 'create_expense';
+      } else if (field === 'amount') {
+        action.data.amount = Number(value) || 0;
+      } else if (field === 'date') {
+        if (value) action.data.date = value;
+        else delete action.data.date;
+      } else {
+        action.data[field] = value || undefined;
+      }
+      next[actionIdx] = action;
+      return { ...prev, [messageIdx]: next };
+    });
+  };
+
+  // 删除某条消息的第 actionIdx 个 action
+  const deleteEditableAction = (messageIdx: number, actionIdx: number) => {
+    setEditableActions((prev) => {
+      const list = prev[messageIdx];
+      if (!list) return prev;
+      const next = list.filter((_, i) => i !== actionIdx);
+      const result = { ...prev };
+      if (next.length === 0) delete result[messageIdx];
+      else result[messageIdx] = next;
+      return result;
+    });
   };
 
   const updateManualForm = (idx: number, field: keyof ManualForm, value: string) => {
@@ -344,38 +423,19 @@ export default function AIPage() {
                 >
                   <pre className="whitespace-pre-wrap font-sans text-sm">{msg.content}</pre>
                 </div>
-                {/* 提议动作卡片（OCR 识别后待确认） */}
+                {/* 提议动作卡片（OCR 识别后待确认，行内可编辑） */}
                 {msg.proposedActions && msg.proposedActions.length > 0 && (
-                  <div className="mt-2 space-y-2">
-                    {msg.proposedActions.map((action, actionIdx) => (
-                      <div
-                        key={actionIdx}
-                        className="px-3 py-2 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-800 text-sm"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center">
-                            <span className="mr-2">📝</span>
-                            <div>
-                              <span className="text-xs font-medium text-gray-500 mr-2">
-                                {actionTypeLabels[action.type] || action.type}
-                              </span>
-                              <span>
-                                {action.data.category} ¥{Number(action.data.amount || 0).toFixed(2)}
-                                {action.data.description ? ` (${action.data.description})` : ''}
-                              </span>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => handleConfirmActions(idx)}
-                            disabled={confirmingIdx === idx}
-                            className="ml-2 px-3 py-1 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50 transition-colors"
-                          >
-                            {confirmingIdx === idx ? '记账中...' : '确认记账'}
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <ProposedActionsCard
+                    messageIdx={idx}
+                    proposedActions={msg.proposedActions}
+                    editableActions={editableActions}
+                    initEditable={initEditable}
+                    updateEditableAction={updateEditableAction}
+                    deleteEditableAction={deleteEditableAction}
+                    onConfirm={handleConfirmActions}
+                    confirmingIdx={confirmingIdx}
+                    duplicateFlags={msg.duplicateFlags}
+                  />
                 )}
                 {/* 手动记账兜底：OCR 有文字但 AI 未识别出结构化信息时展示 */}
                 {msg.role === 'assistant' && msg.rawText && !msg.proposedActions && !msg.actions && (
@@ -497,7 +557,9 @@ export default function AIPage() {
           ))}
           {(loading || imageLoading) && (
             <div className="flex justify-start">
-              <div className="bg-gray-100 px-4 py-2 rounded-lg text-gray-500 text-sm">思考中...</div>
+              <div className="bg-gray-100 px-4 py-2 rounded-lg text-gray-500 text-sm">
+                {imageLoading && ocrProgress ? ocrProgress : '思考中...'}
+              </div>
             </div>
           )}
           <div ref={messagesEndRef} />
@@ -526,6 +588,113 @@ export default function AIPage() {
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// 行内可编辑的 proposedActions 卡片（用 useEffect 初始化，避免 render 中 setState 导致 React #185）
+function ProposedActionsCard({
+  messageIdx,
+  proposedActions,
+  editableActions,
+  initEditable,
+  updateEditableAction,
+  deleteEditableAction,
+  onConfirm,
+  confirmingIdx,
+  duplicateFlags,
+}: {
+  messageIdx: number;
+  proposedActions: AIAction[];
+  editableActions: Record<number, AIAction[]>;
+  initEditable: (idx: number, actions: AIAction[]) => void;
+  updateEditableAction: (msgIdx: number, actionIdx: number, field: 'type' | 'amount' | 'category' | 'description' | 'date', value: string) => void;
+  deleteEditableAction: (msgIdx: number, actionIdx: number) => void;
+  onConfirm: (idx: number) => void;
+  confirmingIdx: number | null;
+  duplicateFlags?: boolean[];
+}) {
+  // 用 useEffect 初始化可编辑副本（不在 render 中调用 setState）
+  useEffect(() => {
+    if (!editableActions[messageIdx]) {
+      initEditable(messageIdx, proposedActions);
+    }
+  }, [messageIdx, proposedActions, editableActions, initEditable]);
+
+  const displayActions = editableActions[messageIdx] || proposedActions;
+  if (displayActions.length === 0) return null;
+
+  return (
+    <div className="mt-2 p-3 rounded-lg border border-indigo-200 bg-indigo-50">
+      <p className="text-xs text-indigo-700 mb-2">
+        识别到 {displayActions.length} 笔交易，请核实后确认记账（可编辑/删除）：
+      </p>
+      <div className="space-y-2">
+        {displayActions.map((action, actionIdx) => (
+          <div
+            key={actionIdx}
+            className={`p-2 rounded bg-white border text-sm ${
+              duplicateFlags?.[actionIdx] ? 'border-amber-400 bg-amber-50' : 'border-indigo-100'
+            }`}
+          >
+            {duplicateFlags?.[actionIdx] && (
+              <p className="text-xs text-amber-600 mb-1">⚠ 此条可能与已有记录重复</p>
+            )}
+            <div className="grid grid-cols-2 gap-2">
+              <select
+                value={action.type === 'create_income' ? 'income' : 'expense'}
+                onChange={(e) => updateEditableAction(messageIdx, actionIdx, 'type', e.target.value)}
+                className="px-2 py-1 border border-gray-300 rounded text-sm"
+              >
+                <option value="expense">支出</option>
+                <option value="income">收入</option>
+              </select>
+              <input
+                type="number"
+                placeholder="金额"
+                value={Number(action.data.amount || 0)}
+                onChange={(e) => updateEditableAction(messageIdx, actionIdx, 'amount', e.target.value)}
+                className="px-2 py-1 border border-gray-300 rounded text-sm"
+              />
+              <input
+                type="text"
+                placeholder="类别"
+                value={action.data.category || ''}
+                onChange={(e) => updateEditableAction(messageIdx, actionIdx, 'category', e.target.value)}
+                className="px-2 py-1 border border-gray-300 rounded text-sm"
+              />
+              <input
+                type="text"
+                placeholder="描述"
+                value={action.data.description || ''}
+                onChange={(e) => updateEditableAction(messageIdx, actionIdx, 'description', e.target.value)}
+                className="px-2 py-1 border border-gray-300 rounded text-sm"
+              />
+              <input
+                type="date"
+                value={action.data.date || ''}
+                onChange={(e) => updateEditableAction(messageIdx, actionIdx, 'date', e.target.value)}
+                className="px-2 py-1 border border-gray-300 rounded text-sm"
+              />
+              <button
+                onClick={() => deleteEditableAction(messageIdx, actionIdx)}
+                className="px-2 py-1 text-xs text-red-600 border border-red-300 rounded hover:bg-red-50"
+              >
+                删除此条
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-2 flex justify-end">
+        <button
+          onClick={() => onConfirm(messageIdx)}
+          disabled={confirmingIdx === messageIdx || displayActions.length === 0}
+          className="px-4 py-1.5 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+        >
+          {confirmingIdx === messageIdx ? '记账中...' : `确认全部记账（${displayActions.length} 笔）`}
+        </button>
       </div>
     </div>
   );
