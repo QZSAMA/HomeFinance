@@ -50,6 +50,12 @@ interface Message {
   duplicateFlags?: boolean[];
 }
 
+// 行内可编辑状态：actions 与 flags 必须同步，删除时索引一致
+interface EditableActionState {
+  actions: AIAction[];
+  flags: boolean[];
+}
+
 interface ManualForm {
   type: 'expense' | 'income';
   amount: string;
@@ -94,8 +100,8 @@ export default function AIPage() {
   const [confirmingIdx, setConfirmingIdx] = useState<number | null>(null);
   const [manualForms, setManualForms] = useState<Record<number, ManualForm>>({});
   const [manualSubmitting, setManualSubmitting] = useState<number | null>(null);
-  // 行内可编辑的 proposedActions 副本：{ [messageIdx]: AIAction[] }
-  const [editableActions, setEditableActions] = useState<Record<number, AIAction[]>>({});
+  // 行内可编辑的 proposedActions 副本（含同步的重复标记）：{ [messageIdx]: { actions, flags } }
+  const [editableActions, setEditableActions] = useState<Record<number, EditableActionState>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -238,7 +244,7 @@ export default function AIPage() {
     if (!currentFamily) return;
     const msg = messages[messageIdx];
     // 优先用编辑后的副本，回退到原始 proposedActions
-    const actionsToConfirm = editableActions[messageIdx] || msg?.proposedActions;
+    const actionsToConfirm = editableActions[messageIdx]?.actions || msg?.proposedActions;
     if (!actionsToConfirm || actionsToConfirm.length === 0) {
       alert('没有可确认的记账项');
       return;
@@ -265,10 +271,18 @@ export default function AIPage() {
   };
 
   // 初始化某条消息的可编辑副本（首次渲染 proposedActions 时调用）
-  const initEditable = (messageIdx: number, actions: AIAction[]) => {
+  // actions 与 flags 同步初始化，避免后续删除时索引错位
+  const initEditable = (messageIdx: number, actions: AIAction[], flags?: boolean[]) => {
     setEditableActions((prev) => {
       if (prev[messageIdx]) return prev; // 已初始化则不覆盖
-      return { ...prev, [messageIdx]: actions.map((a) => ({ ...a, data: { ...a.data } })) };
+      const safeFlags = actions.map((_, i) => flags?.[i] ?? false);
+      return {
+        ...prev,
+        [messageIdx]: {
+          actions: actions.map((a) => ({ ...a, data: { ...a.data } })),
+          flags: safeFlags,
+        },
+      };
     });
   };
 
@@ -280,10 +294,10 @@ export default function AIPage() {
     value: string,
   ) => {
     setEditableActions((prev) => {
-      const list = prev[messageIdx];
-      if (!list || !list[actionIdx]) return prev;
-      const next = [...list];
-      const action = { ...next[actionIdx], data: { ...next[actionIdx].data } };
+      const state = prev[messageIdx];
+      if (!state || !state.actions[actionIdx]) return prev;
+      const nextActions = [...state.actions];
+      const action = { ...nextActions[actionIdx], data: { ...nextActions[actionIdx].data } };
       if (field === 'type') {
         action.type = value === 'income' ? 'create_income' : 'create_expense';
       } else if (field === 'amount') {
@@ -294,21 +308,20 @@ export default function AIPage() {
       } else {
         action.data[field] = value || undefined;
       }
-      next[actionIdx] = action;
-      return { ...prev, [messageIdx]: next };
+      nextActions[actionIdx] = action;
+      return { ...prev, [messageIdx]: { ...state, actions: nextActions } };
     });
   };
 
-  // 删除某条消息的第 actionIdx 个 action
+  // 删除某条消息的第 actionIdx 个 action（同步删除对应 flag，保留空数组避免重新初始化）
   const deleteEditableAction = (messageIdx: number, actionIdx: number) => {
     setEditableActions((prev) => {
-      const list = prev[messageIdx];
-      if (!list) return prev;
-      const next = list.filter((_, i) => i !== actionIdx);
-      const result = { ...prev };
-      if (next.length === 0) delete result[messageIdx];
-      else result[messageIdx] = next;
-      return result;
+      const state = prev[messageIdx];
+      if (!state) return prev;
+      const nextActions = state.actions.filter((_, i) => i !== actionIdx);
+      const nextFlags = state.flags.filter((_, i) => i !== actionIdx);
+      // 保留空数组而非 delete，否则 useEffect 检测到 undefined 会用 proposedActions 重新初始化
+      return { ...prev, [messageIdx]: { actions: nextActions, flags: nextFlags } };
     });
   };
 
@@ -607,8 +620,8 @@ function ProposedActionsCard({
 }: {
   messageIdx: number;
   proposedActions: AIAction[];
-  editableActions: Record<number, AIAction[]>;
-  initEditable: (idx: number, actions: AIAction[]) => void;
+  editableActions: Record<number, EditableActionState>;
+  initEditable: (idx: number, actions: AIAction[], flags?: boolean[]) => void;
   updateEditableAction: (msgIdx: number, actionIdx: number, field: 'type' | 'amount' | 'category' | 'description' | 'date', value: string) => void;
   deleteEditableAction: (msgIdx: number, actionIdx: number) => void;
   onConfirm: (idx: number) => void;
@@ -616,14 +629,24 @@ function ProposedActionsCard({
   duplicateFlags?: boolean[];
 }) {
   // 用 useEffect 初始化可编辑副本（不在 render 中调用 setState）
+  // actions 与 flags 同步初始化，删除时不会索引错位
   useEffect(() => {
     if (!editableActions[messageIdx]) {
-      initEditable(messageIdx, proposedActions);
+      initEditable(messageIdx, proposedActions, duplicateFlags);
     }
-  }, [messageIdx, proposedActions, editableActions, initEditable]);
+  }, [messageIdx, proposedActions, editableActions, initEditable, duplicateFlags]);
 
-  const displayActions = editableActions[messageIdx] || proposedActions;
-  if (displayActions.length === 0) return null;
+  const state = editableActions[messageIdx];
+  // 已初始化后用 state（即使为空数组也保留，避免回退到 proposedActions 导致删除的记录复活）
+  const displayActions = state?.actions ?? proposedActions;
+  const displayFlags = state?.flags ?? duplicateFlags ?? [];
+  if (displayActions.length === 0) {
+    return (
+      <div className="mt-2 p-3 rounded-lg border border-gray-200 bg-gray-50">
+        <p className="text-xs text-gray-500">已删除全部记录，可继续上传或输入消息</p>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-2 p-3 rounded-lg border border-indigo-200 bg-indigo-50">
@@ -635,10 +658,10 @@ function ProposedActionsCard({
           <div
             key={actionIdx}
             className={`p-2 rounded bg-white border text-sm ${
-              duplicateFlags?.[actionIdx] ? 'border-amber-400 bg-amber-50' : 'border-indigo-100'
+              displayFlags[actionIdx] ? 'border-amber-400 bg-amber-50' : 'border-indigo-100'
             }`}
           >
-            {duplicateFlags?.[actionIdx] && (
+            {displayFlags[actionIdx] && (
               <p className="text-xs text-amber-600 mb-1">⚠ 此条可能与已有记录重复</p>
             )}
             <div className="grid grid-cols-2 gap-2">
