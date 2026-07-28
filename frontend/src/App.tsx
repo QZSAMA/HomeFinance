@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
@@ -6,12 +6,8 @@ import FamiliesPage from './pages/FamiliesPage';
 import TransactionsPage from './pages/TransactionsPage';
 import AssetsPage from './pages/AssetsPage';
 import LiabilitiesPage from './pages/LiabilitiesPage';
-import BalanceSheetPage from './pages/BalanceSheetPage';
-import IncomeStatementPage from './pages/IncomeStatementPage';
-import CashFlowPage from './pages/CashFlowPage';
-import InvestmentPage from './pages/InvestmentPage';
+import ReportsPage from './pages/ReportsPage';
 import AIPage from './pages/AIPage';
-import AIAnalysisPage from './pages/AIAnalysisPage';
 import FilesPage from './pages/FilesPage';
 import BudgetPage from './pages/BudgetPage';
 import RecurringPage from './pages/RecurringPage';
@@ -78,61 +74,27 @@ function App() {
           }
         />
         <Route
-          path="/reports/balance-sheet"
+          path="/reports"
           element={
             <ProtectedRoute>
               <Layout>
-                <BalanceSheetPage />
+                <ReportsPage />
               </Layout>
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/reports/income-statement"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <IncomeStatementPage />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/reports/cash-flow"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <CashFlowPage />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/reports/investment"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <InvestmentPage />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
+        {/* 旧路由重定向（向下兼容书签） */}
+        <Route path="/reports/balance-sheet" element={<Navigate to="/reports" replace />} />
+        <Route path="/reports/income-statement" element={<Navigate to="/reports" replace />} />
+        <Route path="/reports/cash-flow" element={<Navigate to="/reports" replace />} />
+        <Route path="/reports/investment" element={<Navigate to="/reports" replace />} />
+        <Route path="/reports/ai-analysis" element={<Navigate to="/ai" replace />} />
         <Route
           path="/ai"
           element={
             <ProtectedRoute>
               <Layout>
                 <AIPage />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/reports/ai-analysis"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <AIAnalysisPage />
               </Layout>
             </ProtectedRoute>
           }

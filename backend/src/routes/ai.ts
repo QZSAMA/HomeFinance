@@ -106,8 +106,15 @@ async function checkDuplicateActions(
 }
 
 const chatSchema = z.object({
-  content: z.string().min(1, '内容不能为空'),
-});
+  content: z.string().optional(),
+  images: z.array(z.string().min(1)).optional(),
+}).refine(
+  (data) => (data.content && data.content.trim().length > 0) || (data.images && data.images.length > 0),
+  { message: '内容和图片至少需要一个非空' },
+).refine(
+  (data) => !data.images || data.images.length <= 10,
+  { message: '图片数量不能超过 10 张' },
+);
 
 const ocrSchema = z.object({
   image: z.string().min(1, '图片数据不能为空'),
@@ -130,9 +137,131 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
       return res.status(403).json({ error: '无权访问该家庭' });
     }
 
-    const { content } = chatSchema.parse(req.body);
+    const { content, images } = chatSchema.parse(req.body);
+    const hasImages = !!(images && images.length > 0);
+    const hasText = !!(content && content.trim().length > 0);
 
-    // 获取家庭财务上下文，帮助 AI 理解用户指令
+    // ===== 场景 A: 仅文本（原 chat 逻辑，保持完全向后兼容）=====
+    if (hasText && !hasImages) {
+      const [recentIncomes, recentExpenses, assets, liabilities, recentChats] = await Promise.all([
+        prisma.income.findMany({ where: { familyId }, orderBy: { date: 'desc' }, take: 5 }),
+        prisma.expense.findMany({ where: { familyId }, orderBy: { date: 'desc' }, take: 5 }),
+        prisma.asset.findMany({ where: { familyId }, orderBy: { value: 'desc' }, take: 10 }),
+        prisma.liability.findMany({ where: { familyId }, orderBy: { amount: 'desc' }, take: 10 }),
+        prisma.aiConversation.findMany({
+          where: { familyId, type: 'chat' },
+          orderBy: { createdAt: 'desc' },
+          take: 10,
+        }),
+      ]);
+
+      const historyMessages = recentChats
+        .reverse()
+        .flatMap(h => [
+          { role: 'user' as const, content: h.content },
+          { role: 'assistant' as const, content: h.response },
+        ]);
+
+      const parsed = await chatWithActions(content!, {
+        recentIncomes: recentIncomes.map(i => ({ category: i.category, amount: toNumber(i.amount), date: i.date })),
+        recentExpenses: recentExpenses.map(e => ({ category: e.category, amount: toNumber(e.amount), date: e.date })),
+        assets: assets.map(a => ({ name: a.name, type: a.type, value: toNumber(a.value) })),
+        liabilities: liabilities.map(l => ({ name: l.name, type: l.type, amount: toNumber(l.amount) })),
+      }, historyMessages);
+
+      let actionResults: any[] = [];
+      if (parsed.actions.length > 0) {
+        actionResults = await executeActions(familyId, req.userId!, parsed.actions);
+      }
+
+      await prisma.aiConversation.create({
+        data: {
+          familyId,
+          userId: req.userId!,
+          content,
+          response: parsed.reply,
+          type: 'chat',
+        }
+      });
+
+      return res.json({
+        response: parsed.reply,
+        actions: actionResults,
+        aiConfigured: isAIConfigured(),
+      });
+    }
+
+    // ===== 场景 B/C: 含图片（OCR 流程，统一端点模式）=====
+    // 并行：每张图 OCR + 持久化（单图失败不阻塞其他）
+    const fileIds: string[] = [];
+    const allProposedActions: AIAction[] = [];
+    const ocrSummaries: string[] = [];
+
+    const ocrResults = await Promise.allSettled(
+      (images || []).map(async (imgBase64, idx) => {
+        // 1. 持久化原图（失败不阻塞）
+        const stored = await storeOcrImage(req.userId!, familyId, imgBase64).catch(() => null);
+        if (stored?.fileId) fileIds.push(stored.fileId);
+
+        // 2. OCR + 多模态识别
+        const data = await parseReceiptOCR(imgBase64);
+        const actions = ocrToActions(data);
+
+        // 多图时加标签（Anthropic 建议 "Image 1:", "Image 2:"）
+        const label = `[图片 ${idx + 1}]`;
+        const summary = `${label} 金额=${data.amount ?? '-'}, 类别=${data.category ?? '-'}, 描述=${data.description ?? '-'}`;
+        ocrSummaries.push(summary);
+
+        return { actions, data };
+      })
+    );
+
+    // 收集成功的 actions
+    let successCount = 0;
+    let failedCount = 0;
+    ocrResults.forEach((r, idx) => {
+      if (r.status === 'fulfilled') {
+        allProposedActions.push(...r.value.actions);
+        successCount++;
+      } else {
+        failedCount++;
+        console.warn(`图片 ${idx + 1} OCR 失败:`, r.reason);
+      }
+    });
+
+    // 所有图都失败 → 报错
+    if (successCount === 0 && failedCount > 0) {
+      throw new AIError('所有图片识别失败，请稍后重试或换张图片', 500);
+    }
+
+    // 场景 B: 仅图片（无文本）→ 直接走 OCR 提议流程
+    if (!hasText) {
+      const duplicateFlags = await checkDuplicateActions(familyId, allProposedActions);
+
+      await prisma.aiConversation.create({
+        data: {
+          familyId,
+          userId: req.userId!,
+          content: `[上传图片 ${images!.length} 张]`,
+          response: JSON.stringify({ proposedActions: allProposedActions, duplicateFlags }),
+          type: 'ocr',
+        }
+      });
+
+      return res.json({
+        response: `识别到 ${allProposedActions.length} 笔交易（成功 ${successCount} 张，失败 ${failedCount} 张）`,
+        actions: [],
+        proposedActions: allProposedActions,
+        duplicateFlags,
+        fileIds,
+        aiConfigured: isAIConfigured(),
+      });
+    }
+
+    // 场景 C: 图片 + 文本 → OCR 后用文本作为上下文调整 proposedActions
+    const ocrContext = ocrSummaries.join('\n');
+    const augmentedContent = `${content}\n\n[OCR 识别结果参考，可据此调整或过滤]\n${ocrContext}`;
+
     const [recentIncomes, recentExpenses, assets, liabilities, recentChats] = await Promise.all([
       prisma.income.findMany({ where: { familyId }, orderBy: { date: 'desc' }, take: 5 }),
       prisma.expense.findMany({ where: { familyId }, orderBy: { date: 'desc' }, take: 5 }),
@@ -145,7 +274,6 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
       }),
     ]);
 
-    // 历史对话按时间升序（旧→新），映射为 {role, content} 数组
     const historyMessages = recentChats
       .reverse()
       .flatMap(h => [
@@ -153,34 +281,37 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
         { role: 'assistant' as const, content: h.response },
       ]);
 
-    // 调用 AI 解析意图
-    const parsed = await chatWithActions(content, {
+    const parsed = await chatWithActions(augmentedContent, {
       recentIncomes: recentIncomes.map(i => ({ category: i.category, amount: toNumber(i.amount), date: i.date })),
       recentExpenses: recentExpenses.map(e => ({ category: e.category, amount: toNumber(e.amount), date: e.date })),
       assets: assets.map(a => ({ name: a.name, type: a.type, value: toNumber(a.value) })),
       liabilities: liabilities.map(l => ({ name: l.name, type: l.type, amount: toNumber(l.amount) })),
     }, historyMessages);
 
-    // 执行 AI 返回的动作
-    let actionResults: any[] = [];
-    if (parsed.actions.length > 0) {
-      actionResults = await executeActions(familyId, req.userId!, parsed.actions);
-    }
+    // 若 AI 调整后未返回 actions，回退用 OCR 原始 proposedActions
+    const finalActions = parsed.actions.length > 0 ? parsed.actions : allProposedActions;
+    const duplicateFlags = await checkDuplicateActions(familyId, finalActions);
 
-    // 落库对话记录
+    let actionResults: any[] = [];
+    // 图片场景默认不自动执行（proposedActions 需用户确认），除非 AI 明确返回且用户文本含"记账/确认"等指令
+    // 这里保持提议模式：返回 proposedActions 让前端确认
+
     await prisma.aiConversation.create({
       data: {
         familyId,
         userId: req.userId!,
-        content,
-        response: parsed.reply,
-        type: 'chat',
+        content: `${content} [附图 ${images!.length} 张]`,
+        response: JSON.stringify({ reply: parsed.reply, proposedActions: finalActions, duplicateFlags }),
+        type: 'ocr',
       }
     });
 
-    res.json({
+    return res.json({
       response: parsed.reply,
       actions: actionResults,
+      proposedActions: finalActions,
+      duplicateFlags,
+      fileIds,
       aiConfigured: isAIConfigured(),
     });
   } catch (error) {

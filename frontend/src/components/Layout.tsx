@@ -3,6 +3,180 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import FamilySelector from './FamilySelector';
 
+// 菜单项类型：叶子节点（path 必有）或分组节点（children 必有）
+type MenuItem = {
+  path?: string;
+  label: string;
+  icon: string;
+  children?: MenuItem[];
+  defaultOpen?: boolean;
+};
+
+const menuItems: MenuItem[] = [
+  { path: '/', label: '仪表板', icon: '📊' },
+  {
+    label: '家庭与交易', icon: '🏠', defaultOpen: true,
+    children: [
+      { path: '/families', label: '家庭管理', icon: '👨‍👩‍👧‍👦' },
+      { path: '/transactions', label: '交易记录', icon: '💰' },
+      { path: '/budgets', label: '预算管理', icon: '🎯' },
+      { path: '/recurring', label: '定期记账', icon: '🔁' },
+      { path: '/goals', label: '财务目标', icon: '⭐' },
+    ],
+  },
+  {
+    label: '资产负债', icon: '💼',
+    children: [
+      { path: '/assets', label: '资产管理', icon: '🏠' },
+      { path: '/liabilities', label: '负债管理', icon: '💳' },
+    ],
+  },
+  { path: '/reports', label: '财务报表', icon: '📈' },
+  { path: '/ai', label: 'AI 助手', icon: '🤖' },
+  {
+    label: '工具', icon: '🧰',
+    children: [
+      { path: '/files', label: '文件管理', icon: '📁' },
+      { path: '/compare', label: '家庭对比', icon: '⚖️' },
+      { path: '/import', label: '数据导入', icon: '📥' },
+    ],
+  },
+];
+
+// 分组菜单项子组件：处理展开/折叠状态和子项渲染
+function GroupedMenuItem({ item, currentPath, collapsed }: {
+  item: MenuItem;
+  currentPath: string;
+  collapsed: boolean;
+}) {
+  const [open, setOpen] = useState(item.defaultOpen ?? false);
+
+  // 当前路由命中任一子项时，父项高亮并自动展开
+  const activeChild = item.children?.find(child => child.path === currentPath);
+  useEffect(() => {
+    if (activeChild) setOpen(true);
+  }, [activeChild]);
+
+  const isParentActive = !!activeChild;
+
+  // 侧边栏折叠状态下：显示为单个图标按钮，hover 弹出浮层
+  if (collapsed) {
+    return (
+      <div className="relative group">
+        <button
+          className={`flex items-center justify-center w-full px-4 py-3 rounded-lg transition-colors ${
+            isParentActive ? 'bg-indigo-50 text-indigo-600' : 'text-gray-600 hover:bg-gray-50'
+          }`}
+          aria-label={item.label}
+        >
+          <span className="text-xl">{item.icon}</span>
+        </button>
+        {/* hover 浮层 */}
+        <div className="absolute left-full top-0 ml-2 hidden group-hover:block z-50 bg-white shadow-lg rounded-lg border border-gray-200 min-w-[160px]">
+          <div className="px-4 py-2 text-xs font-medium text-gray-500 border-b border-gray-100">
+            {item.label}
+          </div>
+          {item.children?.map(child => (
+            <Link
+              key={child.path}
+              to={child.path!}
+              className={`flex items-center px-4 py-2 text-sm transition-colors ${
+                currentPath === child.path
+                  ? 'bg-indigo-50 text-indigo-600'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <span className="mr-2">{child.icon}</span>
+              {child.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // 展开状态：父项按钮 + 可折叠子项列表
+  return (
+    <div>
+      <button
+        onClick={() => setOpen(!open)}
+        className={`flex items-center justify-between w-full px-4 py-3 rounded-lg transition-colors ${
+          isParentActive ? 'bg-indigo-50 text-indigo-600' : 'text-gray-600 hover:bg-gray-50'
+        }`}
+      >
+        <div className="flex items-center">
+          <span className="text-xl">{item.icon}</span>
+          <span className="ml-3">{item.label}</span>
+        </div>
+        <span className={`text-xs transition-transform ${open ? 'rotate-90' : ''}`}>▶</span>
+      </button>
+      {open && (
+        <div className="mt-1 ml-4 space-y-1 border-l border-gray-200 pl-2">
+          {item.children?.map(child => (
+            <Link
+              key={child.path}
+              to={child.path!}
+              className={`flex items-center px-3 py-2 rounded-lg text-sm transition-colors ${
+                currentPath === child.path
+                  ? 'bg-indigo-50 text-indigo-600'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <span className="mr-2">{child.icon}</span>
+              {child.label}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 渲染单个菜单项（叶子 or 分组）
+function renderMenuItem(item: MenuItem, currentPath: string, collapsed: boolean) {
+  if (item.children && item.children.length > 0) {
+    return (
+      <GroupedMenuItem
+        key={item.label}
+        item={item}
+        currentPath={currentPath}
+        collapsed={collapsed}
+      />
+    );
+  }
+  // 叶子节点
+  if (collapsed) {
+    return (
+      <Link
+        key={item.path}
+        to={item.path!}
+        className={`flex items-center justify-center w-full px-4 py-3 rounded-lg transition-colors ${
+          currentPath === item.path
+            ? 'bg-indigo-50 text-indigo-600'
+            : 'text-gray-600 hover:bg-gray-50'
+        }`}
+        title={item.label}
+      >
+        <span className="text-xl">{item.icon}</span>
+      </Link>
+    );
+  }
+  return (
+    <Link
+      key={item.path}
+      to={item.path!}
+      className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+        currentPath === item.path
+          ? 'bg-indigo-50 text-indigo-600'
+          : 'text-gray-600 hover:bg-gray-50'
+      }`}
+    >
+      <span className="text-xl">{item.icon}</span>
+      <span className="ml-3">{item.label}</span>
+    </Link>
+  );
+}
+
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true); // desktop expand/collapse
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false); // mobile drawer
@@ -20,26 +194,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     setMobileSidebarOpen(false);
   }, [location.pathname]);
 
-  const menuItems = [
-    { path: '/', label: '仪表板', icon: '📊' },
-    { path: '/families', label: '家庭管理', icon: '👨‍👩‍👧‍👦' },
-    { path: '/transactions', label: '交易记录', icon: '💰' },
-    { path: '/assets', label: '资产管理', icon: '🏠' },
-    { path: '/liabilities', label: '负债管理', icon: '💳' },
-    { path: '/reports/balance-sheet', label: '资产负债表', icon: '📈' },
-    { path: '/reports/income-statement', label: '利润表', icon: '📋' },
-    { path: '/reports/cash-flow', label: '现金流量表', icon: '💵' },
-    { path: '/reports/investment', label: '投资配置', icon: '📊' },
-    { path: '/reports/ai-analysis', label: 'AI 分析', icon: '📈' },
-    { path: '/files', label: '文件管理', icon: '📁' },
-    { path: '/budgets', label: '预算管理', icon: '🎯' },
-    { path: '/recurring', label: '定期记账', icon: '🔁' },
-    { path: '/compare', label: '家庭对比', icon: '⚖️' },
-    { path: '/import', label: '数据导入', icon: '📥' },
-    { path: '/goals', label: '财务目标', icon: '⭐' },
-    { path: '/ai', label: 'AI 助手', icon: '🤖' },
-  ];
-
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="flex">
@@ -56,20 +210,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             {!sidebarOpen && <h1 className="font-bold text-xl text-indigo-600 text-center">F</h1>}
           </div>
           <nav className="p-4 space-y-2 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
-            {menuItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
-                  location.pathname === item.path
-                    ? 'bg-indigo-50 text-indigo-600'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                <span className="text-xl">{item.icon}</span>
-                {sidebarOpen && <span className="ml-3">{item.label}</span>}
-              </Link>
-            ))}
+            {menuItems.map(item => renderMenuItem(item, location.pathname, !sidebarOpen))}
           </nav>
         </aside>
 
@@ -92,20 +233,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 </button>
               </div>
               <nav className="p-4 space-y-2">
-                {menuItems.map((item) => (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
-                      location.pathname === item.path
-                        ? 'bg-indigo-50 text-indigo-600'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    <span className="text-xl">{item.icon}</span>
-                    <span className="ml-3">{item.label}</span>
-                  </Link>
-                ))}
+                {menuItems.map(item => renderMenuItem(item, location.pathname, false))}
               </nav>
             </aside>
           </div>

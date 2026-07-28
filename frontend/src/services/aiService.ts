@@ -54,11 +54,26 @@ export interface ActionResult {
 export interface ChatResponse {
   response: string;
   actions: ActionResult[];
+  proposedActions?: AIAction[];
+  duplicateFlags?: boolean[];
+  fileIds?: string[];
   aiConfigured: boolean;
 }
 
-export const sendChat = async (familyId: string, content: string): Promise<ChatResponse> => {
-  const response = await api.post<ChatResponse>(`/families/${familyId}/ai/chat`, { content });
+export const sendChat = async (
+  familyId: string,
+  content: string,
+  images?: string[],
+): Promise<ChatResponse> => {
+  const body: Record<string, unknown> = {};
+  if (content.trim()) body.content = content;
+  if (images && images.length > 0) body.images = images;
+  const response = await api.post<ChatResponse>(
+    `/families/${familyId}/ai/chat`,
+    body,
+    // 含图片时延长超时到 120s（OCR 较慢）
+    images && images.length > 0 ? { timeout: 120000 } : undefined,
+  );
   return response.data;
 };
 

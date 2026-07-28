@@ -3,9 +3,9 @@ import { useFamilyStore } from '../store/useFamilyStore';
 import {
   sendChat,
   getHistory,
-  sendOCR,
   undoAction,
   executeProposedActions,
+  getAnalysis,
   type ConversationRecord,
   type ActionResult,
   type AIAction,
@@ -86,7 +86,11 @@ const quickCommands = [
   '我有10万股票',
   '还有50万房贷',
   '查看本月支出',
+  '生成财务分析报告',
 ];
+
+// AI 分析指令关键词：用户输入含这些词时触发 getAnalysis（而非 sendChat）
+const ANALYSIS_KEYWORDS = ['分析报告', '财务分析', '生成报告', '出个报告', '出一份报告'];
 
 export default function AIPage() {
   const { currentFamily } = useFamilyStore();
@@ -102,7 +106,10 @@ export default function AIPage() {
   const [manualSubmitting, setManualSubmitting] = useState<number | null>(null);
   // 行内可编辑的 proposedActions 副本（含同步的重复标记）：{ [messageIdx]: { actions, flags } }
   const [editableActions, setEditableActions] = useState<Record<number, EditableActionState>>({});
+  // composer 模式：待发送的图片附件（base64 数组，按添加顺序保留）
+  const [pendingImages, setPendingImages] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (currentFamily) {
@@ -131,18 +138,120 @@ export default function AIPage() {
     }
   };
 
-  const handleSend = async (text?: string) => {
-    const userMsg = (text || input).trim();
-    if (!userMsg || !currentFamily) return;
+  // composer 模式：选择图片后压缩并加入待发送列表（不立即 OCR）
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0 || !currentFamily) return;
 
+    setImageLoading(true);
+    setOcrProgress('正在压缩图片...');
+    try {
+      const newImages: string[] = [];
+      // 限制总数量不超过 10 张
+      const remaining = 10 - pendingImages.length;
+      const filesToAdd = Array.from(files).slice(0, remaining);
+      for (const file of filesToAdd) {
+        const base64 = await compressImage(file, 1600, 0.85);
+        newImages.push(base64);
+      }
+      setPendingImages((prev) => [...prev, ...newImages]);
+    } catch (error: any) {
+      alert('图片处理失败：' + (error.message || '未知错误'));
+    } finally {
+      setImageLoading(false);
+      setOcrProgress('');
+      // 关键：重置 input value，否则选同一文件不会触发下次 onChange（修复"点击无反应"bug）
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  // 删除待发送列表中的第 idx 张图片
+  const removePendingImage = (idx: number) => {
+    setPendingImages((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  // AI 分析请求：调用 getAnalysis 生成财务分析报告，渲染在对话区
+  const handleAnalysisRequest = async (userMsg: string) => {
+    if (!currentFamily) return;
     setMessages((prev) => [...prev, { role: 'user', content: userMsg }]);
     setInput('');
     setLoading(true);
+    setOcrProgress('正在生成财务分析报告（约 10-30 秒）...');
+    try {
+      const { report, aiConfigured: configured } = await getAnalysis(currentFamily.id);
+      setAiConfigured(configured);
+      setMessages((prev) => [...prev, { role: 'assistant', content: report }]);
+    } catch (error: any) {
+      let msg: string;
+      if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+        msg = 'AI 分析超时，请稍后重试。';
+      } else if (error.response?.status === 429) {
+        msg = '请求过于频繁，请稍等片刻再试。';
+      } else if (error.response?.data?.error) {
+        msg = error.response.data.error;
+      } else if (!error.response) {
+        msg = '网络连接失败，请检查后端服务是否正常运行。';
+      } else {
+        msg = '分析失败，请稍后重试';
+      }
+      setMessages((prev) => [...prev, { role: 'assistant', content: msg }]);
+    } finally {
+      setLoading(false);
+      setOcrProgress('');
+    }
+  };
+
+  const handleSend = async (text?: string) => {
+    const userMsg = (text || input).trim();
+    // composer 模式：文本或图片至少一个非空才发送
+    if (!currentFamily) return;
+    if (!userMsg && pendingImages.length === 0) return;
+    // quickCommands 场景：直接传 text 且无图片
+    const isQuickCommand = !!text && pendingImages.length === 0;
+    const imagesToSend = isQuickCommand ? undefined : pendingImages;
+
+    // AI 分析指令识别：仅文本（无图片）且命中关键词 → 触发 getAnalysis
+    if (!imagesToSend && userMsg && ANALYSIS_KEYWORDS.some(kw => userMsg.includes(kw))) {
+      return handleAnalysisRequest(userMsg);
+    }
+
+    // 构造用户消息展示
+    const displayContent = userMsg
+      ? (pendingImages.length > 0 ? `${userMsg}\n[附图 ${pendingImages.length} 张]` : userMsg)
+      : `[上传图片 ${pendingImages.length} 张]`;
+
+    setMessages((prev) => [...prev, { role: 'user', content: displayContent }]);
+    setInput('');
+    setPendingImages([]);
+    setLoading(true);
+    if (imagesToSend && imagesToSend.length > 0) {
+      setOcrProgress('正在 OCR 识别 + AI 解析（约 10-60 秒）...');
+    }
 
     try {
-      const { response, actions, aiConfigured: configured } = await sendChat(currentFamily.id, userMsg);
+      const { response, actions, aiConfigured: configured, proposedActions, duplicateFlags, fileIds } =
+        await sendChat(currentFamily.id, userMsg, imagesToSend);
       setAiConfigured(configured);
-      setMessages((prev) => [...prev, { role: 'assistant', content: response, actions }]);
+
+      // 构造助手消息：含图片时优先用 proposedActions 摘要
+      let assistantContent = response;
+      if (proposedActions && proposedActions.length > 0) {
+        const itemCount = proposedActions.length;
+        const totalAmount = proposedActions.reduce((sum, a) => sum + Number(a.data.amount || 0), 0);
+        const hasIncome = proposedActions.some(a => a.type === 'create_income');
+        const hasExpense = proposedActions.some(a => a.type === 'create_expense');
+        const typeText = hasIncome && hasExpense ? '收支混合' : hasIncome ? '收入' : '支出';
+        const fileIdNote = fileIds && fileIds.length > 0 ? `\n- 原图已归档（${fileIds.length} 张）` : '';
+        assistantContent = `${response}\n- 共 ${itemCount} 笔交易（${typeText}）\n- 合计金额：¥${totalAmount.toFixed(2)}${fileIdNote}`;
+      }
+
+      setMessages((prev) => [...prev, {
+        role: 'assistant',
+        content: assistantContent,
+        actions: actions && actions.length > 0 ? actions : undefined,
+        proposedActions,
+        duplicateFlags,
+      }]);
     } catch (error: any) {
       let msg: string;
       if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
@@ -159,6 +268,7 @@ export default function AIPage() {
       setMessages((prev) => [...prev, { role: 'assistant', content: msg }]);
     } finally {
       setLoading(false);
+      setOcrProgress('');
     }
   };
 
@@ -184,59 +294,6 @@ export default function AIPage() {
       alert(error.response?.data?.error || '撤销失败');
     } finally {
       setUndoingId(null);
-    }
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !currentFamily) return;
-
-    setImageLoading(true);
-    setOcrProgress('正在压缩图片...');
-    try {
-      // 先压缩图片，避免 base64 过大导致请求失败
-      const base64 = await compressImage(file, 1600, 0.85);
-      setOcrProgress('正在 OCR 识别 + AI 解析（约 10-30 秒）...');
-
-      const { data, fileId, proposedActions, duplicateFlags } = await sendOCR(currentFamily.id, base64);
-      const sourceLabel =
-        data.source === 'vision' ? '[AI视觉]' :
-        data.source === 'merged' ? '[合并]' : '[本地OCR]';
-
-      // 优先用 proposedActions 数量生成摘要（多笔交易场景）
-      let summary: string;
-      if (proposedActions && proposedActions.length > 0) {
-        const itemCount = proposedActions.length;
-        const totalAmount = proposedActions.reduce((sum, a) => sum + Number(a.data.amount || 0), 0);
-        const hasIncome = proposedActions.some(a => a.type === 'create_income');
-        const hasExpense = proposedActions.some(a => a.type === 'create_expense');
-        const typeText = hasIncome && hasExpense ? '收支混合' : hasIncome ? '收入' : '支出';
-        summary = `识别结果 ${sourceLabel}：\n- 共 ${itemCount} 笔交易（${typeText}）\n- 合计金额：¥${totalAmount.toFixed(2)}${fileId ? '\n- 原图已归档' : ''}`;
-      } else if (data.amount) {
-        // 单条交易（旧格式兼容）
-        const typeLabel = data.type === 'income' ? '收入' : data.type === 'expense' ? '支出' : '-';
-        summary = `识别结果 ${sourceLabel}：\n- 类型：${typeLabel}\n- 金额：${data.amount} 元\n- 日期：${data.date || '-'}\n- 类别：${data.category || '-'}\n- 描述：${data.description || '-'}${fileId ? '\n- 原图已归档' : ''}`;
-      } else {
-        summary = data.raw || '无法识别图片内容';
-      }
-
-      setMessages((prev) => [
-        ...prev,
-        { role: 'user', content: `[上传图片: ${file.name}]` },
-        {
-          role: 'assistant',
-          content: summary,
-          proposedActions: proposedActions && proposedActions.length > 0 ? proposedActions : undefined,
-          rawText: data.rawText,
-          duplicateFlags,
-        },
-      ]);
-    } catch (error: any) {
-      const msg = error.response?.data?.error || '图片识别失败，请稍后重试';
-      setMessages((prev) => [...prev, { role: 'assistant', content: msg }]);
-    } finally {
-      setImageLoading(false);
-      setOcrProgress('');
     }
   };
 
@@ -579,27 +636,70 @@ export default function AIPage() {
         </div>
 
         <div className="border-t border-gray-200 p-4">
+          {/* composer 模式：待发送图片预览区（缩略图网格，可删除） */}
+          {pendingImages.length > 0 && (
+            <div className="mb-2 flex flex-wrap gap-2 p-2 bg-gray-50 rounded-lg">
+              {pendingImages.map((img, idx) => (
+                <div key={idx} className="relative w-20 h-20 group">
+                  <img src={img} alt={`待发送 ${idx + 1}`} className="w-full h-full object-cover rounded border border-gray-300" />
+                  <button
+                    onClick={() => removePendingImage(idx)}
+                    className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                    aria-label={`删除图片 ${idx + 1}`}
+                  >
+                    ×
+                  </button>
+                  <span className="absolute bottom-0 left-0 bg-black/60 text-white text-[10px] px-1 rounded-tr">
+                    {idx + 1}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="flex items-center space-x-2">
-            <label className="cursor-pointer px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors text-gray-600">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={pendingImages.length >= 10}
+              className="cursor-pointer px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              title={pendingImages.length >= 10 ? '最多 10 张' : '上传图片'}
+            >
               📷
-              <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-            </label>
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={handleFileSelect}
+            />
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="输入消息，如：午饭花了50块"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
+              placeholder={pendingImages.length > 0 ? '补充说明（可选），如：这是昨天的午餐' : '输入消息，如：午饭花了50块'}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             <button
               onClick={() => handleSend()}
-              disabled={loading || !input.trim()}
+              disabled={loading || (!input.trim() && pendingImages.length === 0)}
               className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
             >
               发送
             </button>
           </div>
+          {pendingImages.length > 0 && (
+            <p className="mt-1 text-xs text-gray-400">
+              已选 {pendingImages.length} 张图片，发送后将一并识别。可继续添加文本说明或点击发送。
+            </p>
+          )}
         </div>
       </div>
     </div>

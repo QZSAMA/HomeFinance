@@ -224,6 +224,153 @@ describe('AI Routes', () => {
       expect(Array.isArray(historyArg)).toBe(true);
       expect(historyArg).toHaveLength(0);
     });
+
+    // ===== 扩展 /chat 支持图片（统一对话端点，AGI 标准模式）=====
+
+    test('仅有图片无文本 → 走 OCR 流程，返回 proposedActions', async () => {
+      // 模拟 OCR 识别出 1 笔交易
+      mockedParseReceiptOCR.mockResolvedValue({
+        amount: 50,
+        date: '2026-07-27',
+        category: '餐饮',
+        description: '午餐',
+        source: 'tesseract',
+      });
+      mockedOcrToActions.mockReturnValue([
+        { type: 'create_expense', data: { amount: 50, category: '餐饮', date: '2026-07-27', description: '午餐' } },
+      ]);
+      mockedStoreOcrImage.mockResolvedValue({ fileId: 'file_img1', path: 'some/path.jpg' });
+      mockedPrisma.aiConversation.create.mockResolvedValue({});
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/chat')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ images: ['base64_img1'] });
+
+      expect(res.status).toBe(200);
+      expect(res.body.proposedActions).toHaveLength(1);
+      expect(res.body.proposedActions[0].type).toBe('create_expense');
+      expect(res.body.fileIds).toEqual(['file_img1']);
+      expect(res.body.duplicateFlags).toHaveLength(1);
+      // chatWithActions 不应被调用（纯 OCR 场景）
+      expect(mockedChatWithActions).not.toHaveBeenCalled();
+      // parseReceiptOCR 应被调用 1 次
+      expect(mockedParseReceiptOCR).toHaveBeenCalledTimes(1);
+      expect(mockedParseReceiptOCR).toHaveBeenCalledWith('base64_img1');
+    });
+
+    test('图片+文本一起发送 → OCR 后用文本作为上下文调整 proposedActions', async () => {
+      mockedParseReceiptOCR.mockResolvedValue({
+        amount: 100,
+        date: '2026-07-27',
+        category: '餐饮',
+        source: 'tesseract',
+      });
+      mockedOcrToActions.mockReturnValue([
+        { type: 'create_expense', data: { amount: 100, category: '餐饮', date: '2026-07-27' } },
+      ]);
+      // 模拟 AI 根据用户文本调整 actions（如过滤、修改）
+      mockedChatWithActions.mockResolvedValue({
+        reply: '已根据你的说明记录',
+        actions: [{ type: 'create_expense', data: { amount: 100, category: '餐饮', date: '2026-07-27' } }],
+      });
+      mockedStoreOcrImage.mockResolvedValue({ fileId: 'file_img1', path: 'some/path.jpg' });
+      mockedPrisma.aiConversation.create.mockResolvedValue({});
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/chat')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ content: '这是昨天的午餐，金额没错', images: ['base64_img1'] });
+
+      expect(res.status).toBe(200);
+      expect(mockedParseReceiptOCR).toHaveBeenCalledTimes(1);
+      expect(mockedChatWithActions).toHaveBeenCalledTimes(1);
+      // chatWithActions 第 1 个参数应包含用户文本 + OCR 上下文
+      const chatArg = mockedChatWithActions.mock.calls[0][0] as string;
+      expect(chatArg).toContain('这是昨天的午餐');
+    });
+
+    test('多张图片 → 并行 OCR + 合并 proposedActions', async () => {
+      mockedParseReceiptOCR
+        .mockResolvedValueOnce({ amount: 50, category: '餐饮', source: 'tesseract' })
+        .mockResolvedValueOnce({ amount: 200, category: '交通', source: 'tesseract' });
+      mockedOcrToActions
+        .mockReturnValueOnce([{ type: 'create_expense', data: { amount: 50, category: '餐饮' } }])
+        .mockReturnValueOnce([{ type: 'create_expense', data: { amount: 200, category: '交通' } }]);
+      mockedStoreOcrImage
+        .mockResolvedValueOnce({ fileId: 'file_1', path: 'p1.jpg' })
+        .mockResolvedValueOnce({ fileId: 'file_2', path: 'p2.jpg' });
+      mockedPrisma.aiConversation.create.mockResolvedValue({});
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/chat')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ images: ['img1', 'img2'] });
+
+      expect(res.status).toBe(200);
+      expect(res.body.proposedActions).toHaveLength(2);
+      expect(res.body.fileIds).toHaveLength(2);
+      expect(res.body.duplicateFlags).toHaveLength(2);
+      expect(mockedParseReceiptOCR).toHaveBeenCalledTimes(2);
+    });
+
+    test('content 和 images 都为空 → 400', async () => {
+      const res = await request(app)
+        .post('/api/families/family_1/ai/chat')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({});
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBeDefined();
+    });
+
+    test('图片超过 10 张 → 400', async () => {
+      const images = Array(11).fill('base64');
+      const res = await request(app)
+        .post('/api/families/family_1/ai/chat')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ images });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toMatch(/图片/);
+    });
+
+    test('单张图 OCR 失败 → 不阻塞其他图，错误图跳过', async () => {
+      mockedParseReceiptOCR
+        .mockRejectedValueOnce(new Error('OCR 失败'))
+        .mockResolvedValueOnce({ amount: 50, category: '餐饮', source: 'tesseract' });
+      mockedOcrToActions.mockReturnValue([
+        { type: 'create_expense', data: { amount: 50, category: '餐饮' } },
+      ]);
+      mockedStoreOcrImage.mockResolvedValue(null);
+      mockedPrisma.aiConversation.create.mockResolvedValue({});
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/chat')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ images: ['bad_img', 'good_img'] });
+
+      expect(res.status).toBe(200);
+      // 失败图跳过，只返回 1 条 proposedAction
+      expect(res.body.proposedActions).toHaveLength(1);
+    });
+
+    test('仅图片场景 → aiConversation.create 收到 type=ocr', async () => {
+      mockedParseReceiptOCR.mockResolvedValue({ amount: 50, source: 'tesseract' });
+      mockedOcrToActions.mockReturnValue([
+        { type: 'create_expense', data: { amount: 50 } },
+      ]);
+      mockedStoreOcrImage.mockResolvedValue(null);
+      mockedPrisma.aiConversation.create.mockResolvedValue({});
+
+      await request(app)
+        .post('/api/families/family_1/ai/chat')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ images: ['img1'] });
+
+      const createArgs = mockedPrisma.aiConversation.create.mock.calls[0][0];
+      expect(createArgs.data.type).toBe('ocr');
+    });
   });
 
   describe('POST /api/families/:familyId/ai/analyze', () => {
