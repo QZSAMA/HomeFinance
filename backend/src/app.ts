@@ -5,6 +5,8 @@ import express from 'express';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import { validateSecurityEnv } from './config/security';
+import { requestIdMiddleware } from './middleware/requestId';
+import { logger } from './utils/logger';
 
 // 启动时校验安全配置（JWT_SECRET 未设置/弱默认值/长度不足时抛错退出）
 validateSecurityEnv();
@@ -19,17 +21,18 @@ app.use(cors({
   origin: CORS_ORIGIN,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id'],
+  exposedHeaders: ['X-Request-Id']
 }));
+
+// 请求追踪中间件：为每个请求分配 requestId，注入响应头
+app.use(requestIdMiddleware);
 
 // OCR 接口需要上传 base64 图片，默认 100kb 不够，提升到 10MB
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
+import healthRoutes from './routes/health';
 import authRoutes from './routes/auth';
 import familyRoutes from './routes/families';
 import incomeRoutes from './routes/incomes';
@@ -49,6 +52,7 @@ import goalRoutes from './routes/goals';
 import { ensureBucket } from './config/minio';
 import { connectRedis } from './config/redis';
 
+app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/families', familyRoutes);
 app.use('/api/families/:familyId/incomes', incomeRoutes);
@@ -67,10 +71,10 @@ app.use('/api/families/:familyId/import', importRoutes);
 app.use('/api/families/:familyId/goals', goalRoutes);
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  ensureBucket().catch(console.error);
+  logger.info(`Server is running on port ${PORT}`, { module: 'app' });
+  ensureBucket().catch((err) => logger.error('MinIO bucket 初始化失败', { module: 'app', meta: { error: String(err) } }));
   connectRedis().catch((err) => {
-    console.error('Redis 连接失败，缓存和限流功能将降级运行:', err instanceof Error ? err.message : err);
+    logger.warn('Redis 连接失败，缓存和限流功能将降级运行', { module: 'app', meta: { error: err instanceof Error ? err.message : String(err) } });
   });
 });
 
