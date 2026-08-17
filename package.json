@@ -1,0 +1,14 @@
+{
+  "name": "homefinance",
+  "version": "3.1.5",
+  "private": true,
+  "description": "HomeFinance - 家庭财务管理系统（React + Express 全栈）",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:list": "playwright test --list"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0"
+  }
+}

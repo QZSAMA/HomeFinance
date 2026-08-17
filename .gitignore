@@ -13,3 +13,9 @@ build/
 prisma/migrations/
 .trae/
 .tessdata/
+
+# Playwright E2E 测试产物
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/test-results/
