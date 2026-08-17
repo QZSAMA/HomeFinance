@@ -227,3 +227,19 @@ model Goal {
 
   @@index([familyId])
 }
+
+model AiCallLog {
+  id          String   @id @default(cuid())
+  userId      String
+  familyId    String?
+  type        String   // "chat" | "ocr" | "category"
+  model       String?
+  tokenUsage  Int?
+  latency     Int?     // ms
+  success     Boolean
+  error       String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}

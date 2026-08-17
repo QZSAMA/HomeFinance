@@ -8,6 +8,8 @@ import { executeActions, type AIAction } from '../services/aiActions';
 import { toNumber } from '../utils/decimal';
 import { isAIConfigured, isVisionConfigured } from '../config/ai';
 import { storeOcrImage } from '../services/fileStorageService';
+import { checkAIQuota, recordAIUsage, getAIQuotaStatus } from '../middleware/aiQuota';
+import { logAICall } from '../services/aiCallLogService';
 
 const router = Router({ mergeParams: true });
 
@@ -130,11 +132,24 @@ router.get('/status', authMiddleware, (_req, res) => {
 });
 
 router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: AuthRequest, res) => {
+  const startTime = Date.now();
+  const familyId = req.params.familyId as string;
+  const userId = req.userId!;
+
   try {
-    const familyId = req.params.familyId as string;
-    const membership = await checkFamilyAccess(familyId, req.userId!);
+    const membership = await checkFamilyAccess(familyId, userId);
     if (!membership) {
       return res.status(403).json({ error: '无权访问该家庭' });
+    }
+
+    // V3.1.6: AI 配额检查
+    const quotaCheck = await checkAIQuota(userId);
+    if (!quotaCheck.allowed) {
+      const quotaStatus = await getAIQuotaStatus(userId);
+      return res.status(429).json({
+        error: `今日 AI 调用次数已达上限（${quotaStatus.limit}次/天）`,
+        quota: quotaStatus,
+      });
     }
 
     const { content, images } = chatSchema.parse(req.body);
@@ -171,23 +186,35 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
 
       let actionResults: any[] = [];
       if (parsed.actions.length > 0) {
-        actionResults = await executeActions(familyId, req.userId!, parsed.actions);
+        actionResults = await executeActions(familyId, userId, parsed.actions);
       }
 
       await prisma.aiConversation.create({
         data: {
           familyId,
-          userId: req.userId!,
+          userId,
           content,
           response: parsed.reply,
           type: 'chat',
         }
       });
 
+      // V3.1.6: 记录 AI 调用配额和日志
+      await recordAIUsage(userId);
+      await logAICall({
+        userId,
+        familyId,
+        type: 'chat',
+        latency: Date.now() - startTime,
+        success: true,
+      });
+      const quota = await getAIQuotaStatus(userId);
+
       return res.json({
         response: parsed.reply,
         actions: actionResults,
         aiConfigured: isAIConfigured(),
+        quota,
       });
     }
 
@@ -200,7 +227,7 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
     const ocrResults = await Promise.allSettled(
       (images || []).map(async (imgBase64, idx) => {
         // 1. 持久化原图（失败不阻塞）
-        const stored = await storeOcrImage(req.userId!, familyId, imgBase64).catch(() => null);
+        const stored = await storeOcrImage(userId, familyId, imgBase64).catch(() => null);
         if (stored?.fileId) fileIds.push(stored.fileId);
 
         // 2. OCR + 多模态识别
@@ -241,12 +268,23 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
       await prisma.aiConversation.create({
         data: {
           familyId,
-          userId: req.userId!,
+          userId,
           content: `[上传图片 ${images!.length} 张]`,
           response: JSON.stringify({ proposedActions: allProposedActions, duplicateFlags }),
           type: 'ocr',
         }
       });
+
+      // V3.1.6: 记录 AI 调用配额和日志
+      await recordAIUsage(userId);
+      await logAICall({
+        userId,
+        familyId,
+        type: 'chat',
+        latency: Date.now() - startTime,
+        success: true,
+      });
+      const quota = await getAIQuotaStatus(userId);
 
       return res.json({
         response: `识别到 ${allProposedActions.length} 笔交易（成功 ${successCount} 张，失败 ${failedCount} 张）`,
@@ -255,6 +293,7 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
         duplicateFlags,
         fileIds,
         aiConfigured: isAIConfigured(),
+        quota,
       });
     }
 
@@ -299,12 +338,23 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
     await prisma.aiConversation.create({
       data: {
         familyId,
-        userId: req.userId!,
+        userId,
         content: `${content} [附图 ${images!.length} 张]`,
         response: JSON.stringify({ reply: parsed.reply, proposedActions: finalActions, duplicateFlags }),
         type: 'ocr',
       }
     });
+
+    // V3.1.6: 记录 AI 调用配额和日志
+    await recordAIUsage(userId);
+    await logAICall({
+      userId,
+      familyId,
+      type: 'chat',
+      latency: Date.now() - startTime,
+      success: true,
+    });
+    const quota = await getAIQuotaStatus(userId);
 
     return res.json({
       response: parsed.reply,
@@ -313,8 +363,20 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
       duplicateFlags,
       fileIds,
       aiConfigured: isAIConfigured(),
+      quota,
     });
   } catch (error) {
+    // V3.1.6: 记录失败的 AI 调用日志（不记录 usage）
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    await logAICall({
+      userId,
+      familyId,
+      type: 'chat',
+      latency: Date.now() - startTime,
+      success: false,
+      error: errorMessage,
+    });
+
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: error.errors[0].message });
     }
@@ -392,12 +454,24 @@ router.post('/analyze', authMiddleware, rateLimitMiddleware(10, 60), async (req:
 });
 
 router.post('/ocr', authMiddleware, rateLimitMiddleware(20, 60), async (req: AuthRequest, res) => {
+  const startTime = Date.now();
+  const familyId = req.params.familyId as string;
+  const userId = req.userId!;
+
   try {
-    const familyId = req.params.familyId as string;
-    const userId = req.userId!;
     const membership = await checkFamilyAccess(familyId, userId);
     if (!membership) {
       return res.status(403).json({ error: '无权访问该家庭' });
+    }
+
+    // V3.1.6: AI 配额检查
+    const quotaCheck = await checkAIQuota(userId);
+    if (!quotaCheck.allowed) {
+      const quotaStatus = await getAIQuotaStatus(userId);
+      return res.status(429).json({
+        error: `今日 AI 调用次数已达上限（${quotaStatus.limit}次/天）`,
+        quota: quotaStatus,
+      });
     }
 
     const { image } = ocrSchema.parse(req.body);
@@ -426,6 +500,17 @@ router.post('/ocr', authMiddleware, rateLimitMiddleware(20, 60), async (req: Aut
       }
     });
 
+    // V3.1.6: 记录 AI 调用配额和日志
+    await recordAIUsage(userId);
+    await logAICall({
+      userId,
+      familyId,
+      type: 'ocr',
+      latency: Date.now() - startTime,
+      success: true,
+    });
+    const quota = await getAIQuotaStatus(userId);
+
     res.json({
       data,
       aiConfigured: isAIConfigured(),
@@ -433,8 +518,20 @@ router.post('/ocr', authMiddleware, rateLimitMiddleware(20, 60), async (req: Aut
       fileId: stored?.fileId ?? null,
       proposedActions,
       duplicateFlags,
+      quota,
     });
   } catch (error) {
+    // V3.1.6: 记录失败的 AI 调用日志（不记录 usage）
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    await logAICall({
+      userId,
+      familyId,
+      type: 'ocr',
+      latency: Date.now() - startTime,
+      success: false,
+      error: errorMessage,
+    });
+
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: error.errors[0].message });
     }

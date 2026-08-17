@@ -12,6 +12,9 @@ jest.mock('../app', () => ({
       findMany: jest.fn(),
       create: jest.fn(),
     },
+    aiCallLog: {
+      create: jest.fn(),
+    },
     asset: {
       findMany: jest.fn(),
     },
@@ -64,10 +67,25 @@ jest.mock('../services/fileStorageService', () => ({
   storeOcrImage: jest.fn(),
 }));
 
+// V3.1.6: mock aiQuota 中间件，便于在配额测试中控制 allowed 状态
+jest.mock('../middleware/aiQuota', () => ({
+  checkAIQuota: jest.fn(),
+  recordAIUsage: jest.fn().mockResolvedValue(undefined),
+  getAIQuotaStatus: jest.fn(),
+  DEFAULT_AI_DAILY_QUOTA: 50,
+}));
+
+// V3.1.6: mock aiCallLogService，避免影响主流程
+jest.mock('../services/aiCallLogService', () => ({
+  logAICall: jest.fn().mockResolvedValue(undefined),
+}));
+
 import { prisma } from '../app';
 import { chatWithActions, analyzeFinance, parseReceiptOCR, ocrToActions } from '../services/aiService';
 import { executeActions } from '../services/aiActions';
 import { storeOcrImage } from '../services/fileStorageService';
+import { checkAIQuota, recordAIUsage, getAIQuotaStatus } from '../middleware/aiQuota';
+import { logAICall } from '../services/aiCallLogService';
 
 const mockedPrisma = prisma as any;
 const mockedChatWithActions = chatWithActions as jest.MockedFunction<typeof chatWithActions>;
@@ -76,6 +94,10 @@ const mockedParseReceiptOCR = parseReceiptOCR as jest.MockedFunction<typeof pars
 const mockedOcrToActions = ocrToActions as jest.MockedFunction<typeof ocrToActions>;
 const mockedExecuteActions = executeActions as jest.MockedFunction<typeof executeActions>;
 const mockedStoreOcrImage = storeOcrImage as jest.MockedFunction<typeof storeOcrImage>;
+const mockedCheckAIQuota = checkAIQuota as jest.MockedFunction<typeof checkAIQuota>;
+const mockedRecordAIUsage = recordAIUsage as jest.MockedFunction<typeof recordAIUsage>;
+const mockedGetAIQuotaStatus = getAIQuotaStatus as jest.MockedFunction<typeof getAIQuotaStatus>;
+const mockedLogAICall = logAICall as jest.MockedFunction<typeof logAICall>;
 
 const app = express();
 app.use(express.json());
@@ -107,6 +129,11 @@ describe('AI Routes', () => {
     mockedStoreOcrImage.mockResolvedValue(null);
     // ocrToActions 默认返回空数组（不提议任何动作）
     mockedOcrToActions.mockReturnValue([]);
+    // V3.1.6: 默认配额充足
+    mockedCheckAIQuota.mockResolvedValue({ allowed: true, remaining: 50, limit: 50 });
+    mockedRecordAIUsage.mockResolvedValue(undefined);
+    mockedGetAIQuotaStatus.mockResolvedValue({ used: 0, limit: 50, remaining: 50 });
+    mockedLogAICall.mockResolvedValue(undefined);
   });
 
   describe('POST /api/families/:familyId/ai/chat', () => {
@@ -371,6 +398,72 @@ describe('AI Routes', () => {
       const createArgs = mockedPrisma.aiConversation.create.mock.calls[0][0];
       expect(createArgs.data.type).toBe('ocr');
     });
+
+    // ===== V3.1.6 AI 成本控制：配额限制 =====
+
+    test('配额不足时返回 429', async () => {
+      mockedCheckAIQuota.mockResolvedValue({ allowed: false, remaining: 0, limit: 50 });
+      mockedGetAIQuotaStatus.mockResolvedValue({ used: 50, limit: 50, remaining: 0 });
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/chat')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ content: '你好' });
+
+      expect(res.status).toBe(429);
+      expect(res.body.error).toMatch(/今日 AI 调用次数已达上限/);
+      expect(res.body.quota).toEqual({ used: 50, limit: 50, remaining: 0 });
+      // 配额不足时不应调用 AI
+      expect(mockedChatWithActions).not.toHaveBeenCalled();
+      // 不应记录 usage
+      expect(mockedRecordAIUsage).not.toHaveBeenCalled();
+    });
+
+    test('正常调用后响应包含 quota 字段', async () => {
+      mockedChatWithActions.mockResolvedValue({ reply: 'AI回复', actions: [] });
+      mockedPrisma.aiConversation.create.mockResolvedValue({});
+      mockedGetAIQuotaStatus.mockResolvedValue({ used: 1, limit: 50, remaining: 49 });
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/chat')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ content: '你好' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.quota).toBeDefined();
+      expect(res.body.quota).toEqual({ used: 1, limit: 50, remaining: 49 });
+      // 调用成功后应记录 usage 和 log
+      expect(mockedRecordAIUsage).toHaveBeenCalledWith('user_1');
+      expect(mockedLogAICall).toHaveBeenCalledWith(expect.objectContaining({
+        userId: 'user_1',
+        familyId: 'family_1',
+        type: 'chat',
+        success: true,
+      }));
+    });
+
+    test('AI 调用失败时记录 logAICall（success: false）', async () => {
+      mockedChatWithActions.mockRejectedValue(new Error('AI 服务异常'));
+      mockedPrisma.aiConversation.create.mockResolvedValue({});
+      const { AIError } = jest.requireMock('../services/aiService');
+      // 使用 AIError 触发已知错误路径
+      mockedChatWithActions.mockRejectedValueOnce(new AIError('AI 服务异常', 500));
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/chat')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ content: '你好' });
+
+      expect(res.status).toBe(500);
+      // 失败也应记录日志
+      expect(mockedLogAICall).toHaveBeenCalledWith(expect.objectContaining({
+        userId: 'user_1',
+        type: 'chat',
+        success: false,
+      }));
+      // 失败时不记录 usage
+      expect(mockedRecordAIUsage).not.toHaveBeenCalled();
+    });
   });
 
   describe('POST /api/families/:familyId/ai/analyze', () => {
@@ -520,6 +613,47 @@ describe('AI Routes', () => {
       expect(res.status).toBe(200);
       expect(res.body.proposedActions).toEqual([]);
       expect(res.body.data.raw).toContain('未能');
+    });
+
+    // ===== V3.1.6 AI 成本控制：OCR 配额限制 =====
+
+    test('配额不足时返回 429', async () => {
+      mockedCheckAIQuota.mockResolvedValue({ allowed: false, remaining: 0, limit: 50 });
+      mockedGetAIQuotaStatus.mockResolvedValue({ used: 50, limit: 50, remaining: 0 });
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/ocr')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ image: 'base64string' });
+
+      expect(res.status).toBe(429);
+      expect(res.body.error).toMatch(/今日 AI 调用次数已达上限/);
+      expect(res.body.quota).toEqual({ used: 50, limit: 50, remaining: 0 });
+      expect(mockedParseReceiptOCR).not.toHaveBeenCalled();
+    });
+
+    test('OCR 调用成功后响应包含 quota 字段并记录 usage', async () => {
+      mockedParseReceiptOCR.mockResolvedValue({
+        amount: 35,
+        source: 'tesseract',
+      });
+      mockedPrisma.aiConversation.create.mockResolvedValue({});
+      mockedGetAIQuotaStatus.mockResolvedValue({ used: 1, limit: 50, remaining: 49 });
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/ocr')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ image: 'base64string' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.quota).toBeDefined();
+      expect(res.body.quota).toEqual({ used: 1, limit: 50, remaining: 49 });
+      expect(mockedRecordAIUsage).toHaveBeenCalledWith('user_1');
+      expect(mockedLogAICall).toHaveBeenCalledWith(expect.objectContaining({
+        userId: 'user_1',
+        type: 'ocr',
+        success: true,
+      }));
     });
   });
 
