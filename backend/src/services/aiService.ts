@@ -1,6 +1,7 @@
 import { AI_CONFIG, isAIConfigured, isVisionConfigured } from '../config/ai';
 import { parseLocalActions, type AIAction, type ParsedAIResponse } from './aiActions';
 import { extractTextFromImage, extractViaVision, mergeOcrResults, cleanOcrText, type ParsedOCR, type MergedOCR, type OCRItem } from './ocrService';
+import { sanitizeUserInput } from '../utils/aiSanitize';
 
 interface ChatMessage {
   role: string;
@@ -175,7 +176,7 @@ const ACTION_SYSTEM_PROMPT = `你是一位家庭财务助手。你可以帮用�
 - 如果用户说"查看支出"→ query_expense`;
 
 export async function chatWithActions(
-  userMessage: string,
+  userMessageRaw: string,
   familyContext?: {
     recentIncomes?: Array<{ category: string; amount: number; date: Date }>;
     recentExpenses?: Array<{ category: string; amount: number; date: Date }>;
@@ -184,6 +185,9 @@ export async function chatWithActions(
   },
   history?: Array<{ role: 'user' | 'assistant'; content: string }>
 ): Promise<ParsedAIResponse> {
+  // V3.1.2: 对用户输入进行 AI Prompt 注入防护（不影响系统提示词）
+  const userMessage = sanitizeUserInput(userMessageRaw);
+
   if (!isAIConfigured()) {
     return parseLocalActions(userMessage);
   }
@@ -465,7 +469,8 @@ async function runTesseractPath(imageBase64: string): Promise<ParsedOCR> {
 
   // 第三步：用 AI（文本模型即可）将原始文字解析为结构化 JSON
   // 先清洗 OCR 文字，去除手机截图 UI 噪音（状态栏、导航栏等），提升 AI 识别率
-  const cleanedText = cleanOcrText(rawText);
+  // V3.1.2: 再对清洗后的 OCR 文本进行 Prompt 注入防护（OCR 文字作为 AI 输入）
+  const cleanedText = sanitizeUserInput(cleanOcrText(rawText));
   const systemPrompt = `你是一位票据识别助手。用户会提供一段从收据、发票或账单截图中 OCR 提取的原始文字。
 请识别其中所有交易（可能有多笔），并以 JSON 格式返回，格式为：
 {"items": [{"type":"...","amount":...,"date":"...","category":"...","description":"..."}, ...]}

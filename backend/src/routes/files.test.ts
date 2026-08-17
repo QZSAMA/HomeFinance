@@ -86,14 +86,23 @@ describe('File Routes', () => {
   });
 
   describe('POST /api/families/:familyId/files/upload', () => {
+    // 有效 JPEG 文件头（FF D8 FF ...）
+    const JPEG_BUFFER = Buffer.from([
+      0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01,
+    ]);
+    // 伪造为 .jpg 但实际是 EXE 的 MZ 头
+    const EXE_BUFFER = Buffer.from([
+      0x4D, 0x5A, 0x90, 0x00, 0x03, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
+    ]);
+
     test('uploads a file successfully', async () => {
       mockedPrisma.file.create.mockResolvedValue({
         id: 'f1',
-        name: 'test.txt',
-        path: 'fam_1/test.txt',
-        type: 'text/plain',
-        size: 12,
-        mimeType: 'text/plain',
+        name: 'test.jpg',
+        path: 'fam_1/test.jpg',
+        type: 'image/jpeg',
+        size: JPEG_BUFFER.length,
+        mimeType: 'image/jpeg',
         phash: null,
         familyId: 'fam_1',
       });
@@ -101,7 +110,7 @@ describe('File Routes', () => {
       const res = await request(app)
         .post('/api/families/fam_1/files/upload')
         .set('Authorization', `Bearer ${createToken()}`)
-        .attach('files', Buffer.from('hello world!'), 'test.txt');
+        .attach('files', JPEG_BUFFER, 'test.jpg');
 
       expect(res.status).toBe(201);
       expect(res.body.files).toHaveLength(1);
@@ -115,6 +124,17 @@ describe('File Routes', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.error).toBe('没有上传文件');
+    });
+
+    test('returns 400 when file buffer is not an allowed image (forged extension)', async () => {
+      const res = await request(app)
+        .post('/api/families/fam_1/files/upload')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .attach('files', EXE_BUFFER, 'malicious.jpg');
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBe('不支持的文件类型，仅允许 JPEG/PNG/GIF/WebP 图片');
+      expect(mockedPrisma.file.create).not.toHaveBeenCalled();
     });
   });
 

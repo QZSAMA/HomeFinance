@@ -5,6 +5,7 @@ import { prisma } from '../app';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { uploadFileBuffer, getFileUrl, deleteFile } from '../config/minio';
 import { computePHash, isSimilarImage } from '../utils/phash';
+import { isAllowedImage } from '../utils/fileSignature';
 import { toNumber } from '../utils/decimal';
 import { parsePagination, paginateResponse } from '../utils/pagination';
 
@@ -95,6 +96,16 @@ router.post('/upload', authMiddleware, upload.array('files', 10), async (req: Au
     }
 
     const files = req.files as Express.Multer.File[];
+
+    // 文件头 magic number 校验：防止伪造扩展名上传可执行文件等
+    for (const file of files) {
+      if (!isAllowedImage(file.buffer)) {
+        return res.status(400).json({
+          error: '不支持的文件类型，仅允许 JPEG/PNG/GIF/WebP 图片',
+        });
+      }
+    }
+
     const uploadedFiles = [];
     const duplicates: Array<{ filename: string; duplicateOf: string }> = [];
 
