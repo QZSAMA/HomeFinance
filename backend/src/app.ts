@@ -49,6 +49,7 @@ import categoryRoutes from './routes/category';
 import compareRoutes from './routes/compare';
 import importRoutes from './routes/import';
 import goalRoutes from './routes/goals';
+import exchangeRateRoutes from './routes/exchangeRate';
 import { ensureBucket } from './config/minio';
 import { connectRedis } from './config/redis';
 
@@ -69,6 +70,7 @@ app.use('/api/families/:familyId/category', categoryRoutes);
 app.use('/api/compare', compareRoutes);
 app.use('/api/families/:familyId/import', importRoutes);
 app.use('/api/families/:familyId/goals', goalRoutes);
+app.use('/api/exchange-rates', exchangeRateRoutes);
 
 app.listen(PORT, () => {
   logger.info(`Server is running on port ${PORT}`, { module: 'app' });

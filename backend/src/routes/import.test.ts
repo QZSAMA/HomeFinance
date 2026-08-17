@@ -35,6 +35,9 @@ function createToken(userId: string = 'user_1') {
 
 const ALIPAY_CSV = '交易号,交易时间,交易分类,金额,交易状态\n1,2026-07-01 10:00:00,餐饮,35,交易成功';
 const WECHAT_CSV = '交易时间,交易类型,交易对方,金额\n2026-07-01 10:00:00,微信红包,张三,200';
+const CMB_CSV = '交易日期,交易金额,交易摘要,交易类型\n2026-07-01,-50.00,超市购物,支';
+const ICBC_CSV = '交易日期,交易额,摘要,对方账户,借贷\n2026-07-01,50.00,超市购物,沃尔玛,借';
+const BOC_CSV = '交易日期,交易金额,记账币种,摘要\n2026-07-01,50.00,CNY,超市购物';
 
 describe('Import Routes', () => {
   beforeEach(() => {
@@ -80,6 +83,69 @@ describe('Import Routes', () => {
       expect(res.body).toHaveLength(1);
       expect(res.body[0].amount).toBe(200);
       expect(mockedParseCSV).toHaveBeenCalledWith(expect.any(Buffer), 'wechat');
+    });
+
+    test('parses cmb CSV and returns preview', async () => {
+      mockedParseCSV.mockResolvedValue([
+        { date: '2026-07-01', description: '超市购物', amount: 50, type: 'EXPENSE' },
+      ]);
+
+      const res = await request(app)
+        .post('/api/families/fam_1/import/csv')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .field('format', 'cmb')
+        .attach('file', Buffer.from(CMB_CSV), 'cmb.csv');
+
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body).toHaveLength(1);
+      expect(res.body[0].amount).toBe(50);
+      expect(mockedParseCSV).toHaveBeenCalledWith(expect.any(Buffer), 'cmb');
+    });
+
+    test('parses icbc CSV and returns preview', async () => {
+      mockedParseCSV.mockResolvedValue([
+        { date: '2026-07-01', description: '超市购物', amount: 50, type: 'EXPENSE' },
+      ]);
+
+      const res = await request(app)
+        .post('/api/families/fam_1/import/csv')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .field('format', 'icbc')
+        .attach('file', Buffer.from(ICBC_CSV), 'icbc.csv');
+
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body).toHaveLength(1);
+      expect(mockedParseCSV).toHaveBeenCalledWith(expect.any(Buffer), 'icbc');
+    });
+
+    test('parses boc CSV and returns preview', async () => {
+      mockedParseCSV.mockResolvedValue([
+        { date: '2026-07-01', description: '超市购物', amount: 50, type: 'EXPENSE' },
+      ]);
+
+      const res = await request(app)
+        .post('/api/families/fam_1/import/csv')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .field('format', 'boc')
+        .attach('file', Buffer.from(BOC_CSV), 'boc.csv');
+
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body).toHaveLength(1);
+      expect(mockedParseCSV).toHaveBeenCalledWith(expect.any(Buffer), 'boc');
+    });
+
+    test('rejects unsupported bank format with 400', async () => {
+      const res = await request(app)
+        .post('/api/families/fam_1/import/csv')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .field('format', 'unknown_bank')
+        .attach('file', Buffer.from(CMB_CSV), 'cmb.csv');
+
+      expect(res.status).toBe(400);
+      expect(mockedParseCSV).not.toHaveBeenCalled();
     });
 
     test('rejects missing file with 400', async () => {

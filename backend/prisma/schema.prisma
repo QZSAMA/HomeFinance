@@ -243,3 +243,15 @@ model AiCallLog {
   @@index([userId])
   @@index([createdAt])
 }
+
+model ExchangeRate {
+  id        String   @id @default(cuid())
+  from      String   // 源货币，如 "USD"
+  to        String   // 目标货币，如 "CNY"
+  rate      Decimal  @db.Decimal(15, 6)
+  date      DateTime @default(now())
+  source    String   // "manual" | "exchangerate-api" | "fixer"
+
+  @@unique([from, to, date])
+  @@index([from, to])
+}

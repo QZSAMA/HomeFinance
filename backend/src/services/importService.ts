@@ -68,9 +68,52 @@ const parseWechat = async (buffer: Buffer): Promise<ImportedTransaction[]> => {
   });
 };
 
+const parseCMB = async (buffer: Buffer): Promise<ImportedTransaction[]> => {
+  const rows = await parseRows(buffer);
+  return rows.map((row) => {
+    const txType = (row['交易类型'] || '').trim();
+    return {
+      date: normalizeDate(row['交易日期'] || ''),
+      description: (row['交易摘要'] || '').trim() || '招商银行交易',
+      amount: parseAmount(row['交易金额'] || ''),
+      type: txType === '收' ? 'INCOME' : 'EXPENSE',
+    };
+  });
+};
+
+const parseICBC = async (buffer: Buffer): Promise<ImportedTransaction[]> => {
+  const rows = await parseRows(buffer);
+  return rows.map((row) => {
+    const direction = (row['借贷'] || '').trim();
+    return {
+      date: normalizeDate(row['交易日期'] || ''),
+      description: (row['摘要'] || '').trim() || '工商银行交易',
+      amount: parseAmount(row['交易额'] || ''),
+      type: direction === '贷' ? 'INCOME' : 'EXPENSE',
+    };
+  });
+};
+
+const parseBOC = async (buffer: Buffer): Promise<ImportedTransaction[]> => {
+  const rows = await parseRows(buffer);
+  return rows.map((row) => {
+    const rawAmount = (row['交易金额'] || '').trim();
+    const isNegative = rawAmount.startsWith('-');
+    return {
+      date: normalizeDate(row['交易日期'] || ''),
+      description: (row['摘要'] || '').trim() || '中国银行交易',
+      amount: parseAmount(rawAmount),
+      type: isNegative ? 'INCOME' : 'EXPENSE',
+    };
+  });
+};
+
 const parsers: Record<string, (buffer: Buffer) => Promise<ImportedTransaction[]>> = {
   alipay: parseAlipay,
   wechat: parseWechat,
+  cmb: parseCMB,
+  icbc: parseICBC,
+  boc: parseBOC,
 };
 
 export async function parseCSV(

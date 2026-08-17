@@ -8,7 +8,7 @@ import { parseCSV } from '../services/importService';
 const router = Router({ mergeParams: true });
 const upload = multer({ storage: multer.memoryStorage() });
 
-const VALID_FORMATS = ['alipay', 'wechat'];
+const VALID_FORMATS = ['alipay', 'wechat', 'cmb', 'icbc', 'boc'];
 
 const checkFamilyAccess = async (familyId: string, userId: string) => {
   const membership = await prisma.familyMember.findUnique({
@@ -32,7 +32,7 @@ router.post('/csv', authMiddleware, upload.single('file'), async (req: AuthReque
     const format = req.body.format as string;
 
     if (!format || !VALID_FORMATS.includes(format)) {
-      return res.status(400).json({ error: 'format 必须为 alipay 或 wechat' });
+      return res.status(400).json({ error: 'format 不支持' });
     }
     if (!req.file) {
       return res.status(400).json({ error: '请上传文件' });
