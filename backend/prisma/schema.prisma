@@ -22,6 +22,7 @@ model User {
   budgets        Budget[]
   recurringTransactions RecurringTransaction[]
   goals          Goal[]
+  importSources  ImportSource[]
 }
 
 model Family {
@@ -40,6 +41,7 @@ model Family {
   budgets     Budget[]
   recurringTransactions RecurringTransaction[]
   goals       Goal[]
+  importSources ImportSource[]
 }
 
 model FamilyMember {
@@ -254,4 +256,24 @@ model ExchangeRate {
 
   @@unique([from, to, date])
   @@index([from, to])
+}
+
+model ImportSource {
+  id             String   @id @default(cuid())
+  familyId       String
+  family         Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  name           String   // "支付宝主账号"
+  type           String   // "alipay" | "wechat" | "cmb" | "icbc" | "boc"
+  config         Json     // 配置（如 watchDirectory、fileNamePattern）
+  lastSyncAt     DateTime?
+  lastSyncStatus String?  // "success" | "failed"
+  lastSyncError  String?
+  isActive       Boolean  @default(true)
+  createdBy      String
+  user           User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([familyId])
+  @@index([isActive])
 }

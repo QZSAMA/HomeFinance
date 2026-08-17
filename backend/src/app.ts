@@ -50,8 +50,10 @@ import compareRoutes from './routes/compare';
 import importRoutes from './routes/import';
 import goalRoutes from './routes/goals';
 import exchangeRateRoutes from './routes/exchangeRate';
+import importSourceRoutes from './routes/importSources';
 import { ensureBucket } from './config/minio';
 import { connectRedis } from './config/redis';
+import { initScheduler } from './jobs/scheduler';
 
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
@@ -70,6 +72,7 @@ app.use('/api/families/:familyId/category', categoryRoutes);
 app.use('/api/compare', compareRoutes);
 app.use('/api/families/:familyId/import', importRoutes);
 app.use('/api/families/:familyId/goals', goalRoutes);
+app.use('/api/families/:familyId/import-sources', importSourceRoutes);
 app.use('/api/exchange-rates', exchangeRateRoutes);
 
 app.listen(PORT, () => {
@@ -78,6 +81,8 @@ app.listen(PORT, () => {
   connectRedis().catch((err) => {
     logger.warn('Redis 连接失败，缓存和限流功能将降级运行', { module: 'app', meta: { error: err instanceof Error ? err.message : String(err) } });
   });
+  // 初始化定时任务调度器（可通过 ENABLE_SCHEDULER=false 禁用）
+  initScheduler();
 });
 
 export default app;

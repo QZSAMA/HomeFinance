@@ -18,6 +18,8 @@ const BudgetPage = lazy(() => import('./pages/BudgetPage'));
 const RecurringPage = lazy(() => import('./pages/RecurringPage'));
 const ComparePage = lazy(() => import('./pages/ComparePage'));
 const ImportPage = lazy(() => import('./pages/ImportPage'));
+const ImportSourcesPage = lazy(() => import('./pages/ImportSourcesPage'));
+const ExchangeRatePage = lazy(() => import('./pages/ExchangeRatePage'));
 const GoalsPage = lazy(() => import('./pages/GoalsPage'));
 
 function PageLoading() {
@@ -157,6 +159,26 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <ImportPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/import-sources"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <ImportSourcesPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/exchange-rates"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <ExchangeRatePage />
                 </Layout>
               </ProtectedRoute>
             }

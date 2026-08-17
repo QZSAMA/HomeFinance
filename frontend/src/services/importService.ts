@@ -1,5 +1,7 @@
 import api from './api';
 
+export type ImportFormat = 'alipay' | 'wechat' | 'cmb' | 'icbc' | 'boc';
+
 export interface ImportedTransaction {
   date: string;
   description: string;
@@ -8,7 +10,7 @@ export interface ImportedTransaction {
   category?: string;
 }
 
-export const previewCSV = (familyId: string, file: File, format: 'alipay' | 'wechat') => {
+export const previewCSV = (familyId: string, file: File, format: ImportFormat) => {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('format', format);

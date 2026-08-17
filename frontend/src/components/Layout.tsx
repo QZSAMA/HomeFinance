@@ -39,6 +39,8 @@ const menuItems: MenuItem[] = [
       { path: '/files', label: '文件管理', icon: '📁' },
       { path: '/compare', label: '家庭对比', icon: '⚖️' },
       { path: '/import', label: '数据导入', icon: '📥' },
+      { path: '/import-sources', label: '同步配置', icon: '🔄' },
+      { path: '/exchange-rates', label: '汇率管理', icon: '💱' },
     ],
   },
 ];
