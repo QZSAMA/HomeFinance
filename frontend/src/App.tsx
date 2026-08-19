@@ -24,6 +24,8 @@ const GoalsPage = lazy(() => import('./pages/GoalsPage'));
 // V3.3.4：净值趋势与投资收益页面，独立 chunk
 const NetWorthPage = lazy(() => import('./pages/NetWorthPage'));
 const InvestmentIncomePage = lazy(() => import('./pages/InvestmentIncomePage'));
+// V3.4.4：告警中心页面，独立 chunk
+const AlertsPage = lazy(() => import('./pages/AlertsPage'));
 
 function PageLoading() {
   return (
@@ -212,6 +214,16 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <GoalsPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/alerts"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <AlertsPage />
                 </Layout>
               </ProtectedRoute>
             }

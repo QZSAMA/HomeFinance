@@ -464,7 +464,7 @@ export default function AIPage() {
           {messages.length === 0 && (
             <div className="text-center text-gray-400 mt-8">
               <p className="text-lg">你好！我是你的家庭财务助手</p>
-              <p className="mt-2">可以直接告诉我你的收支情况，我会帮你自动记账</p>
+              <p className="mt-2">可以直接告诉我你的收支情况，我会帮你自动记账；也支持修改记录，如"把昨天的餐饮支出改成100元"</p>
               <div className="mt-6 max-w-md mx-auto">
                 <p className="text-sm font-medium text-gray-500 mb-2">试试这些指令：</p>
                 <div className="flex flex-wrap gap-2 justify-center">
@@ -684,7 +684,7 @@ export default function AIPage() {
                   handleSend();
                 }
               }}
-              placeholder={pendingImages.length > 0 ? '补充说明（可选），如：这是昨天的午餐' : '输入消息，如：午饭花了50块'}
+              placeholder={pendingImages.length > 0 ? '补充说明（可选），如：这是昨天的午餐' : '输入消息，如：午饭花了50块、把昨天的餐饮支出改成100元'}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             <button

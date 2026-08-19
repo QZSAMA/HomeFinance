@@ -14,6 +14,7 @@ type MenuItem = {
 
 const menuItems: MenuItem[] = [
   { path: '/', label: '仪表板', icon: '📊' },
+  { path: '/alerts', label: '告警中心', icon: '🔔' },
   {
     label: '家庭与交易', icon: '🏠', defaultOpen: true,
     children: [

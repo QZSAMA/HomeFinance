@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useFamilyStore } from '../store/useFamilyStore';
 import { getSummary, type SummaryResponse } from '../services/reportService';
+import { getAlerts } from '../services/alertService';
 import IncomeExpenseChart from '../components/charts/IncomeExpenseChart';
 import AssetAllocationChart from '../components/charts/AssetAllocationChart';
 
@@ -9,12 +11,25 @@ const DashboardPage = () => {
   const [summary, setSummary] = useState<SummaryResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [alertUnreadCount, setAlertUnreadCount] = useState(0);
 
   useEffect(() => {
     if (currentFamily) {
       loadSummary();
+      loadAlerts();
     }
   }, [currentFamily]);
+
+  const loadAlerts = async () => {
+    if (!currentFamily) return;
+    try {
+      const data = await getAlerts(currentFamily.id);
+      setAlertUnreadCount(data.unreadCount);
+    } catch {
+      // 加载失败静默处理，按 0 展示
+      setAlertUnreadCount(0);
+    }
+  };
 
   const loadSummary = async () => {
     if (!currentFamily) return;
@@ -65,6 +80,31 @@ const DashboardPage = () => {
         <h1 className="text-2xl font-bold text-gray-900">财务概览</h1>
         <p className="text-gray-500 mt-1">{currentFamily.name} 的财务状况</p>
       </div>
+
+      {/* 告警卡片：未读 > 0 时红色提示，否则绿色"无异常" */}
+      <Link
+        to="/alerts"
+        className="block bg-white rounded-lg shadow p-6 mb-8 hover:shadow-md transition-shadow"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-2xl">
+              🔔
+            </div>
+            <div className="ml-4">
+              <p className="text-sm text-gray-500">告警</p>
+              {alertUnreadCount > 0 ? (
+                <p className="text-2xl font-bold text-red-600 mt-1">
+                  {alertUnreadCount} 条未读
+                </p>
+              ) : (
+                <p className="text-2xl font-bold text-green-600 mt-1">无异常</p>
+              )}
+            </div>
+          </div>
+          <span className="text-sm text-indigo-600 hover:text-indigo-800">查看告警 →</span>
+        </div>
+      </Link>
 
       {/* 资产负债卡片 */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
