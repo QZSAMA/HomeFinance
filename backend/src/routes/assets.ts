@@ -15,7 +15,10 @@ const assetSchema = z.object({
   costBasis: z.number().nonnegative('成本不能为负').optional(),
   currency: z.string().default('CNY'),
   purchaseDate: z.string().optional(),
-  description: z.string().optional()
+  description: z.string().optional(),
+  symbol: z.string().optional(),
+  quantity: z.number().positive('数量必须大于0').optional(),
+  unit: z.string().optional()
 });
 
 const checkFamilyAccess = async (familyId: string, userId: string) => {
@@ -76,11 +79,26 @@ router.get('/allocation', authMiddleware, async (req: AuthRequest, res) => {
       where: { familyId },
       select: {
         type: true,
-        value: true
+        value: true,
+        symbol: true,
+        quantity: true,
+        marketPrice: true
       }
     });
 
-    const totalValue = assets.reduce((sum, a) => sum + toNumber(a.value), 0);
+    const computeAssetValue = (asset: {
+      value: any;
+      symbol: string | null;
+      quantity: any;
+      marketPrice: any;
+    }) => {
+      if (asset.symbol && asset.quantity !== null && asset.marketPrice !== null) {
+        return toNumber(asset.marketPrice) * toNumber(asset.quantity);
+      }
+      return toNumber(asset.value);
+    };
+
+    const totalValue = assets.reduce((sum, a) => sum + computeAssetValue(a), 0);
 
     const allocationMap: Record<string, number> = {
       STOCK: 0,
@@ -92,7 +110,7 @@ router.get('/allocation', authMiddleware, async (req: AuthRequest, res) => {
 
     assets.forEach((asset) => {
       const type = asset.type;
-      const val = toNumber(asset.value);
+      const val = computeAssetValue(asset);
       if (type === 'STOCK' || type === 'FUND') {
         allocationMap['STOCK'] += val;
       } else if (type === 'BOND') {
@@ -142,6 +160,9 @@ router.post('/', authMiddleware, async (req: AuthRequest, res) => {
         currency: data.currency,
         purchaseDate: data.purchaseDate ? new Date(data.purchaseDate) : undefined,
         description: data.description,
+        symbol: data.symbol,
+        quantity: data.quantity,
+        unit: data.unit,
         familyId
       }
     });
@@ -185,7 +206,10 @@ router.put('/:id', authMiddleware, async (req: AuthRequest, res) => {
         costBasis: data.costBasis,
         currency: data.currency,
         purchaseDate: data.purchaseDate ? new Date(data.purchaseDate) : undefined,
-        description: data.description
+        description: data.description,
+        symbol: data.symbol,
+        quantity: data.quantity,
+        unit: data.unit
       }
     });
 

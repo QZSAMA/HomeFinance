@@ -67,15 +67,18 @@ model Income {
   description String?
   source      String?
   date        DateTime
+  assetId     String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   family      Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
   user        User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  asset       Asset?   @relation(fields: [assetId], references: [id], onDelete: SetNull)
 
   @@index([familyId])
   @@index([createdBy])
   @@index([date])
   @@index([category])
+  @@index([assetId])
 }
 
 model Expense {
@@ -109,9 +112,15 @@ model Asset {
   currency    String   @default("CNY")
   purchaseDate DateTime?
   description String?
+  symbol      String?
+  quantity    Decimal? @db.Decimal(15, 4)
+  marketPrice Decimal? @db.Decimal(15, 4)
+  marketPriceDate DateTime?
+  unit        String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   family      Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  incomes     Income[]
 
   @@index([familyId])
   @@index([type])
@@ -256,6 +265,20 @@ model ExchangeRate {
 
   @@unique([from, to, date])
   @@index([from, to])
+}
+
+model MarketData {
+  id        String   @id @default(cuid())
+  symbol    String   // 证券代码
+  name      String?  // 证券名称
+  price     Decimal  @db.Decimal(15, 4)
+  change    Decimal? @db.Decimal(15, 4)  // 涨跌额
+  changePercent Decimal? @db.Decimal(10, 4)  // 涨跌幅
+  source    String   @default("sina")  // "sina" | "manual"
+  date      DateTime @default(now())
+
+  @@unique([symbol, date])
+  @@index([symbol])
 }
 
 model ImportSource {

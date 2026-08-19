@@ -51,6 +51,7 @@ import importRoutes from './routes/import';
 import goalRoutes from './routes/goals';
 import exchangeRateRoutes from './routes/exchangeRate';
 import importSourceRoutes from './routes/importSources';
+import marketDataRoutes from './routes/marketData';
 import { ensureBucket } from './config/minio';
 import { connectRedis } from './config/redis';
 import { initScheduler } from './jobs/scheduler';
@@ -73,6 +74,7 @@ app.use('/api/compare', compareRoutes);
 app.use('/api/families/:familyId/import', importRoutes);
 app.use('/api/families/:familyId/goals', goalRoutes);
 app.use('/api/families/:familyId/import-sources', importSourceRoutes);
+app.use('/api/families/:familyId/market-data', marketDataRoutes);
 app.use('/api/exchange-rates', exchangeRateRoutes);
 
 app.listen(PORT, () => {
