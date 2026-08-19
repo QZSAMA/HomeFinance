@@ -112,6 +112,8 @@ export interface ParsedOCR {
   rawText?: string; // Tesseract 原始文字（调试用）
   // 新字段（多笔交易）
   items?: OCRItem[];
+  // V3.4.3: 本次 AI 解析调用消耗的总 token 数（无 AI 调用则为 undefined）
+  tokenUsage?: number;
 }
 
 export type OCRSource = 'vision' | 'tesseract' | 'merged';

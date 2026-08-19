@@ -1,4 +1,4 @@
-import { chatCompletion, analyzeFinance, parseReceiptOCR, ocrToActions } from './aiService';
+import { chatCompletion, analyzeFinance, parseReceiptOCR, ocrToActions, callChatAPI, ACTION_SYSTEM_PROMPT } from './aiService';
 
 jest.mock('../config/ai', () => ({
   AI_CONFIG: {
@@ -117,6 +117,66 @@ describe('aiService', () => {
     });
   });
 
+  describe('callChatAPI', () => {
+    test('解析响应中的 usage.total_tokens 返回 tokenUsage', async () => {
+      fetchSpy.mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          choices: [
+            {
+              message: {
+                role: 'assistant',
+                content: 'Hello',
+              },
+            },
+          ],
+          usage: {
+            prompt_tokens: 20,
+            completion_tokens: 15,
+            total_tokens: 35,
+          },
+        }),
+      } as any);
+
+      const result = await callChatAPI([{ role: 'user', content: 'Hi' }]);
+
+      expect(result.content).toBe('Hello');
+      expect(result.tokenUsage).toBe(35);
+    });
+
+    test('响应无 usage 字段时 tokenUsage 为 undefined', async () => {
+      fetchSpy.mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          choices: [
+            {
+              message: {
+                role: 'assistant',
+                content: 'Hello',
+              },
+            },
+          ],
+        }),
+      } as any);
+
+      const result = await callChatAPI([{ role: 'user', content: 'Hi' }]);
+
+      expect(result.content).toBe('Hello');
+      expect(result.tokenUsage).toBeUndefined();
+    });
+  });
+
+  describe('ACTION_SYSTEM_PROMPT', () => {
+    test('包含 update_* 操作类型说明', () => {
+      expect(ACTION_SYSTEM_PROMPT).toContain('update_income');
+      expect(ACTION_SYSTEM_PROMPT).toContain('update_expense');
+      expect(ACTION_SYSTEM_PROMPT).toContain('update_asset');
+      expect(ACTION_SYSTEM_PROMPT).toContain('update_liability');
+      // update_expense 的 data 格式说明（id 必填 + 可选字段）
+      expect(ACTION_SYSTEM_PROMPT).toMatch(/update_expense\s*\{\s*id/);
+    });
+  });
+
   describe('analyzeFinance', () => {
     test('returns analysis string with family data in prompt', async () => {
       fetchSpy.mockResolvedValue({
@@ -142,11 +202,38 @@ describe('aiService', () => {
 
       const result = await analyzeFinance(familyData);
 
-      expect(result).toContain('财务状况良好');
+      expect(result.report).toContain('财务状况良好');
       const [, init] = fetchSpy.mock.calls[0];
       const body = JSON.parse(init.body);
       expect(body.messages[0].role).toBe('system');
       expect(body.messages[1].content).toContain('100000');
+    });
+
+    test('透传 tokenUsage', async () => {
+      fetchSpy.mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          choices: [
+            {
+              message: {
+                role: 'assistant',
+                content: '分析报告内容',
+              },
+            },
+          ],
+          usage: { total_tokens: 500 },
+        }),
+      } as any);
+
+      const result = await analyzeFinance({
+        totalAssets: 100000,
+        totalLiabilities: 20000,
+        monthlyIncome: 15000,
+        monthlyExpense: 8000,
+      });
+
+      expect(result.report).toBe('分析报告内容');
+      expect(result.tokenUsage).toBe(500);
     });
   });
 

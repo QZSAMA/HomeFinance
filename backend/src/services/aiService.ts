@@ -21,9 +21,15 @@ export class AIError extends Error {
   }
 }
 
-async function callChatAPI(messages: ChatMessage[]): Promise<string> {
+// V3.4.3: callChatAPI 返回内容 + token 用量（OpenAI 格式 usage.total_tokens）
+export interface ChatAPIResult {
+  content: string;
+  tokenUsage?: number;
+}
+
+export async function callChatAPI(messages: ChatMessage[]): Promise<ChatAPIResult> {
   if (!isAIConfigured()) {
-    return generateFallbackResponse(messages);
+    return { content: generateFallbackResponse(messages) };
   }
 
   try {
@@ -56,9 +62,15 @@ async function callChatAPI(messages: ChatMessage[]): Promise<string> {
           content: string;
         };
       }>;
+      usage?: { total_tokens?: number };
     };
 
-    return data.choices[0]?.message?.content || '';
+    return {
+      content: data.choices[0]?.message?.content || '',
+      tokenUsage: typeof data.usage?.total_tokens === 'number'
+        ? data.usage.total_tokens
+        : undefined,
+    };
   } catch (error) {
     if (error instanceof AIError) throw error;
 
@@ -118,12 +130,13 @@ function generateFallbackResponse(messages: ChatMessage[]): string {
 }
 
 export async function chatCompletion(messages: ChatMessage[]): Promise<string> {
-  return callChatAPI(messages);
+  const { content } = await callChatAPI(messages);
+  return content;
 }
 
 // ===== AI 带动作的对话 =====
 
-const ACTION_SYSTEM_PROMPT = `你是一位家庭财务助手。你可以帮用户记录收入、支出、资产、负债，也可以查询已有记录。
+export const ACTION_SYSTEM_PROMPT = `你是一位家庭财务助手。你可以帮用户记录收入、支出、资产、负债，也可以查询和修改已有记录。
 
 当用户想要进行财务操作时，你需要返回 JSON 格式的响应（只返回 JSON，不要包含 markdown 代码块标记），格式如下：
 {
@@ -160,20 +173,28 @@ const ACTION_SYSTEM_PROMPT = `你是一位家庭财务助手。你可以帮用�
    data: { "name": "名称", "type": "类型", "amount": 数字, "interestRate": "可选利率", "description": "可选" }
    负债类型：MORTGAGE(房贷)、CAR_LOAN(车贷)、STUDENT_LOAN(助学贷款)、CREDIT_CARD(信用卡)、PERSONAL_LOAN(个人贷款)、OTHER(其他)
 
-5. query_income - 查询收入记录
-6. query_expense - 查询支出记录
-7. query_assets - 查询资产记录
-8. query_liabilities - 查询负债记录
+5. update_income { id, category?, amount?, description?, source?, date? } - 修改收入记录
+6. update_expense { id, category?, amount?, description?, paymentMethod?, date? } - 修改支出记录
+7. update_asset { id, name?, type?, category?, value?, costBasis?, currency?, purchaseDate?, description? } - 修改资产
+8. update_liability { id, name?, type?, amount?, interestRate?, dueDate?, description? } - 修改负债
+
+9. query_income - 查询收入记录
+10. query_expense - 查询支出记录
+11. query_assets - 查询资产记录
+12. query_liabilities - 查询负债记录
 
 规则：
 - 金额必须是正数
 - 如果用户没有指定日期，使用今天
 - 如果用户说的类别不在预设列表中，归为"其他收入"或"其他支出"
+- 用户想修改/更新已有记录时使用 update_* 类型，必须提供 id，只传入需要修改的字段
+- 如果用户没有说 id，先用 query_* 查询找到记录，然后在 actions 中引用其 id
 - 如果用户说"花了50吃饭"→ create_expense, amount=50, category=餐饮
 - 如果用户说"工资15000"→ create_income, amount=15000, category=工资
 - 如果用户说"我有10万股票"→ create_asset, type=STOCK, value=100000, name=股票
 - 如果用户说"还有50万房贷"→ create_liability, type=MORTGAGE, amount=500000, name=房贷
-- 如果用户说"查看支出"→ query_expense`;
+- 如果用户说"查看支出"→ query_expense
+- 如果用户说"把昨天的餐饮支出金额改成 100"→ 先 query_expense 找到昨天的餐饮支出记录，再 update_expense { id: 记录id, amount: 100 }`;
 
 export async function chatWithActions(
   userMessageRaw: string,
@@ -212,13 +233,17 @@ export async function chatWithActions(
     }
   }
 
+  let tokenUsage: number | undefined;
+
   try {
     const messages: ChatMessage[] = [
       { role: 'system', content: ACTION_SYSTEM_PROMPT + contextPrompt },
       ...(history || []),
       { role: 'user', content: userMessage },
     ];
-    const content = await callChatAPI(messages);
+    const chatResult = await callChatAPI(messages);
+    const content = chatResult.content;
+    tokenUsage = chatResult.tokenUsage;
 
     // 尝试解析 JSON 响应
     const cleaned = content
@@ -233,29 +258,30 @@ export async function chatWithActions(
     if (!parsed.reply || typeof parsed.reply !== 'string') {
       // AI 返回了非标准格式，降级到本地解析器
       const local = parseLocalActions(userMessage);
-      return { reply: local.reply || content, actions: local.actions };
+      return { reply: local.reply || content, actions: local.actions, tokenUsage };
     }
     if (!Array.isArray(parsed.actions)) {
-      return { reply: parsed.reply, actions: [] };
+      return { reply: parsed.reply, actions: [], tokenUsage };
     }
 
     // 如果 AI 没有返回 actions，也尝试本地解析
     if (parsed.actions.length === 0) {
       const local = parseLocalActions(userMessage);
       if (local.actions.length > 0) {
-        return { reply: parsed.reply, actions: local.actions };
+        return { reply: parsed.reply, actions: local.actions, tokenUsage };
       }
     }
 
     return {
       reply: parsed.reply,
       actions: parsed.actions.filter(a => a.type && a.data),
+      tokenUsage,
     };
   } catch (error) {
     // JSON 解析失败，降级到本地解析器
     if (error instanceof AIError) throw error;
     const local = parseLocalActions(userMessage);
-    return { reply: local.reply || userMessage, actions: local.actions };
+    return { reply: local.reply || userMessage, actions: local.actions, tokenUsage };
   }
 }
 
@@ -265,9 +291,9 @@ export async function analyzeFinance(familyData: {
   monthlyIncome: number;
   monthlyExpense: number;
   investmentAllocation?: Array<{ category: string; value: number; percentage: number }>;
-}): Promise<string> {
+}): Promise<{ report: string; tokenUsage?: number }> {
   if (!isAIConfigured()) {
-    return generateFallbackAnalysis(familyData);
+    return { report: generateFallbackAnalysis(familyData) };
   }
 
   const systemPrompt = `你是一位专业的家庭财务顾问。请根据用户提供的家庭财务数据，生成一份简洁、实用的财务分析报告。
@@ -290,10 +316,12 @@ export async function analyzeFinance(familyData: {
 月结余：${familyData.monthlyIncome - familyData.monthlyExpense} 元
 ${familyData.investmentAllocation ? `投资配置：\n${familyData.investmentAllocation.map(a => `- ${a.category}: ${a.value} 元 (${a.percentage}%)`).join('\n')}` : ''}`;
 
-  return callChatAPI([
+  const { content, tokenUsage } = await callChatAPI([
     { role: 'system', content: systemPrompt },
     { role: 'user', content: userPrompt },
   ]);
+
+  return { report: content, tokenUsage };
 }
 
 function generateFallbackAnalysis(familyData: {
@@ -375,7 +403,9 @@ export async function parseReceiptOCR(imageBase64: string): Promise<MergedOCR> {
     console.warn('视觉 OCR 路径失败:', visionResult.reason);
   }
 
-  return mergeOcrResults(tesseract, vision);
+  const merged = mergeOcrResults(tesseract, vision);
+  // V3.4.3: 透传 Tesseract 路径 AI 解析调用的 token 用量
+  return { ...merged, tokenUsage: tesseract?.tokenUsage };
 }
 
 // 预设类别白名单（与 aiActions.ts 的 categoryMap 保持一致）
@@ -490,7 +520,7 @@ async function runTesseractPath(imageBase64: string): Promise<ParsedOCR> {
 如果文字中无法识别出有效金额信息，返回 {"error": "无法识别"}。`;
 
   try {
-    const content = await callChatAPI([
+    const { content, tokenUsage } = await callChatAPI([
       { role: 'system', content: systemPrompt },
       { role: 'user', content: `以下是 OCR 提取的票据文字，请解析为 JSON：\n\n${cleanedText}` },
     ]);
@@ -503,6 +533,7 @@ async function runTesseractPath(imageBase64: string): Promise<ParsedOCR> {
         return {
           raw: `AI 未能从 OCR 文字中识别出结构化信息。原始文字：\n${rawText}`,
           rawText,
+          tokenUsage,
         };
       }
       return {
@@ -512,6 +543,7 @@ async function runTesseractPath(imageBase64: string): Promise<ParsedOCR> {
         description: parsed.description,
         type: parsed.type === 'income' || parsed.type === 'expense' ? parsed.type : undefined,
         rawText,
+        tokenUsage,
         // 多笔交易：解析 items 数组
         items: Array.isArray(parsed.items)
           ? parsed.items
@@ -527,7 +559,7 @@ async function runTesseractPath(imageBase64: string): Promise<ParsedOCR> {
       };
     } catch {
       // AI 返回非 JSON，返回原始 OCR 文字 + AI 回复
-      return { raw: `${content}\n\n--- OCR 原始文字 ---\n${rawText}`, rawText };
+      return { raw: `${content}\n\n--- OCR 原始文字 ---\n${rawText}`, rawText, tokenUsage };
     }
   } catch (error) {
     if (error instanceof AIError) throw error;

@@ -25,9 +25,17 @@ jest.mock('../middleware/cache', () => ({
   cacheMiddleware: () => (_req: any, _res: any, next: any) => next(),
 }));
 
+jest.mock('../services/budgetAlertService', () => ({
+  checkBudgetAlerts: jest.fn(),
+}));
+
 import { prisma } from '../app';
+import { checkBudgetAlerts } from '../services/budgetAlertService';
 
 const mockedPrisma = prisma as any;
+const mockedCheckBudgetAlerts = checkBudgetAlerts as jest.MockedFunction<
+  typeof checkBudgetAlerts
+>;
 
 const app = express();
 app.use(express.json());
@@ -55,6 +63,7 @@ describe('Budget Routes', () => {
     mockedPrisma.budget.update.mockResolvedValue({});
     mockedPrisma.budget.delete.mockResolvedValue({});
     mockedPrisma.expense.findMany.mockResolvedValue([]);
+    mockedCheckBudgetAlerts.mockResolvedValue([]);
   });
 
   describe('POST /api/families/:familyId/budgets', () => {
@@ -310,6 +319,63 @@ describe('Budget Routes', () => {
       );
       expect(res.body[0].spent).toBe(1000);
       expect(res.body[0].percentage).toBe(20);
+    });
+  });
+
+  describe('GET /api/families/:familyId/budgets/alerts', () => {
+    test('returns budget alerts', async () => {
+      mockedCheckBudgetAlerts.mockResolvedValue([
+        {
+          budgetId: 'b1',
+          category: '餐饮',
+          amount: 1000,
+          spent: 1200,
+          percentage: 120,
+          severity: 'HIGH',
+          message: '预算已超支：餐饮 已支出 1200 元，超出预算 1000 元',
+        },
+      ]);
+
+      const res = await request(app)
+        .get('/api/families/fam_1/budgets/alerts')
+        .set('Authorization', `Bearer ${createToken()}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.alerts).toHaveLength(1);
+      expect(res.body.alerts[0].budgetId).toBe('b1');
+      expect(res.body.alerts[0].category).toBe('餐饮');
+      expect(res.body.alerts[0].severity).toBe('HIGH');
+      expect(res.body.alerts[0].percentage).toBe(120);
+      expect(mockedCheckBudgetAlerts).toHaveBeenCalledWith('fam_1');
+    });
+
+    test('returns empty array when no budget alert', async () => {
+      mockedCheckBudgetAlerts.mockResolvedValue([]);
+
+      const res = await request(app)
+        .get('/api/families/fam_1/budgets/alerts')
+        .set('Authorization', `Bearer ${createToken()}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.alerts).toEqual([]);
+    });
+
+    test('returns 401 without authentication', async () => {
+      const res = await request(app).get('/api/families/fam_1/budgets/alerts');
+
+      expect(res.status).toBe(401);
+      expect(mockedCheckBudgetAlerts).not.toHaveBeenCalled();
+    });
+
+    test('returns 403 when user has no family access', async () => {
+      mockedPrisma.familyMember.findUnique.mockResolvedValue(null);
+
+      const res = await request(app)
+        .get('/api/families/fam_1/budgets/alerts')
+        .set('Authorization', `Bearer ${createToken()}`);
+
+      expect(res.status).toBe(403);
+      expect(mockedCheckBudgetAlerts).not.toHaveBeenCalled();
     });
   });
 });

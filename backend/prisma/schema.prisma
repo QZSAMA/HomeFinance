@@ -12,6 +12,7 @@ model User {
   email          String    @unique
   passwordHash   String
   name           String
+  aiQuotaOverride Int?     // 每日 AI 调用配额覆盖（null 用全局 AI_DAILY_QUOTA，>0 生效）
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   familyMembers  FamilyMember[]
@@ -41,8 +42,9 @@ model Family {
   budgets     Budget[]
   recurringTransactions RecurringTransaction[]
   goals       Goal[]
-  importSources ImportSource[]
+  importSources  ImportSource[]
   netWorthHistories NetWorthHistory[]
+  anomalyAlerts AnomalyAlert[]
 }
 
 model NetWorthHistory {
@@ -297,6 +299,24 @@ model MarketData {
 
   @@unique([symbol, date])
   @@index([symbol])
+}
+
+model AnomalyAlert {
+  id        String   @id @default(cuid())
+  familyId  String
+  family    Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  type      String   // LARGE_EXPENSE | FREQUENCY_SPIKE | CATEGORY_SURGE | DUPLICATE | BUDGET_EXCEEDED | BUDGET_WARNING
+  severity  String   // HIGH | MEDIUM | LOW
+  title     String
+  description String
+  amount    Decimal? @db.Decimal(15, 2)
+  expenseId String?
+  category  String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([familyId, isRead])
+  @@index([familyId, createdAt])
 }
 
 model ImportSource {

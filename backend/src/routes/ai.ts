@@ -6,7 +6,7 @@ import { rateLimitMiddleware } from '../middleware/rateLimit';
 import { chatWithActions, analyzeFinance, parseReceiptOCR, ocrToActions, AIError } from '../services/aiService';
 import { executeActions, type AIAction } from '../services/aiActions';
 import { toNumber } from '../utils/decimal';
-import { isAIConfigured, isVisionConfigured } from '../config/ai';
+import { AI_CONFIG, isAIConfigured, isVisionConfigured } from '../config/ai';
 import { storeOcrImage } from '../services/fileStorageService';
 import { checkAIQuota, recordAIUsage, getAIQuotaStatus } from '../middleware/aiQuota';
 import { logAICall } from '../services/aiCallLogService';
@@ -205,6 +205,8 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
         userId,
         familyId,
         type: 'chat',
+        model: AI_CONFIG.model,
+        tokenUsage: parsed.tokenUsage,
         latency: Date.now() - startTime,
         success: true,
       });
@@ -256,6 +258,14 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
       }
     });
 
+    // V3.4.3: 汇总所有成功图片的 token 用量（多图多次 AI 调用）
+    const ocrTokenUsage = ocrResults.reduce(
+      (sum, r) => (r.status === 'fulfilled' && r.value.data.tokenUsage)
+        ? sum + r.value.data.tokenUsage
+        : sum,
+      0
+    );
+
     // 所有图都失败 → 报错
     if (successCount === 0 && failedCount > 0) {
       throw new AIError('所有图片识别失败，请稍后重试或换张图片', 500);
@@ -281,6 +291,8 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
         userId,
         familyId,
         type: 'chat',
+        model: AI_CONFIG.model,
+        tokenUsage: ocrTokenUsage || undefined,
         latency: Date.now() - startTime,
         success: true,
       });
@@ -351,6 +363,9 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
       userId,
       familyId,
       type: 'chat',
+      model: AI_CONFIG.model,
+      // 场景 C 含 OCR 解析 + 文本对话两次 AI 调用，token 用量取两者之和
+      tokenUsage: (parsed.tokenUsage ?? 0) + ocrTokenUsage || undefined,
       latency: Date.now() - startTime,
       success: true,
     });
@@ -372,6 +387,7 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
       userId,
       familyId,
       type: 'chat',
+      model: AI_CONFIG.model,
       latency: Date.now() - startTime,
       success: false,
       error: errorMessage,
@@ -390,9 +406,12 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
 });
 
 router.post('/analyze', authMiddleware, rateLimitMiddleware(10, 60), async (req: AuthRequest, res) => {
+  const startTime = Date.now();
+  const familyId = req.params.familyId as string;
+  const userId = req.userId!;
+
   try {
-    const familyId = req.params.familyId as string;
-    const membership = await checkFamilyAccess(familyId, req.userId!);
+    const membership = await checkFamilyAccess(familyId, userId);
     if (!membership) {
       return res.status(403).json({ error: '无权访问该家庭' });
     }
@@ -424,7 +443,7 @@ router.post('/analyze', authMiddleware, rateLimitMiddleware(10, 60), async (req:
       percentage: totalAssetValue > 0 ? Number(((value / totalAssetValue) * 100).toFixed(2)) : 0,
     }));
 
-    const report = await analyzeFinance({
+    const { report, tokenUsage } = await analyzeFinance({
       totalAssets,
       totalLiabilities,
       monthlyIncome,
@@ -435,15 +454,38 @@ router.post('/analyze', authMiddleware, rateLimitMiddleware(10, 60), async (req:
     await prisma.aiConversation.create({
       data: {
         familyId,
-        userId: req.userId!,
+        userId,
         content: '生成财务分析报告',
         response: report,
         type: 'analysis',
       }
     });
 
+    // V3.4.3: 记录 AI 调用日志（成功）
+    await logAICall({
+      userId,
+      familyId,
+      type: 'analyze',
+      model: AI_CONFIG.model,
+      tokenUsage,
+      latency: Date.now() - startTime,
+      success: true,
+    });
+
     res.json({ report, aiConfigured: isAIConfigured() });
   } catch (error) {
+    // V3.4.3: 记录 AI 调用日志（失败）
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    await logAICall({
+      userId,
+      familyId,
+      type: 'analyze',
+      model: AI_CONFIG.model,
+      latency: Date.now() - startTime,
+      success: false,
+      error: errorMessage,
+    });
+
     if (error instanceof AIError) {
       console.error('AI 分析错误:', error.message);
       return res.status(error.statusCode).json({ error: error.message });
@@ -506,6 +548,8 @@ router.post('/ocr', authMiddleware, rateLimitMiddleware(20, 60), async (req: Aut
       userId,
       familyId,
       type: 'ocr',
+      model: AI_CONFIG.model,
+      tokenUsage: data.tokenUsage,
       latency: Date.now() - startTime,
       success: true,
     });
@@ -527,6 +571,7 @@ router.post('/ocr', authMiddleware, rateLimitMiddleware(20, 60), async (req: Aut
       userId,
       familyId,
       type: 'ocr',
+      model: AI_CONFIG.model,
       latency: Date.now() - startTime,
       success: false,
       error: errorMessage,

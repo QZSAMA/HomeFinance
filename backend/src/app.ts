@@ -53,6 +53,7 @@ import exchangeRateRoutes from './routes/exchangeRate';
 import importSourceRoutes from './routes/importSources';
 import marketDataRoutes from './routes/marketData';
 import netWorthRoutes from './routes/netWorth';
+import anomalyRoutes from './routes/anomalies';
 import { ensureBucket } from './config/minio';
 import { connectRedis } from './config/redis';
 import { initScheduler } from './jobs/scheduler';
@@ -77,6 +78,7 @@ app.use('/api/families/:familyId/goals', goalRoutes);
 app.use('/api/families/:familyId/import-sources', importSourceRoutes);
 app.use('/api/families/:familyId/market-data', marketDataRoutes);
 app.use('/api/families/:familyId/net-worth', netWorthRoutes);
+app.use('/api/families/:familyId/anomalies', anomalyRoutes);
 app.use('/api/exchange-rates', exchangeRateRoutes);
 
 app.listen(PORT, () => {

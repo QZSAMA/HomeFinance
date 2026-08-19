@@ -1,12 +1,16 @@
 import cron, { ScheduledTask } from 'node-cron';
 import { syncAllActiveSources } from '../services/syncService';
 import { syncAllFamiliesNetWorth } from '../services/netWorthService';
+import { detectAnomaliesForAll } from '../services/anomalyService';
+import { checkBudgetAlertsForAll } from '../services/budgetAlertService';
 import { createModuleLogger } from '../utils/logger';
 
 const logger = createModuleLogger('scheduler');
 
 const SYNC_BILL_CRON = '0 2 * * *';
 const NET_WORTH_CRON = '0 0 * * *';
+const ANOMALY_DETECT_CRON = '0 8 * * *';
+const BUDGET_ALERT_CRON = '0 9 * * *';
 
 interface ScheduledJob {
   name: string;
@@ -19,6 +23,8 @@ let scheduledJobs: ScheduledJob[] = [];
  * 初始化定时任务调度器。
  * - 每日凌晨 0:00 执行 syncAllFamiliesNetWorth（净值快照）
  * - 每日凌晨 2:00 执行 syncAllActiveSources（账单同步）
+ * - 每日上午 8:00 执行 detectAnomaliesForAll（异常检测）
+ * - 每日上午 9:00 执行 checkBudgetAlertsForAll（预算告警）
  * 通过环境变量 ENABLE_SCHEDULER 控制（默认 true，设为 false 禁用）。
  * 多次调用幂等：已存在任务时不重复注册。
  */
@@ -63,9 +69,39 @@ export function initScheduler(): void {
     }
   });
 
+  const anomalyTask = cron.schedule(ANOMALY_DETECT_CRON, async () => {
+    try {
+      const result = await detectAnomaliesForAll();
+      logger.info('定时异常检测完成', {
+        total: result.total,
+        found: result.found,
+      });
+    } catch (err) {
+      logger.error('定时异常检测失败', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+  });
+
+  const budgetAlertTask = cron.schedule(BUDGET_ALERT_CRON, async () => {
+    try {
+      const result = await checkBudgetAlertsForAll();
+      logger.info('定时预算告警检测完成', {
+        total: result.total,
+        alerted: result.alerted,
+      });
+    } catch (err) {
+      logger.error('定时预算告警检测失败', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+  });
+
   scheduledJobs = [
     { name: '净值快照', task: netWorthTask },
     { name: '账单同步', task: syncTask },
+    { name: '异常检测', task: anomalyTask },
+    { name: '预算告警', task: budgetAlertTask },
   ];
 
   logger.info('定时调度器已初始化', {

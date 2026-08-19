@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../app';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { parsePagination, paginateResponse } from '../utils/pagination';
+import { checkBudgetAlerts } from '../services/budgetAlertService';
 
 const router = Router({ mergeParams: true });
 
@@ -82,6 +83,23 @@ router.get('/progress', authMiddleware, async (req: AuthRequest, res) => {
     res.json(progress);
   } catch (error) {
     console.error('获取预算进度错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
+  }
+});
+
+// GET /alerts — 实时检测预算告警（不保存），must be defined before /:id routes to avoid route shadowing
+router.get('/alerts', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const familyId = req.params.familyId as string;
+    const membership = await checkFamilyAccess(familyId, req.userId!);
+    if (!membership) {
+      return res.status(403).json({ error: '无权访问该家庭' });
+    }
+
+    const alerts = await checkBudgetAlerts(familyId);
+    res.json({ alerts });
+  } catch (error) {
+    console.error('获取预算告警错误:', error);
     res.status(500).json({ error: '服务器内部错误' });
   }
 });

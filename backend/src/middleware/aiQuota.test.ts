@@ -25,9 +25,20 @@ jest.mock('../config/redis', () => {
   return { redisClient };
 });
 
+// V3.4.3: mock prisma（checkAIQuota/getAIQuotaStatus 读取用户 aiQuotaOverride）
+jest.mock('../app', () => ({
+  prisma: {
+    user: {
+      findUnique: jest.fn(),
+    },
+  },
+}));
+
 import { redisClient } from '../config/redis';
+import { prisma } from '../app';
 
 const mockedRedis = redisClient as any;
+const mockedPrisma = prisma as any;
 const store = mockedRedis.__store as Map<string, string>;
 
 describe('AI Quota Middleware', () => {
@@ -37,6 +48,8 @@ describe('AI Quota Middleware', () => {
     jest.clearAllMocks();
     store.clear();
     mockedRedis.isOpen = true;
+    // 默认无 override（用全局配额）
+    mockedPrisma.user.findUnique.mockResolvedValue({ aiQuotaOverride: null });
     // 重置环境变量
     delete process.env.AI_DAILY_QUOTA;
   });
@@ -121,6 +134,62 @@ describe('AI Quota Middleware', () => {
 
       delete process.env.AI_DAILY_QUOTA;
     });
+
+    // ===== V3.4.3 配置化配额：用户级 override =====
+
+    test('用户有 aiQuotaOverride=100 时用 100 作为限额', async () => {
+      mockedPrisma.user.findUnique.mockResolvedValue({ aiQuotaOverride: 100 });
+
+      const result = await checkAIQuota(userId);
+      expect(result.limit).toBe(100);
+      expect(result.remaining).toBe(100);
+      expect(result.allowed).toBe(true);
+    });
+
+    test('override 为 null 时用全局配额', async () => {
+      mockedPrisma.user.findUnique.mockResolvedValue({ aiQuotaOverride: null });
+
+      const result = await checkAIQuota(userId);
+      expect(result.limit).toBe(50);
+    });
+
+    test('override 为 0 时用全局配额', async () => {
+      mockedPrisma.user.findUnique.mockResolvedValue({ aiQuotaOverride: 0 });
+
+      const result = await checkAIQuota(userId);
+      expect(result.limit).toBe(50);
+    });
+
+    test('override 为负数时用全局配额', async () => {
+      mockedPrisma.user.findUnique.mockResolvedValue({ aiQuotaOverride: -5 });
+
+      const result = await checkAIQuota(userId);
+      expect(result.limit).toBe(50);
+    });
+
+    test('override 生效时按 override 计算剩余额度', async () => {
+      mockedPrisma.user.findUnique.mockResolvedValue({ aiQuotaOverride: 2 });
+
+      await recordAIUsage(userId);
+      await recordAIUsage(userId);
+
+      const result = await checkAIQuota(userId);
+      expect(result.limit).toBe(2);
+      expect(result.allowed).toBe(false);
+      expect(result.remaining).toBe(0);
+    });
+
+    test('DB 查询失败时降级全局配额（不阻塞请求）', async () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      mockedPrisma.user.findUnique.mockRejectedValue(new Error('DB connection error'));
+
+      const result = await checkAIQuota(userId);
+      expect(result.limit).toBe(50);
+      expect(result.allowed).toBe(true);
+      expect(warnSpy).toHaveBeenCalled();
+
+      warnSpy.mockRestore();
+    });
   });
 
   describe('recordAIUsage', () => {
@@ -184,6 +253,36 @@ describe('AI Quota Middleware', () => {
       expect(status.used).toBe(0);
       expect(status.limit).toBe(50);
       expect(status.remaining).toBe(50);
+      expect(warnSpy).toHaveBeenCalled();
+
+      warnSpy.mockRestore();
+    });
+
+    // ===== V3.4.3 配置化配额：getAIQuotaStatus 支持 override =====
+
+    test('用户有 aiQuotaOverride=100 时 limit 为 100', async () => {
+      mockedPrisma.user.findUnique.mockResolvedValue({ aiQuotaOverride: 100 });
+      await recordAIUsage(userId);
+
+      const status = await getAIQuotaStatus(userId);
+      expect(status.used).toBe(1);
+      expect(status.limit).toBe(100);
+      expect(status.remaining).toBe(99);
+    });
+
+    test('override 为 null 时用全局配额', async () => {
+      mockedPrisma.user.findUnique.mockResolvedValue({ aiQuotaOverride: null });
+
+      const status = await getAIQuotaStatus(userId);
+      expect(status.limit).toBe(50);
+    });
+
+    test('DB 查询失败时降级全局配额', async () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      mockedPrisma.user.findUnique.mockRejectedValue(new Error('DB connection error'));
+
+      const status = await getAIQuotaStatus(userId);
+      expect(status.limit).toBe(50);
       expect(warnSpy).toHaveBeenCalled();
 
       warnSpy.mockRestore();

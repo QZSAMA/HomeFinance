@@ -468,7 +468,7 @@ describe('AI Routes', () => {
 
   describe('POST /api/families/:familyId/ai/analyze', () => {
     test('returns financial analysis report', async () => {
-      mockedAnalyzeFinance.mockResolvedValue('财务分析报告内容');
+      mockedAnalyzeFinance.mockResolvedValue({ report: '财务分析报告内容' });
       mockedPrisma.aiConversation.create.mockResolvedValue({});
 
       const res = await request(app)
@@ -487,6 +487,69 @@ describe('AI Routes', () => {
         .send({});
 
       expect(res.status).toBe(401);
+    });
+
+    // ===== V3.4.3 日志补全：/analyze 端点埋点 =====
+
+    test('成功后记录 AiCallLog（type=analyze, success=true）', async () => {
+      mockedAnalyzeFinance.mockResolvedValue({ report: '财务分析报告内容', tokenUsage: 300 });
+      mockedPrisma.aiConversation.create.mockResolvedValue({});
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/analyze')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({});
+
+      expect(res.status).toBe(200);
+      expect(mockedLogAICall).toHaveBeenCalledWith(expect.objectContaining({
+        userId: 'user_1',
+        familyId: 'family_1',
+        type: 'analyze',
+        success: true,
+      }));
+    });
+
+    test('成功后 logAICall 传入 model 和 tokenUsage', async () => {
+      mockedAnalyzeFinance.mockResolvedValue({ report: '报告', tokenUsage: 300 });
+      mockedPrisma.aiConversation.create.mockResolvedValue({});
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/analyze')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({});
+
+      expect(res.status).toBe(200);
+      const logCall = mockedLogAICall.mock.calls.find(
+        (c: any[]) => c[0]?.type === 'analyze'
+      );
+      expect(logCall).toBeDefined();
+      expect(logCall![0]).toMatchObject({
+        model: 'test', // 来自 mock 的 AI_CONFIG.model
+        tokenUsage: 300,
+      });
+    });
+
+    test('失败也记录 AiCallLog（type=analyze, success=false）', async () => {
+      const { AIError } = jest.requireMock('../services/aiService');
+      mockedAnalyzeFinance.mockRejectedValue(new AIError('AI 服务调用失败', 500));
+      mockedPrisma.aiConversation.create.mockResolvedValue({});
+      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/analyze')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({});
+
+      expect(res.status).toBe(500);
+      expect(mockedLogAICall).toHaveBeenCalledWith(expect.objectContaining({
+        userId: 'user_1',
+        familyId: 'family_1',
+        type: 'analyze',
+        success: false,
+        error: 'AI 服务调用失败',
+      }));
+
+      errorSpy.mockRestore();
     });
   });
 

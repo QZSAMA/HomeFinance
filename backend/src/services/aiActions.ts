@@ -6,6 +6,8 @@ import { toNumber } from '../utils/decimal';
 export type ActionType =
   | 'create_income' | 'create_expense'
   | 'create_asset'  | 'create_liability'
+  | 'update_income' | 'update_expense'
+  | 'update_asset'  | 'update_liability'
   | 'delete_income' | 'delete_expense'
   | 'delete_asset'  | 'delete_liability'
   | 'query_income'  | 'query_expense'
@@ -27,6 +29,8 @@ export interface ActionResult {
 export interface ParsedAIResponse {
   reply: string;
   actions: AIAction[];
+  // 本次 AI 调用消耗的总 token 数（来自 API 响应 usage.total_tokens，无则为 undefined）
+  tokenUsage?: number;
 }
 
 // ===== 动作执行器 =====
@@ -163,6 +167,130 @@ async function executeAction(
         status: 'success',
         message: `已创建负债：${data.name || '未命名负债'} ¥${amount.toFixed(2)}`,
         record,
+      };
+    }
+
+    // ===== 更新收入 =====
+    case 'update_income': {
+      if (!data.id) {
+        return { type, status: 'error', message: '缺少 id 参数' };
+      }
+      const record = await prisma.income.findUnique({ where: { id: data.id } });
+      if (!record || record.familyId !== familyId) {
+        return { type, status: 'error', message: '记录不存在' };
+      }
+      const updateData: Record<string, any> = {};
+      if (data.category !== undefined) updateData.category = data.category;
+      if (data.amount !== undefined) {
+        const amount = Number(data.amount);
+        if (!amount || amount <= 0) {
+          return { type, status: 'error', message: '金额必须大于0' };
+        }
+        updateData.amount = amount;
+      }
+      if (data.description !== undefined) updateData.description = data.description || null;
+      if (data.source !== undefined) updateData.source = data.source || null;
+      if (data.date !== undefined) updateData.date = new Date(data.date);
+      const updated = await prisma.income.update({ where: { id: data.id }, data: updateData });
+      return {
+        type,
+        status: 'success',
+        message: '已更新收入记录',
+        record: updated,
+      };
+    }
+
+    // ===== 更新支出 =====
+    case 'update_expense': {
+      if (!data.id) {
+        return { type, status: 'error', message: '缺少 id 参数' };
+      }
+      const record = await prisma.expense.findUnique({ where: { id: data.id } });
+      if (!record || record.familyId !== familyId) {
+        return { type, status: 'error', message: '记录不存在' };
+      }
+      const updateData: Record<string, any> = {};
+      if (data.category !== undefined) updateData.category = data.category;
+      if (data.amount !== undefined) {
+        const amount = Number(data.amount);
+        if (!amount || amount <= 0) {
+          return { type, status: 'error', message: '金额必须大于0' };
+        }
+        updateData.amount = amount;
+      }
+      if (data.description !== undefined) updateData.description = data.description || null;
+      if (data.paymentMethod !== undefined) updateData.paymentMethod = data.paymentMethod || null;
+      if (data.date !== undefined) updateData.date = new Date(data.date);
+      const updated = await prisma.expense.update({ where: { id: data.id }, data: updateData });
+      return {
+        type,
+        status: 'success',
+        message: '已更新支出记录',
+        record: updated,
+      };
+    }
+
+    // ===== 更新资产 =====
+    case 'update_asset': {
+      if (!data.id) {
+        return { type, status: 'error', message: '缺少 id 参数' };
+      }
+      const record = await prisma.asset.findUnique({ where: { id: data.id } });
+      if (!record || record.familyId !== familyId) {
+        return { type, status: 'error', message: '记录不存在' };
+      }
+      const updateData: Record<string, any> = {};
+      if (data.name !== undefined) updateData.name = data.name;
+      if (data.type !== undefined) updateData.type = data.type;
+      if (data.category !== undefined) updateData.category = data.category || null;
+      if (data.value !== undefined) {
+        const value = Number(data.value);
+        if (isNaN(value) || value < 0) {
+          return { type, status: 'error', message: '资产价值无效' };
+        }
+        updateData.value = value;
+      }
+      if (data.costBasis !== undefined) updateData.costBasis = data.costBasis ? Number(data.costBasis) : null;
+      if (data.currency !== undefined) updateData.currency = data.currency;
+      if (data.purchaseDate !== undefined) updateData.purchaseDate = data.purchaseDate ? new Date(data.purchaseDate) : null;
+      if (data.description !== undefined) updateData.description = data.description || null;
+      const updated = await prisma.asset.update({ where: { id: data.id }, data: updateData });
+      return {
+        type,
+        status: 'success',
+        message: '已更新资产记录',
+        record: updated,
+      };
+    }
+
+    // ===== 更新负债 =====
+    case 'update_liability': {
+      if (!data.id) {
+        return { type, status: 'error', message: '缺少 id 参数' };
+      }
+      const record = await prisma.liability.findUnique({ where: { id: data.id } });
+      if (!record || record.familyId !== familyId) {
+        return { type, status: 'error', message: '记录不存在' };
+      }
+      const updateData: Record<string, any> = {};
+      if (data.name !== undefined) updateData.name = data.name;
+      if (data.type !== undefined) updateData.type = data.type;
+      if (data.amount !== undefined) {
+        const amount = Number(data.amount);
+        if (isNaN(amount) || amount < 0) {
+          return { type, status: 'error', message: '负债金额无效' };
+        }
+        updateData.amount = amount;
+      }
+      if (data.interestRate !== undefined) updateData.interestRate = data.interestRate ? Number(data.interestRate) : null;
+      if (data.dueDate !== undefined) updateData.endDate = data.dueDate ? new Date(data.dueDate) : null;
+      if (data.description !== undefined) updateData.description = data.description || null;
+      const updated = await prisma.liability.update({ where: { id: data.id }, data: updateData });
+      return {
+        type,
+        status: 'success',
+        message: '已更新负债记录',
+        record: updated,
       };
     }
 

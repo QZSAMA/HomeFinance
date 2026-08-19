@@ -1,4 +1,5 @@
 import { redisClient } from '../config/redis';
+import { prisma } from '../app';
 
 export const DEFAULT_AI_DAILY_QUOTA = 50;
 
@@ -41,13 +42,37 @@ function quotaKey(userId: string): string {
 }
 
 /**
+ * V3.4.3: 获取用户当日配额上限（优先用户级 aiQuotaOverride，其次全局 AI_DAILY_QUOTA）。
+ * 用户 override > 0 时生效；DB 查询失败时降级用全局配额，不阻塞请求。
+ */
+async function getUserQuotaLimit(userId: string): Promise<number> {
+  const globalQuota = getDailyQuota();
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { aiQuotaOverride: true },
+    });
+    if (user?.aiQuotaOverride && user.aiQuotaOverride > 0) {
+      return user.aiQuotaOverride;
+    }
+    return globalQuota;
+  } catch (error) {
+    console.warn(
+      '读取用户 AI 配额覆盖失败，降级使用全局配额:',
+      error instanceof Error ? error.message : error
+    );
+    return globalQuota;
+  }
+}
+
+/**
  * 检查用户是否还有 AI 调用配额。
  * Redis 不可用时降级允许调用（记录 warning）。
  */
 export async function checkAIQuota(
   userId: string
 ): Promise<{ allowed: boolean; remaining: number; limit: number }> {
-  const limit = getDailyQuota();
+  const limit = await getUserQuotaLimit(userId);
   try {
     const countStr = await redisClient.get(quotaKey(userId));
     const used = countStr ? parseInt(countStr, 10) : 0;
@@ -97,7 +122,7 @@ export async function recordAIUsage(userId: string): Promise<void> {
 export async function getAIQuotaStatus(
   userId: string
 ): Promise<{ used: number; limit: number; remaining: number }> {
-  const limit = getDailyQuota();
+  const limit = await getUserQuotaLimit(userId);
   try {
     const countStr = await redisClient.get(quotaKey(userId));
     const used = countStr ? parseInt(countStr, 10) : 0;
