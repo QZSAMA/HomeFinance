@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../app';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { parsePagination, paginateResponse } from '../utils/pagination';
+import { INCOME_TYPES } from '../services/incomeClassifier';
 
 const router = Router({ mergeParams: true });
 
@@ -13,7 +14,9 @@ const incomeSchema = z.object({
   date: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: '日期格式不正确'
   }),
-  source: z.string().optional()
+  source: z.string().optional(),
+  incomeType: z.enum(INCOME_TYPES).optional(),
+  assetId: z.string().optional()
 });
 
 const checkFamilyAccess = async (familyId: string, userId: string) => {
@@ -36,22 +39,29 @@ router.get('/', authMiddleware, async (req: AuthRequest, res) => {
       return res.status(403).json({ error: '无权访问该家庭' });
     }
 
+    const where: any = { familyId };
+    // 支持 ?incomeType=DIVIDEND 查询参数筛选
+    const incomeTypeFilter = req.query.incomeType as string | undefined;
+    if (incomeTypeFilter) {
+      where.incomeType = incomeTypeFilter;
+    }
+
     const pagination = parsePagination(req);
     if (pagination) {
       const [incomes, total] = await Promise.all([
         prisma.income.findMany({
-          where: { familyId },
+          where,
           orderBy: { date: 'desc' },
           skip: pagination.skip,
           take: pagination.take,
         }),
-        prisma.income.count({ where: { familyId } }),
+        prisma.income.count({ where }),
       ]);
       return res.json(paginateResponse(incomes, total, pagination));
     }
 
     const incomes = await prisma.income.findMany({
-      where: { familyId },
+      where,
       orderBy: { date: 'desc' }
     });
 
@@ -115,6 +125,8 @@ router.post('/', authMiddleware, async (req: AuthRequest, res) => {
         description: data.description,
         date: new Date(data.date),
         source: data.source,
+        incomeType: data.incomeType,
+        assetId: data.assetId,
         familyId,
         createdBy: req.userId!
       }
@@ -156,7 +168,9 @@ router.put('/:id', authMiddleware, async (req: AuthRequest, res) => {
         category: data.category,
         description: data.description,
         date: new Date(data.date),
-        source: data.source
+        source: data.source,
+        incomeType: data.incomeType,
+        assetId: data.assetId
       }
     });
 

@@ -42,6 +42,22 @@ model Family {
   recurringTransactions RecurringTransaction[]
   goals       Goal[]
   importSources ImportSource[]
+  netWorthHistories NetWorthHistory[]
+}
+
+model NetWorthHistory {
+  id          String   @id @default(cuid())
+  familyId    String
+  family      Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  date        DateTime @db.Date
+  totalAssets Decimal  @db.Decimal(15, 2)
+  totalLiabilities Decimal @db.Decimal(15, 2)
+  netWorth    Decimal  @db.Decimal(15, 2)
+  assetBreakdown Json
+  createdAt   DateTime @default(now())
+
+  @@unique([familyId, date])
+  @@index([familyId, date])
 }
 
 model FamilyMember {
@@ -67,6 +83,7 @@ model Income {
   description String?
   source      String?
   date        DateTime
+  incomeType  String?  // "SALARY" | "INVESTMENT" | "DIVIDEND" | "INTEREST" | "RENT" | "OTHER"
   assetId     String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -79,6 +96,7 @@ model Income {
   @@index([date])
   @@index([category])
   @@index([assetId])
+  @@index([incomeType])
 }
 
 model Expense {

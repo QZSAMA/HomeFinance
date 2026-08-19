@@ -29,12 +29,25 @@ router.get('/balance-sheet', authMiddleware, cacheMiddleware(300), async (req: A
     const assets = await prisma.asset.findMany({ where: { familyId } });
     const liabilities = await prisma.liability.findMany({ where: { familyId } });
 
-    const totalAssets = assets.reduce((sum, a) => sum + toNumber(a.value), 0);
+    // 资产价值计算：有 symbol && quantity && marketPrice → marketPrice * quantity；否则回退 value
+    const computeAssetValue = (asset: {
+      value: any;
+      symbol: string | null;
+      quantity: any;
+      marketPrice: any;
+    }) => {
+      if (asset.symbol && asset.quantity !== null && asset.marketPrice !== null) {
+        return toNumber(asset.marketPrice) * toNumber(asset.quantity);
+      }
+      return toNumber(asset.value);
+    };
+
+    const totalAssets = assets.reduce((sum, a) => sum + computeAssetValue(a), 0);
     const totalLiabilities = liabilities.reduce((sum, l) => sum + toNumber(l.amount), 0);
     const netWorth = totalAssets - totalLiabilities;
 
     const assetByType = assets.reduce((acc, a) => {
-      acc[a.type] = (acc[a.type] || 0) + toNumber(a.value);
+      acc[a.type] = (acc[a.type] || 0) + computeAssetValue(a);
       return acc;
     }, {} as Record<string, number>);
 
@@ -43,6 +56,15 @@ router.get('/balance-sheet', authMiddleware, cacheMiddleware(300), async (req: A
       return acc;
     }, {} as Record<string, number>);
 
+    // valuationDate：取所有有 marketPrice 的资产中最新的 marketPriceDate
+    const valuationDates = assets
+      .map((a) => a.marketPriceDate)
+      .filter((d): d is Date => d !== null && d !== undefined) as Date[];
+    const valuationDate =
+      valuationDates.length > 0
+        ? valuationDates.reduce((latest, d) => (d > latest ? d : latest))
+        : null;
+
     res.json({
       totalAssets,
       totalLiabilities,
@@ -50,7 +72,8 @@ router.get('/balance-sheet', authMiddleware, cacheMiddleware(300), async (req: A
       assets: assetByType,
       liabilities: liabilityByType,
       assetList: assets,
-      liabilityList: liabilities
+      liabilityList: liabilities,
+      valuationDate
     });
   } catch (error) {
     console.error('获取资产负债表错误:', error);
@@ -142,8 +165,10 @@ router.get('/cash-flow', authMiddleware, cacheMiddleware(300), async (req: AuthR
       i.category === 'SALARY' || i.category === 'BUSINESS'
     );
     const investmentIncome = incomes.filter((i) => 
-      ['投资', '利息', '股息', '理财'].some((k) => i.category.includes(k)) ||
-      i.category === 'INVESTMENT' || i.category === 'INTEREST'
+      // 优先用 incomeType 字段
+      (i.incomeType && ['INVESTMENT', 'DIVIDEND', 'INTEREST', 'RENT'].includes(i.incomeType)) ||
+      // 向下兼容：无 incomeType 的用字符串匹配
+      (!i.incomeType && ['投资', '利息', '股息', '理财'].some((k) => i.category.includes(k)))
     );
     const otherIncome = incomes.filter((i) => 
       !operatingIncome.includes(i) && !investmentIncome.includes(i)
@@ -200,6 +225,75 @@ router.get('/cash-flow', authMiddleware, cacheMiddleware(300), async (req: AuthR
     });
   } catch (error) {
     console.error('获取现金流量表错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
+  }
+});
+
+router.get('/investment-income', authMiddleware, cacheMiddleware(300), async (req: AuthRequest, res) => {
+  try {
+    const familyId = req.params.familyId as string;
+    const membership = await checkFamilyAccess(familyId, req.userId!);
+    if (!membership) {
+      return res.status(403).json({ error: '无权访问该家庭' });
+    }
+
+    const startDate = req.query.startDate as string;
+    const endDate = req.query.endDate as string;
+
+    const where: any = { familyId };
+    if (startDate || endDate) {
+      where.date = {};
+      if (startDate) where.date.gte = new Date(startDate);
+      if (endDate) where.date.lte = new Date(endDate);
+    }
+
+    const incomes = await prisma.income.findMany({ where });
+
+    // 筛选投资相关收益：优先用 incomeType，向下兼容用 category 字符串匹配
+    const investmentIncomes = incomes.filter((i) => 
+      (i.incomeType && ['INVESTMENT', 'DIVIDEND', 'INTEREST', 'RENT'].includes(i.incomeType)) ||
+      (!i.incomeType && ['投资', '利息', '股息', '理财'].some((k) => i.category.includes(k)))
+    );
+
+    const byType: Record<string, number> = {};
+    const byAssetMap: Record<string, { assetId: string; total: number }> = {};
+
+    for (const inc of investmentIncomes) {
+      const amount = toNumber(inc.amount);
+      // 有 incomeType 用 incomeType，向下兼容时归入 INVESTMENT
+      const type = inc.incomeType || 'INVESTMENT';
+      byType[type] = (byType[type] || 0) + amount;
+
+      if (inc.assetId) {
+        if (!byAssetMap[inc.assetId]) {
+          byAssetMap[inc.assetId] = { assetId: inc.assetId, total: 0 };
+        }
+        byAssetMap[inc.assetId].total += amount;
+      }
+    }
+
+    // 查询关联资产名称
+    const assetIds = Object.keys(byAssetMap);
+    const assets = assetIds.length > 0
+      ? await prisma.asset.findMany({ where: { id: { in: assetIds } } })
+      : [];
+    const assetNameMap = new Map(assets.map((a) => [a.id, a.name]));
+
+    const byAsset = Object.values(byAssetMap).map(({ assetId, total }) => ({
+      assetId,
+      name: assetNameMap.get(assetId) || null,
+      total,
+    }));
+
+    const total = investmentIncomes.reduce((s, i) => s + toNumber(i.amount), 0);
+
+    res.json({
+      total,
+      byType,
+      byAsset,
+    });
+  } catch (error) {
+    console.error('获取投资收益报表错误:', error);
     res.status(500).json({ error: '服务器内部错误' });
   }
 });
