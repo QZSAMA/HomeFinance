@@ -21,6 +21,9 @@ const ImportPage = lazy(() => import('./pages/ImportPage'));
 const ImportSourcesPage = lazy(() => import('./pages/ImportSourcesPage'));
 const ExchangeRatePage = lazy(() => import('./pages/ExchangeRatePage'));
 const GoalsPage = lazy(() => import('./pages/GoalsPage'));
+// V3.3.4：净值趋势与投资收益页面，独立 chunk
+const NetWorthPage = lazy(() => import('./pages/NetWorthPage'));
+const InvestmentIncomePage = lazy(() => import('./pages/InvestmentIncomePage'));
 
 function PageLoading() {
   return (
@@ -83,6 +86,26 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <LiabilitiesPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/net-worth"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <NetWorthPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/investment-income"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <InvestmentIncomePage />
                 </Layout>
               </ProtectedRoute>
             }

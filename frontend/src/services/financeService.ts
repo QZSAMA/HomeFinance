@@ -9,6 +9,9 @@ export interface Income {
   description?: string;
   source?: string;
   date: string;
+  // V3.3.4：投资收益类型与关联资产（用于投资收益页面）
+  incomeType?: string;
+  assetId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -37,6 +40,13 @@ export interface Asset {
   currency: string;
   purchaseDate?: string;
   description?: string;
+  // V3.3.4：证券代码、持有数量、单位、最新市价与涨跌幅（用于市值追踪）
+  symbol?: string;
+  quantity?: number;
+  unit?: string;
+  marketPrice?: number;
+  marketPriceDate?: string;
+  changePercent?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -61,8 +71,10 @@ export interface DuplicateCheckResult {
   duplicates: Income[] | Expense[];
 }
 
-export const getIncomes = async (familyId: string): Promise<Income[]> => {
-  const response = await api.get<Income[]>(`/families/${familyId}/incomes`);
+export const getIncomes = async (familyId: string, incomeType?: string): Promise<Income[]> => {
+  const params: Record<string, string> = {};
+  if (incomeType) params.incomeType = incomeType;
+  const response = await api.get<Income[]>(`/families/${familyId}/incomes`, { params });
   return response.data;
 };
 

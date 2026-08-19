@@ -29,6 +29,8 @@ const menuItems: MenuItem[] = [
     children: [
       { path: '/assets', label: '资产管理', icon: '🏠' },
       { path: '/liabilities', label: '负债管理', icon: '💳' },
+      { path: '/net-worth', label: '净值趋势', icon: '📈' },
+      { path: '/investment-income', label: '投资收益', icon: '💹' },
     ],
   },
   { path: '/reports', label: '财务报表', icon: '📈' },

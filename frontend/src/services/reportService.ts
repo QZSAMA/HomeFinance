@@ -95,3 +95,31 @@ export const getInvestmentAllocation = async (familyId: string): Promise<Investm
   const response = await api.get<InvestmentAllocationResponse>(`/families/${familyId}/assets/allocation`);
   return response.data;
 };
+
+// V3.3.4：投资收益报表汇总（分红/利息/租金/投资收益），按类型与关联资产分组
+export interface InvestmentIncomeByAsset {
+  assetId: string;
+  name: string | null;
+  total: number;
+}
+
+export interface InvestmentIncomeReport {
+  total: number;
+  byType: Record<string, number>;
+  byAsset: InvestmentIncomeByAsset[];
+}
+
+export const getInvestmentIncomeReport = async (
+  familyId: string,
+  startDate?: string,
+  endDate?: string
+): Promise<InvestmentIncomeReport> => {
+  const params: Record<string, string> = {};
+  if (startDate) params.startDate = startDate;
+  if (endDate) params.endDate = endDate;
+  const response = await api.get<InvestmentIncomeReport>(
+    `/families/${familyId}/reports/investment-income`,
+    { params }
+  );
+  return response.data;
+};
