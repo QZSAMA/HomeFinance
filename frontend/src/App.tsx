@@ -26,6 +26,8 @@ const NetWorthPage = lazy(() => import('./pages/NetWorthPage'));
 const InvestmentIncomePage = lazy(() => import('./pages/InvestmentIncomePage'));
 // V3.4.4：告警中心页面，独立 chunk
 const AlertsPage = lazy(() => import('./pages/AlertsPage'));
+// V4.5：通知设置页面，独立 chunk
+const NotificationSettingsPage = lazy(() => import('./pages/NotificationSettingsPage'));
 
 function PageLoading() {
   return (
@@ -224,6 +226,16 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <AlertsPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings/notifications"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <NotificationSettingsPage />
                 </Layout>
               </ProtectedRoute>
             }

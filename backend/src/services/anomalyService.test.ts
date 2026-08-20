@@ -13,14 +13,23 @@ jest.mock('../app', () => ({
   },
 }));
 
+// V4.4：告警保存后异步触发通知分发（mock 掉避免依赖真实分发逻辑）
+jest.mock('./notificationDispatcher', () => ({
+  dispatchAlert: jest.fn().mockResolvedValue({ alertId: '', deliveries: [] }),
+}));
+
 import { prisma } from '../app';
 import {
   detectAnomalies,
   detectAndSaveAnomalies,
   detectAnomaliesForAll,
 } from './anomalyService';
+import { dispatchAlert } from './notificationDispatcher';
 
 const mockedPrisma = prisma as any;
+const mockedDispatchAlert = dispatchAlert as jest.MockedFunction<
+  typeof dispatchAlert
+>;
 
 // 固定系统时间：2026-08-15 12:00（本地时间，本月已过半）
 const NOW = new Date(2026, 7, 15, 12, 0, 0);
@@ -280,7 +289,54 @@ describe('anomalyService', () => {
           expenseId: 'e4',
           category: '餐饮',
         }),
+        include: { family: true },
       });
+    });
+
+    test('保存告警后异步触发通知分发（携带 family）', async () => {
+      mockedPrisma.expense.findMany.mockResolvedValue([
+        makeExpense({ id: 'e1', amount: 200, description: '早餐', date: daysAgo(35) }),
+        makeExpense({ id: 'e2', amount: 150, description: '午餐', date: daysAgo(30) }),
+        makeExpense({ id: 'e3', amount: 150, description: '晚餐', date: daysAgo(25) }),
+        makeExpense({ id: 'e4', amount: 1200, description: '大家电', date: daysAgo(1) }),
+      ]);
+      mockedPrisma.anomalyAlert.findMany.mockResolvedValue([]);
+      const createdAlert = {
+        id: 'alert_new',
+        familyId: 'fam_1',
+        type: 'LARGE_EXPENSE',
+        severity: 'HIGH',
+        title: '大额支出提醒',
+        description: '单笔支出 1200 元，超过近90天均值 166.67 元的 3 倍',
+        amount: 1200,
+        expenseId: 'e4',
+        category: '餐饮',
+        isRead: false,
+        createdAt: NOW,
+        family: { id: 'fam_1', name: '我的家' },
+      };
+      mockedPrisma.anomalyAlert.create.mockResolvedValue(createdAlert);
+
+      await detectAndSaveAnomalies('fam_1');
+
+      expect(mockedDispatchAlert).toHaveBeenCalledTimes(1);
+      expect(mockedDispatchAlert).toHaveBeenCalledWith(createdAlert);
+    });
+
+    test('通知分发失败不影响告警保存结果', async () => {
+      mockedPrisma.expense.findMany.mockResolvedValue([
+        makeExpense({ id: 'e1', amount: 200, description: '早餐', date: daysAgo(35) }),
+        makeExpense({ id: 'e2', amount: 150, description: '午餐', date: daysAgo(30) }),
+        makeExpense({ id: 'e3', amount: 150, description: '晚餐', date: daysAgo(25) }),
+        makeExpense({ id: 'e4', amount: 1200, description: '大家电', date: daysAgo(1) }),
+      ]);
+      mockedPrisma.anomalyAlert.findMany.mockResolvedValue([]);
+      mockedPrisma.anomalyAlert.create.mockResolvedValue({});
+      mockedDispatchAlert.mockRejectedValue(new Error('通知分发失败'));
+
+      const result = await detectAndSaveAnomalies('fam_1');
+
+      expect(result).toEqual({ detected: 1, saved: 1 });
     });
   });
 

@@ -24,6 +24,9 @@ model User {
   recurringTransactions RecurringTransaction[]
   goals          Goal[]
   importSources  ImportSource[]
+  notificationPreferences NotificationPreference[]
+  notificationDeliveries NotificationDelivery[]
+  pushSubscriptions PushSubscription[]
 }
 
 model Family {
@@ -45,6 +48,8 @@ model Family {
   importSources  ImportSource[]
   netWorthHistories NetWorthHistory[]
   anomalyAlerts AnomalyAlert[]
+  notificationPreferences NotificationPreference[]
+  notificationDeliveries NotificationDelivery[]
 }
 
 model NetWorthHistory {
@@ -314,9 +319,68 @@ model AnomalyAlert {
   category  String?
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
+  deliveries NotificationDelivery[]
 
   @@index([familyId, isRead])
   @@index([familyId, createdAt])
+}
+
+// 用户通知偏好（每个用户-家庭-告警类型一条记录）
+model NotificationPreference {
+  id           String   @id @default(cuid())
+  userId       String
+  familyId     String
+  alertType    String   // LARGE_EXPENSE | FREQUENCY_SPIKE | CATEGORY_SURGE | DUPLICATE | BUDGET_EXCEEDED | BUDGET_WARNING | SYSTEM
+  minSeverity  String   @default("LOW") // HIGH | MEDIUM | LOW - 只推送此严重度及以上
+  inAppEnabled Boolean  @default(true)
+  emailEnabled Boolean  @default(false)
+  pushEnabled  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  family       Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, familyId, alertType])
+  @@index([userId, familyId])
+}
+
+// 投递记录（每次渠道投递一条，追踪状态）
+model NotificationDelivery {
+  id              String    @id @default(cuid())
+  alertId         String
+  userId          String
+  familyId        String
+  channel         String    // IN_APP | EMAIL | WEB_PUSH
+  status          String    // PENDING | SENT | FAILED | SKIPPED
+  errorMessage    String?
+  alertSnapshot   Json      // 投递时告警快照（title/description/amount/severity/type）
+  sentAt          DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  alert           AnomalyAlert @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  family          Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@unique([alertId, userId, channel])
+  @@index([userId, status])
+  @@index([familyId, createdAt])
+  @@index([status, createdAt])
+}
+
+// Web Push 订阅（一个用户可多设备）
+model PushSubscription {
+  id           String   @id @default(cuid())
+  userId       String
+  familyId     String?  // 可选：仅订阅某家庭的通知
+  endpoint     String   @unique
+  p256dh       String
+  auth         String
+  userAgent    String?
+  createdAt    DateTime @default(now())
+  lastUsedAt   DateTime?
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model ImportSource {

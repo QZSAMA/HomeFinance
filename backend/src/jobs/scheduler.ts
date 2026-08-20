@@ -3,6 +3,7 @@ import { syncAllActiveSources } from '../services/syncService';
 import { syncAllFamiliesNetWorth } from '../services/netWorthService';
 import { detectAnomaliesForAll } from '../services/anomalyService';
 import { checkBudgetAlertsForAll } from '../services/budgetAlertService';
+import { retryFailedDeliveries } from '../services/notificationDispatcher';
 import { createModuleLogger } from '../utils/logger';
 
 const logger = createModuleLogger('scheduler');
@@ -11,6 +12,7 @@ const SYNC_BILL_CRON = '0 2 * * *';
 const NET_WORTH_CRON = '0 0 * * *';
 const ANOMALY_DETECT_CRON = '0 8 * * *';
 const BUDGET_ALERT_CRON = '0 9 * * *';
+const NOTIFICATION_RETRY_CRON = '*/30 * * * *';
 
 interface ScheduledJob {
   name: string;
@@ -25,6 +27,7 @@ let scheduledJobs: ScheduledJob[] = [];
  * - 每日凌晨 2:00 执行 syncAllActiveSources（账单同步）
  * - 每日上午 8:00 执行 detectAnomaliesForAll（异常检测）
  * - 每日上午 9:00 执行 checkBudgetAlertsForAll（预算告警）
+ * - 每 30 分钟执行 retryFailedDeliveries（通知投递重试）
  * 通过环境变量 ENABLE_SCHEDULER 控制（默认 true，设为 false 禁用）。
  * 多次调用幂等：已存在任务时不重复注册。
  */
@@ -97,11 +100,26 @@ export function initScheduler(): void {
     }
   });
 
+  const notificationRetryTask = cron.schedule(NOTIFICATION_RETRY_CRON, async () => {
+    try {
+      const result = await retryFailedDeliveries();
+      logger.info('定时通知投递重试完成', {
+        retried: result.retried,
+        succeeded: result.succeeded,
+      });
+    } catch (err) {
+      logger.error('定时通知投递重试失败', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+  });
+
   scheduledJobs = [
     { name: '净值快照', task: netWorthTask },
     { name: '账单同步', task: syncTask },
     { name: '异常检测', task: anomalyTask },
     { name: '预算告警', task: budgetAlertTask },
+    { name: '通知投递重试', task: notificationRetryTask },
   ];
 
   logger.info('定时调度器已初始化', {

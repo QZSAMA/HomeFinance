@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import FamilySelector from './FamilySelector';
+import NotificationBell from './NotificationBell';
 
 // 菜单项类型：叶子节点（path 必有）或分组节点（children 必有）
 type MenuItem = {
@@ -44,6 +45,7 @@ const menuItems: MenuItem[] = [
       { path: '/import', label: '数据导入', icon: '📥' },
       { path: '/import-sources', label: '同步配置', icon: '🔄' },
       { path: '/exchange-rates', label: '汇率管理', icon: '💱' },
+      { path: '/settings/notifications', label: '通知设置', icon: '🔔' },
     ],
   },
 ];
@@ -270,6 +272,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               </div>
             </div>
             <div className="flex items-center space-x-2 md:space-x-4">
+              <NotificationBell />
               <span className="text-gray-700 text-sm md:text-base hidden sm:inline">欢迎，{user?.name}</span>
               <button
                 onClick={handleLogout}

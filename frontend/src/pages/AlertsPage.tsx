@@ -5,18 +5,10 @@ import {
   detectAnomalies,
   markRead,
   markAllRead,
+  TYPE_LABELS,
   type AnomalyAlert,
 } from '../services/alertService';
-
-// 告警类型 → 中文标签（后四类为规则检测，预算两类为预算联动告警）
-const TYPE_LABELS: Record<string, string> = {
-  LARGE_EXPENSE: '大额支出',
-  FREQUENCY_SPIKE: '频率异常',
-  CATEGORY_SURGE: '品类突变',
-  DUPLICATE: '重复扣款',
-  BUDGET_EXCEEDED: '预算超支',
-  BUDGET_WARNING: '预算预警',
-};
+import { getNotifications, type NotificationDelivery } from '../services/notificationService';
 
 // severity 展示样式：HIGH 红 / MEDIUM 黄 / LOW 灰
 const SEVERITY_LABELS: Record<AnomalyAlert['severity'], { label: string; cls: string }> = {
@@ -51,7 +43,7 @@ const formatDateTime = (dateStr: string) => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
-// 排序：severity HIGH→MEDIUM→LOW，同 severity 按 createdAt 倒序
+// 排序：severity HIGH->MEDIUM->LOW，同 severity 按 createdAt 倒序
 const sortBySeverity = (alerts: AnomalyAlert[]) =>
   [...alerts].sort((a, b) => {
     const sevDiff =
@@ -60,10 +52,57 @@ const sortBySeverity = (alerts: AnomalyAlert[]) =>
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
+// V4.5：渠道图标与标签（投递状态展示用）
+const DELIVERY_CHANNELS: Record<string, { icon: string; label: string }> = {
+  IN_APP: { icon: '💬', label: '站内' },
+  EMAIL: { icon: '📧', label: '邮件' },
+  WEB_PUSH: { icon: '📣', label: '推送' },
+};
+
+// V4.5：按 alertId 聚合投递记录，用于告警卡片展示渠道投递状态
+const buildDeliveryMap = (list: NotificationDelivery[]) => {
+  const map = new Map<string, NotificationDelivery[]>();
+  for (const item of list) {
+    const key = item.alertId || item.alertSnapshot?.alertId;
+    if (!key) continue;
+    const arr = map.get(key);
+    if (arr) arr.push(item);
+    else map.set(key, [item]);
+  }
+  return map;
+};
+
+// V4.5：渠道投递状态小图标（✓ 送达 / ✗ 失败，SKIPPED 跳过的不展示）
+const renderDeliveryBadges = (list?: NotificationDelivery[]) => {
+  const items = (list ?? []).filter((d) => d.status !== 'SKIPPED');
+  if (items.length === 0) return null;
+  return (
+    <span className="flex items-center gap-2">
+      {items.map((d) => {
+        const channel = DELIVERY_CHANNELS[d.channel];
+        const failed = d.status === 'FAILED';
+        const label = channel?.label ?? d.channel;
+        return (
+          <span
+            key={d.id}
+            title={failed ? `${label}投递失败` : `${label}已送达`}
+            className={`text-xs ${failed ? 'text-red-500' : 'text-gray-400'}`}
+          >
+            {channel?.icon ?? '💬'}
+            {failed ? '✗' : '✓'}
+          </span>
+        );
+      })}
+    </span>
+  );
+};
+
 const AlertsPage = () => {
   const { currentFamily } = useFamilyStore();
   const [alerts, setAlerts] = useState<AnomalyAlert[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  // V4.5：alertId -> 投递记录列表，用于卡片右下角投递状态展示
+  const [deliveryMap, setDeliveryMap] = useState<Map<string, NotificationDelivery[]>>(new Map());
   const [filter, setFilter] = useState<FilterTab>('all');
   const [loading, setLoading] = useState(true);
   const [detecting, setDetecting] = useState(false);
@@ -78,9 +117,14 @@ const AlertsPage = () => {
     setError('');
     try {
       const isRead = tab === 'unread' ? false : tab === 'read' ? true : undefined;
-      const data = await getAlerts(currentFamily.id, isRead);
+      // V4.5：并行拉取通知投递记录（仅展示增强，失败不影响主流程）
+      const [data, deliveryData] = await Promise.all([
+        getAlerts(currentFamily.id, isRead),
+        getNotifications(currentFamily.id, { limit: 50 }).catch(() => null),
+      ]);
       setAlerts(sortBySeverity(data.alerts));
       setUnreadCount(data.unreadCount);
+      setDeliveryMap(buildDeliveryMap(deliveryData?.notifications ?? []));
     } catch (err: any) {
       setError(err.response?.data?.error || '加载告警失败');
     } finally {
@@ -255,11 +299,14 @@ const AlertsPage = () => {
                 <p className="text-sm text-gray-500 mt-1">{item.description}</p>
                 <div className="flex items-center justify-between mt-2">
                   <span className="text-xs text-gray-400">{formatDateTime(item.createdAt)}</span>
-                  {amountNum != null && !isNaN(amountNum) && (
-                    <span className="text-red-600 font-medium text-sm">
-                      {formatMoney(amountNum)}
-                    </span>
-                  )}
+                  <div className="flex items-center gap-3">
+                    {renderDeliveryBadges(deliveryMap.get(item.id))}
+                    {amountNum != null && !isNaN(amountNum) && (
+                      <span className="text-red-600 font-medium text-sm">
+                        {formatMoney(amountNum)}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             );

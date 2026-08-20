@@ -20,6 +20,10 @@ jest.mock('../services/budgetAlertService', () => ({
   checkBudgetAlertsForAll: jest.fn(),
 }));
 
+jest.mock('../services/notificationDispatcher', () => ({
+  retryFailedDeliveries: jest.fn(),
+}));
+
 jest.mock('../app', () => ({
   prisma: {},
 }));
@@ -29,6 +33,7 @@ import { syncAllActiveSources } from '../services/syncService';
 import { syncAllFamiliesNetWorth } from '../services/netWorthService';
 import { detectAnomaliesForAll } from '../services/anomalyService';
 import { checkBudgetAlertsForAll } from '../services/budgetAlertService';
+import { retryFailedDeliveries } from '../services/notificationDispatcher';
 
 const mockedCron = cron as jest.Mocked<typeof cron>;
 const mockedSyncAll = syncAllActiveSources as jest.MockedFunction<
@@ -43,6 +48,9 @@ const mockedDetectAnomalies = detectAnomaliesForAll as jest.MockedFunction<
 const mockedCheckBudgetAlertsForAll = checkBudgetAlertsForAll as jest.MockedFunction<
   typeof checkBudgetAlertsForAll
 >;
+const mockedRetryFailedDeliveries = retryFailedDeliveries as jest.MockedFunction<
+  typeof retryFailedDeliveries
+>;
 
 describe('scheduler', () => {
   const mockTask = { stop: jest.fn() };
@@ -54,6 +62,7 @@ describe('scheduler', () => {
     mockedSyncNetWorth.mockResolvedValue({ total: 0, success: 0, failed: 0 });
     mockedDetectAnomalies.mockResolvedValue({ total: 0, found: 0 });
     mockedCheckBudgetAlertsForAll.mockResolvedValue({ total: 0, alerted: 0 });
+    mockedRetryFailedDeliveries.mockResolvedValue({ retried: 0, succeeded: 0 });
     process.env.ENABLE_SCHEDULER = 'true';
     // 确保每个测试开始时调度器是停止状态
     stopScheduler();
@@ -99,13 +108,22 @@ describe('scheduler', () => {
     );
   });
 
+  test('initScheduler 调用 cron.schedule 注册通知投递重试任务', () => {
+    initScheduler();
+
+    expect(mockedCron.schedule).toHaveBeenCalledWith(
+      '*/30 * * * *',
+      expect.any(Function)
+    );
+  });
+
   test('stopScheduler 调用 task.stop 停止任务', () => {
     initScheduler();
 
     stopScheduler();
 
-    // 四个任务都应被停止
-    expect(mockTask.stop).toHaveBeenCalledTimes(4);
+    // 五个任务都应被停止
+    expect(mockTask.stop).toHaveBeenCalledTimes(5);
   });
 
   test('ENABLE_SCHEDULER=false 时不初始化', () => {
@@ -168,13 +186,26 @@ describe('scheduler', () => {
     expect(mockedCheckBudgetAlertsForAll).toHaveBeenCalled();
   });
 
+  test('通知投递重试 cron 触发时调用 retryFailedDeliveries', async () => {
+    initScheduler();
+
+    // 找到 '*/30 * * * *' 对应的回调
+    const retryCall = mockedCron.schedule.mock.calls.find(
+      (call) => call[0] === '*/30 * * * *'
+    );
+    const callback = retryCall![1] as () => void;
+    await callback();
+
+    expect(mockedRetryFailedDeliveries).toHaveBeenCalled();
+  });
+
   test('initScheduler 多次调用不会重复注册', () => {
     initScheduler();
     initScheduler();
     initScheduler();
 
-    // 4 个任务，每个只注册 1 次
-    expect(mockedCron.schedule).toHaveBeenCalledTimes(4);
+    // 5 个任务，每个只注册 1 次
+    expect(mockedCron.schedule).toHaveBeenCalledTimes(5);
   });
 
   test('getSchedulerStatus 在未初始化时返回 running=false', () => {
@@ -187,11 +218,12 @@ describe('scheduler', () => {
     initScheduler();
     const status = getSchedulerStatus();
     expect(status.running).toBe(true);
-    expect(status.jobs).toHaveLength(4);
+    expect(status.jobs).toHaveLength(5);
     expect(status.jobs).toContain('账单同步');
     expect(status.jobs).toContain('净值快照');
     expect(status.jobs).toContain('异常检测');
     expect(status.jobs).toContain('预算告警');
+    expect(status.jobs).toContain('通知投递重试');
   });
 
   test('getSchedulerStatus 在停止后返回 running=false', () => {

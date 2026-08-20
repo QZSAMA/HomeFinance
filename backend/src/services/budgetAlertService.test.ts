@@ -16,14 +16,23 @@ jest.mock('../app', () => ({
   },
 }));
 
+// V4.4：告警保存后异步触发通知分发（mock 掉避免依赖真实分发逻辑）
+jest.mock('./notificationDispatcher', () => ({
+  dispatchAlert: jest.fn().mockResolvedValue({ alertId: '', deliveries: [] }),
+}));
+
 import { prisma } from '../app';
 import {
   checkBudgetAlerts,
   checkAndSaveBudgetAlerts,
   checkBudgetAlertsForAll,
 } from './budgetAlertService';
+import { dispatchAlert } from './notificationDispatcher';
 
 const mockedPrisma = prisma as any;
+const mockedDispatchAlert = dispatchAlert as jest.MockedFunction<
+  typeof dispatchAlert
+>;
 
 // 固定系统时间：2026-08-15 12:00（本地时间）
 const NOW = new Date(2026, 7, 15, 12, 0, 0);
@@ -188,6 +197,7 @@ describe('budgetAlertService', () => {
           amount: 1200,
           category: '餐饮',
         }),
+        include: { family: true },
       });
     });
 
@@ -210,7 +220,46 @@ describe('budgetAlertService', () => {
           amount: 850,
           category: '餐饮',
         }),
+        include: { family: true },
       });
+    });
+
+    test('保存告警后异步触发通知分发（携带 family）', async () => {
+      mockedPrisma.budget.findMany.mockResolvedValue([makeBudget({ amount: 1000 })]);
+      mockedPrisma.expense.findMany.mockResolvedValue([{ amount: 1200 }]);
+      mockedPrisma.anomalyAlert.findMany.mockResolvedValue([]);
+      const createdAlert = {
+        id: 'alert_new',
+        familyId: 'fam_1',
+        type: 'BUDGET_EXCEEDED',
+        severity: 'HIGH',
+        title: '预算超支',
+        description: '预算已超支：餐饮 已支出 1200 元，超出预算 1000 元',
+        amount: 1200,
+        expenseId: null,
+        category: '餐饮',
+        isRead: false,
+        createdAt: NOW,
+        family: { id: 'fam_1', name: '我的家' },
+      };
+      mockedPrisma.anomalyAlert.create.mockResolvedValue(createdAlert);
+
+      await checkAndSaveBudgetAlerts('fam_1');
+
+      expect(mockedDispatchAlert).toHaveBeenCalledTimes(1);
+      expect(mockedDispatchAlert).toHaveBeenCalledWith(createdAlert);
+    });
+
+    test('通知分发失败不影响告警保存结果', async () => {
+      mockedPrisma.budget.findMany.mockResolvedValue([makeBudget({ amount: 1000 })]);
+      mockedPrisma.expense.findMany.mockResolvedValue([{ amount: 1200 }]);
+      mockedPrisma.anomalyAlert.findMany.mockResolvedValue([]);
+      mockedPrisma.anomalyAlert.create.mockResolvedValue({});
+      mockedDispatchAlert.mockRejectedValue(new Error('通知分发失败'));
+
+      const result = await checkAndSaveBudgetAlerts('fam_1');
+
+      expect(result).toEqual({ detected: 1, saved: 1 });
     });
   });
 

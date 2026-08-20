@@ -1,5 +1,6 @@
 import { prisma } from '../app';
 import { createModuleLogger } from '../utils/logger';
+import { dispatchAlert } from './notificationDispatcher';
 
 const logger = createModuleLogger('budgetAlertService');
 
@@ -176,7 +177,7 @@ export async function checkAndSaveBudgetAlerts(
       continue;
     }
 
-    await prisma.anomalyAlert.create({
+    const created = await prisma.anomalyAlert.create({
       data: {
         familyId,
         type: alert.type,
@@ -186,8 +187,17 @@ export async function checkAndSaveBudgetAlerts(
         amount: alert.spent,
         category: alert.category,
       },
+      include: { family: true },
     });
     saved++;
+
+    // V4.4：异步触发通知分发，分发失败不影响告警保存主流程
+    void dispatchAlert(created).catch((err) =>
+      logger.error('通知分发失败', {
+        alertId: created.id,
+        error: err instanceof Error ? err.message : String(err),
+      })
+    );
   }
 
   return { detected: alerts.length, saved };

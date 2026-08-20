@@ -1,5 +1,16 @@
 import api from './api';
 
+// 告警类型 -> 中文标签（后四类为规则检测，预算两类为预算联动告警）
+// V4.5：导出供告警中心与通知设置页共用
+export const TYPE_LABELS: Record<string, string> = {
+  LARGE_EXPENSE: '大额支出',
+  FREQUENCY_SPIKE: '频率异常',
+  CATEGORY_SURGE: '品类突变',
+  DUPLICATE: '重复扣款',
+  BUDGET_EXCEEDED: '预算超支',
+  BUDGET_WARNING: '预算预警',
+};
+
 // 异常告警：type 含检测规则四类 + 预算联动两类
 export interface AnomalyAlert {
   id: string;
