@@ -123,6 +123,55 @@ describe('Report Routes', () => {
       expect(res.body.operating.net).toBe(4000);
       expect(res.body.netCashFlow).toBe(4000);
     });
+
+    test('includes uncategorized other cash flows in the net total', async () => {
+      const today = new Date();
+      mockedPrisma.income.findMany.mockResolvedValue([
+        { id: 'i1', category: '工资', amount: 5000, date: today, createdAt: today },
+        { id: 'i2', category: '其他收入', amount: 100, date: today, createdAt: today },
+      ]);
+      mockedPrisma.expense.findMany.mockResolvedValue([
+        { id: 'e1', category: '餐饮', amount: 1000, date: today, createdAt: today },
+        { id: 'e2', category: '其他支出', amount: 30, date: today, createdAt: today },
+      ]);
+
+      const res = await request(app)
+        .get('/api/families/fam_1/reports/cash-flow')
+        .set('Authorization', `Bearer ${createToken()}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.operating.net).toBe(4000);
+      expect(res.body.netCashFlow).toBe(4070);
+      expect(res.body.other).toEqual({ income: 100, expense: 30, net: 70 });
+    });
+
+    test('classifies every record exactly once when category keywords overlap', async () => {
+      const today = new Date();
+      mockedPrisma.income.findMany.mockResolvedValue([
+        { id: 'i1', category: '经营投资', amount: 100, date: today, createdAt: today },
+      ]);
+      mockedPrisma.expense.findMany.mockResolvedValue([
+        { id: 'e1', category: '日用理财', amount: 20, date: today, createdAt: today },
+      ]);
+
+      const res = await request(app)
+        .get('/api/families/fam_1/reports/cash-flow')
+        .set('Authorization', `Bearer ${createToken()}`);
+
+      const classifiedIncome = res.body.operating.income
+        + res.body.investing.income
+        + res.body.financing.income
+        + res.body.other.income;
+      const classifiedExpense = res.body.operating.expense
+        + res.body.investing.expense
+        + res.body.financing.expense
+        + res.body.other.expense;
+
+      expect(res.status).toBe(200);
+      expect(classifiedIncome).toBe(100);
+      expect(classifiedExpense).toBe(20);
+      expect(res.body.netCashFlow).toBe(80);
+    });
   });
 
   describe('GET /api/families/:familyId/reports/summary', () => {

@@ -3,6 +3,7 @@ import multer from 'multer';
 import { z } from 'zod';
 import { prisma } from '../app';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { requireFamilyWriteAccess } from '../middleware/familyAccess';
 import { parseCSV } from '../services/importService';
 
 const router = Router({ mergeParams: true });
@@ -26,7 +27,7 @@ const itemSchema = z.object({
 });
 
 // POST /csv — 上传 CSV 返回预览
-router.post('/csv', authMiddleware, upload.single('file'), async (req: AuthRequest, res) => {
+router.post('/csv', authMiddleware, requireFamilyWriteAccess, upload.single('file'), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const format = req.body.format as string;
@@ -52,7 +53,7 @@ router.post('/csv', authMiddleware, upload.single('file'), async (req: AuthReque
 });
 
 // POST /confirm — 确认导入，批量创建 Income/Expense
-router.post('/confirm', authMiddleware, async (req: AuthRequest, res) => {
+router.post('/confirm', authMiddleware, requireFamilyWriteAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
 

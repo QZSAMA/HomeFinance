@@ -132,6 +132,12 @@ flowchart LR
 
 ## 6. 分阶段执行计划
 
+### 6.0 当前实施状态（2026-08-27）
+
+`codex/phase0-remediation` 已完成 HF-SEC-001、HF-SEC-002、HF-CACHE-001、HF-FE-001 和 HF-FIN-001 的 RED→GREEN→REFACTOR 与代码级回归，证据见 [`2026-08-27-homefinance-phase0-implementation-report.md`](./2026-08-27-homefinance-phase0-implementation-report.md)。缓存 revision 已从进程内/Redis bump 收敛为 PostgreSQL 事务内 trigger 驱动的 `Family.cacheVersion`，并加入协议 epoch 隔离旧 key。当前后端为 26 suites / 241 tests 通过，前端为 5 个组件测试通过，前后端 build 通过，前端 lint 0 error。
+
+Phase 0 尚未完整退出：后端仍有 3 个 high advisory，前端仍有 6 个 high advisory；16 个既有 lint warning、大包 warning、真实数据库/Redis/MinIO/Compose、浏览器 E2E 和完整角色×方法矩阵仍待验证。风险状态停留在 `Regression verified`，不得标记为 `Released/Observed`。
+
 ### 6.1 Phase 0：发布阻断与财务纠错
 
 目标是让系统“不越权、不泄露、不把明显错误当事实”。范围严格限制在 policy/cache/report formula/frontend auth/deployment stopgap，不拆微服务、不重写全部 UI。

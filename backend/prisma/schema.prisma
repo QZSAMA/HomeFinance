@@ -25,11 +25,12 @@ model User {
 }
 
 model Family {
-  id          String    @id @default(cuid())
-  name        String
-  description String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id           String    @id @default(cuid())
+  name         String
+  description  String?
+  cacheVersion Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
   members     FamilyMember[]
   incomes     Income[]
   expenses    Expense[]

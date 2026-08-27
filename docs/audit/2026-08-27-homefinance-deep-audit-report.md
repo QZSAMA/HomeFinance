@@ -273,6 +273,10 @@ HomeFinance 已经越过“概念 demo”阶段：它有真实数据模型、广
 
 ## 10. 参考资料
 
+### 审查后实施状态
+
+本报告记录的是 `b103e422` 基线发现，不因后续代码修改而重写历史证据。`codex/phase0-remediation` 已为 HF-SEC-001、HF-SEC-002、HF-CACHE-001、HF-FE-001 和 HF-FIN-001 建立失败后通过的回归合同；其中缓存 revision 已升级为 PostgreSQL 事务内 trigger 驱动的持久 `Family.cacheVersion`，避免 Redis 故障后重启/跨实例丢失 dirty 状态。详情见 `2026-08-27-homefinance-phase0-implementation-report.md`。这些风险当前为代码级 `Regression verified`，尚未达到目标环境 `Released/Observed`。依赖 high advisory、真实 migration/基础设施、浏览器 E2E 和后续数据一致性风险仍保持开放。
+
 [1] QZSAMA. HomeFinance source code[CP/OL]. `b103e4221ae58d2cd09ee586d69f3cf90c79c146`, 2026-08-27.
 
 [2] HomeFinance. Family finance design specification[EB/OL]. `docs/superpowers/specs/2026-07-09-family-finance-design.md`, 2026-07-09.

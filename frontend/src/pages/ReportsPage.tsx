@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFamilyStore } from '../store/useFamilyStore';
-import { getBalanceSheet, getCashFlow, getSummary } from '../services/reportService';
+import { getBalanceSheet, getCashFlow, getIncomeStatement, getSummary } from '../services/reportService';
 import { exportBalanceSheet } from '../services/exportService';
 import {
   BarChart,
@@ -38,7 +38,7 @@ interface CashFlowData {
   operating: { income: number; expense: number; net: number };
   investing: { income: number; expense: number; net: number };
   financing: { income: number; expense: number; net: number };
-  other: { income: number; expense: number };
+  other: { income: number; expense: number; net: number };
   netCashFlow: number;
   startDate: string | null;
   endDate: string | null;
@@ -84,22 +84,38 @@ const formatPercentage = (value: number, total: number) => {
 function BalanceSheetSection({ familyId }: { familyId: string }) {
   const [data, setData] = useState<BalanceSheetData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const requestIdRef = useRef(0);
 
-  useEffect(() => {
+  const loadData = useCallback(async () => {
     if (!familyId) return;
-    (async () => {
-      setLoading(true);
-      try {
-        const result = await getBalanceSheet(familyId);
+    const requestId = ++requestIdRef.current;
+    setLoading(true);
+    setError(null);
+    setData(null);
+    try {
+      const result = await getBalanceSheet(familyId);
+      if (requestId === requestIdRef.current) {
         setData(result);
-      } catch (err) {
-        console.error('加载资产负债表失败:', err);
-      } finally {
+      }
+    } catch {
+      if (requestId === requestIdRef.current) {
+        setError('资产负债表加载失败，请稍后重试');
+      }
+    } finally {
+      if (requestId === requestIdRef.current) {
         setLoading(false);
       }
-    })();
+    }
   }, [familyId]);
+
+  useEffect(() => {
+    void loadData();
+    return () => {
+      requestIdRef.current += 1;
+    };
+  }, [loadData]);
 
   const handleExport = async () => {
     setExporting(true);
@@ -133,13 +149,19 @@ function BalanceSheetSection({ familyId }: { familyId: string }) {
         </div>
         <button
           onClick={handleExport}
-          disabled={exporting}
+          disabled={exporting || Boolean(error)}
           className="bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 text-sm"
         >
           {exporting ? '导出中...' : '导出 Excel'}
         </button>
       </div>
 
+      {error ? (
+        <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          {error}
+        </div>
+      ) : (
+        <>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-lg shadow p-5">
           <div className="text-sm text-gray-500 mb-1">总资产</div>
@@ -222,6 +244,8 @@ function BalanceSheetSection({ familyId }: { familyId: string }) {
           </div>
         </div>
       </div>
+        </>
+      )}
     </section>
   );
 }
@@ -230,36 +254,48 @@ function BalanceSheetSection({ familyId }: { familyId: string }) {
 function IncomeStatementSection({ familyId }: { familyId: string }) {
   const [data, setData] = useState<IncomeStatementData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const requestIdRef = useRef(0);
 
-  const loadData = async () => {
+  const loadData = useCallback(async (requestedStart = '', requestedEnd = '') => {
     if (!familyId) return;
+    const requestId = ++requestIdRef.current;
     setLoading(true);
+    setError(null);
+    setData(null);
     try {
-      let url = `/api/families/${familyId}/reports/income-statement`;
-      const params = new URLSearchParams();
-      if (startDate) params.append('startDate', startDate);
-      if (endDate) params.append('endDate', endDate);
-      if (params.size > 0) url += `?${params.toString()}`;
-      const response = await fetch(url);
-      const result = await response.json();
-      if (response.ok) setData(result);
-    } catch (err) {
-      console.error('加载利润表失败:', err);
+      const result = await getIncomeStatement(
+        familyId,
+        requestedStart || undefined,
+        requestedEnd || undefined,
+      );
+      if (requestId === requestIdRef.current) {
+        setData(result);
+      }
+    } catch {
+      if (requestId === requestIdRef.current) {
+        setError('利润表加载失败，请稍后重试');
+      }
     } finally {
-      setLoading(false);
+      if (requestId === requestIdRef.current) {
+        setLoading(false);
+      }
     }
-  };
+  }, [familyId]);
 
   useEffect(() => {
-    loadData();
-  }, [familyId]);
+    void loadData();
+    return () => {
+      requestIdRef.current += 1;
+    };
+  }, [loadData]);
 
   const handleReset = () => {
     setStartDate('');
     setEndDate('');
-    setTimeout(loadData, 0);
+    void loadData();
   };
 
   return (
@@ -274,8 +310,9 @@ function IncomeStatementSection({ familyId }: { familyId: string }) {
       <div className="bg-white rounded-lg shadow p-4 mb-6">
         <div className="flex flex-wrap items-center gap-3">
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">开始日期</label>
+            <label htmlFor="income-start-date" className="block text-xs font-medium text-gray-700 mb-1">开始日期</label>
             <input
+              id="income-start-date"
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
@@ -283,8 +320,9 @@ function IncomeStatementSection({ familyId }: { familyId: string }) {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">结束日期</label>
+            <label htmlFor="income-end-date" className="block text-xs font-medium text-gray-700 mb-1">结束日期</label>
             <input
+              id="income-end-date"
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
@@ -293,7 +331,7 @@ function IncomeStatementSection({ familyId }: { familyId: string }) {
           </div>
           <div className="flex items-end gap-2">
             <button
-              onClick={loadData}
+              onClick={() => void loadData(startDate, endDate)}
               className="px-3 py-1.5 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-sm"
             >
               查询
@@ -308,69 +346,79 @@ function IncomeStatementSection({ familyId }: { familyId: string }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-5">
-          <div className="text-sm text-gray-500 mb-1">总收入</div>
-          <div className="text-xl font-bold text-green-600">{loading ? '--' : formatMoney(data?.totalIncome || 0)}</div>
+      {error && (
+        <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          {error}
         </div>
-        <div className="bg-white rounded-lg shadow p-5">
-          <div className="text-sm text-gray-500 mb-1">总支出</div>
-          <div className="text-xl font-bold text-red-600">{loading ? '--' : formatMoney(data?.totalExpense || 0)}</div>
-        </div>
-        <div className="bg-white rounded-lg shadow p-5">
-          <div className="text-sm text-gray-500 mb-1">净收益</div>
-          <div className={`text-xl font-bold ${(data?.netIncome || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {loading ? '--' : formatMoney(data?.netIncome || 0)}
-          </div>
-        </div>
-      </div>
+      )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-5 border-b border-gray-200"><h3 className="text-base font-semibold text-gray-900">收入明细</h3></div>
-          <div className="p-5">
-            {loading ? <div className="text-center py-6 text-gray-500">加载中...</div> : (
-              <div className="space-y-3">
-                {Object.entries(data?.incomeByCategory || {}).map(([category, value]) => (
-                  <div key={category} className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <span className="px-2 py-1 bg-green-50 text-green-700 rounded text-xs mr-3">{category}</span>
-                      <span className="text-sm text-gray-700">{formatMoney(value)}</span>
-                    </div>
-                    <span className="text-sm text-gray-500">{formatPercentage(value, data?.totalIncome || 0)}</span>
-                  </div>
-                ))}
-                <div className="pt-3 border-t border-gray-200 flex items-center justify-between">
-                  <span className="font-medium text-gray-900">合计</span>
-                  <span className="font-bold text-green-600">{formatMoney(data?.totalIncome || 0)}</span>
-                </div>
-              </div>
-            )}
+      {!error && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-white rounded-lg shadow p-5">
+            <div className="text-sm text-gray-500 mb-1">总收入</div>
+            <div className="text-xl font-bold text-green-600">{loading ? '--' : formatMoney(data?.totalIncome || 0)}</div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-5">
+            <div className="text-sm text-gray-500 mb-1">总支出</div>
+            <div className="text-xl font-bold text-red-600">{loading ? '--' : formatMoney(data?.totalExpense || 0)}</div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-5">
+            <div className="text-sm text-gray-500 mb-1">净收益</div>
+            <div className={`text-xl font-bold ${(data?.netIncome || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {loading ? '--' : formatMoney(data?.netIncome || 0)}
+            </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-5 border-b border-gray-200"><h3 className="text-base font-semibold text-gray-900">支出明细</h3></div>
-          <div className="p-5">
-            {loading ? <div className="text-center py-6 text-gray-500">加载中...</div> : (
-              <div className="space-y-3">
-                {Object.entries(data?.expenseByCategory || {}).map(([category, value]) => (
-                  <div key={category} className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <span className="px-2 py-1 bg-red-50 text-red-700 rounded text-xs mr-3">{category}</span>
-                      <span className="text-sm text-gray-700">{formatMoney(value)}</span>
+      )}
+
+      {!error && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-5 border-b border-gray-200"><h3 className="text-base font-semibold text-gray-900">收入明细</h3></div>
+            <div className="p-5">
+              {loading ? <div className="text-center py-6 text-gray-500">加载中...</div> : (
+                <div className="space-y-3">
+                  {Object.entries(data?.incomeByCategory || {}).map(([category, value]) => (
+                    <div key={category} className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <span className="px-2 py-1 bg-green-50 text-green-700 rounded text-xs mr-3">{category}</span>
+                        <span className="text-sm text-gray-700">{formatMoney(value)}</span>
+                      </div>
+                      <span className="text-sm text-gray-500">{formatPercentage(value, data?.totalIncome || 0)}</span>
                     </div>
-                    <span className="text-sm text-gray-500">{formatPercentage(value, data?.totalExpense || 0)}</span>
+                  ))}
+                  <div className="pt-3 border-t border-gray-200 flex items-center justify-between">
+                    <span className="font-medium text-gray-900">合计</span>
+                    <span className="font-bold text-green-600">{formatMoney(data?.totalIncome || 0)}</span>
                   </div>
-                ))}
-                <div className="pt-3 border-t border-gray-200 flex items-center justify-between">
-                  <span className="font-medium text-gray-900">合计</span>
-                  <span className="font-bold text-red-600">{formatMoney(data?.totalExpense || 0)}</span>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+          </div>
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-5 border-b border-gray-200"><h3 className="text-base font-semibold text-gray-900">支出明细</h3></div>
+            <div className="p-5">
+              {loading ? <div className="text-center py-6 text-gray-500">加载中...</div> : (
+                <div className="space-y-3">
+                  {Object.entries(data?.expenseByCategory || {}).map(([category, value]) => (
+                    <div key={category} className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <span className="px-2 py-1 bg-red-50 text-red-700 rounded text-xs mr-3">{category}</span>
+                        <span className="text-sm text-gray-700">{formatMoney(value)}</span>
+                      </div>
+                      <span className="text-sm text-gray-500">{formatPercentage(value, data?.totalExpense || 0)}</span>
+                    </div>
+                  ))}
+                  <div className="pt-3 border-t border-gray-200 flex items-center justify-between">
+                    <span className="font-medium text-gray-900">合计</span>
+                    <span className="font-bold text-red-600">{formatMoney(data?.totalExpense || 0)}</span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }
@@ -379,30 +427,48 @@ function IncomeStatementSection({ familyId }: { familyId: string }) {
 function CashFlowSection({ familyId }: { familyId: string }) {
   const [data, setData] = useState<CashFlowData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const requestIdRef = useRef(0);
 
-  const loadData = async () => {
+  const loadData = useCallback(async (requestedStart = '', requestedEnd = '') => {
     if (!familyId) return;
+    const requestId = ++requestIdRef.current;
     setLoading(true);
+    setError(null);
+    setData(null);
     try {
-      const result = await getCashFlow(familyId, startDate || undefined, endDate || undefined);
-      setData(result);
-    } catch (err) {
-      console.error('加载现金流量表失败:', err);
+      const result = await getCashFlow(
+        familyId,
+        requestedStart || undefined,
+        requestedEnd || undefined,
+      );
+      if (requestId === requestIdRef.current) {
+        setData(result);
+      }
+    } catch {
+      if (requestId === requestIdRef.current) {
+        setError('现金流量表加载失败，请稍后重试');
+      }
     } finally {
-      setLoading(false);
+      if (requestId === requestIdRef.current) {
+        setLoading(false);
+      }
     }
-  };
+  }, [familyId]);
 
   useEffect(() => {
-    loadData();
-  }, [familyId]);
+    void loadData();
+    return () => {
+      requestIdRef.current += 1;
+    };
+  }, [loadData]);
 
   const handleReset = () => {
     setStartDate('');
     setEndDate('');
-    setTimeout(loadData, 0);
+    void loadData();
   };
 
   return (
@@ -417,8 +483,9 @@ function CashFlowSection({ familyId }: { familyId: string }) {
       <div className="bg-white rounded-lg shadow p-4 mb-6">
         <div className="flex flex-wrap items-center gap-3">
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">开始日期</label>
+            <label htmlFor="cash-flow-start-date" className="block text-xs font-medium text-gray-700 mb-1">开始日期</label>
             <input
+              id="cash-flow-start-date"
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
@@ -426,8 +493,9 @@ function CashFlowSection({ familyId }: { familyId: string }) {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">结束日期</label>
+            <label htmlFor="cash-flow-end-date" className="block text-xs font-medium text-gray-700 mb-1">结束日期</label>
             <input
+              id="cash-flow-end-date"
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
@@ -436,7 +504,7 @@ function CashFlowSection({ familyId }: { familyId: string }) {
           </div>
           <div className="flex items-end gap-2">
             <button
-              onClick={loadData}
+              onClick={() => void loadData(startDate, endDate)}
               className="px-3 py-1.5 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-sm"
             >
               查询
@@ -451,6 +519,12 @@ function CashFlowSection({ familyId }: { familyId: string }) {
         </div>
       </div>
 
+      {error ? (
+        <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          {error}
+        </div>
+      ) : (
+        <>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-lg shadow p-5">
           <div className="text-sm text-gray-500 mb-1">经营现金流</div>
@@ -540,6 +614,8 @@ function CashFlowSection({ familyId }: { familyId: string }) {
           </div>
         </div>
       </div>
+        </>
+      )}
     </section>
   );
 }
@@ -548,24 +624,40 @@ function CashFlowSection({ familyId }: { familyId: string }) {
 function InvestmentSection({ familyId }: { familyId: string }) {
   const [data, setData] = useState<{ totalAssets: number; allocation: InvestmentAllocation[] } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const requestIdRef = useRef(0);
 
-  useEffect(() => {
+  const loadData = useCallback(async () => {
     if (!familyId) return;
-    (async () => {
-      setLoading(true);
-      try {
-        const summary = await getSummary(familyId);
+    const requestId = ++requestIdRef.current;
+    setLoading(true);
+    setError(null);
+    setData(null);
+    try {
+      const summary = await getSummary(familyId);
+      if (requestId === requestIdRef.current) {
         setData({
           totalAssets: summary.balanceSheet.totalAssets,
           allocation: summary.investmentAllocation || [],
         });
-      } catch (err) {
-        console.error('加载投资配置失败:', err);
-      } finally {
+      }
+    } catch {
+      if (requestId === requestIdRef.current) {
+        setError('投资配置加载失败，请稍后重试');
+      }
+    } finally {
+      if (requestId === requestIdRef.current) {
         setLoading(false);
       }
-    })();
+    }
   }, [familyId]);
+
+  useEffect(() => {
+    void loadData();
+    return () => {
+      requestIdRef.current += 1;
+    };
+  }, [loadData]);
 
   return (
     <section id="investment" className="scroll-mt-20">
@@ -576,6 +668,12 @@ function InvestmentSection({ familyId }: { familyId: string }) {
         </div>
       </div>
 
+      {error ? (
+        <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          {error}
+        </div>
+      ) : (
+        <>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-lg shadow p-5">
           <div className="text-sm text-gray-500 mb-1">总资产</div>
@@ -638,6 +736,8 @@ function InvestmentSection({ familyId }: { familyId: string }) {
           </div>
         </div>
       </div>
+        </>
+      )}
     </section>
   );
 }

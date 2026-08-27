@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../app';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { requireFamilyWriteAccess } from '../middleware/familyAccess';
 import { calculateNextDate } from '../services/recurringService';
 import { parsePagination, paginateResponse } from '../utils/pagination';
 
@@ -96,7 +97,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-router.post('/', authMiddleware, async (req: AuthRequest, res) => {
+router.post('/', authMiddleware, requireFamilyWriteAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const data = recurringSchema.parse(req.body);
@@ -132,7 +133,7 @@ router.post('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-router.post('/:id/execute', authMiddleware, async (req: AuthRequest, res) => {
+router.post('/:id/execute', authMiddleware, requireFamilyWriteAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const id = req.params.id as string;
@@ -202,7 +203,7 @@ router.post('/:id/execute', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-router.put('/:id', authMiddleware, async (req: AuthRequest, res) => {
+router.put('/:id', authMiddleware, requireFamilyWriteAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const id = req.params.id as string;
@@ -243,7 +244,7 @@ router.put('/:id', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-router.delete('/:id', authMiddleware, async (req: AuthRequest, res) => {
+router.delete('/:id', authMiddleware, requireFamilyWriteAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const id = req.params.id as string;

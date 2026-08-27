@@ -67,11 +67,11 @@ jobs:
         working-directory: backend
         run: npx prisma generate
 
-      - name: Push schema to test database
+      - name: Apply migrations to test database
         working-directory: backend
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/family_finance_test?schema=public
-        run: npx prisma db push --skip-generate
+        run: npx prisma migrate deploy
 
       - name: Run integration tests
         working-directory: backend

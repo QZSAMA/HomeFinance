@@ -4,7 +4,7 @@
 
 HomeFinance applies company-style financial management to a family: member collaboration, income and expense ledgers, assets and liabilities, three-statement reporting, budgets, goals, recurring records, import/export, file archiving, comparison, and AI/OCR-assisted bookkeeping.
 
-This memory was established on 2026-08-27 against branch `main`, commit `b103e4221ae58d2cd09ee586d69f3cf90c79c146`, remote `https://github.com/QZSAMA/HomeFinance.git`. It describes the reviewed baseline, not a guarantee that later code still behaves the same.
+This memory was established on 2026-08-27 against branch `main`, commit `b103e4221ae58d2cd09ee586d69f3cf90c79c146`, remote `https://github.com/QZSAMA/HomeFinance.git`. The first remediation implementation is recorded on branch `codex/phase0-remediation`; its evidence report is `docs/audit/2026-08-27-homefinance-phase0-implementation-report.md`. This file distinguishes the reviewed baseline from later regression-verified changes and does not treat unobserved target-environment behavior as fact.
 
 ## 2. Source-of-truth hierarchy
 
@@ -46,19 +46,19 @@ flowchart LR
     Domain --> AI[AI / OCR]
 ```
 
-The desired order is authentication, authorization, then cache or resource access. The reviewed report routes currently place cache lookup before the family membership check; this is a release-blocking exception recorded in the audit.
+The enforced report order on the remediation branch is authentication, family authorization, family-versioned cache, then resource access. The baseline cache-before-policy exception is preserved in the audit as historical evidence.
 
 ## 4. Domain invariants
 
 | Invariant | Required behavior | Baseline status |
 |---|---|---|
-| Tenant isolation | Every family-scoped operation verifies membership before data/cache/storage access | Broadly present, but report cache can bypass handler authorization |
-| Viewer semantics | Viewer can read but cannot mutate through any ingress | Broken across many POST routes |
+| Tenant isolation | Every family-scoped operation verifies membership before data/cache/storage access | Report cache authorization regression verified; broader target-environment matrix remains pending |
+| Viewer semantics | Viewer can read but cannot mutate through any ingress | Unified mutation middleware and zero-side-effect viewer tests added; full role×method matrix remains pending |
 | Admin continuity | A family always retains at least one admin | Implemented and tested |
-| Financial reconciliation | Statements use consistent classification, currency, and as-of rules | Partially implemented; cash-flow and currency issues remain |
+| Financial reconciliation | Statements use consistent classification, currency, and as-of rules | Other cash flow now reconciles in a regression fixture; classification, period and currency issues remain |
 | Atomic transaction generation | Imports, recurring, and AI writes are atomic/idempotent | Not consistently implemented |
 | Human confirmation | AI-proposed writes require explicit confirmation | Image/OCR path supports it; text chat writes immediately |
-| Cache correctness | User/tenant-scoped keys and write invalidation | Broken; URL-only keys and TTL-only freshness |
+| Cache correctness | Authorized epoch/family/version/URL keys; mutation and revision commit atomically | `v2` protocol epoch, PostgreSQL-backed `Family.cacheVersion`, trigger coverage and stale-Redis restart regression are verified in code; real migration, Redis outage and multi-instance recovery remain unobserved |
 | Bounded work | List/import/report work is paginated or capped | Partial; optional pagination and unbounded import/report aggregation remain |
 
 ## 5. Feature ownership map
@@ -87,12 +87,11 @@ The desired order is authentication, authorization, then cache or resource acces
 - Runtime smoke evidence is under `docs/audit/evidence/`. The profit statement request omitted authorization and returned 401 while the UI rendered zeros.
 - The baseline machine had PostgreSQL on port 5432, but Redis, MinIO, and Docker were unavailable; full Compose behavior was not executed locally.
 
-## 7. Known release blockers
+## 7. Risk status after first remediation
 
-1. Viewers can mutate through multiple POST endpoints.
-2. Cached reports can be returned before family authorization.
-3. Profit statement requests bypass the authenticated API client.
-4. Cash-flow net excludes displayed “other” income/expense.
+The four original code blockers now have failing-then-passing regression evidence on `codex/phase0-remediation`: viewer mutation denial, authorization-before-cache, authenticated profit-statement loading with explicit error state, and cash-flow reconciliation. Family cache write-after-read freshness and stale-cache protection across Redis outage plus process restart now use a PostgreSQL-backed durable revision and have regression fixtures.
+
+Phase 0 is not fully exited. Remaining gates are high dependency advisories (backend 3, frontend 6), a complete role/method authorization matrix, real PostgreSQL/Redis/MinIO/Compose verification, browser E2E, and disposition of the 16 frontend warnings and large main bundle. The project remains unsuitable for an unsupported public production release until those gates and later Phase 1 data-integrity risks are addressed.
 
 See `docs/audit/2026-08-27-homefinance-deep-audit-report.md` for evidence and `docs/audit/2026-08-27-homefinance-integrated-remediation-plan.md` for the consolidated TDD acceptance tests, sequencing, migration, rollback, and new-feature portfolio. The six supporting domain analyses are under `docs/audit/parallel-analysis/`.
 
@@ -125,3 +124,5 @@ The hook updates code structure after commits; documentation or image changes st
 | 2026-08-27 | Block feature expansion until financial correctness and access control are repaired | Current defects can expose or corrupt household financial data | All Phase 0 gates pass |
 | 2026-08-27 | Use TDD for remediation | Each audit finding needs a reproducible regression contract | Only by explicit project-owner exception |
 | 2026-08-27 | Keep Graphify as navigation memory, not ultimate truth | Semantic edges include model inference and isolated nodes | Extraction quality or source-of-truth policy changes |
+| 2026-08-27 | Version report caches with PostgreSQL `Family.cacheVersion` advanced by transaction-local triggers | A Redis-only or process-memory dirty marker cannot survive outage plus restart/multi-instance routing; DB revision commits atomically with family mutations | Measured trigger contention, schema redesign, or a transactional outbox replaces the mechanism |
+| 2026-08-27 | Treat report request failure as error, never financial zero | Unknown data and real zero carry different financial meaning | A documented offline/degraded data contract replaces this rule |

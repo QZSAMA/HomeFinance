@@ -1,889 +1,516 @@
-# Graph Report - D:\Repo\Qz_Private\HomeFinance  (2026-08-27)
+# Graph Report - .  (2026-08-27)
 
 ## Corpus Check
-- 134 files Â· ~86,365 words
+- 146 files ¡¤ ~91,215 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 915 nodes Â· 1047 edges Â· 135 communities detected
-- Extraction: 84% EXTRACTED Â· 16% INFERRED Â· 0% AMBIGUOUS Â· INFERRED: 163 edges (avg confidence: 0.88)
-- Token cost: 0 input Â· 0 output
+- 515 nodes ¡¤ 581 edges ¡¤ 71 communities detected
+- Extraction: 83% EXTRACTED ¡¤ 17% INFERRED ¡¤ 0% AMBIGUOUS ¡¤ INFERRED: 96 edges (avg confidence: 0.86)
+- Token cost: 0 input ¡¤ 0 output
 
 ## Community Hubs (Navigation)
-- [[_COMMUNITY_Frontend Finance Domain|Frontend Finance Domain]]
-- [[_COMMUNITY_Financial Write Integrity Analysis|Financial Write Integrity Analysis]]
-- [[_COMMUNITY_HomeFinance Repository Invariants|HomeFinance Repository Invariants]]
-- [[_COMMUNITY_Service Contracts and Documentation|Service Contracts and Documentation]]
-- [[_COMMUNITY_Backend Route Security|Backend Route Security]]
-- [[_COMMUNITY_Family Finance Backend|Family Finance Backend]]
-- [[_COMMUNITY_Product Strategy and Governance|Product Strategy and Governance]]
-- [[_COMMUNITY_Financial Statement Reconciliation|Financial Statement Reconciliation]]
-- [[_COMMUNITY_Infrastructure Cache and Limits|Infrastructure Cache and Limits]]
-- [[_COMMUNITY_OCR Processing Pipeline|OCR Processing Pipeline]]
-- [[_COMMUNITY_Frontend Finance API Client|Frontend Finance API Client]]
-- [[_COMMUNITY_Database Integration Contracts|Database Integration Contracts]]
-- [[_COMMUNITY_Frontend Routing and Layout|Frontend Routing and Layout]]
-- [[_COMMUNITY_AI Finance Orchestration|AI Finance Orchestration]]
-- [[_COMMUNITY_AI Page Interactions|AI Page Interactions]]
-- [[_COMMUNITY_AI Service Internals|AI Service Internals]]
-- [[_COMMUNITY_SVG Community Icon System|SVG Community Icon System]]
-- [[_COMMUNITY_Transaction Entry Workflow|Transaction Entry Workflow]]
-- [[_COMMUNITY_Test Data Factories|Test Data Factories]]
-- [[_COMMUNITY_Budget UI Workflow|Budget UI Workflow]]
-- [[_COMMUNITY_Recurring UI Workflow|Recurring UI Workflow]]
-- [[_COMMUNITY_Family Service Client|Family Service Client]]
-- [[_COMMUNITY_Asset UI Workflow|Asset UI Workflow]]
-- [[_COMMUNITY_Liability UI Workflow|Liability UI Workflow]]
-- [[_COMMUNITY_AI Service Client|AI Service Client]]
-- [[_COMMUNITY_Financial Chart Components|Financial Chart Components]]
-- [[_COMMUNITY_AI Action Engine|AI Action Engine]]
-- [[_COMMUNITY_CSV Parser Internals|CSV Parser Internals]]
-- [[_COMMUNITY_Balance Sheet UI|Balance Sheet UI]]
-- [[_COMMUNITY_Family Administration UI|Family Administration UI]]
-- [[_COMMUNITY_Financial Goals UI|Financial Goals UI]]
-- [[_COMMUNITY_Reports UI|Reports UI]]
-- [[_COMMUNITY_Recurring Service Client|Recurring Service Client]]
-- [[_COMMUNITY_CSV Import Formats|CSV Import Formats]]
+- [[_COMMUNITY_AI and OCR Workflows|AI and OCR Workflows]]
+- [[_COMMUNITY_Frontend Collaboration APIs|Frontend Collaboration APIs]]
+- [[_COMMUNITY_Backend Runtime Infrastructure|Backend Runtime Infrastructure]]
+- [[_COMMUNITY_Knowledge Graph Governance|Knowledge Graph Governance]]
+- [[_COMMUNITY_Family Authorization Policy|Family Authorization Policy]]
+- [[_COMMUNITY_Financial Reports and Export|Financial Reports and Export]]
+- [[_COMMUNITY_OCR File Persistence|OCR File Persistence]]
+- [[_COMMUNITY_Durable Cache Safety|Durable Cache Safety]]
+- [[_COMMUNITY_Frontend Routing State|Frontend Routing State]]
+- [[_COMMUNITY_Financial Semantics|Financial Semantics]]
+- [[_COMMUNITY_AI Action Execution|AI Action Execution]]
+- [[_COMMUNITY_Transaction Integrity|Transaction Integrity]]
+- [[_COMMUNITY_Project Foundations|Project Foundations]]
+- [[_COMMUNITY_Social Icon System|Social Icon System]]
+- [[_COMMUNITY_Ledger Service Boundaries|Ledger Service Boundaries]]
+- [[_COMMUNITY_Financial Charts|Financial Charts]]
+- [[_COMMUNITY_Architecture and Operations|Architecture and Operations]]
+- [[_COMMUNITY_CSV Import Parsing|CSV Import Parsing]]
 - [[_COMMUNITY_Pagination Contracts|Pagination Contracts]]
-- [[_COMMUNITY_React Brand Asset|React Brand Asset]]
-- [[_COMMUNITY_MinIO Storage Helpers|MinIO Storage Helpers]]
-- [[_COMMUNITY_OCR Utility Helpers|OCR Utility Helpers]]
-- [[_COMMUNITY_File Management UI|File Management UI]]
-- [[_COMMUNITY_Income Statement UI|Income Statement UI]]
-- [[_COMMUNITY_Budget Service Client|Budget Service Client]]
-- [[_COMMUNITY_Goal Service Client|Goal Service Client]]
-- [[_COMMUNITY_Report Service Client|Report Service Client]]
-- [[_COMMUNITY_AI Configuration Fallbacks|AI Configuration Fallbacks]]
-- [[_COMMUNITY_Layered Hero Artwork|Layered Hero Artwork]]
-- [[_COMMUNITY_Cash Flow UI|Cash Flow UI]]
-- [[_COMMUNITY_Authentication Service Client|Authentication Service Client]]
-- [[_COMMUNITY_Export Service Client|Export Service Client]]
-- [[_COMMUNITY_File Service Client|File Service Client]]
-- [[_COMMUNITY_Favicon Visual System|Favicon Visual System]]
-- [[_COMMUNITY_Vite Brand Asset|Vite Brand Asset]]
-- [[_COMMUNITY_Export Route Helpers|Export Route Helpers]]
-- [[_COMMUNITY_Image Hashing Helpers|Image Hashing Helpers]]
-- [[_COMMUNITY_Import UI Workflow|Import UI Workflow]]
-- [[_COMMUNITY_Browser MinIO URLs|Browser MinIO URLs]]
-- [[_COMMUNITY_Budget Goal Progress|Budget Goal Progress]]
-- [[_COMMUNITY_AI Config Route|AI Config Route]]
-- [[_COMMUNITY_Security Environment Validation|Security Environment Validation]]
-- [[_COMMUNITY_AI Route Test Helpers|AI Route Test Helpers]]
-- [[_COMMUNITY_AI Route Action Helpers|AI Route Action Helpers]]
-- [[_COMMUNITY_File Route URL Helpers|File Route URL Helpers]]
-- [[_COMMUNITY_Category Suggestion Module|Category Suggestion Module]]
-- [[_COMMUNITY_OCR Image Storage|OCR Image Storage]]
-- [[_COMMUNITY_Pagination Utilities|Pagination Utilities]]
-- [[_COMMUNITY_Application Bootstrap|Application Bootstrap]]
-- [[_COMMUNITY_Family Comparison UI|Family Comparison UI]]
-- [[_COMMUNITY_Dashboard Summary UI|Dashboard Summary UI]]
-- [[_COMMUNITY_Investment Allocation UI|Investment Allocation UI]]
-- [[_COMMUNITY_Import Service Client|Import Service Client]]
-- [[_COMMUNITY_Auth Storage Helpers|Auth Storage Helpers]]
-- [[_COMMUNITY_Vite React Template|Vite React Template]]
-- [[_COMMUNITY_Redis Connection|Redis Connection]]
-- [[_COMMUNITY_JWT Authentication Middleware|JWT Authentication Middleware]]
-- [[_COMMUNITY_Response Cache Middleware|Response Cache Middleware]]
-- [[_COMMUNITY_Rate Limit Middleware|Rate Limit Middleware]]
-- [[_COMMUNITY_Asset Access Helper|Asset Access Helper]]
-- [[_COMMUNITY_Budget Test Authentication|Budget Test Authentication]]
-- [[_COMMUNITY_Budget Access Helper|Budget Access Helper]]
-- [[_COMMUNITY_Category Test Authentication|Category Test Authentication]]
-- [[_COMMUNITY_Category Access Helper|Category Access Helper]]
-- [[_COMMUNITY_Comparison Test Authentication|Comparison Test Authentication]]
-- [[_COMMUNITY_Comparison Aggregation Helper|Comparison Aggregation Helper]]
-- [[_COMMUNITY_Expense Access Helper|Expense Access Helper]]
-- [[_COMMUNITY_Export Test Authentication|Export Test Authentication]]
-- [[_COMMUNITY_Family Test Authentication|Family Test Authentication]]
-- [[_COMMUNITY_File Test Authentication|File Test Authentication]]
-- [[_COMMUNITY_Goal Test Authentication|Goal Test Authentication]]
-- [[_COMMUNITY_Goal Access Helper|Goal Access Helper]]
-- [[_COMMUNITY_Import Test Authentication|Import Test Authentication]]
-- [[_COMMUNITY_Import Access Helper|Import Access Helper]]
-- [[_COMMUNITY_Income Access Helper|Income Access Helper]]
-- [[_COMMUNITY_Liability Access Helper|Liability Access Helper]]
-- [[_COMMUNITY_Recurring Test Authentication|Recurring Test Authentication]]
-- [[_COMMUNITY_Recurring Access Helper|Recurring Access Helper]]
-- [[_COMMUNITY_Report Test Authentication|Report Test Authentication]]
-- [[_COMMUNITY_Report Access Helper|Report Access Helper]]
-- [[_COMMUNITY_Recurring Schedule Calculator|Recurring Schedule Calculator]]
-- [[_COMMUNITY_Integration Test Identifiers|Integration Test Identifiers]]
-- [[_COMMUNITY_Decimal Conversion Utility|Decimal Conversion Utility]]
-- [[_COMMUNITY_Pagination Test Mocks|Pagination Test Mocks]]
-- [[_COMMUNITY_Family Selector Component|Family Selector Component]]
-- [[_COMMUNITY_Protected Route Component|Protected Route Component]]
-- [[_COMMUNITY_Asset Chart Formatter|Asset Chart Formatter]]
-- [[_COMMUNITY_Cash Flow Chart Formatter|Cash Flow Chart Formatter]]
-- [[_COMMUNITY_Income Expense Chart|Income Expense Chart]]
-- [[_COMMUNITY_AI Analysis Generator|AI Analysis Generator]]
-- [[_COMMUNITY_Login Form Workflow|Login Form Workflow]]
-- [[_COMMUNITY_Registration Form Workflow|Registration Form Workflow]]
-- [[_COMMUNITY_Comparison Service Client|Comparison Service Client]]
-- [[_COMMUNITY_Jest Integration Modes|Jest Integration Modes]]
-- [[_COMMUNITY_Graphify as Navigation Memory|Graphify as Navigation Memory]]
-- [[_COMMUNITY_Jest Configuration|Jest Configuration]]
-- [[_COMMUNITY_Express Application Bootstrap|Express Application Bootstrap]]
-- [[_COMMUNITY_MinIO Test Suite|MinIO Test Suite]]
-- [[_COMMUNITY_Security Test Suite|Security Test Suite]]
-- [[_COMMUNITY_Cache Test Suite|Cache Test Suite]]
-- [[_COMMUNITY_Rate Limit Test Suite|Rate Limit Test Suite]]
-- [[_COMMUNITY_Auth Middleware Tests|Auth Middleware Tests]]
-- [[_COMMUNITY_Authentication Routes|Authentication Routes]]
-- [[_COMMUNITY_Family Routes Module|Family Routes Module]]
-- [[_COMMUNITY_AI Service Tests|AI Service Tests]]
-- [[_COMMUNITY_Category Service Tests|Category Service Tests]]
-- [[_COMMUNITY_File Storage Tests|File Storage Tests]]
-- [[_COMMUNITY_OCR Service Tests|OCR Service Tests]]
-- [[_COMMUNITY_Jest Global Setup|Jest Global Setup]]
-- [[_COMMUNITY_PostCSS Configuration|PostCSS Configuration]]
-- [[_COMMUNITY_Tailwind Configuration|Tailwind Configuration]]
-- [[_COMMUNITY_Vite PWA Configuration|Vite PWA Configuration]]
-- [[_COMMUNITY_Shared Application Layout|Shared Application Layout]]
-- [[_COMMUNITY_Axios API Client|Axios API Client]]
-- [[_COMMUNITY_Family State Store|Family State Store]]
-- [[_COMMUNITY_Frontend Domain Types|Frontend Domain Types]]
-- [[_COMMUNITY_HomeFinance Project Memory|HomeFinance Project Memory]]
-- [[_COMMUNITY_Desktop Login Screenshot|Desktop Login Screenshot]]
-- [[_COMMUNITY_Desktop Reports Screenshot|Desktop Reports Screenshot]]
+- [[_COMMUNITY_React Logo Asset|React Logo Asset]]
+- [[_COMMUNITY_AI Model Configuration|AI Model Configuration]]
+- [[_COMMUNITY_Reports Page Reliability|Reports Page Reliability]]
+- [[_COMMUNITY_Report Service API|Report Service API]]
+- [[_COMMUNITY_Hero Layer Illustration|Hero Layer Illustration]]
+- [[_COMMUNITY_Favicon Visual Identity|Favicon Visual Identity]]
+- [[_COMMUNITY_Vite Logo Asset|Vite Logo Asset]]
+- [[_COMMUNITY_MinIO Public URLs|MinIO Public URLs]]
+- [[_COMMUNITY_Budgets and Goals|Budgets and Goals]]
+- [[_COMMUNITY_Risk-First Strategy|Risk-First Strategy]]
+- [[_COMMUNITY_File Route Helpers|File Route Helpers]]
+- [[_COMMUNITY_UI Smoke Tooling|UI Smoke Tooling]]
+- [[_COMMUNITY_Currency Semantics|Currency Semantics]]
+- [[_COMMUNITY_Frontend Build Config|Frontend Build Config]]
+- [[_COMMUNITY_Jest Integration Profile|Jest Integration Profile]]
+- [[_COMMUNITY_Cache Authorization Fixtures|Cache Authorization Fixtures]]
+- [[_COMMUNITY_Family Cache Keys|Family Cache Keys]]
+- [[_COMMUNITY_Asset Access Checks|Asset Access Checks]]
+- [[_COMMUNITY_Budget Access Checks|Budget Access Checks]]
+- [[_COMMUNITY_Expense Access Checks|Expense Access Checks]]
+- [[_COMMUNITY_Goal Access Checks|Goal Access Checks]]
+- [[_COMMUNITY_Import Access Checks|Import Access Checks]]
+- [[_COMMUNITY_Income Access Checks|Income Access Checks]]
+- [[_COMMUNITY_Liability Access Checks|Liability Access Checks]]
+- [[_COMMUNITY_Recurring Access Checks|Recurring Access Checks]]
+- [[_COMMUNITY_Database Test IDs|Database Test IDs]]
+- [[_COMMUNITY_Test Data Factories|Test Data Factories]]
+- [[_COMMUNITY_Sustainable Memory Loop|Sustainable Memory Loop]]
+- [[_COMMUNITY_Audit Review Framework|Audit Review Framework]]
+- [[_COMMUNITY_TDD Quality Gates|TDD Quality Gates]]
+- [[_COMMUNITY_Audit Trail Strategy|Audit Trail Strategy]]
+- [[_COMMUNITY_Cache Middleware Tests|Cache Middleware Tests]]
+- [[_COMMUNITY_Cache Persistence Tests|Cache Persistence Tests]]
+- [[_COMMUNITY_AI Route Tests|AI Route Tests]]
+- [[_COMMUNITY_Budget Route Tests|Budget Route Tests]]
+- [[_COMMUNITY_File Lifecycle Tests|File Lifecycle Tests]]
+- [[_COMMUNITY_Goal Route Tests|Goal Route Tests]]
+- [[_COMMUNITY_Import Route Tests|Import Route Tests]]
+- [[_COMMUNITY_Recurring Route Tests|Recurring Route Tests]]
+- [[_COMMUNITY_Recurring Date Logic|Recurring Date Logic]]
+- [[_COMMUNITY_Backend Test Setup|Backend Test Setup]]
+- [[_COMMUNITY_Decimal Conversion|Decimal Conversion]]
+- [[_COMMUNITY_Vitest Configuration|Vitest Configuration]]
+- [[_COMMUNITY_Family Comparison|Family Comparison]]
+- [[_COMMUNITY_Liability Registry|Liability Registry]]
+- [[_COMMUNITY_Frontend Test Setup|Frontend Test Setup]]
+- [[_COMMUNITY_Risk Status Workflow|Risk Status Workflow]]
+- [[_COMMUNITY_Dynamic Reporting|Dynamic Reporting]]
+- [[_COMMUNITY_Login Screenshot|Login Screenshot]]
+- [[_COMMUNITY_Login Form Accessibility|Login Form Accessibility]]
+- [[_COMMUNITY_Reports Screenshot|Reports Screenshot]]
+- [[_COMMUNITY_Reports Dashboard|Reports Dashboard]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `Family Membership Role-Based Access Control` - 17 edges
-2. `Current Family Data Scope` - 17 edges
-3. `Financial Write Integrity Analysis` - 14 edges
-4. `Database Integration Test Suite` - 12 edges
-5. `Dual-Mode Family Income and Expense Ledger` - 11 edges
-6. `Income Ledger` - 10 edges
-7. `Consolidated Remediation Roadmap` - 10 edges
-8. `Family-Scoped Expense API` - 9 edges
-9. `Family-Scoped Income API` - 9 edges
-10. `HomeFinance Repository Invariants` - 9 edges
+1. `Current Family Data Scope` - 16 edges
+2. `HomeFinance Graphify Knowledge Graph Report` - 13 edges
+3. `Dual-Mode Family Income and Expense Ledger` - 11 edges
+4. `Income Ledger` - 8 edges
+5. `Durable Family Cache Revision` - 8 edges
+6. `Financial Write Integrity Analysis` - 8 edges
+7. `Ledger Application Boundary` - 8 edges
+8. `Reusable SVG Icon Symbol Sprite` - 8 edges
+9. `HomeFinance Backend Bootstrap` - 7 edges
+10. `Family Finance Route Map` - 7 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `Seven-Day AI Action Duplicate Detection` --semantically_similar_to--> `Atomic and Idempotent Transaction Generation`  [INFERRED] [semantically similar]
+  backend/src/routes/ai.ts ¡ú AGENTS.md
 - `Frontend Resource Service Convention` --conceptually_related_to--> `Income Ledger`  [INFERRED]
-  docs/contributing.md â†’ frontend/src/services/financeService.ts
-- `Financial Reconciliation Invariants` --semantically_similar_to--> `Base Currency and Statement Reconciliation Invariants`  [INFERRED] [semantically similar]
-  docs/audit/parallel-analysis/02-financial-correctness.md â†’ AGENTS.md
-- `HomeFinance API Contracts` --references--> `Authentication API Client`  [INFERRED]
-  docs/wiki.md â†’ frontend/src/services/authService.ts
-- `Intelligent Finance Features` --references--> `Transaction Category Suggestion`  [INFERRED]
-  README.md â†’ frontend/src/services/categoryService.ts
-- `Intelligent Finance Features` --references--> `Financial Excel Export`  [INFERRED]
-  README.md â†’ frontend/src/services/exportService.ts
+  docs/contributing.md ¡ú frontend/src/services/financeService.ts
+- `Core Family Finance Data Model` --shares_data_with--> `Asset Registry`  [INFERRED]
+  docs/wiki.md ¡ú frontend/src/services/financeService.ts
+- `Authorization Before Cache` --implements--> `Family Tenant Boundary`  [INFERRED]
+  backend/src/middleware/cache.authorization.test.ts ¡ú docs/project-memory.md
+- `Cache Middleware` --implements--> `Cache Is Not an Authorization Boundary`  [INFERRED]
+  backend/src/middleware/cache.ts ¡ú AGENTS.md
 
 ## Hyperedges (group relationships)
-- **Tenant Authorization Control Chain** â€” agents_family_tenant_boundary, security_analysis_authorization_before_cache, integrated_plan_family_access_context, graph_report_current_family_scope_god_node [INFERRED 0.92]
-- **Trusted Transaction Ingress Pattern** â€” graph_report_transaction_creation_ingress, integrated_plan_ledger_application_service, data_integrity_ledger_application_boundary, agents_atomic_idempotent_writes, agents_explicit_ai_confirmation [INFERRED 0.93]
-- **Governed Knowledge Feedback Loop** â€” project_memory_update_protocol, governance_analysis_change_evidence_cards, governance_analysis_graphify_update_protocol, agents_persistent_memory_governance [EXTRACTED 1.00]
-- **Redis-Backed Graceful Degradation Services** â€” redis_shared_client, cache_response_middleware, ratelimit_redis_window, app_redis_degraded_startup [INFERRED 0.90]
-- **Family-Scoped Authorization Pattern** â€” auth_authenticated_request_identity, ai_family_access_guard, assets_family_access_guard, budgets_family_access_guard, category_family_access_guard [EXTRACTED 1.00]
-- **OCR Proposal and Confirmation Workflow** â€” ai_ocr_image_persistence, ai_ocr_proposal_flow, ai_duplicate_action_detection, ai_proposed_action_confirmation, ai_action_executor [EXTRACTED 1.00]
-- **Transaction Creation Ingress Paths** â€” incomes_family_income_api, expenses_family_expense_api, import_partial_success_confirmation, recurring_execution, aiActions_sequential_action_executor [INFERRED 0.90]
-- **Derived Family Financial Views** â€” compare_family_comparison_summary, goals_financial_progress_projection, export_balance_sheet_workbook, reports_balance_sheet, reports_financial_summary, aiService_financial_analysis [INFERRED 0.85]
-- **OCR Automatic Bookkeeping Pipeline** â€” aiService_dual_path_ocr, aiService_merged_ocr_result, aiService_ocr_to_actions, aiActions_sequential_action_executor [INFERRED 0.85]
-- **OCR Image Persistence Flow** â€” filestorageservice_store_ocr_image, filestorageservice_minio_object_upload, phash_compute, filestorageservice_file_record [EXTRACTED 1.00]
-- **Hybrid OCR Extraction and Merge Pipeline** â€” ocrservice_extract_text_from_image, ocrservice_extract_via_vision, ocrservice_merge_ocr_results [EXTRACTED 1.00]
-- **Authenticated Family Finance Application Shell** â€” app_route_map, protectedroute_auth_gate, layout_component, familyselector_component [EXTRACTED 1.00]
-- **Human-in-the-Loop AI Booking Flow** â€” ai_multimodal_composer, ai_proposed_action_review, ai_duplicate_flag_alignment, ai_confirmation_contract, ai_manual_booking_fallback, ai_action_undo [EXTRACTED 1.00]
-- **Family-Scoped Finance Experience** â€” current_family_scope, family_asset_register, family_liability_register, family_transaction_ledger, category_budget_progress, family_cash_flow_statement, financial_goal_tracking, family_file_archive [EXTRACTED 1.00]
-- **Integrated Family Financial Reporting Suite** â€” composite_financial_reports_hub, family_balance_sheet, family_income_statement, family_cash_flow_statement, family_investment_allocation, family_financial_dashboard [EXTRACTED 1.00]
-- **Authentication and Persistent Session Flow** â€” authService_authentication_api, authService_auth_response, useAuthStore_authentication_state, useAuthStore_local_storage_session, types_user_model [EXTRACTED 1.00]
-- **Three-Statement Reporting System** â€” README_three_financial_statements, reportService_balance_sheet, reportService_income_statement, reportService_cash_flow [INFERRED 0.90]
-- **Family Financial Data Entry and Duplicate Prevention** â€” financeService_income_ledger, financeService_expense_ledger, financeService_asset_registry, financeService_liability_registry, financeService_transaction_duplicate_check, family_finance_design_smart_data_entry [INFERRED 0.87]
-- **Favicon Visual Identity Composition** â€” favicon_lightning_bolt_silhouette, favicon_purple_cyan_glow_palette, favicon_mask_clipped_blurred_ellipse_shading [INFERRED 0.90]
-- **Dark External Platform Icon Family** â€” icons_bluesky_brand_icon, icons_discord_brand_icon, icons_github_brand_icon, icons_x_brand_icon [INFERRED 0.90]
-- **Accent Utility Icon Family** â€” icons_documentation_code_icon, icons_social_profile_badge_icon, icons_purple_outline_utility_style [INFERRED 0.90]
-- **Community and Developer Navigation Surface** â€” icons_bluesky_brand_icon, icons_discord_brand_icon, icons_documentation_code_icon, icons_github_brand_icon, icons_social_profile_badge_icon, icons_x_brand_icon [INFERRED 0.85]
-- **Layered Visual System** â€” hero_upper_rounded_layer, hero_lower_purple_foundation_layer, hero_inter_layer_guides [EXTRACTED 1.00]
-- **Vite Visual Identity Composition** â€” vite_vite_brand_mark, vite_lightning_bolt_symbol, vite_parenthesis_frame, vite_purple_blue_gradient [EXTRACTED 1.00]
+- **Redis-Backed Graceful Degradation Services** ¡ª redis_shared_client, cache_response_middleware, ratelimit_redis_window, app_redis_degraded_startup [INFERRED 0.90]
+- **Authorized Versioned Report Flow** ¡ª family_access_require_family_access, family_access_durable_cache_revision_context, cache_cache_middleware, reports_authorized_cached_pipeline [EXTRACTED 1.00]
+- **OCR Automatic Bookkeeping Pipeline** ¡ª aiService_dual_path_ocr, aiService_merged_ocr_result, aiService_ocr_to_actions, aiActions_sequential_action_executor [INFERRED 0.85]
+- **OCR Image Persistence Flow** ¡ª filestorageservice_store_ocr_image, filestorageservice_minio_object_upload, phash_compute, filestorageservice_file_record [EXTRACTED 1.00]
+- **Hybrid OCR Extraction and Merge Pipeline** ¡ª ocrservice_extract_text_from_image, ocrservice_extract_via_vision, ocrservice_merge_ocr_results [EXTRACTED 1.00]
+- **Authenticated Family Finance Application Shell** ¡ª app_route_map, protectedroute_auth_gate, layout_component, familyselector_component [EXTRACTED 1.00]
+- **Human-in-the-Loop AI Booking Flow** ¡ª ai_multimodal_composer, ai_proposed_action_review, ai_duplicate_flag_alignment, ai_confirmation_contract, ai_manual_booking_fallback, ai_action_undo [EXTRACTED 1.00]
+- **Family-Scoped Finance Experience** ¡ª current_family_scope, family_asset_register, family_liability_register, family_transaction_ledger, category_budget_progress, family_cash_flow_statement, financial_goal_tracking, family_file_archive [EXTRACTED 1.00]
+- **Authentication and Persistent Session Flow** ¡ª authService_authentication_api, authService_auth_response, useAuthStore_authentication_state, useAuthStore_local_storage_session, types_user_model [EXTRACTED 1.00]
+- **Financial Report Truthfulness Contract** ¡ª reports_balance_sheet, reports_income_statement, reports_cash_flow_statement, agents_statement_reconciliation, reports_page_explicit_error_states [INFERRED 0.89]
+- **Three-Statement Reporting System** ¡ª README_three_financial_statements, reportService_balance_sheet, reportService_income_statement, reportService_cash_flow [INFERRED 0.90]
+- **Trusted Transaction Ingress Roadmap** ¡ª improvement_unified_write_authorization_epic, improvement_ledger_application_service, improvement_recurring_exactly_once, improvement_atomic_import_batch, agents_explicit_ai_confirmation [EXTRACTED 1.00]
+- **Authorized Family Report Cache Flow** ¡ª family_membership_lookup, authorization_before_cache, family_report_cache_key, cache_middleware_contract [EXTRACTED 1.00]
+- **Durable Revision Evidence Chain** ¡ª persistent_revision_schema_contract, transactional_revision_trigger_contract, database_revision_integration_contract, revision_rollback_atomicity [INFERRED 0.90]
+- **Trusted Transaction Ingress Pattern** ¡ª data_transaction_creation_ingress, data_ledger_application_boundary, data_recurring_exactly_once, data_import_batch_atomic_confirmation, data_ai_proposal_confirmation, data_idempotency_optimistic_concurrency [INFERRED 0.94]
+- **Governed Knowledge Feedback Loop** ¡ª governance_source_truth_hierarchy, governance_evidence_card_lifecycle, governance_graphify_update_protocol, governance_inferred_edge_review, graph_report_governed_feedback_loop [EXTRACTED 1.00]
+- **Family Financial Data Entry and Duplicate Prevention** ¡ª financeService_income_ledger, financeService_expense_ledger, financeService_asset_registry, financeService_liability_registry, financeService_transaction_duplicate_check, family_finance_design_smart_data_entry [INFERRED 0.87]
+- **Favicon Visual Identity Composition** ¡ª favicon_lightning_bolt_silhouette, favicon_purple_cyan_glow_palette, favicon_mask_clipped_blurred_ellipse_shading [INFERRED 0.90]
+- **Dark External Platform Icon Family** ¡ª icons_bluesky_brand_icon, icons_discord_brand_icon, icons_github_brand_icon, icons_x_brand_icon [INFERRED 0.90]
+- **Accent Utility Icon Family** ¡ª icons_documentation_code_icon, icons_social_profile_badge_icon, icons_purple_outline_utility_style [INFERRED 0.90]
+- **Community and Developer Navigation Surface** ¡ª icons_bluesky_brand_icon, icons_discord_brand_icon, icons_documentation_code_icon, icons_github_brand_icon, icons_social_profile_badge_icon, icons_x_brand_icon [INFERRED 0.85]
+- **Layered Visual System** ¡ª hero_upper_rounded_layer, hero_lower_purple_foundation_layer, hero_inter_layer_guides [EXTRACTED 1.00]
+- **Vite Visual Identity Composition** ¡ª vite_vite_brand_mark, vite_lightning_bolt_symbol, vite_parenthesis_frame, vite_purple_blue_gradient [EXTRACTED 1.00]
 
 ## Communities
 
-### Community 0 - "Frontend Finance Domain"
+### Community 0 - "AI and OCR Workflows"
 Cohesion: 0.05
-Nodes (60): User Account Registration, Undo of AI-Created Finance Records, Lightweight AI Report Markdown Renderer, Family AI Financial Analysis Report, Family AI API Facade, Conversational Family Finance Assistant, Multimodal Chat and Action Response Contract, Client-Side Receipt Image Compression (+52 more)
+Nodes (57): User Account Registration, Undo of AI-Created Finance Records, Lightweight AI Report Markdown Renderer, Family AI Financial Analysis Report, Family AI API Facade, Conversational Family Finance Assistant, Multimodal Chat and Action Response Contract, Client-Side Receipt Image Compression (+49 more)
 
-### Community 1 - "Financial Write Integrity Analysis"
-Cohesion: 0.05
-Nodes (58): Atomic and Idempotent Transaction Writes, Express App and Server Startup Separation, Architecture Performance and Operations Analysis, Bounded Database Aggregation and Pagination, CI Coverage Integration and Frontend Behavior Gates, Modular Monolith Policy Ledger and Report Boundaries, Modular Monolith Over Microservices Rationale, Observability Degradation and Recovery Contracts (+50 more)
+### Community 1 - "Frontend Collaboration APIs"
+Cohesion: 0.06
+Nodes (45): Family Collaboration and Visualization, Intelligent Finance Features, Authentication Response, Authentication API Client, Transaction Category Suggestion, Contribution Development Workflow, Family Resource Access Enforcement, Frontend Resource Service Convention (+37 more)
 
-### Community 2 - "HomeFinance Repository Invariants"
-Cohesion: 0.05
-Nodes (50): Cache Is Optimization Not Authorization, Base Currency and Statement Reconciliation Invariants, Explicit Confirmation for AI Mutations, FamilyId Tenant Boundary Invariant, Final Family Administrator Continuity, HomeFinance Repository Invariants, Persistent Memory ADR and Graphify Governance, Failing-Test-First Change and Quality Workflow (+42 more)
-
-### Community 3 - "Service Contracts and Documentation"
+### Community 2 - "Backend Runtime Infrastructure"
 Cohesion: 0.07
-Nodes (49): Family Collaboration and Visualization, Intelligent Finance Features, Authentication Response, Authentication API Client, Transaction Category Suggestion, Multi-Family Financial Comparison, Frontend Resource Service Convention, Admin Member Viewer Permissions (+41 more)
+Nodes (36): HomeFinance Backend Bootstrap, Base64 OCR Payload Size Rationale, Credentialed CORS Policy, Family-Scoped API Mounting, Backend Health Check Endpoint, MinIO Startup Initialization, 10 MB OCR Request Payload Limit, Redis-Degraded Startup Mode (+28 more)
 
-### Community 4 - "Backend Route Security"
-Cohesion: 0.07
-Nodes (42): AI Financial Action Execution, Unified AI Chat Endpoint, User Confirmation Before Image-Derived Writes, Persisted AI Conversation History, Seven-Day Duplicate Transaction Detection, AI Family Membership Guard, AI Financial Analysis Flow, Multimodal OCR Chat Flow (+34 more)
+### Community 3 - "Knowledge Graph Governance"
+Cohesion: 0.09
+Nodes (29): Knowledge Graph Memory and Governance Analysis, Policy Ledger Exactly-Once and Production Dependency Chain, Generated Graphs Must Not Override Executable Evidence, Change Evidence Card Lifecycle, Graphify as Navigation Memory, Graphify Semantic Update Protocol, Inferred Edge Verification Review, Executable Source of Truth Hierarchy (+21 more)
 
-### Community 5 - "Family Finance Backend"
+### Community 4 - "Family Authorization Policy"
 Cohesion: 0.1
-Nodes (40): Sequential Family-Scoped AI Action Executor, History-Based Category Suggestion, Historical Category Suggestion Contracts, Family Comparison Summary, Same-Day Expense Duplicate Detection, Family-Scoped Expense API, Balance Sheet Workbook Export, Date-Filtered Transaction Export (+32 more)
+Nodes (25): Cache Is Not an Authorization Boundary, Centralized Family Authorization Policy Boundary, Explicit Confirmation for AI Mutations, Family ID Tenant Boundary, Executable Source-of-Truth Hierarchy, Viewer Read-Only Invariant, Confirmed AI Action Execution Endpoint, Family-Scoped AI and OCR Routes (+17 more)
 
-### Community 6 - "Product Strategy and Governance"
-Cohesion: 0.07
-Nodes (29): Enterprise Finance Methods for Families, HomeFinance System, HomeFinance Technology Stack, Three Core Financial Statements, Value Chain and Dependency Architecture Analysis, HomeFinance Deep Audit Framework, Continuous Project Memory System, Evidence-Based Audit Quality Gate (+21 more)
+### Community 5 - "Financial Reports and Export"
+Cohesion: 0.12
+Nodes (23): Derived Statement Reconciliation Invariant, Family Comparison Summary, Baseline Other Cash Flow Omission, Baseline Income Statement Authentication Break, UI Smoke Evidence Citation, Balance Sheet Workbook Export, Date-Filtered Transaction Export, Excel Workbook Delivery (+15 more)
 
-### Community 7 - "Financial Statement Reconciliation"
-Cohesion: 0.1
-Nodes (28): Explicit Confirmation for AI Mutations, Atomic and Idempotent Transaction Writes, Authorization Before Cache or Resource Access, Budget Period Window Defect, Report Cache Tenant Authorization Bypass P0, Cash Flow Net Omits Other Category, Exactly-Once Recurring and Import Processing, Family Membership Role-Based Access Control (+20 more)
-
-### Community 8 - "Infrastructure Cache and Limits"
-Cohesion: 0.1
-Nodes (23): HomeFinance Backend Bootstrap, Base64 OCR Payload Size Rationale, Credentialed CORS Policy, Backend Health Check Endpoint, MinIO Startup Initialization, 10 MB OCR Request Payload Limit, Redis-Degraded Startup Mode, Startup Security Gate (+15 more)
-
-### Community 9 - "OCR Processing Pipeline"
+### Community 6 - "OCR File Persistence"
 Cohesion: 0.1
 Nodes (22): OCR Image Base64 Decoder, Persisted OCR File Record, MinIO Receipt Object Upload, Non-blocking OCR Image Persistence, Store OCR Image, OCR File Storage Test Suite, OCR Base64 Image Decoder, OCR UI Noise Cleaning (+14 more)
 
-### Community 10 - "Frontend Finance API Client"
-Cohesion: 0.11
-Nodes (0): 
-
-### Community 11 - "Database Integration Contracts"
+### Community 7 - "Durable Cache Safety"
 Cohesion: 0.13
-Nodes (19): AI Conversation Persistence Behavior, Asset and Liability Persistence Behavior, Budget Persistence Behavior, Prisma Decimal Numeric Conversion, Family-scoped Cascade Deletion, User and Family Membership Constraints, Financial Goal Persistence Behavior, Income Persistence Behavior (+11 more)
+Nodes (22): Authorization Before Cache, Fail-safe Cache Bypass, Cache Middleware Contract, Cache Protocol Epoch v2, Cache Rollback Must Preserve Authorization, Database Revision Integration Contract, Durable Family Cache Revision, Remediation Evidence State Machine (+14 more)
 
-### Community 12 - "Frontend Routing and Layout"
+### Community 8 - "Frontend Routing State"
 Cohesion: 0.12
 Nodes (19): Authenticated Application Shell, Legacy Bookmark Compatibility, Legacy Report Route Redirects, Family Finance Route Map, Family Selector Component, Family List API Loading, Current Family Selection State, Frontend Authentication State (+11 more)
 
-### Community 13 - "AI Finance Orchestration"
+### Community 9 - "Financial Semantics"
+Cohesion: 0.11
+Nodes (19): Budget Period Window Contract, Financial Correctness Analysis, Currency-Safe Financial Totals, Explicit Half-Open Date Interval and Family Timezone, Goal Allocation Isolation, Historical FX Requires Valuation Date Source Rounding and Replay, Recent Transaction Ordering Semantics, Financial Statement Reconciliation Invariants (+11 more)
+
+### Community 10 - "AI Action Execution"
+Cohesion: 0.17
+Nodes (18): Chinese Financial Amount Parser, AI Financial Action Contract, Keyword-Based Financial Category Taxonomy, Local Financial Command Parser, Sequential Family-Scoped AI Action Executor, Action-Aware Financial Chat Orchestrator, OCR Financial Category Whitelist, Parallel Dual-Path Receipt OCR (+10 more)
+
+### Community 11 - "Transaction Integrity"
 Cohesion: 0.22
-Nodes (15): Chinese Financial Amount Parser, AI Financial Action Contract, Keyword-Based Financial Category Taxonomy, Local Financial Command Parser, Action-Aware Financial Chat Orchestrator, OCR Financial Category Whitelist, Parallel Dual-Path Receipt OCR, AI or Rule-Based Family Financial Analysis (+7 more)
+Nodes (14): AI Proposal Confirmation and Atomic Commit, Classified Retry and Conflict Semantics, Database Uniqueness Must Arbitrate Concurrent Replay, Commit-Time Family Finance Revision, Object Storage and Database Compensation Gap, Idempotency and Optimistic Concurrency Contract, Import Batch Atomic Confirmation, Financial Write Integrity Analysis (+6 more)
 
-### Community 14 - "AI Page Interactions"
-Cohesion: 0.16
-Nodes (4): compressImage(), handleAnalysisRequest(), handleFileSelect(), handleSend()
+### Community 12 - "Project Foundations"
+Cohesion: 0.17
+Nodes (13): Enterprise Finance Methods for Families, HomeFinance System, HomeFinance Technology Stack, Three Core Financial Statements, Simplified Git Flow, Consistency and Maintainability Rationale, Clear History Through Squash Merge, TypeScript Coding Conventions (+5 more)
 
-### Community 15 - "AI Service Internals"
-Cohesion: 0.26
-Nodes (11): AIError, analyzeFinance(), buildActionFromItem(), callChatAPI(), chatCompletion(), chatWithActions(), generateFallbackAnalysis(), generateFallbackResponse() (+3 more)
-
-### Community 16 - "SVG Community Icon System"
+### Community 13 - "Social Icon System"
 Cohesion: 0.24
 Nodes (12): Bluesky Brand Icon, Brand-versus-Utility Visual Role Separation, Community and Developer Navigation Surface, Dark Filled Brand Icon Style, Discord Brand Icon, Documentation and Code Icon, GitHub Brand Icon, ID-Addressable SVG Symbol Architecture (+4 more)
 
-### Community 17 - "Transaction Entry Workflow"
+### Community 14 - "Ledger Service Boundaries"
 Cohesion: 0.22
-Nodes (4): checkDuplicate(), handleDescriptionBlur(), handleSubmit(), resetForm()
+Nodes (11): Atomic and Idempotent Transaction Generation, Domain and Application Service Boundary, Seven-Day AI Action Duplicate Detection, Route-Heavy Modular Monolith Hypothesis, Route-Heavy Modular Monolith Finding, Fragmented Transaction-Generating Ingresses, Unified Policy Ledger and Report Services Recommendation, Atomic Idempotent Import Batch (+3 more)
 
-### Community 18 - "Test Data Factories"
-Cohesion: 0.2
-Nodes (0): 
-
-### Community 19 - "Budget UI Workflow"
-Cohesion: 0.28
-Nodes (3): handleDelete(), handleSubmit(), loadProgress()
-
-### Community 20 - "Recurring UI Workflow"
-Cohesion: 0.28
-Nodes (4): handleExecute(), handleSubmit(), loadData(), resetForm()
-
-### Community 21 - "Family Service Client"
-Cohesion: 0.22
-Nodes (0): 
-
-### Community 22 - "Asset UI Workflow"
-Cohesion: 0.29
-Nodes (2): handleSubmit(), resetForm()
-
-### Community 23 - "Liability UI Workflow"
-Cohesion: 0.29
-Nodes (2): handleSubmit(), resetForm()
-
-### Community 24 - "AI Service Client"
-Cohesion: 0.25
-Nodes (0): 
-
-### Community 25 - "Financial Chart Components"
+### Community 15 - "Financial Charts"
 Cohesion: 0.29
 Nodes (8): Asset Allocation Donut Chart, Asset Chart CNY Formatting, Asset Allocation Data Contract, Zero-value Asset Slice Filtering, Cash Flow Activity Bar Chart, Cash Flow Chart CNY Formatting, Cash Flow Segment Contract, Empty Cash Flow State
 
-### Community 26 - "AI Action Engine"
-Cohesion: 0.48
-Nodes (6): executeAction(), executeActions(), matchCategory(), parseAmount(), parseLocalActions(), todayStr()
-
-### Community 27 - "CSV Parser Internals"
-Cohesion: 0.38
-Nodes (3): parseAlipay(), parseRows(), parseWechat()
-
-### Community 28 - "Balance Sheet UI"
+### Community 16 - "Architecture and Operations"
 Cohesion: 0.29
-Nodes (0): 
+Nodes (8): Express App and Server Startup Separation, Bounded Database Aggregation and Pagination, CI Coverage Integration and Frontend Behavior Gates, Measure Query Count Bundle Graph and Recovery Before Setting Targets, Modular Monolith Policy Ledger Report and Cache Boundaries, Microservices Would Amplify Transaction Retry and Operations Cost, Observability Degradation and Recovery Contracts, Architecture Performance and Operations Analysis
 
-### Community 29 - "Family Administration UI"
-Cohesion: 0.33
-Nodes (2): handleRemoveMember(), loadFamilies()
-
-### Community 30 - "Financial Goals UI"
-Cohesion: 0.38
-Nodes (3): handleDelete(), handleSubmit(), load()
-
-### Community 31 - "Reports UI"
-Cohesion: 0.29
-Nodes (0): 
-
-### Community 32 - "Recurring Service Client"
-Cohesion: 0.29
-Nodes (0): 
-
-### Community 33 - "CSV Import Formats"
+### Community 17 - "CSV Import Parsing"
 Cohesion: 0.52
 Nodes (7): Imported Transaction Contract, Imported Date Normalization, Alipay Transaction Parser, Imported Amount Normalization, Format-dispatched CSV Import, CSV Row Parsing, WeChat Transaction Parser
 
-### Community 34 - "Pagination Contracts"
+### Community 18 - "Pagination Contracts"
 Cohesion: 0.43
 Nodes (7): Unpaginated Backward Compatibility, Bounded Pagination Page Size, Build Paginated Response, Paginated Response Contract, Pagination Parameters Contract, Parse Pagination Query, Pagination Utility Test Suite
 
-### Community 35 - "React Brand Asset"
+### Community 19 - "React Logo Asset"
 Cohesion: 0.38
 Nodes (7): Atom-like Orbital Mark, Cyan Brand Color #00D8FF, React Framework Brand, Accessibility Tree Exclusion, React SVG Logo Asset, Image Role Semantics, Centered Aspect-Ratio-preserving Scaling
 
-### Community 36 - "MinIO Storage Helpers"
-Cohesion: 0.33
-Nodes (0): 
-
-### Community 37 - "OCR Utility Helpers"
-Cohesion: 0.4
-Nodes (2): base64ToBuffer(), extractTextFromImage()
-
-### Community 38 - "File Management UI"
-Cohesion: 0.4
-Nodes (2): handleUpload(), loadData()
-
-### Community 39 - "Income Statement UI"
-Cohesion: 0.47
-Nodes (3): handleFilter(), handleReset(), loadData()
-
-### Community 40 - "Budget Service Client"
-Cohesion: 0.33
-Nodes (0): 
-
-### Community 41 - "Goal Service Client"
-Cohesion: 0.33
-Nodes (0): 
-
-### Community 42 - "Report Service Client"
-Cohesion: 0.33
-Nodes (0): 
-
-### Community 43 - "AI Configuration Fallbacks"
+### Community 20 - "AI Model Configuration"
 Cohesion: 0.33
 Nodes (6): AI Credential Configuration Check, Tesseract-Only OCR Fallback, Text AI Service Configuration, Optional Vision AI Configuration, Vision Credential and Model Check, Low-Temperature Vision Determinism Rationale
 
-### Community 44 - "Layered Hero Artwork"
+### Community 21 - "Reports Page Reliability"
+Cohesion: 0.33
+Nodes (6): Configured Frontend API Client Boundary, Configured Report Service Loading, Explicit Report Error States, Report Date Filter Reset Contract, Financial Reports Page, Family Request Supersession Guard
+
+### Community 22 - "Report Service API"
+Cohesion: 0.33
+Nodes (0): 
+
+### Community 23 - "Hero Layer Illustration"
 Cohesion: 0.67
 Nodes (6): Depth Through Layer Separation, Dashed Inter-Layer Guides, Layered System Architecture Metaphor, Layered Stack Hero Illustration, Purple Foundation Layer, Upper Rounded Layer
 
-### Community 45 - "Cash Flow UI"
-Cohesion: 0.6
-Nodes (3): handleFilter(), handleReset(), loadData()
-
-### Community 46 - "Authentication Service Client"
-Cohesion: 0.4
-Nodes (0): 
-
-### Community 47 - "Export Service Client"
-Cohesion: 0.7
-Nodes (4): downloadBlob(), exportBalanceSheet(), exportExpenses(), exportIncomes()
-
-### Community 48 - "File Service Client"
-Cohesion: 0.4
-Nodes (0): 
-
-### Community 49 - "Favicon Visual System"
+### Community 24 - "Favicon Visual Identity"
 Cohesion: 0.5
 Nodes (5): Compact Browser Identity Mark, Gradient Lightning-Bolt Favicon, Lightning-Bolt Silhouette, Mask-Clipped Blurred Ellipse Shading, Purple-Cyan Glow Palette
 
-### Community 50 - "Vite Brand Asset"
+### Community 25 - "Vite Logo Asset"
 Cohesion: 0.4
 Nodes (5): Lightning Bolt Symbol, Parenthesis Frame, Purple-Blue Gradient, Theme-Adaptive Contrast, Vite Brand Mark
 
-### Community 51 - "Export Route Helpers"
-Cohesion: 0.5
-Nodes (0): 
-
-### Community 52 - "Image Hashing Helpers"
-Cohesion: 0.67
-Nodes (2): hammingDistance(), isSimilarImage()
-
-### Community 53 - "Import UI Workflow"
-Cohesion: 0.5
-Nodes (0): 
-
-### Community 54 - "Browser MinIO URLs"
+### Community 26 - "MinIO Public URLs"
 Cohesion: 0.67
 Nodes (4): Presigned Browser File URL, Browser-Facing MinIO Client, Separate Public Endpoint Rationale, MinIO Public Endpoint Contract Tests
 
-### Community 55 - "Budget Goal Progress"
+### Community 27 - "Budgets and Goals"
 Cohesion: 0.5
 Nodes (4): Family Budget Management, Budget Progress Tracking, Family Financial Goals, Financial Goal Progress
 
-### Community 56 - "AI Config Route"
+### Community 28 - "Risk-First Strategy"
+Cohesion: 0.5
+Nodes (4): Trust Before Scale and Intelligence Strategy, Delay New Write Features Until Stabilization Rationale, Risk-First Modular Monolith Evolution, Behavior Tests Make Incremental Strategy Safer Rationale
+
+### Community 29 - "File Route Helpers"
 Cohesion: 0.67
 Nodes (0): 
 
-### Community 57 - "Security Environment Validation"
-Cohesion: 1.0
-Nodes (2): validateJwtSecret(), validateSecurityEnv()
-
-### Community 58 - "AI Route Test Helpers"
+### Community 30 - "UI Smoke Tooling"
 Cohesion: 0.67
 Nodes (0): 
 
-### Community 59 - "AI Route Action Helpers"
+### Community 31 - "Currency Semantics"
 Cohesion: 0.67
-Nodes (0): 
+Nodes (3): Single Declared Base Currency Totals, Multi-Currency Calculation Semantics Gap, Do Not Fake Multi-Currency Aggregation Rationale
 
-### Community 60 - "File Route URL Helpers"
-Cohesion: 0.67
-Nodes (0): 
-
-### Community 61 - "Category Suggestion Module"
-Cohesion: 0.67
-Nodes (1): suggestCategory()
-
-### Community 62 - "OCR Image Storage"
-Cohesion: 1.0
-Nodes (2): base64ToBuffer(), storeOcrImage()
-
-### Community 63 - "Pagination Utilities"
-Cohesion: 0.67
-Nodes (0): 
-
-### Community 64 - "Application Bootstrap"
-Cohesion: 0.67
-Nodes (0): 
-
-### Community 65 - "Family Comparison UI"
-Cohesion: 0.67
-Nodes (0): 
-
-### Community 66 - "Dashboard Summary UI"
-Cohesion: 0.67
-Nodes (0): 
-
-### Community 67 - "Investment Allocation UI"
-Cohesion: 0.67
-Nodes (0): 
-
-### Community 68 - "Import Service Client"
-Cohesion: 0.67
-Nodes (0): 
-
-### Community 69 - "Auth Storage Helpers"
-Cohesion: 0.67
-Nodes (0): 
-
-### Community 70 - "Vite React Template"
+### Community 32 - "Frontend Build Config"
 Cohesion: 0.67
 Nodes (3): Development and Build Performance Rationale, React Compiler Disabled, Vite React TypeScript Template
 
-### Community 71 - "Redis Connection"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 72 - "JWT Authentication Middleware"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 73 - "Response Cache Middleware"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 74 - "Rate Limit Middleware"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 75 - "Asset Access Helper"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 76 - "Budget Test Authentication"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 77 - "Budget Access Helper"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 78 - "Category Test Authentication"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 79 - "Category Access Helper"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 80 - "Comparison Test Authentication"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 81 - "Comparison Aggregation Helper"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 82 - "Expense Access Helper"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 83 - "Export Test Authentication"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 84 - "Family Test Authentication"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 85 - "File Test Authentication"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 86 - "Goal Test Authentication"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 87 - "Goal Access Helper"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 88 - "Import Test Authentication"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 89 - "Import Access Helper"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 90 - "Income Access Helper"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 91 - "Liability Access Helper"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 92 - "Recurring Test Authentication"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 93 - "Recurring Access Helper"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 94 - "Report Test Authentication"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 95 - "Report Access Helper"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 96 - "Recurring Schedule Calculator"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 97 - "Integration Test Identifiers"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 98 - "Decimal Conversion Utility"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 99 - "Pagination Test Mocks"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 100 - "Family Selector Component"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 101 - "Protected Route Component"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 102 - "Asset Chart Formatter"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 103 - "Cash Flow Chart Formatter"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 104 - "Income Expense Chart"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 105 - "AI Analysis Generator"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 106 - "Login Form Workflow"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 107 - "Registration Form Workflow"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 108 - "Comparison Service Client"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 109 - "Jest Integration Modes"
+### Community 33 - "Jest Integration Profile"
 Cohesion: 1.0
 Nodes (2): Jest TypeScript Test Execution Profile, Opt-In Real Database Integration Tests
 
-### Community 110 - "Graphify as Navigation Memory"
-Cohesion: 1.0
-Nodes (2): Graphify as Navigation Memory, Graphify Knowledge Graph Report
-
-### Community 111 - "Jest Configuration"
+### Community 34 - "Cache Authorization Fixtures"
 Cohesion: 1.0
 Nodes (0): 
 
-### Community 112 - "Express Application Bootstrap"
+### Community 35 - "Family Cache Keys"
 Cohesion: 1.0
 Nodes (0): 
 
-### Community 113 - "MinIO Test Suite"
+### Community 36 - "Asset Access Checks"
 Cohesion: 1.0
 Nodes (0): 
 
-### Community 114 - "Security Test Suite"
+### Community 37 - "Budget Access Checks"
 Cohesion: 1.0
 Nodes (0): 
 
-### Community 115 - "Cache Test Suite"
+### Community 38 - "Expense Access Checks"
 Cohesion: 1.0
 Nodes (0): 
 
-### Community 116 - "Rate Limit Test Suite"
+### Community 39 - "Goal Access Checks"
 Cohesion: 1.0
 Nodes (0): 
 
-### Community 117 - "Auth Middleware Tests"
+### Community 40 - "Import Access Checks"
 Cohesion: 1.0
 Nodes (0): 
 
-### Community 118 - "Authentication Routes"
+### Community 41 - "Income Access Checks"
 Cohesion: 1.0
 Nodes (0): 
 
-### Community 119 - "Family Routes Module"
+### Community 42 - "Liability Access Checks"
 Cohesion: 1.0
 Nodes (0): 
 
-### Community 120 - "AI Service Tests"
+### Community 43 - "Recurring Access Checks"
 Cohesion: 1.0
 Nodes (0): 
 
-### Community 121 - "Category Service Tests"
+### Community 44 - "Database Test IDs"
 Cohesion: 1.0
 Nodes (0): 
 
-### Community 122 - "File Storage Tests"
+### Community 45 - "Test Data Factories"
+Cohesion: 1.0
+Nodes (2): Family-scoped Fixture Contracts, Finance Domain Test Data Factories
+
+### Community 46 - "Sustainable Memory Loop"
+Cohesion: 1.0
+Nodes (2): Sustainable Project Memory Loop, Graphify Knowledge Graph Evidence Citation
+
+### Community 47 - "Audit Review Framework"
+Cohesion: 1.0
+Nodes (2): Evidence-Backed Deep Review Framework, HomeFinance Source Baseline Citation
+
+### Community 48 - "TDD Quality Gates"
+Cohesion: 1.0
+Nodes (2): Focused RED-GREEN-REFACTOR Workflow, Executable CI Quality Gates
+
+### Community 49 - "Audit Trail Strategy"
+Cohesion: 1.0
+Nodes (2): Auditability Precedes More Generative AI Rationale, Immutable Audit Trail and Reconciliation
+
+### Community 50 - "Cache Middleware Tests"
 Cohesion: 1.0
 Nodes (0): 
 
-### Community 123 - "OCR Service Tests"
+### Community 51 - "Cache Persistence Tests"
 Cohesion: 1.0
 Nodes (0): 
 
-### Community 124 - "Jest Global Setup"
+### Community 52 - "AI Route Tests"
+Cohesion: 1.0
+Nodes (1): AI Route Behavioral Contract Tests
+
+### Community 53 - "Budget Route Tests"
+Cohesion: 1.0
+Nodes (1): Budget Route Contract Tests
+
+### Community 54 - "File Lifecycle Tests"
+Cohesion: 1.0
+Nodes (1): File Lifecycle and Duplicate Contracts
+
+### Community 55 - "Goal Route Tests"
+Cohesion: 1.0
+Nodes (1): Goal Validation and Progress Contracts
+
+### Community 56 - "Import Route Tests"
+Cohesion: 1.0
+Nodes (1): CSV Preview and Confirmation Contracts
+
+### Community 57 - "Recurring Route Tests"
+Cohesion: 1.0
+Nodes (1): Recurring Execution and Scheduling Contracts
+
+### Community 58 - "Recurring Date Logic"
+Cohesion: 1.0
+Nodes (1): Recurring Transaction Next-date Calculation
+
+### Community 59 - "Backend Test Setup"
+Cohesion: 1.0
+Nodes (1): Backend Test Environment Setup
+
+### Community 60 - "Decimal Conversion"
+Cohesion: 1.0
+Nodes (1): Decimal-to-Number Conversion
+
+### Community 61 - "Vitest Configuration"
 Cohesion: 1.0
 Nodes (0): 
 
-### Community 125 - "PostCSS Configuration"
+### Community 62 - "Family Comparison"
+Cohesion: 1.0
+Nodes (1): Multi-Family Financial Comparison
+
+### Community 63 - "Liability Registry"
+Cohesion: 1.0
+Nodes (1): Liability Registry
+
+### Community 64 - "Frontend Test Setup"
 Cohesion: 1.0
 Nodes (0): 
 
-### Community 126 - "Tailwind Configuration"
+### Community 65 - "Risk Status Workflow"
 Cohesion: 1.0
-Nodes (0): 
+Nodes (1): Evidence-to-Observed Risk Status Workflow
 
-### Community 127 - "Vite PWA Configuration"
+### Community 66 - "Dynamic Reporting"
 Cohesion: 1.0
-Nodes (0): 
+Nodes (1): Dynamic Family Financial Reporting
 
-### Community 128 - "Shared Application Layout"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 129 - "Axios API Client"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 130 - "Family State Store"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 131 - "Frontend Domain Types"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 132 - "HomeFinance Project Memory"
-Cohesion: 1.0
-Nodes (1): HomeFinance Project Memory
-
-### Community 133 - "Desktop Login Screenshot"
+### Community 67 - "Login Screenshot"
 Cohesion: 1.0
 Nodes (1): Desktop Login Screenshot
 
-### Community 134 - "Desktop Reports Screenshot"
+### Community 68 - "Login Form Accessibility"
+Cohesion: 1.0
+Nodes (1): Labeled Login Form
+
+### Community 69 - "Reports Screenshot"
 Cohesion: 1.0
 Nodes (1): Desktop Reports Screenshot
 
+### Community 70 - "Reports Dashboard"
+Cohesion: 1.0
+Nodes (1): Financial Reports Dashboard UI
+
 ## Knowledge Gaps
-- **156 isolated node(s):** `Jest TypeScript Test Execution Profile`, `Opt-In Real Database Integration Tests`, `Credentialed CORS Policy`, `Base64 OCR Payload Size Rationale`, `Backend Health Check Endpoint` (+151 more)
-  These have â‰¤1 connection - possible missing edges or undocumented components.
-- **Thin community `Redis Connection`** (2 nodes): `redis.ts`, `connectRedis()`
+- **171 isolated node(s):** `Jest TypeScript Test Execution Profile`, `Opt-In Real Database Integration Tests`, `Credentialed CORS Policy`, `Base64 OCR Payload Size Rationale`, `Backend Health Check Endpoint` (+166 more)
+  These have ¡Ü1 connection - possible missing edges or undocumented components.
+- **Thin community `Jest Integration Profile`** (2 nodes): `Jest TypeScript Test Execution Profile`, `Opt-In Real Database Integration Tests`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `JWT Authentication Middleware`** (2 nodes): `authMiddleware()`, `auth.ts`
+- **Thin community `Cache Authorization Fixtures`** (2 nodes): `cache.authorization.test.ts`, `createToken()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Response Cache Middleware`** (2 nodes): `cacheMiddleware()`, `cache.ts`
+- **Thin community `Family Cache Keys`** (2 nodes): `familyCache.ts`, `familyReportCacheKey()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Rate Limit Middleware`** (2 nodes): `rateLimit.ts`, `rateLimitMiddleware()`
+- **Thin community `Asset Access Checks`** (2 nodes): `checkFamilyAccess()`, `assets.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Asset Access Helper`** (2 nodes): `checkFamilyAccess()`, `assets.ts`
+- **Thin community `Budget Access Checks`** (2 nodes): `budgets.ts`, `checkFamilyAccess()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Budget Test Authentication`** (2 nodes): `createToken()`, `budgets.test.ts`
+- **Thin community `Expense Access Checks`** (2 nodes): `expenses.ts`, `checkFamilyAccess()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Budget Access Helper`** (2 nodes): `checkFamilyAccess()`, `budgets.ts`
+- **Thin community `Goal Access Checks`** (2 nodes): `goals.ts`, `checkFamilyAccess()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Category Test Authentication`** (2 nodes): `createToken()`, `category.test.ts`
+- **Thin community `Import Access Checks`** (2 nodes): `import.ts`, `checkFamilyAccess()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Category Access Helper`** (2 nodes): `checkFamilyAccess()`, `category.ts`
+- **Thin community `Income Access Checks`** (2 nodes): `incomes.ts`, `checkFamilyAccess()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Comparison Test Authentication`** (2 nodes): `createToken()`, `compare.test.ts`
+- **Thin community `Liability Access Checks`** (2 nodes): `liabilities.ts`, `checkFamilyAccess()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Comparison Aggregation Helper`** (2 nodes): `sumAmount()`, `compare.ts`
+- **Thin community `Recurring Access Checks`** (2 nodes): `recurring.ts`, `checkFamilyAccess()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Expense Access Helper`** (2 nodes): `expenses.ts`, `checkFamilyAccess()`
+- **Thin community `Database Test IDs`** (2 nodes): `database.integration.test.ts`, `uniqueId()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Export Test Authentication`** (2 nodes): `export.test.ts`, `createToken()`
+- **Thin community `Test Data Factories`** (2 nodes): `Family-scoped Fixture Contracts`, `Finance Domain Test Data Factories`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Family Test Authentication`** (2 nodes): `families.test.ts`, `createToken()`
+- **Thin community `Sustainable Memory Loop`** (2 nodes): `Sustainable Project Memory Loop`, `Graphify Knowledge Graph Evidence Citation`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `File Test Authentication`** (2 nodes): `files.test.ts`, `createToken()`
+- **Thin community `Audit Review Framework`** (2 nodes): `Evidence-Backed Deep Review Framework`, `HomeFinance Source Baseline Citation`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Goal Test Authentication`** (2 nodes): `goals.test.ts`, `createToken()`
+- **Thin community `TDD Quality Gates`** (2 nodes): `Focused RED-GREEN-REFACTOR Workflow`, `Executable CI Quality Gates`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Goal Access Helper`** (2 nodes): `goals.ts`, `checkFamilyAccess()`
+- **Thin community `Audit Trail Strategy`** (2 nodes): `Auditability Precedes More Generative AI Rationale`, `Immutable Audit Trail and Reconciliation`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Import Test Authentication`** (2 nodes): `import.test.ts`, `createToken()`
+- **Thin community `Cache Middleware Tests`** (1 nodes): `cache.test.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Import Access Helper`** (2 nodes): `import.ts`, `checkFamilyAccess()`
+- **Thin community `Cache Persistence Tests`** (1 nodes): `familyCache.persistence.test.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Income Access Helper`** (2 nodes): `incomes.ts`, `checkFamilyAccess()`
+- **Thin community `AI Route Tests`** (1 nodes): `AI Route Behavioral Contract Tests`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Liability Access Helper`** (2 nodes): `liabilities.ts`, `checkFamilyAccess()`
+- **Thin community `Budget Route Tests`** (1 nodes): `Budget Route Contract Tests`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Recurring Test Authentication`** (2 nodes): `recurring.test.ts`, `createToken()`
+- **Thin community `File Lifecycle Tests`** (1 nodes): `File Lifecycle and Duplicate Contracts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Recurring Access Helper`** (2 nodes): `recurring.ts`, `checkFamilyAccess()`
+- **Thin community `Goal Route Tests`** (1 nodes): `Goal Validation and Progress Contracts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Report Test Authentication`** (2 nodes): `reports.test.ts`, `createToken()`
+- **Thin community `Import Route Tests`** (1 nodes): `CSV Preview and Confirmation Contracts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Report Access Helper`** (2 nodes): `reports.ts`, `checkFamilyAccess()`
+- **Thin community `Recurring Route Tests`** (1 nodes): `Recurring Execution and Scheduling Contracts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Recurring Schedule Calculator`** (2 nodes): `recurringService.ts`, `calculateNextDate()`
+- **Thin community `Recurring Date Logic`** (1 nodes): `Recurring Transaction Next-date Calculation`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Integration Test Identifiers`** (2 nodes): `database.integration.test.ts`, `uniqueId()`
+- **Thin community `Backend Test Setup`** (1 nodes): `Backend Test Environment Setup`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Decimal Conversion Utility`** (2 nodes): `decimal.ts`, `toNumber()`
+- **Thin community `Decimal Conversion`** (1 nodes): `Decimal-to-Number Conversion`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Pagination Test Mocks`** (2 nodes): `pagination.test.ts`, `mockReq()`
+- **Thin community `Vitest Configuration`** (1 nodes): `vitest.config.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Family Selector Component`** (2 nodes): `FamilySelector.tsx`, `loadFamilies()`
+- **Thin community `Family Comparison`** (1 nodes): `Multi-Family Financial Comparison`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Protected Route Component`** (2 nodes): `ProtectedRoute.tsx`, `ProtectedRoute()`
+- **Thin community `Liability Registry`** (1 nodes): `Liability Registry`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Asset Chart Formatter`** (2 nodes): `formatMoney()`, `AssetAllocationChart.tsx`
+- **Thin community `Frontend Test Setup`** (1 nodes): `setup.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Cash Flow Chart Formatter`** (2 nodes): `formatMoney()`, `CashFlowChart.tsx`
+- **Thin community `Risk Status Workflow`** (1 nodes): `Evidence-to-Observed Risk Status Workflow`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Income Expense Chart`** (2 nodes): `IncomeExpenseChart.tsx`, `formatMoney()`
+- **Thin community `Dynamic Reporting`** (1 nodes): `Dynamic Family Financial Reporting`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `AI Analysis Generator`** (2 nodes): `handleGenerate()`, `AIAnalysisPage.tsx`
+- **Thin community `Login Screenshot`** (1 nodes): `Desktop Login Screenshot`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Login Form Workflow`** (2 nodes): `LoginPage.tsx`, `handleSubmit()`
+- **Thin community `Login Form Accessibility`** (1 nodes): `Labeled Login Form`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Registration Form Workflow`** (2 nodes): `RegisterPage.tsx`, `handleSubmit()`
+- **Thin community `Reports Screenshot`** (1 nodes): `Desktop Reports Screenshot`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Comparison Service Client`** (2 nodes): `getCompareSummary()`, `compareService.ts`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Jest Integration Modes`** (2 nodes): `Jest TypeScript Test Execution Profile`, `Opt-In Real Database Integration Tests`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Graphify as Navigation Memory`** (2 nodes): `Graphify as Navigation Memory`, `Graphify Knowledge Graph Report`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Jest Configuration`** (1 nodes): `jest.config.js`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Express Application Bootstrap`** (1 nodes): `app.ts`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `MinIO Test Suite`** (1 nodes): `minio.test.ts`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Security Test Suite`** (1 nodes): `security.test.ts`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Cache Test Suite`** (1 nodes): `cache.test.ts`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Rate Limit Test Suite`** (1 nodes): `rateLimit.test.ts`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Auth Middleware Tests`** (1 nodes): `auth.test.ts`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Authentication Routes`** (1 nodes): `auth.ts`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Family Routes Module`** (1 nodes): `families.ts`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `AI Service Tests`** (1 nodes): `aiService.test.ts`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Category Service Tests`** (1 nodes): `categoryService.test.ts`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `File Storage Tests`** (1 nodes): `fileStorageService.test.ts`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `OCR Service Tests`** (1 nodes): `ocrService.test.ts`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Jest Global Setup`** (1 nodes): `setup.ts`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `PostCSS Configuration`** (1 nodes): `postcss.config.js`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Tailwind Configuration`** (1 nodes): `tailwind.config.js`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Vite PWA Configuration`** (1 nodes): `vite.config.ts`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Shared Application Layout`** (1 nodes): `Layout.tsx`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Axios API Client`** (1 nodes): `api.ts`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Family State Store`** (1 nodes): `useFamilyStore.ts`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Frontend Domain Types`** (1 nodes): `index.ts`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `HomeFinance Project Memory`** (1 nodes): `HomeFinance Project Memory`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Desktop Login Screenshot`** (1 nodes): `Desktop Login Screenshot`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Desktop Reports Screenshot`** (1 nodes): `Desktop Reports Screenshot`
+- **Thin community `Reports Dashboard`** (1 nodes): `Financial Reports Dashboard UI`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Consolidated Remediation Roadmap` connect `Financial Write Integrity Analysis` to `HomeFinance Repository Invariants`?**
-  _High betweenness centrality (0.005) - this node is a cross-community bridge._
-- **Why does `Financial Write Integrity Analysis` connect `Financial Write Integrity Analysis` to `HomeFinance Repository Invariants`?**
-  _High betweenness centrality (0.005) - this node is a cross-community bridge._
-- **Why does `HomeFinance System` connect `Product Strategy and Governance` to `Service Contracts and Documentation`?**
-  _High betweenness centrality (0.004) - this node is a cross-community bridge._
+- **Why does `Authorized Versioned Report Pipeline` connect `Financial Reports and Export` to `Family Authorization Policy`?**
+  _High betweenness centrality (0.012) - this node is a cross-community bridge._
+- **Why does `HomeFinance Graphify Knowledge Graph Report` connect `Knowledge Graph Governance` to `Financial Semantics`, `Transaction Integrity`?**
+  _High betweenness centrality (0.011) - this node is a cross-community bridge._
+- **Why does `Financial Summary Report` connect `Financial Reports and Export` to `AI Action Execution`?**
+  _High betweenness centrality (0.009) - this node is a cross-community bridge._
 - **Are the 6 inferred relationships involving `Dual-Mode Family Income and Expense Ledger` (e.g. with `Category Budget Progress Tracking` and `Family Cash Flow Statement`) actually correct?**
   _`Dual-Mode Family Income and Expense Ledger` has 6 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 6 inferred relationships involving `Income Ledger` (e.g. with `Transaction Category Suggestion` and `Financial Excel Export`) actually correct?**
+  _`Income Ledger` has 6 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 3 inferred relationships involving `Durable Family Cache Revision` (e.g. with `Family Report Cache Key` and `Persistent Revision Schema Contract`) actually correct?**
+  _`Durable Family Cache Revision` has 3 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `Jest TypeScript Test Execution Profile`, `Opt-In Real Database Integration Tests`, `Credentialed CORS Policy` to the rest of the system?**
-  _156 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Frontend Finance Domain` be split into smaller, more focused modules?**
-  _Cohesion score 0.05 - nodes in this community are weakly interconnected._
-- **Should `Financial Write Integrity Analysis` be split into smaller, more focused modules?**
-  _Cohesion score 0.05 - nodes in this community are weakly interconnected._
+  _171 weakly-connected nodes found - possible documentation gaps or missing edges._

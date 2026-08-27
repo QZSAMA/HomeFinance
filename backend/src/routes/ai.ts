@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../app';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { requireFamilyWriteAccess } from '../middleware/familyAccess';
 import { rateLimitMiddleware } from '../middleware/rateLimit';
 import { chatWithActions, analyzeFinance, parseReceiptOCR, ocrToActions, AIError } from '../services/aiService';
 import { executeActions, type AIAction } from '../services/aiActions';
@@ -129,7 +130,7 @@ router.get('/status', authMiddleware, (_req, res) => {
   });
 });
 
-router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: AuthRequest, res) => {
+router.post('/chat', authMiddleware, requireFamilyWriteAccess, rateLimitMiddleware(20, 60), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const membership = await checkFamilyAccess(familyId, req.userId!);
@@ -327,7 +328,7 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
   }
 });
 
-router.post('/analyze', authMiddleware, rateLimitMiddleware(10, 60), async (req: AuthRequest, res) => {
+router.post('/analyze', authMiddleware, requireFamilyWriteAccess, rateLimitMiddleware(10, 60), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const membership = await checkFamilyAccess(familyId, req.userId!);
@@ -391,7 +392,7 @@ router.post('/analyze', authMiddleware, rateLimitMiddleware(10, 60), async (req:
   }
 });
 
-router.post('/ocr', authMiddleware, rateLimitMiddleware(20, 60), async (req: AuthRequest, res) => {
+router.post('/ocr', authMiddleware, requireFamilyWriteAccess, rateLimitMiddleware(20, 60), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const userId = req.userId!;
@@ -454,7 +455,7 @@ const executeActionsSchema = z.object({
   })).min(1, '动作不能为空'),
 });
 
-router.post('/execute-actions', authMiddleware, rateLimitMiddleware(20, 60), async (req: AuthRequest, res) => {
+router.post('/execute-actions', authMiddleware, requireFamilyWriteAccess, rateLimitMiddleware(20, 60), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const userId = req.userId!;

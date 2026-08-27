@@ -37,7 +37,7 @@ export interface CashFlowResponse {
   operating: { income: number; expense: number; net: number };
   investing: { income: number; expense: number; net: number };
   financing: { income: number; expense: number; net: number };
-  other: { income: number; expense: number };
+  other: { income: number; expense: number; net: number };
   netCashFlow: number;
   startDate: string | null;
   endDate: string | null;
