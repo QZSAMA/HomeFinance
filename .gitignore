@@ -13,3 +13,4 @@ build/
 prisma/migrations/
 .trae/
 .tessdata/
+.worktrees/

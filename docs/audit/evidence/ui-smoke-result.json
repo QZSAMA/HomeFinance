@@ -1,0 +1,76 @@
+{
+  "unauthenticated_root_redirects_to_login": true,
+  "login_controls": [
+    {
+      "tag": "INPUT",
+      "id": "email",
+      "name": "email",
+      "autocomplete": null,
+      "labelled": true
+    },
+    {
+      "tag": "INPUT",
+      "id": "password",
+      "name": "password",
+      "autocomplete": null,
+      "labelled": true
+    }
+  ],
+  "report_unlabelled_controls": [
+    {
+      "tag": "SELECT",
+      "id": "",
+      "name": null,
+      "autocomplete": null,
+      "labelled": false
+    },
+    {
+      "tag": "INPUT",
+      "id": "",
+      "name": null,
+      "autocomplete": null,
+      "labelled": false
+    },
+    {
+      "tag": "INPUT",
+      "id": "",
+      "name": null,
+      "autocomplete": null,
+      "labelled": false
+    },
+    {
+      "tag": "INPUT",
+      "id": "",
+      "name": null,
+      "autocomplete": null,
+      "labelled": false
+    },
+    {
+      "tag": "INPUT",
+      "id": "",
+      "name": null,
+      "autocomplete": null,
+      "labelled": false
+    }
+  ],
+  "icon_buttons_without_accessible_name": 0,
+  "skip_links": 0,
+  "income_statement_requests": [
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:5173/api/families/family-1/reports/income-statement",
+      "authorization": null
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:5173/api/families/family-1/reports/income-statement",
+      "authorization": null
+    }
+  ],
+  "income_statement_has_unauthorized_request": true,
+  "console_errors": [
+    "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  ],
+  "page_errors": []
+}
