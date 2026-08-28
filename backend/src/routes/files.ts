@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { createFamilyWriteAccess, requireFamilyWriteAccess } from '../middleware/familyAccess';
 import { uploadFileBuffer, getFileUrl, deleteFile } from '../config/minio';

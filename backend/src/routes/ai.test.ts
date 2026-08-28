@@ -3,7 +3,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import aiRoutes from './ai';
 
-jest.mock('../app', () => ({
+jest.mock('../db/prisma', () => ({
   prisma: {
     familyMember: {
       findUnique: jest.fn(),
@@ -64,7 +64,7 @@ jest.mock('../services/fileStorageService', () => ({
   storeOcrImage: jest.fn(),
 }));
 
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 import { chatWithActions, analyzeFinance, parseReceiptOCR, ocrToActions } from '../services/aiService';
 import { executeActions } from '../services/aiActions';
 import { storeOcrImage } from '../services/fileStorageService';

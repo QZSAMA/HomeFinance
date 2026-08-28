@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import { z } from 'zod';
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { requireFamilyWriteAccess } from '../middleware/familyAccess';
 import { parseCSV } from '../services/importService';

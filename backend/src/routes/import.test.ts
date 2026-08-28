@@ -3,7 +3,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import importRoutes from './import';
 
-jest.mock('../app', () => ({
+jest.mock('../db/prisma', () => ({
   prisma: {
     familyMember: { findUnique: jest.fn() },
     income: { create: jest.fn() },
@@ -15,7 +15,7 @@ jest.mock('../services/importService', () => ({
   parseCSV: jest.fn(),
 }));
 
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 import { parseCSV } from '../services/importService';
 
 const mockedPrisma = prisma as any;

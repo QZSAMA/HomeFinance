@@ -1,5 +1,5 @@
 import { NextFunction, Response } from 'express';
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 import { AuthRequest } from './auth';
 
 export type FamilyRole = 'admin' | 'member' | 'viewer';

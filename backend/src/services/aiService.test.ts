@@ -33,7 +33,7 @@ jest.mock('./ocrService', () => ({
   cleanOcrText: jest.fn((text: string) => text),
 }));
 
-jest.mock('../app', () => ({
+jest.mock('../db/prisma', () => ({
   prisma: {},
 }));
 

@@ -2,7 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import request from 'supertest';
 
-jest.mock('../app', () => ({
+jest.mock('../db/prisma', () => ({
   prisma: {
     familyMember: {
       findUnique: jest.fn(),
@@ -33,7 +33,7 @@ jest.mock('../config/redis', () => ({
   },
 }));
 
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 import { redisClient } from '../config/redis';
 import expenseRoutes from '../routes/expenses';
 import reportRoutes from '../routes/reports';

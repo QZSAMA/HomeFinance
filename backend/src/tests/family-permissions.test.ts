@@ -12,7 +12,7 @@ import filesRoutes from '../routes/files';
 import importRoutes from '../routes/import';
 import aiRoutes from '../routes/ai';
 
-jest.mock('../app', () => {
+jest.mock('../db/prisma', () => {
   const model = () => ({
     findMany: jest.fn().mockResolvedValue([]),
     findUnique: jest.fn().mockResolvedValue(null),
@@ -69,7 +69,7 @@ jest.mock('../config/ai', () => ({
   isVisionConfigured: jest.fn().mockReturnValue(false),
 }));
 
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 import { uploadFileBuffer } from '../config/minio';
 import { executeActions } from '../services/aiActions';
 import { analyzeFinance, chatWithActions } from '../services/aiService';

@@ -1,6 +1,6 @@
 import { Response } from 'express';
 
-jest.mock('../app', () => ({
+jest.mock('../db/prisma', () => ({
   prisma: {
     familyMember: {
       findUnique: jest.fn(),
@@ -8,7 +8,7 @@ jest.mock('../app', () => ({
   },
 }));
 
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 import { requireFamilyAccess, requireFamilyWriteAccess } from './familyAccess';
 
 const mockedMembership = prisma.familyMember.findUnique as jest.Mock;

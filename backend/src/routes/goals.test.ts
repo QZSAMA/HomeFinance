@@ -3,7 +3,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import goalRoutes from './goals';
 
-jest.mock('../app', () => ({
+jest.mock('../db/prisma', () => ({
   prisma: {
     familyMember: { findUnique: jest.fn() },
     goal: {
@@ -18,7 +18,7 @@ jest.mock('../app', () => ({
   },
 }));
 
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 
 const mockedPrisma = prisma as any;
 

@@ -3,7 +3,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import fileRoutes from './files';
 
-jest.mock('../app', () => ({
+jest.mock('../db/prisma', () => ({
   prisma: {
     familyMember: {
       findUnique: jest.fn(),
@@ -28,7 +28,7 @@ jest.mock('../utils/phash', () => ({
   isSimilarImage: jest.fn().mockReturnValue(false),
 }));
 
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 
 const mockedPrisma = prisma as any;
 

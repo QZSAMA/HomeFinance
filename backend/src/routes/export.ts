@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import ExcelJS from 'exceljs';
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 
 const router = Router({ mergeParams: true });

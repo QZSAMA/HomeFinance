@@ -3,7 +3,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import categoryRoutes from './category';
 
-jest.mock('../app', () => ({
+jest.mock('../db/prisma', () => ({
   prisma: {
     familyMember: {
       findUnique: jest.fn(),
@@ -15,7 +15,7 @@ jest.mock('../services/categoryService', () => ({
   suggestCategory: jest.fn(),
 }));
 
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 import { suggestCategory } from '../services/categoryService';
 
 const mockedPrisma = prisma as any;

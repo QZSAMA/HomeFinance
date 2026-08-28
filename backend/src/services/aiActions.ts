@@ -1,4 +1,4 @@
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 import { toNumber } from '../utils/decimal';
 
 // ===== 类型定义 =====
