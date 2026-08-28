@@ -6,7 +6,7 @@
 - 设计规格：docs/superpowers/specs/2026-08-28-homefinance-phase1-design.md
 - 开发基线：codex/phase0-remediation@081084a
 - 实施分支：codex/phase1-ledger-trust
-- 当前快照：2026-08-28；设计已批准，P1-G-00 build/focused GREEN 已通过，默认单元测试 30 suites / 256 tests 通过；全局 branch coverage 43.17% 未达 60%，真实 PostgreSQL 环境仍不可用
+- 当前快照：2026-08-28；设计已批准，P1-B-04 已完成 RED 尝试但真实 PostgreSQL 凭证返回 P1000；coordinator focused GREEN/build 已通过；全局 branch coverage 仍为 43.17% 未达 60%，20 路真实 replay 仍未观察
 
 ## 1. 状态和字段规则
 
@@ -55,7 +55,7 @@
 | P1-0-02 | TASK | P1-0 | 建立 tracker 和证据卡规则 | P0 | IN_REVIEW | ON_TRACK | Delivery DRI | Repository Owner | hard:P1-0-01@DONE | 单一状态源、状态机、字段、DoR/DoD 明确 | evidence/P1-0-02.md | — | 保留审查文档；审阅书面规格 | 2026-08-28 |
 | P1-0-03 | TASK | P1-0 | 提交详细设计规格 | P0 | IN_REVIEW | ON_TRACK | Delivery DRI | Repository Owner | hard:P1-0-01@DONE | 架构、数据流、API、TDD、门禁、回滚完整 | evidence/P1-0-03.md | ADR-0001~0005 | 审阅前不实施；请用户审阅 | 2026-08-28 |
 | P1-0-04 | TASK | P1-0 | 建立所有写入口与角色矩阵 | P0 | EVIDENCE_CONFIRMED | ON_TRACK | Delivery DRI | Security Reviewer | hard:P1-0-03@IN_REVIEW | routes、roles、families、外部副作用可追踪 | evidence/P1-0-04.md | ADR-0001 | 写首个 RBAC RED | 2026-08-28 |
-| P1-0-05 | DECISION | P1-0 | 批准 Ledger、事务、幂等合同 | P0 | EVIDENCE_CONFIRMED | ON_TRACK | Delivery DRI | Technical Approver | hard:P1-0-03@IN_REVIEW | service boundary、operation、audit、revision 明确 | evidence/P1-0-05.md | ADR-0001, ADR-0002 | 形成 ADR 后进入 READY | 2026-08-28 |
+| P1-0-05 | DECISION | P1-0 | 批准 Ledger、事务、幂等合同 | P0 | DONE | ON_TRACK | Delivery DRI | Repository Owner | hard:P1-0-03@IN_REVIEW | service boundary、operation、audit、revision 明确 | evidence/P1-0-05.md | ADR-0001, ADR-0002 | ADR-0001/0002 已正式 Accepted；进入 schema RED | 2026-08-28 |
 | P1-0-06 | DECISION | P1-0 | 批准 Import、AI mutation 合同 | P0 | EVIDENCE_CONFIRMED | ON_TRACK | Delivery DRI | Finance/Product Owner | hard:P1-0-03@IN_REVIEW | 整批原子、proposal-only、编辑/hash 明确 | evidence/P1-0-06.md | ADR-0003, ADR-0004 | 不回退 partial/auto write；待批准 | 2026-08-28 |
 | P1-0-07 | GATE | P1-0 | 冻结测试和环境基线 | P0 | EVIDENCE_CONFIRMED | AT_RISK | QA/Evidence Owner | Repository Owner | hard:P1-0-03@IN_REVIEW | 命令、套件、coverage、依赖、环境如实记录 | evidence/P1-0-07.md | — | 环境不可用标 BLOCKED；获取 PG | 2026-08-28 |
 | P1-G-00 | TASK | P1-G | 分离 app/server/db 启动边界 | P0 | REFACTORED | AT_RISK | Delivery DRI | Technical Approver | hard:P1-0-03@DONE | app import 无 listener/Redis/MinIO 副作用 | evidence/P1-G-00.md | ADR-0001 | build、focused 和 256 个默认单元测试通过；补足全局 branch coverage 后再推进 `REGRESSION_VERIFIED` | 2026-08-28 |
@@ -64,12 +64,12 @@
 | P1-A-03 | TASK | P1-A | 建立 Ledger 事务编排骨架 | P0 | BACKLOG | ON_TRACK | Ledger Agent | Technical Approver | hard:P1-A-02@REGRESSION_VERIFIED; hard:P1-G-00@REGRESSION_VERIFIED | policy、idempotency、write、audit 同 transaction | evidence/P1-A-03.md | ADR-0001, ADR-0002 | 入口 flag；写事务 RED | 2026-08-28 |
 | P1-A-04 | TASK | P1-A | 迁移 Income create/update/delete | P0 | BACKLOG | ON_TRACK | API Agent | Technical Approver | hard:P1-A-03@REGRESSION_VERIFIED | route 无直接 Income mutation，响应兼容 | evidence/P1-A-04.md | ADR-0001 | 入口回退，不双写 | 2026-08-28 |
 | P1-A-05 | TASK | P1-A | 迁移 Expense create/update/delete | P0 | BACKLOG | ON_TRACK | API Agent | Technical Approver | hard:P1-A-03@REGRESSION_VERIFIED | route 无直接 Expense mutation，响应兼容 | evidence/P1-A-05.md | ADR-0001 | 入口回退，不双写 | 2026-08-28 |
-| P1-A-06 | TASK | P1-A | 增加乐观版本并发合同 | P1 | BACKLOG | ON_TRACK | Database Agent | Technical Approver | hard:P1-A-04@REGRESSION_VERIFIED; hard:P1-A-05@REGRESSION_VERIFIED | 相同 version 竞争一个成功、一个 409 | evidence/P1-A-06.md | ADR-0002 | 保留 version 列；写 migration | 2026-08-28 |
+| P1-A-06 | TASK | P1-A | 增加乐观版本并发合同 | P1 | REFACTORED | AT_RISK | Database Agent | Technical Approver | hard:P1-A-04@REGRESSION_VERIFIED; hard:P1-A-05@REGRESSION_VERIFIED | 相同 version 竞争一个成功、一个 409 | evidence/P1-A-06.md | ADR-0002 | PostgreSQL predicate PASS-REAL；待 route/service 接入和 409 映射 | 2026-08-28 |
 | P1-A-07 | GATE | P1-A | 禁止受控入口绕过 Ledger | P0 | BACKLOG | ON_TRACK | Security Reviewer | Repository Owner | hard:P1-A-04@REGRESSION_VERIFIED; hard:P1-A-05@REGRESSION_VERIFIED | 源码检查和 route tests 无直接账目写入 | evidence/P1-A-07.md | ADR-0001 | 发现旁路即阻断 | 2026-08-28 |
-| P1-B-01 | TASK | P1-B | 新增 IdempotencyRecord schema/migration | P0 | BACKLOG | ON_TRACK | Database Agent | Technical Approver | hard:P1-0-05@ACCEPTED | family/actor/operation/key 唯一 | evidence/P1-B-01.md | ADR-0002 | additive migration；写 schema RED | 2026-08-28 |
+| P1-B-01 | TASK | P1-B | 新增 IdempotencyRecord schema/migration | P0 | REFACTORED | AT_RISK | Database Agent | Technical Approver | hard:P1-0-05@DONE; decision:ADR-0002@ACCEPTED | family/actor/operation/key 唯一 | evidence/P1-B-01.md | ADR-0002 | `17c2644` fresh PG migration/unique/default/version PASS-REAL；待并发 replay/upgrade/restore 后评审 | 2026-08-28 |
 | P1-B-02 | TASK | P1-B | 实现 payload hash/coordinator | P0 | REFACTORED | AT_RISK | Ledger Agent | Technical Approver | hard:P1-B-01@REGRESSION_VERIFIED; hard:P1-A-02@REGRESSION_VERIFIED | 相同 key/hash 重放一份结果 | evidence/P1-B-02.md | ADR-0002 | 仅 PASS-MOCK；等待 P1-B-01 schema 和真实 PostgreSQL 并发仲裁，不宣称数据库 exactly-once | 2026-08-28 |
 | P1-B-03 | TASK | P1-B | 固化 key 冲突错误 | P0 | BACKLOG | ON_TRACK | Ledger Agent | Security Reviewer | hard:P1-B-02@REGRESSION_VERIFIED | 同 key/不同 hash 409 且零写入 | evidence/P1-B-03.md | ADR-0002 | 不复用不同 payload | 2026-08-28 |
-| P1-B-04 | GATE | P1-B | 真实 PostgreSQL 并发仲裁 | P0 | BLOCKED | AT_RISK | Database Agent | QA/Evidence Owner | hard:P1-B-02@REGRESSION_VERIFIED; external:POSTGRES_TEST_ENV@AVAILABLE | 20 并发一条账且可 replay | evidence/P1-B-04.md | ADR-0002 | 无 PG 不关 gate；准备环境 | 2026-08-28 |
+| P1-B-04 | GATE | P1-B | 真实 PostgreSQL 并发仲裁 | P0 | READY | BLOCKED | Database Agent | QA/Evidence Owner | hard:P1-B-02@REGRESSION_VERIFIED; external:POSTGRES_TEST_ENV@AVAILABLE | 20 并发一条账且可 replay | evidence/P1-B-04.md | ADR-0002 | 已实现 P2002 winner replay/冲突/in-progress 语义；提供有效 PG 凭证后重跑集成门禁 | 2026-08-28 |
 | P1-B-05 | GATE | P1-B | 验证 revision/幂等一致 | P0 | BACKLOG | ON_TRACK | Database Agent | Technical Approver | hard:P1-B-04@REGRESSION_VERIFIED | replay 不重复事实且读到最新 | evidence/P1-B-05.md | ADR-0001, ADR-0002 | 不手工 bump trigger | 2026-08-28 |
 | P1-C-01 | TASK | P1-C | 固化 import 资源限制 | P1 | BACKLOG | ON_TRACK | Import Agent | Security Reviewer | hard:P1-0-06@ACCEPTED | byte/row/field limit 边界返回 413 | evidence/P1-C-01.md | ADR-0003 | limit-1/limit/limit+1 | 2026-08-28 |
 | P1-C-02 | TASK | P1-C | 新增 ImportBatch/ImportRow schema | P0 | BACKLOG | ON_TRACK | Database Agent | Technical Approver | hard:P1-B-01@REGRESSION_VERIFIED | hash/version/status 可追踪 | evidence/P1-C-02.md | ADR-0003 | additive migration；写 RED | 2026-08-28 |
@@ -92,7 +92,7 @@
 | P1-F-03 | TASK | P1-F | 让 Budget period 约束统计窗口 | P1 | BACKLOG | ON_TRACK | Backend Agent | Finance/Product Owner | hard:P1-F-01@ACCEPTED | 月/季/年边界正确 | evidence/P1-F-03.md | ADR-0005 | 入口回退；写 period RED | 2026-08-28 |
 | P1-F-04 | TASK | P1-F | 隔离 Goal contribution 计算 | P1 | BACKLOG | ON_TRACK | Backend Agent | Finance/Product Owner | hard:P1-F-01@ACCEPTED | 多目标不污染、可解释 | evidence/P1-F-04.md | ADR-0005 | 保留旧只读路径；写 RED | 2026-08-28 |
 | P1-F-05 | GATE | P1-F | 建立三表 reconciliation fixtures | P0 | BACKLOG | ON_TRACK | QA/Evidence Owner | Finance/Product Owner | hard:P1-F-01@ACCEPTED; hard:P1-F-02@ACCEPTED | net income/cash flow/balance/dashboard 恒等式 | evidence/P1-F-05.md | ADR-0005 | 未知不渲染为零；建 fixture | 2026-08-28 |
-| P1-G-01 | GATE | P1-G | 真实 PostgreSQL migration/事务 | P0 | BLOCKED | AT_RISK | QA/Evidence Owner | Release Owner | external:POSTGRES_TEST_ENV@AVAILABLE | migration、trigger、rollback、concurrency PASS-REAL | evidence/P1-G-01.md | ADR-0001, ADR-0002 | 环境不可用保持 BLOCKED | 获得测试数据库 | 2026-08-28 |
+| P1-G-01 | GATE | P1-G | 真实 PostgreSQL migration/事务 | P0 | REFACTORED | AT_RISK | QA/Evidence Owner | Release Owner | external:POSTGRES_TEST_ENV@AVAILABLE | migration、trigger、rollback、concurrency PASS-REAL | evidence/P1-G-01.md | ADR-0001, ADR-0002 | `17c2644` fresh migration/trigger/rollback PASS-REAL；待并发、populated upgrade、restore/staging | 2026-08-28 |
 | P1-G-02 | GATE | P1-G | 完成角色×方法×入口矩阵 | P0 | BACKLOG | ON_TRACK | Security Reviewer | Repository Owner | hard:P1-0-04@READY | 401/403/200/2xx 且零副作用 | evidence/P1-G-02.md | ADR-0001 | 不降低断言；扩展 tests | 2026-08-28 |
 | P1-G-03 | TASK | P1-G | 补齐前端 mutation 行为测试 | P1 | BACKLOG | ON_TRACK | Frontend Agent | QA/Evidence Owner | hard:P1-0-03@IN_REVIEW | error/loading/confirm/replay 可测 | evidence/P1-G-03.md | — | build 不替代行为；建立 harness | 2026-08-28 |
 | P1-G-04 | GATE | P1-G | 建立 Playwright 关键旅程 | P1 | BACKLOG | ON_TRACK | Integration Agent | QA/Evidence Owner | hard:P1-G-00@REGRESSION_VERIFIED | login/switch/CRUD/report/viewer/import/AI | evidence/P1-G-04.md | — | 只 mock 外部 AI；选 E2E 栈 | 2026-08-28 |
@@ -111,7 +111,7 @@
 
 | 任务 | blocked_by | 解除责任人 | 复查 |
 |---|---|---|---|
-| P1-B-04、P1-C-05、P1-D-04、P1-G-01 | external:POSTGRES_TEST_ENV@AVAILABLE | QA/Evidence Owner / Release Owner | 环境可用后立即复查 |
+| P1-C-05、P1-D-04 | external:POSTGRES_TEST_ENV@AVAILABLE | QA/Evidence Owner / Release Owner | 本地 PostgreSQL 已可用；对应功能 schema/service 完成后复查 |
 | P1-G-05 | external:COMPOSE_ENV@AVAILABLE | Integration Agent / Release Owner | Compose 环境可用后立即复查 |
 
 目标日期不在环境和批准条件明确前虚构；GitHub mirror 只在创建 Issue 后回填，Markdown 状态仍是唯一事实源。

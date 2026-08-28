@@ -209,6 +209,9 @@ export interface FinancialMutationStore {
   $transaction<TResult>(
     work: (transaction: LedgerTransactionClient) => Promise<TResult>,
   ): Promise<TResult>;
+  /** Root Prisma adapter used only after a transaction-level arbitration conflict. */
+  familyMember?: LedgerTransactionClient['familyMember'];
+  idempotencyRecord?: Pick<LedgerTransactionClient['idempotencyRecord'], 'findUnique'>;
 }
 
 export type FinancialMutationExecutor<TRecord = LedgerRecord> = (

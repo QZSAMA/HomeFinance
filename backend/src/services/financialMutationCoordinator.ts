@@ -4,6 +4,7 @@ import {
   CoordinateFinancialMutationInput,
   FinancialMutationExecutor,
   FinancialMutationStore,
+  LedgerTransactionClient,
   MutationResult,
 } from './ledgerTypes';
 
@@ -93,7 +94,7 @@ const replayResult = <TRecord>(responseJson: unknown): MutationResult<TRecord> =
 
 const requireWriteMembership = async (
   input: CoordinateFinancialMutationInput,
-  store: Parameters<FinancialMutationExecutor>[0],
+  store: Pick<LedgerTransactionClient, 'familyMember'>,
 ) => {
   const membership = await store.familyMember.findUnique({
     where: {
@@ -118,6 +119,63 @@ const requireWriteMembership = async (
   }
 
   return membership;
+};
+
+const isScopedArbitrationConflict = (error: unknown): boolean => (
+  typeof error === 'object'
+  && error !== null
+  && 'code' in error
+  && error.code === 'P2002'
+  && (!('meta' in error)
+    || typeof error.meta !== 'object'
+    || error.meta === null
+    || !('target' in error.meta)
+    || (Array.isArray(error.meta.target)
+      && error.meta.target.some((value) => String(value).includes('IdempotencyRecord_scope_key'))))
+);
+
+const waitForWinner = async <TRecord>(
+  input: CoordinateFinancialMutationInput,
+  store: FinancialMutationStore,
+  scope: Parameters<LedgerTransactionClient['idempotencyRecord']['findUnique']>[0]['where']['familyId_actorScope_operation_key'],
+  payloadHash: string,
+): Promise<MutationResult<TRecord>> => {
+  if (!store.familyMember || !store.idempotencyRecord) {
+    throw mapPrismaError({ code: 'P2002' });
+  }
+
+  // Authorization precedes the root read that resolves the arbitration winner.
+  await requireWriteMembership(input, { familyMember: store.familyMember });
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const winner = await store.idempotencyRecord.findUnique({
+      where: { familyId_actorScope_operation_key: scope },
+    });
+
+    if (winner) {
+      if (winner.payloadHash !== payloadHash) {
+        throw new DomainError(
+          'IDEMPOTENCY_KEY_REUSED',
+          'The idempotency key was already used for another payload.',
+          409,
+        );
+      }
+      if (winner.responseJson !== null) {
+        return replayResult<TRecord>(winner.responseJson);
+      }
+    }
+
+    if (attempt < 2) {
+      await new Promise<void>((resolve) => setTimeout(resolve, 10 * (attempt + 1)));
+    }
+  }
+
+  throw new DomainError(
+    'IDEMPOTENCY_IN_PROGRESS',
+    'The matching mutation is still in progress; retry shortly.',
+    409,
+    true,
+  );
 };
 
 const validateScope = (input: CoordinateFinancialMutationInput) => {
@@ -217,6 +275,15 @@ export async function coordinateFinancialMutation<TRecord>(
       return result;
     });
   } catch (error) {
+    if (isScopedArbitrationConflict(error)) {
+      try {
+        return await waitForWinner<TRecord>(input, store, scope, payloadHash);
+      } catch (winnerError) {
+        if (winnerError instanceof DomainError && winnerError.code !== 'CONCURRENT_MUTATION_CONFLICT') {
+          throw winnerError;
+        }
+      }
+    }
     throw mapPrismaError(error);
   }
 }

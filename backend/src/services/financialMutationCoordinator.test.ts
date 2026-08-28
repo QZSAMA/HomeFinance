@@ -161,4 +161,67 @@ describe('FinancialMutationCoordinator', () => {
       retryable: false,
     });
   });
+
+  test('resolves a PostgreSQL arbitration conflict by replaying the committed winner', async () => {
+    const winner = {
+      id: 'winner-operation',
+      familyId: 'family-1',
+      actorScope: 'USER:user-1',
+      operation: 'CREATE_INCOME' as const,
+      key: 'request-1',
+      payloadHash: hashNormalizedPayload({ source: 'MANUAL', payload: { amount: 100 } }),
+      httpStatus: 201,
+      responseJson: { operationId: 'winner-operation', resourceId: 'income-1', deduplicated: false },
+    };
+    const store: FinancialMutationStore = {
+      $transaction: jest.fn(async () => { throw { code: 'P2002' }; }),
+      familyMember: {
+        findUnique: jest.fn(async () => ({ familyId: 'family-1', userId: 'user-1', role: 'member' })),
+      },
+      idempotencyRecord: {
+        findUnique: jest.fn(async () => winner),
+      },
+    };
+
+    await expect(coordinateFinancialMutation(createInput({ amount: 100 }), store, jest.fn()))
+      .resolves.toEqual({ ...winner.responseJson, deduplicated: true });
+  });
+
+  test('returns stable key-reused semantics when the arbitration winner hash differs', async () => {
+    const store: FinancialMutationStore = {
+      $transaction: jest.fn(async () => { throw { code: 'P2002' }; }),
+      familyMember: {
+        findUnique: jest.fn(async () => ({ familyId: 'family-1', userId: 'user-1', role: 'member' })),
+      },
+      idempotencyRecord: {
+        findUnique: jest.fn(async () => ({
+          id: 'winner-operation', familyId: 'family-1', actorScope: 'USER:user-1',
+          operation: 'CREATE_INCOME' as const, key: 'request-1', payloadHash: 'f'.repeat(64),
+          httpStatus: 201, responseJson: null,
+        })),
+      },
+    };
+
+    await expect(coordinateFinancialMutation(createInput({ amount: 100 }), store, jest.fn()))
+      .rejects.toMatchObject({ code: 'IDEMPOTENCY_KEY_REUSED', status: 409, retryable: false });
+  });
+
+  test('returns retryable in-progress when the arbitration winner is not complete', async () => {
+    const store: FinancialMutationStore = {
+      $transaction: jest.fn(async () => { throw { code: 'P2002' }; }),
+      familyMember: {
+        findUnique: jest.fn(async () => ({ familyId: 'family-1', userId: 'user-1', role: 'member' })),
+      },
+      idempotencyRecord: {
+        findUnique: jest.fn(async () => ({
+          id: 'winner-operation', familyId: 'family-1', actorScope: 'USER:user-1',
+          operation: 'CREATE_INCOME' as const, key: 'request-1', payloadHash: hashNormalizedPayload({ source: 'MANUAL', payload: { amount: 100 } }),
+          httpStatus: null, responseJson: null,
+        })),
+      },
+    };
+
+    await expect(coordinateFinancialMutation(createInput({ amount: 100 }), store, jest.fn()))
+      .rejects.toMatchObject({ code: 'IDEMPOTENCY_IN_PROGRESS', status: 409, retryable: true });
+  });
 });
