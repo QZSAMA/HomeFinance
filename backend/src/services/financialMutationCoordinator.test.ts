@@ -1,0 +1,164 @@
+import {
+  coordinateFinancialMutation,
+  hashNormalizedPayload,
+} from './financialMutationCoordinator';
+import { mapPrismaError } from './ledgerErrors';
+import {
+  CoordinateFinancialMutationInput,
+  FinancialMutationStore,
+  IdempotencyRecordSnapshot,
+  LedgerTransactionClient,
+} from './ledgerTypes';
+
+const createCoordinatorStore = () => {
+  const idempotencyRecords = new Map<string, IdempotencyRecordSnapshot>();
+  const transaction: LedgerTransactionClient = {
+    familyMember: {
+      findUnique: jest.fn(async () => ({
+        familyId: 'family-1',
+        userId: 'user-1',
+        role: 'member',
+      })),
+    },
+    idempotencyRecord: {
+      findUnique: jest.fn(async ({ where }) => idempotencyRecords.get(
+        JSON.stringify(where.familyId_actorScope_operation_key),
+      ) ?? null),
+      create: jest.fn(async ({ data }) => {
+        const record: IdempotencyRecordSnapshot = {
+          ...data,
+          httpStatus: null,
+          responseJson: null,
+        };
+        idempotencyRecords.set(
+          JSON.stringify({
+            familyId: data.familyId,
+            actorScope: data.actorScope,
+            operation: data.operation,
+            key: data.key,
+          }),
+          record,
+        );
+        return record;
+      }),
+      update: jest.fn(async ({ where, data }) => {
+        const record = [...idempotencyRecords.values()].find(
+          (candidate) => candidate.id === where.id,
+        );
+        if (!record) throw new Error('missing idempotency record');
+        Object.assign(record, data);
+        return record;
+      }),
+    },
+    income: { create: jest.fn() },
+    expense: { create: jest.fn() },
+    auditEvent: {
+      create: jest.fn(async ({ data }) => ({ id: 'audit-1', ...data })),
+    },
+  };
+  const store: FinancialMutationStore = {
+    $transaction: jest.fn(async (work) => work(transaction)),
+  };
+  return { store, transaction };
+};
+
+const createInput = (
+  requestPayload: Record<string, unknown>,
+): CoordinateFinancialMutationInput => ({
+  familyId: 'family-1',
+  actorId: 'user-1',
+  source: 'MANUAL',
+  idempotencyKey: 'request-1',
+  operation: 'CREATE_INCOME',
+  requestPayload,
+  audit: {
+    action: 'CREATE',
+    entity: 'Income',
+  },
+});
+
+describe('FinancialMutationCoordinator', () => {
+  test('replays the same family-scoped key and hash without a second mutation', async () => {
+    const { store, transaction } = createCoordinatorStore();
+    const mutate = jest.fn(async () => ({
+      resourceId: 'income-1',
+      record: { id: 'income-1', version: 1 },
+      version: 1,
+    }));
+    const input = createInput({
+      amount: 100,
+      date: new Date('2026-08-28T00:00:00.000Z'),
+    });
+
+    const first = await coordinateFinancialMutation(input, store, mutate);
+    const replay = await coordinateFinancialMutation(input, store, mutate);
+
+    expect(first).toMatchObject({
+      resourceId: 'income-1',
+      deduplicated: false,
+    });
+    expect(replay).toEqual({ ...first, deduplicated: true });
+    expect(mutate).toHaveBeenCalledTimes(1);
+    expect(transaction.auditEvent.create).toHaveBeenCalledTimes(1);
+  });
+
+  test('rejects reuse of one scoped key with a different normalized payload', async () => {
+    const { store } = createCoordinatorStore();
+    const mutate = jest.fn(async () => ({ resourceId: 'income-1' }));
+
+    await coordinateFinancialMutation(createInput({ amount: 100 }), store, mutate);
+
+    await expect(
+      coordinateFinancialMutation(createInput({ amount: 200 }), store, mutate),
+    ).rejects.toMatchObject({
+      code: 'IDEMPOTENCY_KEY_REUSED',
+      status: 409,
+      retryable: false,
+    });
+    expect(mutate).toHaveBeenCalledTimes(1);
+  });
+
+  test('includes the mutation source in the request hash', async () => {
+    const { store } = createCoordinatorStore();
+    const mutate = jest.fn(async () => ({ resourceId: 'income-1' }));
+    const manual = createInput({ amount: 100 });
+    const imported = { ...manual, source: 'IMPORT' as const };
+
+    await coordinateFinancialMutation(manual, store, mutate);
+
+    await expect(
+      coordinateFinancialMutation(imported, store, mutate),
+    ).rejects.toMatchObject({ code: 'IDEMPOTENCY_KEY_REUSED' });
+    expect(mutate).toHaveBeenCalledTimes(1);
+  });
+
+  test('hashes equivalent payloads independently of object key order', () => {
+    const date = new Date('2026-08-28T00:00:00.000Z');
+
+    expect(hashNormalizedPayload({ b: 2, date, a: 1 })).toBe(
+      hashNormalizedPayload({ a: 1, b: 2, date }),
+    );
+  });
+
+  test.each([
+    ['P2002', 'CONCURRENT_MUTATION_CONFLICT', 409, true],
+    ['P2025', 'RESOURCE_NOT_FOUND', 404, false],
+    ['P2034', 'TRANSIENT_DATABASE_FAILURE', 503, true],
+  ] as const)(
+    'maps Prisma %s to stable %s semantics',
+    (prismaCode, domainCode, status, retryable) => {
+      const mapped = mapPrismaError({ code: prismaCode, message: 'database detail' });
+
+      expect(mapped).toMatchObject({ code: domainCode, status, retryable });
+      expect(mapped.message).not.toContain('database detail');
+    },
+  );
+
+  test('maps unknown failures to non-retryable internal errors', () => {
+    expect(mapPrismaError(new Error('secret database detail'))).toMatchObject({
+      code: 'INTERNAL_ERROR',
+      status: 500,
+      retryable: false,
+    });
+  });
+});
