@@ -13,12 +13,12 @@ export interface CreateIncomeCommand {
   actorId: string;
   source: MutationSource;
   idempotencyKey: string;
+  effectiveDate: Date;
   payload: {
     amount: number;
     category: string;
     description?: string | null;
     source?: string | null;
-    date: Date;
     currency?: string;
   };
 }
@@ -28,12 +28,12 @@ export interface CreateExpenseCommand {
   actorId: string;
   source: MutationSource;
   idempotencyKey: string;
+  effectiveDate: Date;
   payload: {
     amount: number;
     category: string;
     description?: string | null;
     paymentMethod?: string | null;
-    date: Date;
     currency?: string;
   };
 }
@@ -50,7 +50,7 @@ export type UpdateExpenseCommand = CreateExpenseCommand & {
 
 export type DeleteIncomeCommand = Pick<
   CreateIncomeCommand,
-  'familyId' | 'actorId' | 'source' | 'idempotencyKey'
+  'familyId' | 'actorId' | 'source' | 'idempotencyKey' | 'effectiveDate'
 > & {
   incomeId: string;
   expectedVersion: number;
@@ -58,7 +58,7 @@ export type DeleteIncomeCommand = Pick<
 
 export type DeleteExpenseCommand = Pick<
   CreateExpenseCommand,
-  'familyId' | 'actorId' | 'source' | 'idempotencyKey'
+  'familyId' | 'actorId' | 'source' | 'idempotencyKey' | 'effectiveDate'
 > & {
   expenseId: string;
   expectedVersion: number;

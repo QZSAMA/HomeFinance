@@ -4,6 +4,7 @@ node_modules/
 .env.*.local
 dist/
 build/
+coverage/
 .next/
 .nuxt/
 .vscode/

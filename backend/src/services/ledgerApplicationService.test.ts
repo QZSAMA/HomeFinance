@@ -12,12 +12,12 @@ const command: CreateIncomeCommand = {
   actorId: 'user-1',
   source: 'MANUAL',
   idempotencyKey: 'income-request-1',
+  effectiveDate: new Date('2026-08-28T00:00:00.000Z'),
   payload: {
     amount: 1250.5,
     category: ' 工资 ',
     description: ' 八月工资 ',
     source: '雇主转账',
-    date: new Date('2026-08-28T00:00:00.000Z'),
     currency: 'cny',
   },
 };
@@ -27,12 +27,12 @@ const expenseCommand: CreateExpenseCommand = {
   actorId: 'user-1',
   source: 'MANUAL',
   idempotencyKey: 'expense-request-1',
+  effectiveDate: new Date('2026-08-28T04:00:00.000Z'),
   payload: {
     amount: 88,
     category: ' 餐饮 ',
     description: ' 午餐 ',
     paymentMethod: ' 银行卡 ',
-    date: new Date('2026-08-28T04:00:00.000Z'),
   },
 };
 
@@ -138,6 +138,19 @@ const createStore = (role: string | null) => {
 };
 
 describe('LedgerApplicationService.createIncome', () => {
+  test('requires the effective date at the command boundary', async () => {
+    const { store, transaction } = createStore('member');
+    const missingEffectiveDate = { ...command } as CreateIncomeCommand;
+
+    delete (missingEffectiveDate as Partial<CreateIncomeCommand>).effectiveDate;
+
+    await expect(createIncome(missingEffectiveDate, store)).rejects.toMatchObject({
+      code: 'VALIDATION_FAILED',
+      status: 400,
+    });
+    expect(transaction.familyMember.findUnique).not.toHaveBeenCalled();
+  });
+
   test('authorizes a member before committing one normalized income and audit result', async () => {
     const { events, incomeRecord, store, transaction } = createStore('member');
 

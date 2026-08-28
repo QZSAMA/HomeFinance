@@ -88,7 +88,7 @@ export async function createIncome(
     category: requireText(command.payload.category, 'category'),
     description: optionalText(command.payload.description),
     source: optionalText(command.payload.source),
-    date: requireDate(command.payload.date),
+    date: requireDate(command.effectiveDate),
     currency: normalizeCurrency(command.payload.currency),
   };
 
@@ -132,7 +132,7 @@ export async function createExpense(
     category: requireText(command.payload.category, 'category'),
     description: optionalText(command.payload.description),
     paymentMethod: optionalText(command.payload.paymentMethod),
-    date: requireDate(command.payload.date),
+    date: requireDate(command.effectiveDate),
     currency: normalizeCurrency(command.payload.currency),
   };
 
