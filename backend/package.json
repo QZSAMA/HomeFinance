@@ -11,7 +11,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
     "test": "jest",
-    "test:integration": "cross-env RUN_INTEGRATION=1 jest src/tests/database.integration.test.ts --forceExit --detectOpenHandles"
+    "test:integration": "cross-env RUN_INTEGRATION=1 jest --testPathPattern=\\.integration\\.test\\.ts$ --runInBand --forceExit --detectOpenHandles"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
