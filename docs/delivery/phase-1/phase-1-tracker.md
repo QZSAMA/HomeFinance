@@ -6,7 +6,7 @@
 - 设计规格：docs/superpowers/specs/2026-08-28-homefinance-phase1-design.md
 - 开发基线：codex/phase0-remediation@081084a
 - 实施分支：codex/phase1-ledger-trust
-- 当前快照：2026-08-28；设计已批准，P1-G-00 已完成 focused GREEN，完整 build/回归受 Prisma Client 环境阻塞
+- 当前快照：2026-08-28；设计已批准，P1-G-00 build/focused GREEN 已通过，默认单元测试 30 suites / 256 tests 通过；全局 branch coverage 43.17% 未达 60%，真实 PostgreSQL 环境仍不可用
 
 ## 1. 状态和字段规则
 
@@ -26,13 +26,13 @@
 |---|---|---|
 | Phase 0 后端 26 suites / 241 tests | PASS-MOCK | 历史证据，081084a，本轮未重跑 |
 | Phase 0 前端 5 tests | PASS-MOCK | 历史证据，081084a |
-| backend coverage | NOT_RUN | Phase 0 报告未提供本轮 coverage 门禁输出 |
+| backend coverage | FAILED | 30 suites / 256 tests 通过；statements 61.12%、branches 43.17%、functions 60.4%、lines 61.58%，全局 branch threshold 60% 未达标 |
 | PostgreSQL migration/业务并发 | NOT_RUN | 当前无本轮真实环境产物 |
 | Redis 故障恢复 | NOT_RUN | 现有主要为 mock |
 | MinIO 生命周期 | NOT_RUN | 现有主要为 mock |
 | Compose 全栈 | NOT_RUN | 当前未完成全栈验证 |
 | Playwright | DESIGNED | 当前尚无脚本 |
-| Phase 1 功能 | DESIGNED | 尚未开始生产代码实施 |
+| Phase 1 功能 | PASS-MOCK | app/server/db 边界与纯 Ledger command/coordinator 合同已实现；route、schema 和真实数据库仲裁尚未接入 |
 
 ## 3. 责任边界
 
@@ -58,16 +58,16 @@
 | P1-0-05 | DECISION | P1-0 | 批准 Ledger、事务、幂等合同 | P0 | EVIDENCE_CONFIRMED | ON_TRACK | Delivery DRI | Technical Approver | hard:P1-0-03@IN_REVIEW | service boundary、operation、audit、revision 明确 | evidence/P1-0-05.md | ADR-0001, ADR-0002 | 形成 ADR 后进入 READY | 2026-08-28 |
 | P1-0-06 | DECISION | P1-0 | 批准 Import、AI mutation 合同 | P0 | EVIDENCE_CONFIRMED | ON_TRACK | Delivery DRI | Finance/Product Owner | hard:P1-0-03@IN_REVIEW | 整批原子、proposal-only、编辑/hash 明确 | evidence/P1-0-06.md | ADR-0003, ADR-0004 | 不回退 partial/auto write；待批准 | 2026-08-28 |
 | P1-0-07 | GATE | P1-0 | 冻结测试和环境基线 | P0 | EVIDENCE_CONFIRMED | AT_RISK | QA/Evidence Owner | Repository Owner | hard:P1-0-03@IN_REVIEW | 命令、套件、coverage、依赖、环境如实记录 | evidence/P1-0-07.md | — | 环境不可用标 BLOCKED；获取 PG | 2026-08-28 |
-| P1-G-00 | TASK | P1-G | 分离 app/server/db 启动边界 | P0 | REFACTORED | AT_RISK | Delivery DRI | Technical Approver | hard:P1-0-03@DONE | app import 无 listener/Redis/MinIO 副作用 | evidence/P1-G-00.md | ADR-0001 | focused GREEN 已通过；`npm run build` 与 Prisma Client 生成受环境阻塞（`ECONNRESET`），环境恢复后重跑回归并再推进 `REGRESSION_VERIFIED` | 2026-08-28 |
+| P1-G-00 | TASK | P1-G | 分离 app/server/db 启动边界 | P0 | REFACTORED | AT_RISK | Delivery DRI | Technical Approver | hard:P1-0-03@DONE | app import 无 listener/Redis/MinIO 副作用 | evidence/P1-G-00.md | ADR-0001 | build、focused 和 256 个默认单元测试通过；补足全局 branch coverage 后再推进 `REGRESSION_VERIFIED` | 2026-08-28 |
 | P1-A-01 | TASK | P1-A | 固化 Income/Expense CRUD 特征测试 | P0 | BACKLOG | ON_TRACK | Ledger Agent | Technical Approver | hard:P1-0-04@READY | 响应兼容、family 隔离、viewer 拒绝 | evidence/P1-A-01.md | ADR-0001 | 先不迁 route；写 focused RED | 2026-08-28 |
-| P1-A-02 | TASK | P1-A | 定义 Ledger command/result/error | P0 | BACKLOG | ON_TRACK | Ledger Agent | Technical Approver | hard:P1-0-05@ACCEPTED | service 不依赖 Express，错误稳定 | evidence/P1-A-02.md | ADR-0001, ADR-0002 | additive 类型；冻结共享合同 | 2026-08-28 |
+| P1-A-02 | TASK | P1-A | 定义 Ledger command/result/error | P0 | REFACTORED | AT_RISK | Ledger Agent | Technical Approver | hard:P1-0-05@ACCEPTED | service 不依赖 Express，错误稳定 | evidence/P1-A-02.md | ADR-0001, ADR-0002 | top-level effectiveDate 合同已通过 12 个 focused tests；待 route/schema 和全局 coverage 门禁 | 2026-08-28 |
 | P1-A-03 | TASK | P1-A | 建立 Ledger 事务编排骨架 | P0 | BACKLOG | ON_TRACK | Ledger Agent | Technical Approver | hard:P1-A-02@REGRESSION_VERIFIED; hard:P1-G-00@REGRESSION_VERIFIED | policy、idempotency、write、audit 同 transaction | evidence/P1-A-03.md | ADR-0001, ADR-0002 | 入口 flag；写事务 RED | 2026-08-28 |
 | P1-A-04 | TASK | P1-A | 迁移 Income create/update/delete | P0 | BACKLOG | ON_TRACK | API Agent | Technical Approver | hard:P1-A-03@REGRESSION_VERIFIED | route 无直接 Income mutation，响应兼容 | evidence/P1-A-04.md | ADR-0001 | 入口回退，不双写 | 2026-08-28 |
 | P1-A-05 | TASK | P1-A | 迁移 Expense create/update/delete | P0 | BACKLOG | ON_TRACK | API Agent | Technical Approver | hard:P1-A-03@REGRESSION_VERIFIED | route 无直接 Expense mutation，响应兼容 | evidence/P1-A-05.md | ADR-0001 | 入口回退，不双写 | 2026-08-28 |
 | P1-A-06 | TASK | P1-A | 增加乐观版本并发合同 | P1 | BACKLOG | ON_TRACK | Database Agent | Technical Approver | hard:P1-A-04@REGRESSION_VERIFIED; hard:P1-A-05@REGRESSION_VERIFIED | 相同 version 竞争一个成功、一个 409 | evidence/P1-A-06.md | ADR-0002 | 保留 version 列；写 migration | 2026-08-28 |
 | P1-A-07 | GATE | P1-A | 禁止受控入口绕过 Ledger | P0 | BACKLOG | ON_TRACK | Security Reviewer | Repository Owner | hard:P1-A-04@REGRESSION_VERIFIED; hard:P1-A-05@REGRESSION_VERIFIED | 源码检查和 route tests 无直接账目写入 | evidence/P1-A-07.md | ADR-0001 | 发现旁路即阻断 | 2026-08-28 |
 | P1-B-01 | TASK | P1-B | 新增 IdempotencyRecord schema/migration | P0 | BACKLOG | ON_TRACK | Database Agent | Technical Approver | hard:P1-0-05@ACCEPTED | family/actor/operation/key 唯一 | evidence/P1-B-01.md | ADR-0002 | additive migration；写 schema RED | 2026-08-28 |
-| P1-B-02 | TASK | P1-B | 实现 payload hash/coordinator | P0 | BACKLOG | ON_TRACK | Ledger Agent | Technical Approver | hard:P1-B-01@REGRESSION_VERIFIED; hard:P1-A-02@REGRESSION_VERIFIED | 相同 key/hash 重放一份结果 | evidence/P1-B-02.md | ADR-0002 | 入口 flag 回退；写同 key RED | 2026-08-28 |
+| P1-B-02 | TASK | P1-B | 实现 payload hash/coordinator | P0 | REFACTORED | AT_RISK | Ledger Agent | Technical Approver | hard:P1-B-01@REGRESSION_VERIFIED; hard:P1-A-02@REGRESSION_VERIFIED | 相同 key/hash 重放一份结果 | evidence/P1-B-02.md | ADR-0002 | 仅 PASS-MOCK；等待 P1-B-01 schema 和真实 PostgreSQL 并发仲裁，不宣称数据库 exactly-once | 2026-08-28 |
 | P1-B-03 | TASK | P1-B | 固化 key 冲突错误 | P0 | BACKLOG | ON_TRACK | Ledger Agent | Security Reviewer | hard:P1-B-02@REGRESSION_VERIFIED | 同 key/不同 hash 409 且零写入 | evidence/P1-B-03.md | ADR-0002 | 不复用不同 payload | 2026-08-28 |
 | P1-B-04 | GATE | P1-B | 真实 PostgreSQL 并发仲裁 | P0 | BLOCKED | AT_RISK | Database Agent | QA/Evidence Owner | hard:P1-B-02@REGRESSION_VERIFIED; external:POSTGRES_TEST_ENV@AVAILABLE | 20 并发一条账且可 replay | evidence/P1-B-04.md | ADR-0002 | 无 PG 不关 gate；准备环境 | 2026-08-28 |
 | P1-B-05 | GATE | P1-B | 验证 revision/幂等一致 | P0 | BACKLOG | ON_TRACK | Database Agent | Technical Approver | hard:P1-B-04@REGRESSION_VERIFIED | replay 不重复事实且读到最新 | evidence/P1-B-05.md | ADR-0001, ADR-0002 | 不手工 bump trigger | 2026-08-28 |

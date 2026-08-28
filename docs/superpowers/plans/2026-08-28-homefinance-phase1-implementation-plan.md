@@ -182,12 +182,12 @@ if (require.main === module) void startServer();
 
 ```ts
 export type MutationSource = 'MANUAL' | 'IMPORT' | 'RECURRING' | 'AI_CONFIRMATION' | 'BACKGROUND';
-export type CreateIncomeCommand = { familyId: string; actorId: string; source: MutationSource; idempotencyKey: string; payload: { amount: number; category: string; description?: string | null; source?: string | null; date: Date; currency?: string }; };
-export type CreateExpenseCommand = { familyId: string; actorId: string; source: MutationSource; idempotencyKey: string; payload: { amount: number; category: string; description?: string | null; paymentMethod?: string | null; date: Date; currency?: string }; };
+export type CreateIncomeCommand = { familyId: string; actorId: string; source: MutationSource; idempotencyKey: string; effectiveDate: Date; payload: { amount: number; category: string; description?: string | null; source?: string | null; currency?: string }; };
+export type CreateExpenseCommand = { familyId: string; actorId: string; source: MutationSource; idempotencyKey: string; effectiveDate: Date; payload: { amount: number; category: string; description?: string | null; paymentMethod?: string | null; currency?: string }; };
 export type UpdateIncomeCommand = CreateIncomeCommand & { incomeId: string; expectedVersion: number };
 export type UpdateExpenseCommand = CreateExpenseCommand & { expenseId: string; expectedVersion: number };
-export type DeleteIncomeCommand = Pick<CreateIncomeCommand, 'familyId'|'actorId'|'source'|'idempotencyKey'> & { incomeId: string; expectedVersion: number };
-export type DeleteExpenseCommand = Pick<CreateExpenseCommand, 'familyId'|'actorId'|'source'|'idempotencyKey'> & { expenseId: string; expectedVersion: number };
+export type DeleteIncomeCommand = Pick<CreateIncomeCommand, 'familyId'|'actorId'|'source'|'idempotencyKey'|'effectiveDate'> & { incomeId: string; expectedVersion: number };
+export type DeleteExpenseCommand = Pick<CreateExpenseCommand, 'familyId'|'actorId'|'source'|'idempotencyKey'|'effectiveDate'> & { expenseId: string; expectedVersion: number };
 export type MutationResult<T> = { operationId: string; resourceId: string; record?: T; version?: number; deduplicated: boolean };
 export class DomainError extends Error { constructor(public readonly code: string, message: string, public readonly status: number, public readonly retryable = false) { super(message); } }
 ```

@@ -24,6 +24,7 @@ README statistics and product claims are not acceptance criteria unless tests or
 |---|---|---|
 | Web client | `frontend/src/pages`, `components`, `services`, `store` | React 19 SPA, family context, forms, reports, charts, AI/OCR interaction |
 | HTTP API | `backend/src/app.ts`, `routes`, `middleware` | Express REST surface, JWT auth, family access, validation, cache and rate limiting |
+| Process lifecycle | `backend/src/server.ts`, `backend/src/db/prisma.ts` | Listener, external-service initialization, graceful shutdown, and the single Prisma Client boundary; importing `app.ts` has no startup side effect |
 | Domain/application logic | `backend/src/services`, `utils` | AI action parsing/execution, OCR, import parsing, recurring dates, pagination, decimal conversion |
 | Persistence | `backend/prisma/schema.prisma` | PostgreSQL via Prisma; users, families, membership, finance records, files, conversations |
 | Volatile infrastructure | Redis | GET response cache and fixed-window AI rate limiting; designed to degrade on outage |
@@ -87,9 +88,18 @@ The enforced report order on the remediation branch is authentication, family au
 - Runtime smoke evidence is under `docs/audit/evidence/`. The profit statement request omitted authorization and returned 401 while the UI rendered zeros.
 - The baseline machine had PostgreSQL on port 5432, but Redis, MinIO, and Docker were unavailable; full Compose behavior was not executed locally.
 
+### Phase 1 implementation facts on `codex/phase1-ledger-trust`
+
+- Commit `a726668` separates Express construction (`app.ts`), process startup/shutdown (`server.ts`), and Prisma Client ownership (`db/prisma.ts`). A focused import test proves the app does not open a listener or initialize Redis/MinIO; this is PASS-MOCK rather than real-infrastructure evidence.
+- Commit `36c710d` introduces pure `LedgerApplicationService` and `FinancialMutationCoordinator` contracts for normalized Income/Expense create commands, authorization-before-mutation, stable errors, canonical request hashing, sequential replay/conflict, audit/result orchestration, and transaction dependency injection. Commit `db98a00` places `effectiveDate` at the top-level command boundary and hardens opt-in integration test isolation across Windows/POSIX.
+- These services are not yet consumed by Income/Expense routes, and `IdempotencyRecord`/`AuditEvent` do not yet exist in Prisma. Therefore database-arbitrated idempotency, rollback, concurrency, and exactly-once remain unimplemented/unverified; current service evidence is PASS-MOCK only.
+- The default backend suite now excludes the opt-in PostgreSQL integration file on both Windows and POSIX. All 30 default suites / 256 tests pass, but the required coverage command fails because global branch coverage is 43.17% versus 60%. Prisma validate passes with matching local 5.22 engines; Prisma format and real PostgreSQL gates remain open.
+
 ## 7. Risk status after first remediation
 
 The four original code blockers now have failing-then-passing regression evidence on `codex/phase0-remediation`: viewer mutation denial, authorization-before-cache, authenticated profit-statement loading with explicit error state, and cash-flow reconciliation. Family cache write-after-read freshness and stale-cache protection across Redis outage plus process restart now use a PostgreSQL-backed durable revision and have regression fixtures.
+
+Phase 1 implementation has started on `codex/phase1-ledger-trust`. Process lifecycle separation and the pure Ledger/coordinator protocol are implemented with focused TDD evidence, but they do not close the data-integrity risks: current routes still bypass the service, persistence models and unique arbitration are absent, and PostgreSQL concurrency evidence is blocked by unavailable test credentials.
 
 Phase 0 is not fully exited. Remaining gates are high dependency advisories (backend 3, frontend 6), a complete role/method authorization matrix, real PostgreSQL/Redis/MinIO/Compose verification, browser E2E, and disposition of the 16 frontend warnings and large main bundle. The project remains unsuitable for an unsupported public production release until those gates and later Phase 1 data-integrity risks are addressed.
 
@@ -126,3 +136,5 @@ The hook updates code structure after commits; documentation or image changes st
 | 2026-08-27 | Keep Graphify as navigation memory, not ultimate truth | Semantic edges include model inference and isolated nodes | Extraction quality or source-of-truth policy changes |
 | 2026-08-27 | Version report caches with PostgreSQL `Family.cacheVersion` advanced by transaction-local triggers | A Redis-only or process-memory dirty marker cannot survive outage plus restart/multi-instance routing; DB revision commits atomically with family mutations | Measured trigger contention, schema redesign, or a transactional outbox replaces the mechanism |
 | 2026-08-27 | Treat report request failure as error, never financial zero | Unknown data and real zero carry different financial meaning | A documented offline/degraded data contract replaces this rule |
+| 2026-08-28 | Separate app construction, process lifecycle, and Prisma ownership | Route tests must import the Express app without listeners or external initialization | Deployment topology or multi-process ownership changes |
+| 2026-08-28 | Freeze a pure Ledger/coordinator protocol before route and schema migration | Shared commands, stable errors, authorization order, hashes, audit/result semantics, and TDD evidence must exist before ingress refactors | ADR-0001/0002 acceptance or real Prisma adapter evidence changes the contract |
