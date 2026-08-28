@@ -63,7 +63,10 @@ describe('Phase 1 real PostgreSQL coordinator concurrency', () => {
   test('replays a committed response after simulated response loss', async () => {
     const first = await createIncome(command('response-loss'), store);
     const replay = await createIncome(command('response-loss'), store);
-    expect(replay).toEqual({ ...first, deduplicated: true });
+    expect(JSON.parse(JSON.stringify(replay))).toEqual({
+      ...JSON.parse(JSON.stringify(first)),
+      deduplicated: true,
+    });
     await expect(prisma.income.count({ where: { familyId } })).resolves.toBe(3);
   });
 

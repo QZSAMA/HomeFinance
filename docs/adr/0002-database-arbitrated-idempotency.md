@@ -1,8 +1,9 @@
 
 # ADR-0002: 数据库仲裁幂等、乐观并发和审计提交
 
-- 状态：Proposed
+- 状态：Accepted
 - 日期：2026-08-28
+- 接受依据：Repository Owner 在当前任务连续批准 Scheme B、Phase 1 设计和实施推进；2026-08-28 正式落账
 
 ## Context
 
@@ -23,4 +24,3 @@ Phase 0 的 Family.cacheVersion PostgreSQL trigger 是 revision 事实源。Phas
 ## Verification
 
 由 P1-B、P1-A、P1-D、P1-E、P1-G 提供 mock 契约和真实 PostgreSQL 并发/回滚证据。
-

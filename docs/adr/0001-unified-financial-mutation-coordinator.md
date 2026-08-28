@@ -1,8 +1,9 @@
 
 # ADR-0001: Phase 1 采用统一金融 mutation coordinator
 
-- 状态：Proposed
+- 状态：Accepted
 - 日期：2026-08-28
+- 接受依据：Repository Owner 在当前任务连续批准 Scheme B、Phase 1 设计和实施推进；2026-08-28 正式落账
 - 范围：Income、Expense、Recurring、Import、AI proposal 及必要的 Asset/Liability mutation
 
 ## Context
@@ -22,4 +23,3 @@
 ## Verification
 
 由 P1-A、P1-B、P1-D、P1-E 和 P1-G 任务提供聚焦测试、真实 PostgreSQL 并发/回滚证据和源码旁路检查。
-

@@ -6,7 +6,7 @@
 - 设计规格：docs/superpowers/specs/2026-08-28-homefinance-phase1-design.md
 - 开发基线：codex/phase0-remediation@081084a
 - 实施分支：codex/phase1-ledger-trust
-- 当前快照：2026-08-28；设计已批准，P1-B-04 已完成 RED 尝试但真实 PostgreSQL 凭证返回 P1000；coordinator focused GREEN/build 已通过；全局 branch coverage 仍为 43.17% 未达 60%，20 路真实 replay 仍未观察
+- 当前快照：2026-08-28；设计已批准，P1-B-04 已在 PostgreSQL 18.1 localhost:5433 完成真实并发/重放回归；全局 branch coverage 仍未达 60%，Income/Expense route adoption、upgrade/restore、staging/release 仍未完成
 
 ## 1. 状态和字段规则
 
@@ -26,13 +26,13 @@
 |---|---|---|
 | Phase 0 后端 26 suites / 241 tests | PASS-MOCK | 历史证据，081084a，本轮未重跑 |
 | Phase 0 前端 5 tests | PASS-MOCK | 历史证据，081084a |
-| backend coverage | FAILED | 30 suites / 256 tests 通过；statements 61.12%、branches 43.17%、functions 60.4%、lines 61.58%，全局 branch threshold 60% 未达标 |
-| PostgreSQL migration/业务并发 | NOT_RUN | 当前无本轮真实环境产物 |
+| backend coverage | FAILED | 31 suites / 267 tests 通过；本轮 coverage 为 statements 60.39%、branches 43.79%、functions 57.36%、lines 61.11%，全局 branch/function threshold 60% 未达标 |
+| PostgreSQL migration/业务并发 | PASS-REAL | localhost:5433 `homefinance_phase1_test`；fresh migration、schema/rollback 与 P1-B-04 20 路 coordinator replay 已通过 |
 | Redis 故障恢复 | NOT_RUN | 现有主要为 mock |
 | MinIO 生命周期 | NOT_RUN | 现有主要为 mock |
 | Compose 全栈 | NOT_RUN | 当前未完成全栈验证 |
 | Playwright | DESIGNED | 当前尚无脚本 |
-| Phase 1 功能 | PASS-MOCK | app/server/db 边界与纯 Ledger command/coordinator 合同已实现；route、schema 和真实数据库仲裁尚未接入 |
+| Phase 1 功能 | PASS-MOCK + PASS-REAL | app/server/db、纯 Ledger contract、schema/migration 与 P1-B-04 coordinator adapter 已验证；Income/Expense route、import/recurring/AI adoption 仍未接入 |
 
 ## 3. 责任边界
 
@@ -67,9 +67,9 @@
 | P1-A-06 | TASK | P1-A | 增加乐观版本并发合同 | P1 | REFACTORED | AT_RISK | Database Agent | Technical Approver | hard:P1-A-04@REGRESSION_VERIFIED; hard:P1-A-05@REGRESSION_VERIFIED | 相同 version 竞争一个成功、一个 409 | evidence/P1-A-06.md | ADR-0002 | PostgreSQL predicate PASS-REAL；待 route/service 接入和 409 映射 | 2026-08-28 |
 | P1-A-07 | GATE | P1-A | 禁止受控入口绕过 Ledger | P0 | BACKLOG | ON_TRACK | Security Reviewer | Repository Owner | hard:P1-A-04@REGRESSION_VERIFIED; hard:P1-A-05@REGRESSION_VERIFIED | 源码检查和 route tests 无直接账目写入 | evidence/P1-A-07.md | ADR-0001 | 发现旁路即阻断 | 2026-08-28 |
 | P1-B-01 | TASK | P1-B | 新增 IdempotencyRecord schema/migration | P0 | REFACTORED | AT_RISK | Database Agent | Technical Approver | hard:P1-0-05@DONE; decision:ADR-0002@ACCEPTED | family/actor/operation/key 唯一 | evidence/P1-B-01.md | ADR-0002 | `17c2644` fresh PG migration/unique/default/version PASS-REAL；待并发 replay/upgrade/restore 后评审 | 2026-08-28 |
-| P1-B-02 | TASK | P1-B | 实现 payload hash/coordinator | P0 | REFACTORED | AT_RISK | Ledger Agent | Technical Approver | hard:P1-B-01@REGRESSION_VERIFIED; hard:P1-A-02@REGRESSION_VERIFIED | 相同 key/hash 重放一份结果 | evidence/P1-B-02.md | ADR-0002 | 仅 PASS-MOCK；等待 P1-B-01 schema 和真实 PostgreSQL 并发仲裁，不宣称数据库 exactly-once | 2026-08-28 |
+| P1-B-02 | TASK | P1-B | 实现 payload hash/coordinator | P0 | REFACTORED | AT_RISK | Ledger Agent | Technical Approver | hard:P1-B-01@REGRESSION_VERIFIED; hard:P1-A-02@REGRESSION_VERIFIED | 相同 key/hash 重放一份结果 | evidence/P1-B-02.md | ADR-0002 | 纯合同为 PASS-MOCK；P1-B-04 已补真实 adapter/replay 证据；route adoption 仍未完成 | 2026-08-28 |
 | P1-B-03 | TASK | P1-B | 固化 key 冲突错误 | P0 | BACKLOG | ON_TRACK | Ledger Agent | Security Reviewer | hard:P1-B-02@REGRESSION_VERIFIED | 同 key/不同 hash 409 且零写入 | evidence/P1-B-03.md | ADR-0002 | 不复用不同 payload | 2026-08-28 |
-| P1-B-04 | GATE | P1-B | 真实 PostgreSQL 并发仲裁 | P0 | READY | BLOCKED | Database Agent | QA/Evidence Owner | hard:P1-B-02@REGRESSION_VERIFIED; external:POSTGRES_TEST_ENV@AVAILABLE | 20 并发一条账且可 replay | evidence/P1-B-04.md | ADR-0002 | 已实现 P2002 winner replay/冲突/in-progress 语义；提供有效 PG 凭证后重跑集成门禁 | 2026-08-28 |
+| P1-B-04 | GATE | P1-B | 真实 PostgreSQL 并发仲裁 | P0 | REGRESSION_VERIFIED | ON_TRACK | Database Agent | QA/Evidence Owner | hard:P1-B-02@REGRESSION_VERIFIED; external:POSTGRES_TEST_ENV@AVAILABLE | 20 并发一条账且可 replay | evidence/P1-B-04.md | ADR-0002 | localhost:5433 PostgreSQL 真实通过 3 suites / 24 tests；route adoption 与全局 coverage 仍是后续门禁 | 2026-08-28 |
 | P1-B-05 | GATE | P1-B | 验证 revision/幂等一致 | P0 | BACKLOG | ON_TRACK | Database Agent | Technical Approver | hard:P1-B-04@REGRESSION_VERIFIED | replay 不重复事实且读到最新 | evidence/P1-B-05.md | ADR-0001, ADR-0002 | 不手工 bump trigger | 2026-08-28 |
 | P1-C-01 | TASK | P1-C | 固化 import 资源限制 | P1 | BACKLOG | ON_TRACK | Import Agent | Security Reviewer | hard:P1-0-06@ACCEPTED | byte/row/field limit 边界返回 413 | evidence/P1-C-01.md | ADR-0003 | limit-1/limit/limit+1 | 2026-08-28 |
 | P1-C-02 | TASK | P1-C | 新增 ImportBatch/ImportRow schema | P0 | BACKLOG | ON_TRACK | Database Agent | Technical Approver | hard:P1-B-01@REGRESSION_VERIFIED | hash/version/status 可追踪 | evidence/P1-C-02.md | ADR-0003 | additive migration；写 RED | 2026-08-28 |

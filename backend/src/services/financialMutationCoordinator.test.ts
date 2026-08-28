@@ -174,7 +174,9 @@ describe('FinancialMutationCoordinator', () => {
       responseJson: { operationId: 'winner-operation', resourceId: 'income-1', deduplicated: false },
     };
     const store: FinancialMutationStore = {
-      $transaction: jest.fn(async () => { throw { code: 'P2002' }; }),
+      $transaction: jest.fn(async () => {
+        throw { code: 'P2002', meta: { target: ['IdempotencyRecord_scope_key'] } };
+      }),
       familyMember: {
         findUnique: jest.fn(async () => ({ familyId: 'family-1', userId: 'user-1', role: 'member' })),
       },
@@ -187,9 +189,83 @@ describe('FinancialMutationCoordinator', () => {
       .resolves.toEqual({ ...winner.responseJson, deduplicated: true });
   });
 
+  test('recognizes Prisma composite-field metadata for the scoped arbitration winner', async () => {
+    const winner = {
+      id: 'winner-operation',
+      familyId: 'family-1',
+      actorScope: 'USER:user-1',
+      operation: 'CREATE_INCOME' as const,
+      key: 'request-1',
+      payloadHash: hashNormalizedPayload({ source: 'MANUAL', payload: { amount: 100 } }),
+      httpStatus: 201,
+      responseJson: { operationId: 'winner-operation', resourceId: 'income-1', deduplicated: false },
+    };
+    const store: FinancialMutationStore = {
+      $transaction: jest.fn(async () => {
+        throw {
+          code: 'P2002',
+          meta: { target: ['familyId', 'actorScope', 'operation', 'key'] },
+        };
+      }),
+      familyMember: {
+        findUnique: jest.fn(async () => ({ familyId: 'family-1', userId: 'user-1', role: 'member' })),
+      },
+      idempotencyRecord: {
+        findUnique: jest.fn(async () => winner),
+      },
+    };
+
+    await expect(coordinateFinancialMutation(createInput({ amount: 100 }), store, jest.fn()))
+      .resolves.toEqual({ ...winner.responseJson, deduplicated: true });
+  });
+
+  test('recognizes Prisma model metadata when PostgreSQL omits the composite target', async () => {
+    const winner = {
+      id: 'winner-operation',
+      familyId: 'family-1',
+      actorScope: 'USER:user-1',
+      operation: 'CREATE_INCOME' as const,
+      key: 'request-1',
+      payloadHash: hashNormalizedPayload({ source: 'MANUAL', payload: { amount: 100 } }),
+      httpStatus: 201,
+      responseJson: { operationId: 'winner-operation', resourceId: 'income-1', deduplicated: false },
+    };
+    const store: FinancialMutationStore = {
+      $transaction: jest.fn(async () => {
+        throw { code: 'P2002', meta: { modelName: 'IdempotencyRecord', target: null } };
+      }),
+      familyMember: {
+        findUnique: jest.fn(async () => ({ familyId: 'family-1', userId: 'user-1', role: 'member' })),
+      },
+      idempotencyRecord: { findUnique: jest.fn(async () => winner) },
+    };
+
+    await expect(coordinateFinancialMutation(createInput({ amount: 100 }), store, jest.fn()))
+      .resolves.toEqual({ ...winner.responseJson, deduplicated: true });
+  });
+
+  test('does not treat an unrelated unique conflict as an idempotency arbitration', async () => {
+    const winnerLookup = jest.fn(async () => null);
+    const store: FinancialMutationStore = {
+      $transaction: jest.fn(async () => {
+        throw { code: 'P2002', meta: { target: ['User_email_key'] } };
+      }),
+      familyMember: {
+        findUnique: jest.fn(async () => ({ familyId: 'family-1', userId: 'user-1', role: 'member' })),
+      },
+      idempotencyRecord: { findUnique: winnerLookup },
+    };
+
+    await expect(coordinateFinancialMutation(createInput({ amount: 100 }), store, jest.fn()))
+      .rejects.toMatchObject({ code: 'CONCURRENT_MUTATION_CONFLICT', status: 409, retryable: true });
+    expect(winnerLookup).not.toHaveBeenCalled();
+  });
+
   test('returns stable key-reused semantics when the arbitration winner hash differs', async () => {
     const store: FinancialMutationStore = {
-      $transaction: jest.fn(async () => { throw { code: 'P2002' }; }),
+      $transaction: jest.fn(async () => {
+        throw { code: 'P2002', meta: { target: ['IdempotencyRecord_scope_key'] } };
+      }),
       familyMember: {
         findUnique: jest.fn(async () => ({ familyId: 'family-1', userId: 'user-1', role: 'member' })),
       },
@@ -208,7 +284,9 @@ describe('FinancialMutationCoordinator', () => {
 
   test('returns retryable in-progress when the arbitration winner is not complete', async () => {
     const store: FinancialMutationStore = {
-      $transaction: jest.fn(async () => { throw { code: 'P2002' }; }),
+      $transaction: jest.fn(async () => {
+        throw { code: 'P2002', meta: { target: ['IdempotencyRecord_scope_key'] } };
+      }),
       familyMember: {
         findUnique: jest.fn(async () => ({ familyId: 'family-1', userId: 'user-1', role: 'member' })),
       },

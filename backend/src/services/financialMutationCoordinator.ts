@@ -121,18 +121,32 @@ const requireWriteMembership = async (
   return membership;
 };
 
-const isScopedArbitrationConflict = (error: unknown): boolean => (
-  typeof error === 'object'
-  && error !== null
-  && 'code' in error
-  && error.code === 'P2002'
-  && (!('meta' in error)
-    || typeof error.meta !== 'object'
-    || error.meta === null
-    || !('target' in error.meta)
-    || (Array.isArray(error.meta.target)
-      && error.meta.target.some((value) => String(value).includes('IdempotencyRecord_scope_key'))))
-);
+const isScopedArbitrationConflict = (error: unknown): boolean => {
+  if (
+    typeof error !== 'object'
+    || error === null
+    || !('code' in error)
+    || error.code !== 'P2002'
+  ) {
+    return false;
+  }
+
+  if (!('meta' in error) || typeof error.meta !== 'object' || error.meta === null) return false;
+  if ('modelName' in error.meta && error.meta.modelName !== 'IdempotencyRecord') return false;
+  if ('modelName' in error.meta && error.meta.modelName === 'IdempotencyRecord') {
+    if (!('target' in error.meta) || error.meta.target === null) return true;
+  }
+  if (!('target' in error.meta)) return false;
+  const target = error.meta.target;
+  if (typeof target === 'string') {
+    return target.includes('IdempotencyRecord_scope_key');
+  }
+  if (!Array.isArray(target)) return false;
+
+  const fields = new Set(target.map((value) => String(value)));
+  return target.some((value) => String(value).includes('IdempotencyRecord_scope_key'))
+    || ['familyId', 'actorScope', 'operation', 'key'].every((field) => fields.has(field));
+};
 
 const waitForWinner = async <TRecord>(
   input: CoordinateFinancialMutationInput,
