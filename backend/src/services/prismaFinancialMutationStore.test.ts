@@ -189,6 +189,22 @@ describe('Prisma financial mutation store', () => {
     expect(transaction.idempotencyRecord.update).not.toHaveBeenCalled();
   });
 
+  test.each([
+    ['Map', new Map([['amount', 123]])],
+    ['Set', new Set(['amount'])],
+    ['RegExp', /amount/],
+  ])('rejects non-plain %s values before the persistence adapter writes them', async (_label, invalidValue) => {
+    const { client, transaction } = createClient();
+    const store = createPrismaFinancialMutationStore(client);
+
+    await expect(store.$transaction((tx) => tx.idempotencyRecord.update({
+      where: { id: 'operation-1' },
+      data: { httpStatus: 201, responseJson: { value: invalidValue } },
+    }))).rejects.toThrow('Mutation JSON contains unsupported object');
+
+    expect(transaction.idempotencyRecord.update).not.toHaveBeenCalled();
+  });
+
   test('maps root snapshots and rejects an operation that is outside the coordinator contract', async () => {
     const { client } = createClient();
     const store = createPrismaFinancialMutationStore(client);

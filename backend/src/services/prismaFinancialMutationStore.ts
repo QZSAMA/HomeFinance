@@ -47,6 +47,10 @@ const toJson = (value: unknown): Prisma.JsonValue => {
   }
   if (Array.isArray(value)) return value.map((item) => toJson(item));
   if (typeof value === 'object') {
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype !== Object.prototype && prototype !== null) {
+      throw new Error('Mutation JSON contains unsupported object');
+    }
     const object: Prisma.JsonObject = {};
     for (const [key, item] of Object.entries(value)) {
       if (item !== undefined) object[key] = toJson(item) as Prisma.JsonValue;
