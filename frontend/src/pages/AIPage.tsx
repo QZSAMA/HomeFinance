@@ -48,6 +48,8 @@ interface Message {
   proposedActions?: AIAction[];
   rawText?: string;
   duplicateFlags?: boolean[];
+  confirmationError?: string;
+  confirmationStatus?: string;
 }
 
 // 行内可编辑状态：actions 与 flags 必须同步，删除时索引一致
@@ -307,13 +309,24 @@ export default function AIPage() {
       return;
     }
 
+    setMessages((prev) => prev.map((m, idx) => (
+      idx === messageIdx
+        ? { ...m, confirmationError: undefined, confirmationStatus: undefined }
+        : m
+    )));
     setConfirmingIdx(messageIdx);
     try {
       const { actions } = await executeProposedActions(currentFamily.id, actionsToConfirm);
       // 确认成功：清空 proposedActions + editableActions，设置已执行的 actions
       setMessages((prev) => prev.map((m, idx) => {
         if (idx !== messageIdx) return m;
-        return { ...m, proposedActions: undefined, actions };
+        const successfulActionCount = actions.filter((action) => action.status === 'success').length;
+        return {
+          ...m,
+          proposedActions: undefined,
+          actions,
+          confirmationStatus: `已完成 ${successfulActionCount} 笔记账`,
+        };
       }));
       setEditableActions((prev) => {
         const next = { ...prev };
@@ -321,7 +334,10 @@ export default function AIPage() {
         return next;
       });
     } catch (error: any) {
-      alert(error.response?.data?.error || '确认记账失败，请稍后重试');
+      const confirmationError = error.response?.data?.error || '确认记账失败，请稍后重试';
+      setMessages((prev) => prev.map((m, idx) => (
+        idx === messageIdx ? { ...m, confirmationError } : m
+      )));
     } finally {
       setConfirmingIdx(null);
     }
@@ -493,6 +509,16 @@ export default function AIPage() {
                 >
                   <pre className="whitespace-pre-wrap font-sans text-sm">{msg.content}</pre>
                 </div>
+                {msg.confirmationError && (
+                  <p role="alert" className="mt-2 text-sm text-red-700">
+                    {msg.confirmationError}
+                  </p>
+                )}
+                {msg.confirmationStatus && (
+                  <p role="status" className="mt-2 text-sm text-green-700">
+                    {msg.confirmationStatus}
+                  </p>
+                )}
                 {/* 提议动作卡片（OCR 识别后待确认，行内可编辑） */}
                 {msg.proposedActions && msg.proposedActions.length > 0 && (
                   <ProposedActionsCard
