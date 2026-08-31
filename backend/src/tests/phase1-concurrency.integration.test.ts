@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { createIncome } from '../services/ledgerApplicationService';
+import { coordinateFinancialMutation } from '../services/financialMutationCoordinator';
 import { FinancialMutationStore, CreateIncomeCommand } from '../services/ledgerTypes';
 import { createPrismaFinancialMutationStore } from '../services/prismaFinancialMutationStore';
 
@@ -68,6 +69,48 @@ describe('Phase 1 real PostgreSQL coordinator concurrency', () => {
       deduplicated: true,
     });
     await expect(prisma.income.count({ where: { familyId } })).resolves.toBe(3);
+  });
+
+  test('rolls back the income, idempotency record, and audit event when an executor returns an invalid result', async () => {
+    const before = await Promise.all([
+      prisma.income.count({ where: { familyId } }),
+      prisma.idempotencyRecord.count({ where: { familyId } }),
+      prisma.auditEvent.count({ where: { familyId } }),
+    ]);
+
+    await expect(coordinateFinancialMutation(
+      {
+        familyId,
+        actorId: userId,
+        source: 'MANUAL',
+        idempotencyKey: 'rollback-invalid-result',
+        operation: 'CREATE_INCOME',
+        requestPayload: { amount: 400, category: 'ROLLBACK' },
+        httpStatus: 201,
+        audit: { action: 'CREATE', entity: 'Income' },
+      },
+      store,
+      async (transaction) => {
+        const income = await transaction.income.create({
+          data: {
+            familyId,
+            createdBy: userId,
+            category: 'ROLLBACK',
+            amount: 400,
+            date: new Date('2026-08-28T00:00:00.000Z'),
+            currency: 'CNY',
+            originType: 'MANUAL',
+          },
+        });
+        return { resourceId: ' ', record: income };
+      },
+    )).rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 400, retryable: false });
+
+    await expect(Promise.all([
+      prisma.income.count({ where: { familyId } }),
+      prisma.idempotencyRecord.count({ where: { familyId } }),
+      prisma.auditEvent.count({ where: { familyId } }),
+    ])).resolves.toEqual(before);
   });
 
   test('allows one stale-version writer and rejects the competing writer', async () => {

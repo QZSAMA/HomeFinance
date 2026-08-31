@@ -6,7 +6,7 @@
 - 设计规格：docs/superpowers/specs/2026-08-28-homefinance-phase1-design.md
 - 开发基线：codex/phase0-remediation@081084a
 - 实施分支：codex/phase1-ledger-trust
-- 当前快照：2026-08-31；设计已批准，P1-B-04 已在 PostgreSQL 18.1 localhost:5433 完成真实并发/重放回归，并在 `DomainError.cause` 保留未分类 Prisma 原始错误；P1-G-06 的 Prisma 适配器测试使默认 function coverage 达到 62.18%，branch coverage 从 45.23% 提升至 45.38%，并补上 `Map`/`Set`/`RegExp` 非普通对象拒绝契约；P1-A-03 已补 service-boundary 的事务结果完整性 RED/GREEN（PASS-MOCK）；Income/Expense route adoption、upgrade/restore、staging/release 仍未完成
+- 当前快照：2026-08-31；设计已批准，P1-B-04 已在 PostgreSQL 18.1 localhost:5433 完成真实并发/重放回归，并在 `DomainError.cause` 保留未分类 Prisma 原始错误；P1-G-06 的 Prisma 适配器测试使默认 function coverage 达到 62.18%，branch coverage 从 45.23% 提升至 45.38%，并补上 `Map`/`Set`/`RegExp` 非普通对象拒绝契约；P1-A-03 已以真实 PostgreSQL failure injection 证明空 resourceId 会回滚 Income、IdempotencyRecord 和 AuditEvent（PASS-REAL）；Income/Expense route adoption、upgrade/restore、staging/release 仍未完成
 
 ## 1. 状态和字段规则
 
@@ -61,7 +61,7 @@
 | P1-G-00 | TASK | P1-G | 分离 app/server/db 启动边界 | P0 | REFACTORED | AT_RISK | Delivery DRI | Technical Approver | hard:P1-0-03@DONE | app import 无 listener/Redis/MinIO 副作用 | evidence/P1-G-00.md | ADR-0001 | build、focused 和 256 个默认单元测试通过；补足全局 branch coverage 后再推进 `REGRESSION_VERIFIED` | 2026-08-28 |
 | P1-A-01 | TASK | P1-A | 固化 Income/Expense CRUD 特征测试 | P0 | BACKLOG | ON_TRACK | Ledger Agent | Technical Approver | hard:P1-0-04@READY | 响应兼容、family 隔离、viewer 拒绝 | evidence/P1-A-01.md | ADR-0001 | 先不迁 route；写 focused RED | 2026-08-28 |
 | P1-A-02 | TASK | P1-A | 定义 Ledger command/result/error | P0 | REFACTORED | AT_RISK | Ledger Agent | Technical Approver | hard:P1-0-05@ACCEPTED | service 不依赖 Express，错误稳定 | evidence/P1-A-02.md | ADR-0001, ADR-0002 | top-level effectiveDate 合同已通过 12 个 focused tests；待 route/schema 和全局 coverage 门禁 | 2026-08-28 |
-| P1-A-03 | TASK | P1-A | 建立 Ledger 事务编排骨架 | P0 | REFACTORED | AT_RISK | Ledger Agent | Technical Approver | hard:P1-A-02@REGRESSION_VERIFIED; hard:P1-G-00@REGRESSION_VERIFIED | policy、idempotency、write、audit 同 transaction | evidence/P1-A-03.md | ADR-0001, ADR-0002 | service-result RED/GREEN 已通过；coverage 依赖未满足，先补 real rollback 注入后再 route adoption | 2026-08-31 |
+| P1-A-03 | TASK | P1-A | 建立 Ledger 事务编排骨架 | P0 | REFACTORED | AT_RISK | Ledger Agent | Technical Approver | hard:P1-A-02@REGRESSION_VERIFIED; hard:P1-G-00@REGRESSION_VERIFIED | policy、idempotency、write、audit 同 transaction | evidence/P1-A-03.md | ADR-0001, ADR-0002 | real PostgreSQL rollback injection 已证明空 resourceId 后 Income、IdempotencyRecord、AuditEvent 零持久化；coverage 依赖未满足，禁止 route adoption | 2026-08-31 |
 | P1-A-04 | TASK | P1-A | 迁移 Income create/update/delete | P0 | BACKLOG | ON_TRACK | API Agent | Technical Approver | hard:P1-A-03@REGRESSION_VERIFIED | route 无直接 Income mutation，响应兼容 | evidence/P1-A-04.md | ADR-0001 | 入口回退，不双写 | 2026-08-28 |
 | P1-A-05 | TASK | P1-A | 迁移 Expense create/update/delete | P0 | BACKLOG | ON_TRACK | API Agent | Technical Approver | hard:P1-A-03@REGRESSION_VERIFIED | route 无直接 Expense mutation，响应兼容 | evidence/P1-A-05.md | ADR-0001 | 入口回退，不双写 | 2026-08-28 |
 | P1-A-06 | TASK | P1-A | 增加乐观版本并发合同 | P1 | REFACTORED | AT_RISK | Database Agent | Technical Approver | hard:P1-A-04@REGRESSION_VERIFIED; hard:P1-A-05@REGRESSION_VERIFIED | 相同 version 竞争一个成功、一个 409 | evidence/P1-A-06.md | ADR-0002 | PostgreSQL predicate PASS-REAL；待 route/service 接入和 409 映射 | 2026-08-28 |
