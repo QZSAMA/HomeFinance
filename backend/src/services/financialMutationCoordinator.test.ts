@@ -162,6 +162,23 @@ describe('FinancialMutationCoordinator', () => {
     });
   });
 
+  test('retains the raw Prisma code as a non-enumerable cause for an unmapped failure', () => {
+    const rawPrismaError = {
+      code: 'P2028',
+      message: 'Transaction API error: Transaction already closed.',
+    };
+
+    const mapped = mapPrismaError(rawPrismaError);
+
+    expect(mapped).toMatchObject({
+      code: 'INTERNAL_ERROR',
+      status: 500,
+      retryable: false,
+    });
+    expect((mapped as Error & { cause?: unknown }).cause).toBe(rawPrismaError);
+    expect(Object.keys(mapped)).not.toContain('cause');
+  });
+
   test('resolves a PostgreSQL arbitration conflict by replaying the committed winner', async () => {
     const winner = {
       id: 'winner-operation',

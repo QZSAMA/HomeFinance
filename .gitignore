@@ -14,3 +14,6 @@ coverage/
 .trae/
 .tessdata/
 .worktrees/
+
+# Graphify outputs kept in version control do not include its ephemeral extraction cache.
+graphify-out/cache/

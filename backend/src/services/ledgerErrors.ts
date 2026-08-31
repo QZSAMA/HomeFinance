@@ -15,9 +15,13 @@ export class DomainError extends Error {
     message: string,
     public readonly status: number,
     public readonly retryable = false,
+    cause?: unknown,
   ) {
     super(message);
     this.name = 'DomainError';
+    if (cause !== undefined) {
+      Object.defineProperty(this, 'cause', { value: cause, enumerable: false });
+    }
     Object.setPrototypeOf(this, new.target.prototype);
   }
 }
@@ -40,12 +44,15 @@ export const mapPrismaError = (error: unknown): DomainError => {
         'A concurrent mutation must be resolved before retrying.',
         409,
         true,
+        error,
       );
     case 'P2025':
       return new DomainError(
         'RESOURCE_NOT_FOUND',
         'The requested family resource was not found.',
         404,
+        false,
+        error,
       );
     case 'P2034':
       return new DomainError(
@@ -53,12 +60,15 @@ export const mapPrismaError = (error: unknown): DomainError => {
         'The database transaction could not be completed.',
         503,
         true,
+        error,
       );
     default:
       return new DomainError(
         'INTERNAL_ERROR',
         'The mutation could not be completed.',
         500,
+        false,
+        error,
       );
   }
 };

@@ -409,7 +409,7 @@
       "file_type": "code",
       "source_file": "backend\\jest.config.js",
       "source_location": "L1",
-      "community": 98,
+      "community": 101,
       "norm_label": "jest.config.js",
       "id": "backend_jest_config_js"
     },
@@ -418,7 +418,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\app.test.ts",
       "source_location": "L1",
-      "community": 99,
+      "community": 102,
       "norm_label": "app.test.ts",
       "id": "backend_src_app_test_ts"
     },
@@ -427,7 +427,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\app.ts",
       "source_location": "L1",
-      "community": 56,
+      "community": 59,
       "norm_label": "app.ts",
       "id": "backend_src_app_ts"
     },
@@ -436,7 +436,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\app.ts",
       "source_location": "L27",
-      "community": 56,
+      "community": 59,
       "norm_label": "createapp()",
       "id": "app_createapp"
     },
@@ -445,7 +445,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\server.ts",
       "source_location": "L1",
-      "community": 57,
+      "community": 60,
       "norm_label": "server.ts",
       "id": "backend_src_server_ts"
     },
@@ -454,7 +454,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\server.ts",
       "source_location": "L7",
-      "community": 57,
+      "community": 60,
       "norm_label": "startserver()",
       "id": "server_startserver"
     },
@@ -467,7 +467,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 24,
+      "community": 25,
       "norm_label": "text ai service configuration",
       "id": "ai_text_configuration"
     },
@@ -480,7 +480,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 24,
+      "community": 25,
       "norm_label": "ai credential configuration check",
       "id": "ai_configuration_check"
     },
@@ -493,7 +493,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 24,
+      "community": 25,
       "norm_label": "optional vision ai configuration",
       "id": "ai_vision_configuration"
     },
@@ -506,7 +506,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 24,
+      "community": 25,
       "norm_label": "vision credential and model check",
       "id": "ai_vision_configuration_check"
     },
@@ -519,7 +519,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 24,
+      "community": 25,
       "norm_label": "tesseract-only ocr fallback",
       "id": "ai_local_ocr_fallback"
     },
@@ -532,7 +532,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 24,
+      "community": 25,
       "norm_label": "low-temperature vision determinism rationale",
       "id": "ai_vision_determinism_rationale"
     },
@@ -545,7 +545,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 33,
+      "community": 34,
       "norm_label": "minio public endpoint contract tests",
       "id": "minio_public_endpoint_tests"
     },
@@ -558,7 +558,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 58,
+      "community": 61,
       "norm_label": "internal minio client",
       "id": "minio_internal_client"
     },
@@ -571,7 +571,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 33,
+      "community": 34,
       "norm_label": "browser-facing minio client",
       "id": "minio_public_client"
     },
@@ -584,7 +584,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 33,
+      "community": 34,
       "norm_label": "presigned browser file url",
       "id": "minio_presigned_file_url"
     },
@@ -597,7 +597,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 58,
+      "community": 61,
       "norm_label": "minio object storage lifecycle",
       "id": "minio_object_lifecycle"
     },
@@ -610,7 +610,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 33,
+      "community": 34,
       "norm_label": "separate public endpoint rationale",
       "id": "minio_public_endpoint_rationale"
     },
@@ -636,7 +636,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 34,
+      "community": 35,
       "norm_label": "security configuration contract tests",
       "id": "security_validation_tests"
     },
@@ -649,7 +649,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 34,
+      "community": 35,
       "norm_label": "jwt secret strength validation",
       "id": "security_jwt_secret_validation"
     },
@@ -662,7 +662,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 34,
+      "community": 35,
       "norm_label": "fail-fast security configuration",
       "id": "security_fail_fast"
     },
@@ -675,7 +675,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 34,
+      "community": 35,
       "norm_label": "test-environment secret validation bypass",
       "id": "security_test_environment_bypass"
     },
@@ -684,7 +684,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\db\\prisma.ts",
       "source_location": "L1",
-      "community": 100,
+      "community": 103,
       "norm_label": "prisma.ts",
       "id": "backend_src_db_prisma_ts"
     },
@@ -719,7 +719,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\cache.authorization.test.ts",
       "source_location": "L1",
-      "community": 59,
+      "community": 62,
       "norm_label": "cache.authorization.test.ts",
       "id": "backend_src_middleware_cache_authorization_test_ts"
     },
@@ -728,7 +728,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\cache.authorization.test.ts",
       "source_location": "L33",
-      "community": 59,
+      "community": 62,
       "norm_label": "createtoken()",
       "id": "cache_authorization_test_createtoken"
     },
@@ -737,7 +737,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\cache.invalidation.test.ts",
       "source_location": "L1",
-      "community": 60,
+      "community": 63,
       "norm_label": "cache.invalidation.test.ts",
       "id": "backend_src_middleware_cache_invalidation_test_ts"
     },
@@ -746,7 +746,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\cache.invalidation.test.ts",
       "source_location": "L44",
-      "community": 60,
+      "community": 63,
       "norm_label": "createtoken()",
       "id": "cache_invalidation_test_createtoken"
     },
@@ -755,7 +755,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\cache.test.ts",
       "source_location": "L1",
-      "community": 101,
+      "community": 104,
       "norm_label": "cache.test.ts",
       "id": "backend_src_middleware_cache_test_ts"
     },
@@ -764,7 +764,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\cache.ts",
       "source_location": "L1",
-      "community": 61,
+      "community": 64,
       "norm_label": "cache.ts",
       "id": "backend_src_middleware_cache_ts"
     },
@@ -773,7 +773,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\cache.ts",
       "source_location": "L6",
-      "community": 61,
+      "community": 64,
       "norm_label": "cachemiddleware()",
       "id": "cache_cachemiddleware"
     },
@@ -782,7 +782,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\familyAccess.test.ts",
       "source_location": "L1",
-      "community": 62,
+      "community": 65,
       "norm_label": "familyaccess.test.ts",
       "id": "backend_src_middleware_familyaccess_test_ts"
     },
@@ -791,7 +791,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\familyAccess.test.ts",
       "source_location": "L16",
-      "community": 62,
+      "community": 65,
       "norm_label": "createresponse()",
       "id": "familyaccess_test_createresponse"
     },
@@ -800,7 +800,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\familyAccess.ts",
       "source_location": "L1",
-      "community": 28,
+      "community": 30,
       "norm_label": "familyaccess.ts",
       "id": "backend_src_middleware_familyaccess_ts"
     },
@@ -809,7 +809,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\familyAccess.ts",
       "source_location": "L18",
-      "community": 28,
+      "community": 30,
       "norm_label": "loadfamilymembership()",
       "id": "familyaccess_loadfamilymembership"
     },
@@ -818,7 +818,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\familyAccess.ts",
       "source_location": "L35",
-      "community": 28,
+      "community": 30,
       "norm_label": "attachfamilycontext()",
       "id": "familyaccess_attachfamilycontext"
     },
@@ -827,7 +827,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\familyAccess.ts",
       "source_location": "L52",
-      "community": 28,
+      "community": 30,
       "norm_label": "requirefamilyaccess()",
       "id": "familyaccess_requirefamilyaccess"
     },
@@ -836,7 +836,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\familyAccess.ts",
       "source_location": "L72",
-      "community": 28,
+      "community": 30,
       "norm_label": "createfamilywriteaccess()",
       "id": "familyaccess_createfamilywriteaccess"
     },
@@ -845,7 +845,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\familyCache.persistence.test.ts",
       "source_location": "L1",
-      "community": 102,
+      "community": 105,
       "norm_label": "familycache.persistence.test.ts",
       "id": "backend_src_middleware_familycache_persistence_test_ts"
     },
@@ -854,7 +854,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\familyCache.ts",
       "source_location": "L1",
-      "community": 63,
+      "community": 66,
       "norm_label": "familycache.ts",
       "id": "backend_src_middleware_familycache_ts"
     },
@@ -863,7 +863,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\familyCache.ts",
       "source_location": "L3",
-      "community": 63,
+      "community": 66,
       "norm_label": "familyreportcachekey()",
       "id": "familycache_familyreportcachekey"
     },
@@ -924,7 +924,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\ai.test.ts",
       "source_location": "L1",
-      "community": 42,
+      "community": 45,
       "norm_label": "ai.test.ts",
       "id": "backend_src_routes_ai_test_ts"
     },
@@ -933,7 +933,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\ai.test.ts",
       "source_location": "L55",
-      "community": 42,
+      "community": 45,
       "norm_label": "constructor()",
       "id": "ai_test_constructor"
     },
@@ -942,7 +942,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\ai.test.ts",
       "source_location": "L84",
-      "community": 42,
+      "community": 45,
       "norm_label": "createtoken()",
       "id": "ai_test_createtoken"
     },
@@ -951,7 +951,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\ai.ts",
       "source_location": "L1",
-      "community": 43,
+      "community": 46,
       "norm_label": "ai.ts",
       "id": "backend_src_routes_ai_ts"
     },
@@ -960,7 +960,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\ai.ts",
       "source_location": "L15",
-      "community": 43,
+      "community": 46,
       "norm_label": "checkfamilyaccess()",
       "id": "ai_checkfamilyaccess"
     },
@@ -969,7 +969,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\ai.ts",
       "source_location": "L28",
-      "community": 43,
+      "community": 46,
       "norm_label": "checkduplicateactions()",
       "id": "ai_checkduplicateactions"
     },
@@ -978,7 +978,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\assets.ts",
       "source_location": "L1",
-      "community": 64,
+      "community": 67,
       "norm_label": "assets.ts",
       "id": "backend_src_routes_assets_ts"
     },
@@ -987,7 +987,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\assets.ts",
       "source_location": "L22",
-      "community": 64,
+      "community": 67,
       "norm_label": "checkfamilyaccess()",
       "id": "assets_checkfamilyaccess"
     },
@@ -996,7 +996,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\auth.test.ts",
       "source_location": "L1",
-      "community": 103,
+      "community": 106,
       "norm_label": "auth.test.ts",
       "id": "backend_src_routes_auth_test_ts"
     },
@@ -1005,7 +1005,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\auth.ts",
       "source_location": "L1",
-      "community": 104,
+      "community": 107,
       "norm_label": "auth.ts",
       "id": "backend_src_routes_auth_ts"
     },
@@ -1014,7 +1014,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\budgets.test.ts",
       "source_location": "L1",
-      "community": 65,
+      "community": 68,
       "norm_label": "budgets.test.ts",
       "id": "backend_src_routes_budgets_test_ts"
     },
@@ -1023,7 +1023,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\budgets.test.ts",
       "source_location": "L36",
-      "community": 65,
+      "community": 68,
       "norm_label": "createtoken()",
       "id": "budgets_test_createtoken"
     },
@@ -1032,7 +1032,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\budgets.ts",
       "source_location": "L1",
-      "community": 66,
+      "community": 69,
       "norm_label": "budgets.ts",
       "id": "backend_src_routes_budgets_ts"
     },
@@ -1041,7 +1041,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\budgets.ts",
       "source_location": "L23",
-      "community": 66,
+      "community": 69,
       "norm_label": "checkfamilyaccess()",
       "id": "budgets_checkfamilyaccess"
     },
@@ -1050,7 +1050,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\category.test.ts",
       "source_location": "L1",
-      "community": 67,
+      "community": 70,
       "norm_label": "category.test.ts",
       "id": "backend_src_routes_category_test_ts"
     },
@@ -1059,7 +1059,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\category.test.ts",
       "source_location": "L28",
-      "community": 67,
+      "community": 70,
       "norm_label": "createtoken()",
       "id": "category_test_createtoken"
     },
@@ -1068,7 +1068,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\category.ts",
       "source_location": "L1",
-      "community": 68,
+      "community": 71,
       "norm_label": "category.ts",
       "id": "backend_src_routes_category_ts"
     },
@@ -1077,7 +1077,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\category.ts",
       "source_location": "L8",
-      "community": 68,
+      "community": 71,
       "norm_label": "checkfamilyaccess()",
       "id": "category_checkfamilyaccess"
     },
@@ -1086,7 +1086,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\compare.test.ts",
       "source_location": "L1",
-      "community": 69,
+      "community": 72,
       "norm_label": "compare.test.ts",
       "id": "backend_src_routes_compare_test_ts"
     },
@@ -1095,7 +1095,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\compare.test.ts",
       "source_location": "L26",
-      "community": 69,
+      "community": 72,
       "norm_label": "createtoken()",
       "id": "compare_test_createtoken"
     },
@@ -1104,7 +1104,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\compare.ts",
       "source_location": "L1",
-      "community": 70,
+      "community": 73,
       "norm_label": "compare.ts",
       "id": "backend_src_routes_compare_ts"
     },
@@ -1113,7 +1113,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\compare.ts",
       "source_location": "L7",
-      "community": 70,
+      "community": 73,
       "norm_label": "sumamount()",
       "id": "compare_sumamount"
     },
@@ -1122,7 +1122,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\expenses.ts",
       "source_location": "L1",
-      "community": 71,
+      "community": 74,
       "norm_label": "expenses.ts",
       "id": "backend_src_routes_expenses_ts"
     },
@@ -1131,7 +1131,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\expenses.ts",
       "source_location": "L20",
-      "community": 71,
+      "community": 74,
       "norm_label": "checkfamilyaccess()",
       "id": "expenses_checkfamilyaccess"
     },
@@ -1140,7 +1140,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\export.test.ts",
       "source_location": "L1",
-      "community": 72,
+      "community": 75,
       "norm_label": "export.test.ts",
       "id": "backend_src_routes_export_test_ts"
     },
@@ -1149,7 +1149,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\export.test.ts",
       "source_location": "L38",
-      "community": 72,
+      "community": 75,
       "norm_label": "createtoken()",
       "id": "export_test_createtoken"
     },
@@ -1158,7 +1158,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\export.ts",
       "source_location": "L1",
-      "community": 35,
+      "community": 36,
       "norm_label": "export.ts",
       "id": "backend_src_routes_export_ts"
     },
@@ -1167,7 +1167,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\export.ts",
       "source_location": "L11",
-      "community": 35,
+      "community": 36,
       "norm_label": "checkfamilyaccess()",
       "id": "export_checkfamilyaccess"
     },
@@ -1176,7 +1176,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\export.ts",
       "source_location": "L23",
-      "community": 35,
+      "community": 36,
       "norm_label": "builddatefilter()",
       "id": "export_builddatefilter"
     },
@@ -1185,7 +1185,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\export.ts",
       "source_location": "L30",
-      "community": 35,
+      "community": 36,
       "norm_label": "sendworkbook()",
       "id": "export_sendworkbook"
     },
@@ -1194,7 +1194,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\families.test.ts",
       "source_location": "L1",
-      "community": 73,
+      "community": 76,
       "norm_label": "families.test.ts",
       "id": "backend_src_routes_families_test_ts"
     },
@@ -1203,7 +1203,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\families.test.ts",
       "source_location": "L36",
-      "community": 73,
+      "community": 76,
       "norm_label": "createtoken()",
       "id": "families_test_createtoken"
     },
@@ -1212,7 +1212,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\families.ts",
       "source_location": "L1",
-      "community": 105,
+      "community": 108,
       "norm_label": "families.ts",
       "id": "backend_src_routes_families_ts"
     },
@@ -1221,7 +1221,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\files.test.ts",
       "source_location": "L1",
-      "community": 74,
+      "community": 77,
       "norm_label": "files.test.ts",
       "id": "backend_src_routes_files_test_ts"
     },
@@ -1230,7 +1230,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\files.test.ts",
       "source_location": "L39",
-      "community": 74,
+      "community": 77,
       "norm_label": "createtoken()",
       "id": "files_test_createtoken"
     },
@@ -1239,7 +1239,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\files.ts",
       "source_location": "L1",
-      "community": 44,
+      "community": 47,
       "norm_label": "files.ts",
       "id": "backend_src_routes_files_ts"
     },
@@ -1248,7 +1248,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\files.ts",
       "source_location": "L22",
-      "community": 44,
+      "community": 47,
       "norm_label": "checkfamilyaccess()",
       "id": "files_checkfamilyaccess"
     },
@@ -1257,7 +1257,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\files.ts",
       "source_location": "L46",
-      "community": 44,
+      "community": 47,
       "norm_label": "attachurls()",
       "id": "files_attachurls"
     },
@@ -1266,7 +1266,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\goals.test.ts",
       "source_location": "L1",
-      "community": 75,
+      "community": 78,
       "norm_label": "goals.test.ts",
       "id": "backend_src_routes_goals_test_ts"
     },
@@ -1275,7 +1275,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\goals.test.ts",
       "source_location": "L29",
-      "community": 75,
+      "community": 78,
       "norm_label": "createtoken()",
       "id": "goals_test_createtoken"
     },
@@ -1284,7 +1284,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\goals.ts",
       "source_location": "L1",
-      "community": 76,
+      "community": 79,
       "norm_label": "goals.ts",
       "id": "backend_src_routes_goals_ts"
     },
@@ -1293,7 +1293,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\goals.ts",
       "source_location": "L22",
-      "community": 76,
+      "community": 79,
       "norm_label": "checkfamilyaccess()",
       "id": "goals_checkfamilyaccess"
     },
@@ -1302,7 +1302,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\import.test.ts",
       "source_location": "L1",
-      "community": 77,
+      "community": 80,
       "norm_label": "import.test.ts",
       "id": "backend_src_routes_import_test_ts"
     },
@@ -1311,7 +1311,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\import.test.ts",
       "source_location": "L28",
-      "community": 77,
+      "community": 80,
       "norm_label": "createtoken()",
       "id": "import_test_createtoken"
     },
@@ -1320,7 +1320,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\import.ts",
       "source_location": "L1",
-      "community": 78,
+      "community": 81,
       "norm_label": "import.ts",
       "id": "backend_src_routes_import_ts"
     },
@@ -1329,7 +1329,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\import.ts",
       "source_location": "L14",
-      "community": 78,
+      "community": 81,
       "norm_label": "checkfamilyaccess()",
       "id": "import_checkfamilyaccess"
     },
@@ -1338,7 +1338,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\incomes.ts",
       "source_location": "L1",
-      "community": 79,
+      "community": 82,
       "norm_label": "incomes.ts",
       "id": "backend_src_routes_incomes_ts"
     },
@@ -1347,7 +1347,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\incomes.ts",
       "source_location": "L20",
-      "community": 79,
+      "community": 82,
       "norm_label": "checkfamilyaccess()",
       "id": "incomes_checkfamilyaccess"
     },
@@ -1356,7 +1356,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\liabilities.ts",
       "source_location": "L1",
-      "community": 80,
+      "community": 83,
       "norm_label": "liabilities.ts",
       "id": "backend_src_routes_liabilities_ts"
     },
@@ -1365,7 +1365,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\liabilities.ts",
       "source_location": "L21",
-      "community": 80,
+      "community": 83,
       "norm_label": "checkfamilyaccess()",
       "id": "liabilities_checkfamilyaccess"
     },
@@ -1374,7 +1374,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\recurring.test.ts",
       "source_location": "L1",
-      "community": 81,
+      "community": 84,
       "norm_label": "recurring.test.ts",
       "id": "backend_src_routes_recurring_test_ts"
     },
@@ -1383,7 +1383,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\recurring.test.ts",
       "source_location": "L33",
-      "community": 81,
+      "community": 84,
       "norm_label": "createtoken()",
       "id": "recurring_test_createtoken"
     },
@@ -1392,7 +1392,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\recurring.ts",
       "source_location": "L1",
-      "community": 82,
+      "community": 85,
       "norm_label": "recurring.ts",
       "id": "backend_src_routes_recurring_ts"
     },
@@ -1401,7 +1401,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\recurring.ts",
       "source_location": "L29",
-      "community": 82,
+      "community": 85,
       "norm_label": "checkfamilyaccess()",
       "id": "recurring_checkfamilyaccess"
     },
@@ -1410,7 +1410,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\reports.test.ts",
       "source_location": "L1",
-      "community": 83,
+      "community": 86,
       "norm_label": "reports.test.ts",
       "id": "backend_src_routes_reports_test_ts"
     },
@@ -1419,7 +1419,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\reports.test.ts",
       "source_location": "L38",
-      "community": 83,
+      "community": 86,
       "norm_label": "createtoken()",
       "id": "reports_test_createtoken"
     },
@@ -1428,7 +1428,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\reports.ts",
       "source_location": "L1",
-      "community": 106,
+      "community": 109,
       "norm_label": "reports.ts",
       "id": "backend_src_routes_reports_ts"
     },
@@ -1500,7 +1500,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\aiService.test.ts",
       "source_location": "L1",
-      "community": 107,
+      "community": 110,
       "norm_label": "aiservice.test.ts",
       "id": "backend_src_services_aiservice_test_ts"
     },
@@ -1639,7 +1639,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\categoryService.test.ts",
       "source_location": "L1",
-      "community": 108,
+      "community": 111,
       "norm_label": "categoryservice.test.ts",
       "id": "backend_src_services_categoryservice_test_ts"
     },
@@ -1648,7 +1648,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\categoryService.ts",
       "source_location": "L1",
-      "community": 84,
+      "community": 87,
       "norm_label": "categoryservice.ts",
       "id": "backend_src_services_categoryservice_ts"
     },
@@ -1657,7 +1657,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\categoryService.ts",
       "source_location": "L8",
-      "community": 84,
+      "community": 87,
       "norm_label": "suggestcategory()",
       "id": "categoryservice_suggestcategory"
     },
@@ -1666,7 +1666,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\fileStorageService.test.ts",
       "source_location": "L1",
-      "community": 109,
+      "community": 112,
       "norm_label": "filestorageservice.test.ts",
       "id": "backend_src_services_filestorageservice_test_ts"
     },
@@ -1675,7 +1675,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\fileStorageService.ts",
       "source_location": "L1",
-      "community": 45,
+      "community": 48,
       "norm_label": "filestorageservice.ts",
       "id": "backend_src_services_filestorageservice_ts"
     },
@@ -1684,7 +1684,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\fileStorageService.ts",
       "source_location": "L13",
-      "community": 45,
+      "community": 48,
       "norm_label": "storeocrimage()",
       "id": "filestorageservice_storeocrimage"
     },
@@ -1693,7 +1693,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\fileStorageService.ts",
       "source_location": "L61",
-      "community": 45,
+      "community": 48,
       "norm_label": "base64tobuffer()",
       "id": "filestorageservice_base64tobuffer"
     },
@@ -1702,7 +1702,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\financialMutationCoordinator.test.ts",
       "source_location": "L1",
-      "community": 46,
+      "community": 49,
       "norm_label": "financialmutationcoordinator.test.ts",
       "id": "backend_src_services_financialmutationcoordinator_test_ts"
     },
@@ -1711,7 +1711,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\financialMutationCoordinator.test.ts",
       "source_location": "L13",
-      "community": 46,
+      "community": 49,
       "norm_label": "createcoordinatorstore()",
       "id": "financialmutationcoordinator_test_createcoordinatorstore"
     },
@@ -1720,7 +1720,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\financialMutationCoordinator.test.ts",
       "source_location": "L65",
-      "community": 46,
+      "community": 49,
       "norm_label": "createinput()",
       "id": "financialmutationcoordinator_test_createinput"
     },
@@ -1795,6 +1795,15 @@
       "community": 12,
       "norm_label": "validatescope()",
       "id": "financialmutationcoordinator_validatescope"
+    },
+    {
+      "label": "validateMutationResult()",
+      "file_type": "code",
+      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_location": "L213",
+      "community": 12,
+      "norm_label": "validatemutationresult()",
+      "id": "financialmutationcoordinator_validatemutationresult"
     },
     {
       "label": "coordinateFinancialMutation()",
@@ -1901,7 +1910,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerApplicationService.test.ts",
       "source_location": "L1",
-      "community": 85,
+      "community": 88,
       "norm_label": "ledgerapplicationservice.test.ts",
       "id": "backend_src_services_ledgerapplicationservice_test_ts"
     },
@@ -1910,7 +1919,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerApplicationService.test.ts",
       "source_location": "L39",
-      "community": 85,
+      "community": 88,
       "norm_label": "createstore()",
       "id": "ledgerapplicationservice_test_createstore"
     },
@@ -2000,7 +2009,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerErrors.ts",
       "source_location": "L1",
-      "community": 29,
+      "community": 24,
       "norm_label": "ledgererrors.ts",
       "id": "backend_src_services_ledgererrors_ts"
     },
@@ -2009,7 +2018,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerErrors.ts",
       "source_location": "L12",
-      "community": 29,
+      "community": 24,
       "norm_label": "domainerror",
       "id": "ledgererrors_domainerror"
     },
@@ -2018,7 +2027,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerErrors.ts",
       "source_location": "L13",
-      "community": 29,
+      "community": 24,
       "norm_label": ".constructor()",
       "id": "ledgererrors_domainerror_constructor"
     },
@@ -2026,8 +2035,8 @@
       "label": "prismaCode()",
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerErrors.ts",
-      "source_location": "L25",
-      "community": 29,
+      "source_location": "L29",
+      "community": 24,
       "norm_label": "prismacode()",
       "id": "ledgererrors_prismacode"
     },
@@ -2035,17 +2044,35 @@
       "label": "mapPrismaError()",
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerErrors.ts",
-      "source_location": "L33",
-      "community": 29,
+      "source_location": "L37",
+      "community": 24,
       "norm_label": "mapprismaerror()",
       "id": "ledgererrors_mapprismaerror"
+    },
+    {
+      "label": "ledgerTransactionOrchestration.test.ts",
+      "file_type": "code",
+      "source_file": "backend\\src\\services\\ledgerTransactionOrchestration.test.ts",
+      "source_location": "L1",
+      "community": 89,
+      "norm_label": "ledgertransactionorchestration.test.ts",
+      "id": "backend_src_services_ledgertransactionorchestration_test_ts"
+    },
+    {
+      "label": "createStore()",
+      "file_type": "code",
+      "source_file": "backend\\src\\services\\ledgerTransactionOrchestration.test.ts",
+      "source_location": "L15",
+      "community": 89,
+      "norm_label": "createstore()",
+      "id": "ledgertransactionorchestration_test_createstore"
     },
     {
       "label": "ledgerTypes.ts",
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerTypes.ts",
       "source_location": "L1",
-      "community": 110,
+      "community": 113,
       "norm_label": "ledgertypes.ts",
       "id": "backend_src_services_ledgertypes_ts"
     },
@@ -2290,7 +2317,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 111,
+      "community": 114,
       "norm_label": "recurring transaction next-date calculation",
       "id": "recurringservice_calculate_next_date"
     },
@@ -2299,7 +2326,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\database.integration.test.ts",
       "source_location": "L1",
-      "community": 86,
+      "community": 90,
       "norm_label": "database.integration.test.ts",
       "id": "backend_src_tests_database_integration_test_ts"
     },
@@ -2308,7 +2335,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\database.integration.test.ts",
       "source_location": "L18",
-      "community": 86,
+      "community": 90,
       "norm_label": "uniqueid()",
       "id": "database_integration_test_uniqueid"
     },
@@ -2317,7 +2344,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\database.phase1.integration.test.ts",
       "source_location": "L1",
-      "community": 112,
+      "community": 115,
       "norm_label": "database.phase1.integration.test.ts",
       "id": "backend_src_tests_database_phase1_integration_test_ts"
     },
@@ -2330,7 +2357,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 87,
+      "community": 91,
       "norm_label": "finance domain test data factories",
       "id": "factories_test_data_factories"
     },
@@ -2343,7 +2370,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 87,
+      "community": 91,
       "norm_label": "family-scoped fixture contracts",
       "id": "factories_family_scoped_contracts"
     },
@@ -2352,7 +2379,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\family-permissions.test.ts",
       "source_location": "L1",
-      "community": 47,
+      "community": 50,
       "norm_label": "family-permissions.test.ts",
       "id": "backend_src_tests_family_permissions_test_ts"
     },
@@ -2361,7 +2388,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\family-permissions.test.ts",
       "source_location": "L16",
-      "community": 47,
+      "community": 50,
       "norm_label": "model()",
       "id": "family_permissions_test_model"
     },
@@ -2370,7 +2397,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\family-permissions.test.ts",
       "source_location": "L96",
-      "community": 47,
+      "community": 50,
       "norm_label": "createtoken()",
       "id": "family_permissions_test_createtoken"
     },
@@ -2379,7 +2406,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\jestConfig.test.ts",
       "source_location": "L1",
-      "community": 88,
+      "community": 92,
       "norm_label": "jestconfig.test.ts",
       "id": "backend_src_tests_jestconfig_test_ts"
     },
@@ -2388,7 +2415,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\jestConfig.test.ts",
       "source_location": "L9",
-      "community": 88,
+      "community": 92,
       "norm_label": "loadconfig()",
       "id": "jestconfig_test_loadconfig"
     },
@@ -2397,7 +2424,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\phase1-concurrency.integration.test.ts",
       "source_location": "L1",
-      "community": 89,
+      "community": 93,
       "norm_label": "phase1-concurrency.integration.test.ts",
       "id": "backend_src_tests_phase1_concurrency_integration_test_ts"
     },
@@ -2406,7 +2433,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\phase1-concurrency.integration.test.ts",
       "source_location": "L14",
-      "community": 89,
+      "community": 93,
       "norm_label": "command()",
       "id": "phase1_concurrency_integration_test_command"
     },
@@ -2415,7 +2442,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\phase1SchemaContract.test.ts",
       "source_location": "L1",
-      "community": 48,
+      "community": 51,
       "norm_label": "phase1schemacontract.test.ts",
       "id": "backend_src_tests_phase1schemacontract_test_ts"
     },
@@ -2424,7 +2451,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\phase1SchemaContract.test.ts",
       "source_location": "L7",
-      "community": 48,
+      "community": 51,
       "norm_label": "readschema()",
       "id": "phase1schemacontract_test_readschema"
     },
@@ -2433,7 +2460,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\phase1SchemaContract.test.ts",
       "source_location": "L9",
-      "community": 48,
+      "community": 51,
       "norm_label": "readmigration()",
       "id": "phase1schemacontract_test_readmigration"
     },
@@ -2446,7 +2473,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 113,
+      "community": 116,
       "norm_label": "backend test environment setup",
       "id": "setup_test_environment"
     },
@@ -2459,7 +2486,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 114,
+      "community": 117,
       "norm_label": "decimal-to-number conversion",
       "id": "decimal_to_number"
     },
@@ -2563,7 +2590,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 49,
+      "community": 52,
       "norm_label": "perceptual image hash computation",
       "id": "phash_compute"
     },
@@ -2576,7 +2603,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 49,
+      "community": 52,
       "norm_label": "perceptual hash hamming distance",
       "id": "phash_hamming_distance"
     },
@@ -2589,7 +2616,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 49,
+      "community": 52,
       "norm_label": "similar image threshold check",
       "id": "phash_is_similar_image"
     },
@@ -2598,7 +2625,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\utils\\reportFormulas.ts",
       "source_location": "L1",
-      "community": 36,
+      "community": 37,
       "norm_label": "reportformulas.ts",
       "id": "backend_src_utils_reportformulas_ts"
     },
@@ -2607,7 +2634,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\utils\\reportFormulas.ts",
       "source_location": "L8",
-      "community": 36,
+      "community": 37,
       "norm_label": "calculatenetcashflow()",
       "id": "reportformulas_calculatenetcashflow"
     },
@@ -2616,7 +2643,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\utils\\reportFormulas.ts",
       "source_location": "L14",
-      "community": 36,
+      "community": 37,
       "norm_label": "includesany()",
       "id": "reportformulas_includesany"
     },
@@ -2625,7 +2652,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\utils\\reportFormulas.ts",
       "source_location": "L18",
-      "community": 36,
+      "community": 37,
       "norm_label": "classifycashflowcategory()",
       "id": "reportformulas_classifycashflowcategory"
     },
@@ -2634,7 +2661,7 @@
       "file_type": "code",
       "source_file": "docs\\audit\\evidence\\ui_smoke.py",
       "source_location": "L1",
-      "community": 50,
+      "community": 53,
       "norm_label": "ui_smoke.py",
       "id": "docs_audit_evidence_ui_smoke_py"
     },
@@ -2643,7 +2670,7 @@
       "file_type": "code",
       "source_file": "docs\\audit\\evidence\\ui_smoke.py",
       "source_location": "L11",
-      "community": 50,
+      "community": 53,
       "norm_label": "json_response()",
       "id": "ui_smoke_json_response"
     },
@@ -2652,7 +2679,7 @@
       "file_type": "code",
       "source_file": "docs\\audit\\evidence\\ui_smoke.py",
       "source_location": "L19",
-      "community": 50,
+      "community": 53,
       "norm_label": "main()",
       "id": "ui_smoke_main"
     },
@@ -2665,7 +2692,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 5,
       "norm_label": "postcss stylesheet pipeline",
       "id": "postcss_stylesheet_pipeline"
     },
@@ -2678,7 +2705,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 5,
       "norm_label": "tailwind source content scanning",
       "id": "tailwind_content_scanning"
     },
@@ -2691,7 +2718,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 5,
       "norm_label": "family finance progressive web app",
       "id": "vite_family_finance_pwa"
     },
@@ -2704,7 +2731,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 5,
       "norm_label": "auto-updating pwa service worker",
       "id": "vite_service_worker_autoupdate"
     },
@@ -2713,7 +2740,7 @@
       "file_type": "code",
       "source_file": "frontend\\vitest.config.ts",
       "source_location": "L1",
-      "community": 115,
+      "community": 118,
       "norm_label": "vitest.config.ts",
       "id": "frontend_vitest_config_ts"
     },
@@ -2726,7 +2753,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 5,
       "norm_label": "family finance route map",
       "id": "app_route_map"
     },
@@ -2739,7 +2766,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 5,
       "norm_label": "authenticated application shell",
       "id": "app_authenticated_shell"
     },
@@ -2752,7 +2779,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 5,
       "norm_label": "legacy report route redirects",
       "id": "app_legacy_report_redirects"
     },
@@ -2765,7 +2792,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 5,
       "norm_label": "legacy bookmark compatibility",
       "id": "app_bookmark_backward_compatibility"
     },
@@ -2778,7 +2805,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 5,
       "norm_label": "react application bootstrap",
       "id": "main_react_bootstrap"
     },
@@ -2791,7 +2818,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 5,
       "norm_label": "family selector component",
       "id": "familyselector_component"
     },
@@ -2804,7 +2831,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 5,
       "norm_label": "family list api loading",
       "id": "familyselector_family_api"
     },
@@ -2817,7 +2844,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 5,
       "norm_label": "current family selection state",
       "id": "familyselector_family_state"
     },
@@ -2830,7 +2857,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 5,
       "norm_label": "family finance layout",
       "id": "layout_component"
     },
@@ -2843,7 +2870,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 5,
       "norm_label": "grouped finance navigation",
       "id": "layout_grouped_navigation"
     },
@@ -2856,7 +2883,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 5,
       "norm_label": "responsive desktop and mobile sidebar",
       "id": "layout_responsive_sidebar"
     },
@@ -2869,7 +2896,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 5,
       "norm_label": "authenticated logout flow",
       "id": "layout_logout_flow"
     },
@@ -2882,7 +2909,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 5,
       "norm_label": "frontend authentication state",
       "id": "frontend_auth_state"
     },
@@ -2895,7 +2922,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 5,
       "norm_label": "unauthenticated login redirect",
       "id": "protectedroute_login_redirect"
     },
@@ -2908,7 +2935,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 5,
       "norm_label": "protected route authentication gate",
       "id": "protectedroute_auth_gate"
     },
@@ -3606,7 +3633,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\pages\\ReportsPage.test.tsx",
       "source_location": "L1",
-      "community": 90,
+      "community": 94,
       "norm_label": "reportspage.test.tsx",
       "id": "frontend_src_pages_reportspage_test_tsx"
     },
@@ -3615,7 +3642,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\pages\\ReportsPage.test.tsx",
       "source_location": "L28",
-      "community": 90,
+      "community": 94,
       "norm_label": "deferred()",
       "id": "reportspage_test_deferred"
     },
@@ -3624,7 +3651,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
       "source_location": "L1",
-      "community": 25,
+      "community": 26,
       "norm_label": "reportspage.tsx",
       "id": "frontend_src_pages_reportspage_tsx"
     },
@@ -3633,7 +3660,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
       "source_location": "L72",
-      "community": 25,
+      "community": 26,
       "norm_label": "formatmoney()",
       "id": "reportspage_formatmoney"
     },
@@ -3642,7 +3669,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
       "source_location": "L75",
-      "community": 25,
+      "community": 26,
       "norm_label": "formatmoneyshort()",
       "id": "reportspage_formatmoneyshort"
     },
@@ -3651,7 +3678,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
       "source_location": "L78",
-      "community": 25,
+      "community": 26,
       "norm_label": "formatpercentage()",
       "id": "reportspage_formatpercentage"
     },
@@ -3660,7 +3687,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
       "source_location": "L120",
-      "community": 25,
+      "community": 26,
       "norm_label": "handleexport()",
       "id": "reportspage_handleexport"
     },
@@ -3669,7 +3696,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
       "source_location": "L295",
-      "community": 25,
+      "community": 26,
       "norm_label": "handlereset()",
       "id": "reportspage_handlereset"
     },
@@ -3864,7 +3891,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 37,
+      "community": 38,
       "norm_label": "family budget management",
       "id": "budgetService_budget_management"
     },
@@ -3877,7 +3904,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 37,
+      "community": 38,
       "norm_label": "budget progress tracking",
       "id": "budgetService_budget_progress"
     },
@@ -3890,7 +3917,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "transaction category suggestion",
       "id": "categoryService_category_suggestion"
     },
@@ -3903,7 +3930,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 116,
+      "community": 119,
       "norm_label": "multi-family financial comparison",
       "id": "compareService_multi_family_comparison"
     },
@@ -3916,7 +3943,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "financial excel export",
       "id": "exportService_excel_export"
     },
@@ -3929,7 +3956,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "browser blob download",
       "id": "exportService_blob_download"
     },
@@ -3955,7 +3982,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "family member role management",
       "id": "familyService_member_role_management"
     },
@@ -3968,7 +3995,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "family file management",
       "id": "fileService_file_management"
     },
@@ -3981,7 +4008,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "file duplicate detection",
       "id": "fileService_file_duplicate_detection"
     },
@@ -3994,7 +4021,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "income ledger",
       "id": "financeService_income_ledger"
     },
@@ -4007,7 +4034,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "expense ledger",
       "id": "financeService_expense_ledger"
     },
@@ -4033,7 +4060,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 117,
+      "community": 120,
       "norm_label": "liability registry",
       "id": "financeService_liability_registry"
     },
@@ -4046,7 +4073,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "transaction duplicate check",
       "id": "financeService_transaction_duplicate_check"
     },
@@ -4059,7 +4086,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 37,
+      "community": 38,
       "norm_label": "family financial goals",
       "id": "goalService_financial_goals"
     },
@@ -4072,7 +4099,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 37,
+      "community": 38,
       "norm_label": "financial goal progress",
       "id": "goalService_goal_progress"
     },
@@ -4085,7 +4112,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "csv transaction import preview",
       "id": "importService_csv_preview"
     },
@@ -4098,7 +4125,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "bulk import confirmation",
       "id": "importService_import_confirmation"
     },
@@ -4111,7 +4138,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "recurring transactions",
       "id": "recurringService_recurring_transactions"
     },
@@ -4124,7 +4151,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "due recurring transaction execution",
       "id": "recurringService_due_execution"
     },
@@ -4133,7 +4160,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\services\\reportService.ts",
       "source_location": "L1",
-      "community": 26,
+      "community": 27,
       "norm_label": "reportservice.ts",
       "id": "frontend_src_services_reportservice_ts"
     },
@@ -4142,7 +4169,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\services\\reportService.ts",
       "source_location": "L68",
-      "community": 26,
+      "community": 27,
       "norm_label": "getbalancesheet()",
       "id": "reportservice_getbalancesheet"
     },
@@ -4151,7 +4178,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\services\\reportService.ts",
       "source_location": "L73",
-      "community": 26,
+      "community": 27,
       "norm_label": "getincomestatement()",
       "id": "reportservice_getincomestatement"
     },
@@ -4160,7 +4187,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\services\\reportService.ts",
       "source_location": "L81",
-      "community": 26,
+      "community": 27,
       "norm_label": "getcashflow()",
       "id": "reportservice_getcashflow"
     },
@@ -4169,7 +4196,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\services\\reportService.ts",
       "source_location": "L89",
-      "community": 26,
+      "community": 27,
       "norm_label": "getsummary()",
       "id": "reportservice_getsummary"
     },
@@ -4178,7 +4205,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\services\\reportService.ts",
       "source_location": "L94",
-      "community": 26,
+      "community": 27,
       "norm_label": "getinvestmentallocation()",
       "id": "reportservice_getinvestmentallocation"
     },
@@ -4226,7 +4253,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\test\\setup.ts",
       "source_location": "L1",
-      "community": 118,
+      "community": 121,
       "norm_label": "setup.ts",
       "id": "frontend_src_test_setup_ts"
     },
@@ -4278,7 +4305,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 119,
+      "community": 122,
       "norm_label": "family id tenant boundary",
       "id": "agents_family_tenant_boundary"
     },
@@ -4291,7 +4318,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 38,
+      "community": 39,
       "norm_label": "viewer read-only invariant",
       "id": "agents_viewer_read_only"
     },
@@ -4304,7 +4331,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 51,
+      "community": 54,
       "norm_label": "single declared base currency totals",
       "id": "agents_single_currency_totals"
     },
@@ -4317,7 +4344,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 30,
+      "community": 31,
       "norm_label": "derived statement reconciliation invariant",
       "id": "agents_statement_reconciliation"
     },
@@ -4343,7 +4370,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 120,
+      "community": 123,
       "norm_label": "explicit confirmation for ai mutations",
       "id": "agents_explicit_ai_confirmation"
     },
@@ -4356,7 +4383,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 39,
+      "community": 40,
       "norm_label": "cache is not an authorization boundary",
       "id": "agents_cache_not_authorization_boundary"
     },
@@ -4369,7 +4396,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 94,
+      "community": 98,
       "norm_label": "focused red-green-refactor workflow",
       "id": "agents_tdd_change_workflow"
     },
@@ -4382,7 +4409,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 38,
+      "community": 39,
       "norm_label": "centralized family authorization policy boundary",
       "id": "agents_centralized_family_policy"
     },
@@ -4408,7 +4435,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 121,
+      "community": 124,
       "norm_label": "configured frontend api client boundary",
       "id": "agents_configured_frontend_api_client"
     },
@@ -4421,7 +4448,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 91,
+      "community": 96,
       "norm_label": "executable source-of-truth hierarchy",
       "id": "agents_source_of_truth_hierarchy"
     },
@@ -4434,7 +4461,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 6,
+      "community": 1,
       "norm_label": "homefinance system",
       "id": "README_homefinance_system"
     },
@@ -4447,7 +4474,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 6,
+      "community": 1,
       "norm_label": "enterprise finance methods for families",
       "id": "README_enterprise_finance_for_families"
     },
@@ -4460,7 +4487,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 6,
+      "community": 1,
       "norm_label": "three core financial statements",
       "id": "README_three_financial_statements"
     },
@@ -4473,7 +4500,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "intelligent finance features",
       "id": "README_intelligent_finance_features"
     },
@@ -4486,7 +4513,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "family collaboration and visualization",
       "id": "README_family_collaboration"
     },
@@ -4499,7 +4526,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 6,
+      "community": 1,
       "norm_label": "homefinance technology stack",
       "id": "README_technology_stack"
     },
@@ -4512,7 +4539,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 6,
+      "community": 3,
       "norm_label": "contribution development workflow",
       "id": "contributing_development_workflow"
     },
@@ -4525,7 +4552,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 6,
+      "community": 3,
       "norm_label": "family resource access enforcement",
       "id": "contributing_family_resource_access"
     },
@@ -4538,7 +4565,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 6,
+      "community": 3,
       "norm_label": "admin member viewer permissions",
       "id": "contributing_role_permissions"
     },
@@ -4551,7 +4578,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 6,
+      "community": 3,
       "norm_label": "backend api test matrix",
       "id": "contributing_test_matrix"
     },
@@ -4564,7 +4591,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "frontend resource service convention",
       "id": "contributing_frontend_service_convention"
     },
@@ -4577,7 +4604,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 6,
+      "community": 1,
       "norm_label": "typescript coding conventions",
       "id": "development_rules_typescript_conventions"
     },
@@ -4590,7 +4617,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 122,
+      "community": 125,
       "norm_label": "zustand global state convention",
       "id": "development_rules_zustand_state"
     },
@@ -4603,7 +4630,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 6,
+      "community": 3,
       "norm_label": "rest and zod backend convention",
       "id": "development_rules_rest_zod_backend"
     },
@@ -4616,7 +4643,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 6,
+      "community": 1,
       "norm_label": "simplified git flow",
       "id": "development_rules_git_flow"
     },
@@ -4629,7 +4656,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 6,
+      "community": 1,
       "norm_label": "clear history through squash merge",
       "id": "development_rules_squash_merge_rationale"
     },
@@ -4642,7 +4669,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 6,
+      "community": 1,
       "norm_label": "consistency and maintainability rationale",
       "id": "development_rules_governance_rationale"
     },
@@ -4720,7 +4747,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 92,
+      "community": 97,
       "norm_label": "evidence-backed deep review framework",
       "id": "audit_framework_evidence_backed_review"
     },
@@ -4746,7 +4773,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 93,
+      "community": 95,
       "norm_label": "sustainable project memory loop",
       "id": "audit_framework_sustainable_memory_loop"
     },
@@ -4785,7 +4812,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 38,
+      "community": 39,
       "norm_label": "baseline viewer write authorization bypass",
       "id": "deep_audit_baseline_viewer_write_bypass"
     },
@@ -4798,7 +4825,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 39,
+      "community": 40,
       "norm_label": "baseline cache-before-authorization bypass",
       "id": "deep_audit_baseline_cache_authorization_bypass"
     },
@@ -4811,7 +4838,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 30,
+      "community": 31,
       "norm_label": "baseline income statement authentication break",
       "id": "deep_audit_baseline_frontend_fetch_break"
     },
@@ -4824,7 +4851,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 30,
+      "community": 31,
       "norm_label": "baseline other cash flow omission",
       "id": "deep_audit_baseline_cash_flow_omission"
     },
@@ -4850,7 +4877,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 51,
+      "community": 54,
       "norm_label": "multi-currency calculation semantics gap",
       "id": "deep_audit_multicurrency_semantics_gap"
     },
@@ -4863,7 +4890,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 40,
+      "community": 41,
       "norm_label": "trust before scale and intelligence strategy",
       "id": "deep_audit_trust_first_strategy"
     },
@@ -4876,7 +4903,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 91,
+      "community": 96,
       "norm_label": "code-level regression verified status",
       "id": "deep_audit_regression_verified_status"
     },
@@ -4889,7 +4916,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 92,
+      "community": 97,
       "norm_label": "homefinance source baseline citation",
       "id": "deep_audit_homefinance_source_citation"
     },
@@ -4902,7 +4929,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 30,
+      "community": 31,
       "norm_label": "ui smoke evidence citation",
       "id": "deep_audit_ui_smoke_evidence_citation"
     },
@@ -4915,7 +4942,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 93,
+      "community": 95,
       "norm_label": "graphify knowledge graph evidence citation",
       "id": "deep_audit_graphify_evidence_citation"
     },
@@ -4928,7 +4955,7 @@
       "captured_at": null,
       "author": "Redis",
       "contributor": null,
-      "community": 39,
+      "community": 40,
       "norm_label": "redis security and cache key best practices citation",
       "id": "deep_audit_redis_best_practices_citation"
     },
@@ -4941,7 +4968,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 40,
+      "community": 41,
       "norm_label": "risk-first modular monolith evolution",
       "id": "improvement_risk_first_modular_monolith_evolution"
     },
@@ -4954,7 +4981,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 40,
+      "community": 41,
       "norm_label": "behavior tests make incremental strategy safer rationale",
       "id": "improvement_strategy_a_rationale"
     },
@@ -4967,7 +4994,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 38,
+      "community": 39,
       "norm_label": "unified write authorization epic",
       "id": "improvement_unified_write_authorization_epic"
     },
@@ -4980,7 +5007,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 39,
+      "community": 40,
       "norm_label": "authorization-first tenant-safe cache epic",
       "id": "improvement_authorization_first_cache_epic"
     },
@@ -4993,7 +5020,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 30,
+      "community": 31,
       "norm_label": "report runtime and reconciliation epic",
       "id": "improvement_report_runtime_reconciliation_epic"
     },
@@ -5045,7 +5072,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 94,
+      "community": 98,
       "norm_label": "executable ci quality gates",
       "id": "improvement_ci_quality_gates"
     },
@@ -5058,7 +5085,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 95,
+      "community": 99,
       "norm_label": "immutable audit trail and reconciliation",
       "id": "improvement_immutable_audit_reconciliation"
     },
@@ -5071,7 +5098,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 95,
+      "community": 99,
       "norm_label": "auditability precedes more generative ai rationale",
       "id": "improvement_immutable_audit_priority_rationale"
     },
@@ -5097,7 +5124,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 123,
+      "community": 126,
       "norm_label": "evidence-to-observed risk status workflow",
       "id": "improvement_evidence_status_workflow"
     },
@@ -5110,7 +5137,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 40,
+      "community": 41,
       "norm_label": "delay new write features until stabilization rationale",
       "id": "improvement_delay_feature_expansion_rationale"
     },
@@ -5123,7 +5150,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 51,
+      "community": 54,
       "norm_label": "do not fake multi-currency aggregation rationale",
       "id": "improvement_no_fake_multicurrency_rationale"
     },
@@ -5136,7 +5163,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 41,
+      "community": 42,
       "norm_label": "p0-b authorization and versioned cache plan",
       "id": "p0b_versioned_cache_plan"
     },
@@ -5149,7 +5176,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 124,
+      "community": 127,
       "norm_label": "cache rollback must preserve authorization",
       "id": "cache_rollback_policy"
     },
@@ -5162,7 +5189,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 41,
+      "community": 42,
       "norm_label": "remediation evidence state machine",
       "id": "evidence_state_machine"
     },
@@ -5175,7 +5202,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 41,
+      "community": 42,
       "norm_label": "phase 0 cache remediation",
       "id": "phase0_cache_remediation"
     },
@@ -5188,7 +5215,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 125,
+      "community": 128,
       "norm_label": "postgresql revision survives redis outage and restart",
       "id": "postgres_revision_rationale"
     },
@@ -5201,7 +5228,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 41,
+      "community": 42,
       "norm_label": "phase 0 not released or observed",
       "id": "phase0_not_released_observed"
     },
@@ -5214,7 +5241,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "security and authorization analysis",
       "id": "security_analysis"
     },
@@ -5227,7 +5254,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "viewer mutation bypass p0",
       "id": "security_viewer_mutation_bypass"
     },
@@ -5240,7 +5267,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "report cache authorization bypass p0",
       "id": "security_report_cache_authorization_bypass"
     },
@@ -5253,7 +5280,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "authorization before cache data ai or object storage",
       "id": "security_authorization_control_order"
     },
@@ -5266,7 +5293,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "jwt session revocation and localstorage gap",
       "id": "security_session_revocation_gap"
     },
@@ -5279,7 +5306,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "authentication rate limit and password policy gap",
       "id": "security_auth_rate_limit_password_gap"
     },
@@ -5292,7 +5319,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "central family access policy",
       "id": "security_central_family_access_policy"
     },
@@ -5305,7 +5332,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "production compose secrets and internal network",
       "id": "security_production_compose_security"
     },
@@ -5318,7 +5345,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "dependency supply chain quality gate",
       "id": "security_supply_chain_gate"
     },
@@ -5331,7 +5358,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "human confirmation before ai financial mutation",
       "id": "security_ai_confirmation_contract"
     },
@@ -5344,7 +5371,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "distributed route helpers make authorization drift likely",
       "id": "security_central_policy_rationale"
     },
@@ -5357,7 +5384,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "stage session revocation before refresh-cookie migration",
       "id": "security_session_migration_rationale"
     },
@@ -5370,7 +5397,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 5,
+      "community": 6,
       "norm_label": "financial correctness analysis",
       "id": "financial_correctness_analysis"
     },
@@ -5383,7 +5410,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 5,
+      "community": 6,
       "norm_label": "financial statement reconciliation invariants",
       "id": "financial_reconciliation_invariants"
     },
@@ -5396,7 +5423,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 5,
+      "community": 6,
       "norm_label": "budget period window contract",
       "id": "financial_budget_period_window"
     },
@@ -5409,7 +5436,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 5,
+      "community": 6,
       "norm_label": "currency-safe financial totals",
       "id": "financial_currency_safe_totals"
     },
@@ -5422,7 +5449,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 5,
+      "community": 6,
       "norm_label": "goal allocation isolation",
       "id": "financial_goal_allocation_isolation"
     },
@@ -5435,7 +5462,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 5,
+      "community": 6,
       "norm_label": "explicit half-open date interval and family timezone",
       "id": "financial_explicit_date_interval"
     },
@@ -5448,7 +5475,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 5,
+      "community": 6,
       "norm_label": "unknown empty unavailable and true zero distinction",
       "id": "financial_unknown_empty_zero_distinction"
     },
@@ -5461,7 +5488,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 5,
+      "community": 6,
       "norm_label": "recent transaction ordering semantics",
       "id": "financial_recent_transaction_ordering"
     },
@@ -5474,7 +5501,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 5,
+      "community": 6,
       "norm_label": "historical fx requires valuation date source rounding and replay",
       "id": "financial_historical_fx_rationale"
     },
@@ -5656,7 +5683,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 5,
+      "community": 6,
       "norm_label": "frontend quality and user experience analysis",
       "id": "frontend_quality_analysis"
     },
@@ -5669,7 +5696,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 5,
+      "community": 6,
       "norm_label": "configured authenticated api client contract",
       "id": "frontend_configured_api_client"
     },
@@ -5682,7 +5709,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 5,
+      "community": 6,
       "norm_label": "loading error empty and data state model",
       "id": "frontend_async_state_model"
     },
@@ -5695,7 +5722,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 5,
+      "community": 6,
       "norm_label": "frontend component and browser behavior gates",
       "id": "frontend_behavior_test_stack"
     },
@@ -5708,7 +5735,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 5,
+      "community": 6,
       "norm_label": "route-level lazy loading and hook hygiene",
       "id": "frontend_route_lazy_loading"
     },
@@ -5721,7 +5748,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 5,
+      "community": 6,
       "norm_label": "accessible names focus and skip navigation contract",
       "id": "frontend_accessibility_contract"
     },
@@ -5734,7 +5761,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 5,
+      "community": 6,
       "norm_label": "installable pwa is not offline financial data support",
       "id": "frontend_pwa_installable_not_offline"
     },
@@ -5747,7 +5774,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 5,
+      "community": 6,
       "norm_label": "configured service adapter prevents auth and error handling forks",
       "id": "frontend_service_adapter_rationale"
     },
@@ -5760,7 +5787,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 5,
+      "community": 6,
       "norm_label": "static precache cannot justify offline bookkeeping claims",
       "id": "frontend_offline_claim_rationale"
     },
@@ -5877,7 +5904,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "knowledge graph memory and governance analysis",
       "id": "governance_analysis"
     },
@@ -5890,7 +5917,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "graphify as navigation memory",
       "id": "governance_graphify_navigation_memory"
     },
@@ -5903,7 +5930,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "executable source of truth hierarchy",
       "id": "governance_source_truth_hierarchy"
     },
@@ -5916,7 +5943,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "change evidence card lifecycle",
       "id": "governance_evidence_card_lifecycle"
     },
@@ -5929,7 +5956,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "graphify semantic update protocol",
       "id": "governance_graphify_update_protocol"
     },
@@ -5942,7 +5969,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "inferred edge verification review",
       "id": "governance_inferred_edge_review"
     },
@@ -5955,7 +5982,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "policy ledger exactly-once and production dependency chain",
       "id": "governance_dependency_chain"
     },
@@ -5968,7 +5995,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "generated graphs must not override executable evidence",
       "id": "governance_derived_graph_rationale"
     },
@@ -5981,7 +6008,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 6,
+      "community": 1,
       "norm_label": "family as a company",
       "id": "family_finance_design_family_as_company"
     },
@@ -5994,7 +6021,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 6,
+      "community": 1,
       "norm_label": "household mapping of three financial statements",
       "id": "family_finance_design_three_statement_mapping"
     },
@@ -6020,7 +6047,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 6,
+      "community": 1,
       "norm_label": "technology choices",
       "id": "family_finance_design_technology_choices"
     },
@@ -6033,7 +6060,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 6,
+      "community": 1,
       "norm_label": "type safety scalability and performance rationale",
       "id": "family_finance_design_technology_rationale"
     },
@@ -6046,7 +6073,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "smart financial data entry",
       "id": "family_finance_design_smart_data_entry"
     },
@@ -6059,7 +6086,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "multi-signal duplicate detection",
       "id": "family_finance_design_duplicate_detection"
     },
@@ -6072,7 +6099,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "human confirmation for possible duplicates",
       "id": "family_finance_design_human_confirmation_rationale"
     },
@@ -6085,7 +6112,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 126,
+      "community": 129,
       "norm_label": "dynamic family financial reporting",
       "id": "family_finance_design_dynamic_reporting"
     },
@@ -6098,7 +6125,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "ai financial conversation and ocr",
       "id": "family_finance_design_ai_conversation"
     },
@@ -6124,7 +6151,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "rbac and family data isolation",
       "id": "family_finance_design_rbac_isolation"
     },
@@ -6137,7 +6164,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1,
+      "community": 3,
       "norm_label": "product and architecture risk mitigation",
       "id": "family_finance_design_risk_mitigation"
     },
@@ -6150,7 +6177,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 52,
+      "community": 55,
       "norm_label": "vite react typescript template",
       "id": "frontend_README_vite_react_template"
     },
@@ -6163,7 +6190,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 52,
+      "community": 55,
       "norm_label": "react compiler disabled",
       "id": "frontend_README_react_compiler_disabled"
     },
@@ -6176,7 +6203,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 52,
+      "community": 55,
       "norm_label": "development and build performance rationale",
       "id": "frontend_README_build_performance_rationale"
     },
@@ -6189,7 +6216,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 6,
+      "community": 1,
       "norm_label": "type-aware oxlint configuration",
       "id": "frontend_README_type_aware_linting"
     },
@@ -6202,7 +6229,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "homefinance graphify knowledge graph report",
       "id": "graph_report_knowledge_graph"
     },
@@ -6215,7 +6242,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "family membership role-based access control god node",
       "id": "graph_report_rbac_god_node"
     },
@@ -6228,7 +6255,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "current family data scope god node",
       "id": "graph_report_current_family_scope_god_node"
     },
@@ -6241,7 +6268,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "financial write integrity god node",
       "id": "graph_report_financial_write_integrity_god_node"
     },
@@ -6254,7 +6281,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "consolidated remediation roadmap god node",
       "id": "graph_report_consolidated_roadmap_god_node"
     },
@@ -6280,7 +6307,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "governed knowledge feedback loop",
       "id": "graph_report_governed_feedback_loop"
     },
@@ -6293,7 +6320,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "weakly connected knowledge nodes",
       "id": "graph_report_weakly_connected_nodes"
     },
@@ -6306,7 +6333,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "thin route-local access helper communities",
       "id": "graph_report_route_local_access_helpers"
     },
@@ -6319,7 +6346,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 5,
+      "community": 6,
       "norm_label": "low-cohesion frontend finance domain",
       "id": "graph_report_low_cohesion_frontend"
     },
@@ -6332,7 +6359,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 2,
       "norm_label": "cross-community suggested questions",
       "id": "graph_report_suggested_questions"
     },
@@ -6345,7 +6372,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 127,
+      "community": 130,
       "norm_label": "desktop login screenshot",
       "id": "file:docs/audit/evidence/login-desktop.png"
     },
@@ -6358,7 +6385,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 128,
+      "community": 131,
       "norm_label": "labeled login form",
       "id": "concept:login-form"
     },
@@ -6371,7 +6398,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 129,
+      "community": 132,
       "norm_label": "desktop reports screenshot",
       "id": "file:docs/audit/evidence/reports-desktop.png"
     },
@@ -6384,7 +6411,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 130,
+      "community": 133,
       "norm_label": "financial reports dashboard ui",
       "id": "concept:reports-dashboard-ui"
     },
@@ -6397,7 +6424,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 31,
+      "community": 32,
       "norm_label": "gradient lightning-bolt favicon",
       "id": "favicon_gradient_lightning_bolt_mark"
     },
@@ -6410,7 +6437,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 31,
+      "community": 32,
       "norm_label": "lightning-bolt silhouette",
       "id": "favicon_lightning_bolt_silhouette"
     },
@@ -6423,7 +6450,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 31,
+      "community": 32,
       "norm_label": "purple-cyan glow palette",
       "id": "favicon_purple_cyan_glow_palette"
     },
@@ -6436,7 +6463,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 31,
+      "community": 32,
       "norm_label": "mask-clipped blurred ellipse shading",
       "id": "favicon_mask_clipped_blurred_ellipse_shading"
     },
@@ -6449,7 +6476,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 31,
+      "community": 32,
       "norm_label": "compact browser identity mark",
       "id": "favicon_compact_browser_identity_mark"
     },
@@ -6618,7 +6645,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 27,
+      "community": 28,
       "norm_label": "layered stack hero illustration",
       "id": "hero_layered_stack_illustration"
     },
@@ -6631,7 +6658,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 27,
+      "community": 28,
       "norm_label": "upper rounded layer",
       "id": "hero_upper_rounded_layer"
     },
@@ -6644,7 +6671,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 27,
+      "community": 28,
       "norm_label": "purple foundation layer",
       "id": "hero_lower_purple_foundation_layer"
     },
@@ -6657,7 +6684,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 27,
+      "community": 28,
       "norm_label": "dashed inter-layer guides",
       "id": "hero_inter_layer_guides"
     },
@@ -6670,7 +6697,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 27,
+      "community": 28,
       "norm_label": "layered system architecture metaphor",
       "id": "hero_layered_architecture_metaphor"
     },
@@ -6683,7 +6710,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 27,
+      "community": 28,
       "norm_label": "depth through layer separation",
       "id": "hero_depth_separation"
     },
@@ -6787,7 +6814,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 32,
+      "community": 33,
       "norm_label": "vite brand mark",
       "id": "vite_vite_brand_mark"
     },
@@ -6800,7 +6827,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 32,
+      "community": 33,
       "norm_label": "lightning bolt symbol",
       "id": "vite_lightning_bolt_symbol"
     },
@@ -6813,7 +6840,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 32,
+      "community": 33,
       "norm_label": "parenthesis frame",
       "id": "vite_parenthesis_frame"
     },
@@ -6826,7 +6853,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 32,
+      "community": 33,
       "norm_label": "purple-blue gradient",
       "id": "vite_purple_blue_gradient"
     },
@@ -6839,7 +6866,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 32,
+      "community": 33,
       "norm_label": "theme-adaptive contrast",
       "id": "vite_theme_adaptive_contrast"
     },
@@ -6852,7 +6879,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 131,
+      "community": 134,
       "norm_label": "server owns process lifecycle",
       "id": "phase1_server_owns_process_lifecycle"
     },
@@ -6865,7 +6892,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 132,
+      "community": 135,
       "norm_label": "p1-g-00 refactored and at_risk",
       "id": "phase1_g00_refactored_at_risk"
     },
@@ -6878,7 +6905,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 53,
+      "community": 56,
       "norm_label": "p1-a-02 refactored and at_risk",
       "id": "phase1_a02_refactored_at_risk"
     },
@@ -6891,7 +6918,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 133,
+      "community": 136,
       "norm_label": "postgresql test environment unavailable",
       "id": "phase1_postgresql_test_environment_unavailable"
     },
@@ -6904,7 +6931,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 53,
+      "community": 56,
       "norm_label": "backend coverage gate failed against 60 percent threshold",
       "id": "phase1_coverage_gate_failed"
     },
@@ -6917,7 +6944,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 53,
+      "community": 56,
       "norm_label": "p1-0-07 evidence_confirmed and at_risk",
       "id": "phase1_0_07_evidence_confirmed_at_risk"
     },
@@ -6930,7 +6957,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 134,
+      "community": 137,
       "norm_label": "database-first idempotency and concurrency plan",
       "id": "phase1_database_first_idempotency_plan"
     },
@@ -7086,7 +7113,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 135,
+      "community": 138,
       "norm_label": "idempotencyrecord and auditevent are absent from prisma",
       "id": "phase1_hash_refresh_models_absent"
     },
@@ -7242,7 +7269,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 4,
       "norm_label": "p1-b-04 local postgresql 18.1 pass-real",
       "id": "p1_b04_local_postgresql_181_pass_real"
     },
@@ -7255,7 +7282,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 4,
       "norm_label": "p1-b-04 coordinator concurrency/replay regression_verified locally",
       "id": "p1_b04_regression_verified_gate"
     },
@@ -7268,7 +7295,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 4,
       "norm_label": "20 identical createincome requests",
       "id": "p1_b04_twenty_identical_createincome"
     },
@@ -7281,7 +7308,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 4,
       "norm_label": "one committed mutation and 19 replays",
       "id": "p1_b04_one_committed_mutation"
     },
@@ -7294,7 +7321,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 4,
       "norm_label": "single income record after concurrent replay",
       "id": "p1_b04_single_income_record"
     },
@@ -7307,7 +7334,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 4,
       "norm_label": "single idempotencyrecord after concurrent replay",
       "id": "p1_b04_single_idempotency_record"
     },
@@ -7320,7 +7347,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 4,
       "norm_label": "single auditevent after concurrent replay",
       "id": "p1_b04_single_audit_event"
     },
@@ -7333,7 +7360,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 4,
       "norm_label": "response-loss replay passes",
       "id": "p1_b04_response_loss_replay"
     },
@@ -7346,7 +7373,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 4,
       "norm_label": "same key with different payload is rejected without second write",
       "id": "p1_b04_same_key_different_payload"
     },
@@ -7359,35 +7386,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 4,
       "norm_label": "stale-version competition passes",
       "id": "p1_b04_stale_version_arbitration"
-    },
-    {
-      "label": "FinancialMutationCoordinator",
-      "file_type": "code",
-      "source_file": "backend/src/services/financialMutationCoordinator.ts",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 2,
-      "norm_label": "financialmutationcoordinator",
-      "id": "financial_mutation_coordinator"
-    },
-    {
-      "label": "Prisma financial mutation store adapter",
-      "file_type": "code",
-      "source_file": "backend/src/services/prismaFinancialMutationStore.ts",
-      "source_location": "lines 65-111",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 2,
-      "norm_label": "prisma financial mutation store adapter",
-      "id": "prisma_financial_mutation_store"
     },
     {
       "label": "Income/Expense routes still bypass coordinator",
@@ -7398,7 +7399,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 4,
       "norm_label": "income/expense routes still bypass coordinator",
       "id": "income_expense_routes_bypass_coordinator"
     },
@@ -7411,7 +7412,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 4,
       "norm_label": "import/recurring/ai mutation adoption remains open",
       "id": "phase1_import_recurring_ai_adoption_open"
     },
@@ -7424,7 +7425,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 4,
       "norm_label": "populated upgrade/restore remains unverified",
       "id": "phase1_upgrade_restore_open"
     },
@@ -7437,7 +7438,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 4,
       "norm_label": "staging/release observation remains open",
       "id": "phase1_staging_release_open"
     },
@@ -7450,7 +7451,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 4,
       "norm_label": "global coverage gate remains below threshold",
       "id": "phase1_global_coverage_gate_open"
     },
@@ -7463,7 +7464,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 4,
       "norm_label": "end-to-end production exactly-once remains unverified",
       "id": "phase1_production_exactly_once_unverified"
     },
@@ -7476,7 +7477,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 54,
+      "community": 57,
       "norm_label": "p1-b-02 coordinator focused tests pass 14/14",
       "id": "p1_b02_focused_14_of_14"
     },
@@ -7489,7 +7490,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 54,
+      "community": 57,
       "norm_label": "p1-b-02 pure coordinator contract remains pass-mock",
       "id": "p1_b02_pass_mock_contract"
     },
@@ -7502,7 +7503,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 55,
+      "community": 58,
       "norm_label": "p1-b-01 schema and migration pass-real",
       "id": "p1_b01_schema_pass_real"
     },
@@ -7515,7 +7516,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 55,
+      "community": 58,
       "norm_label": "p1-g-01 postgresql migration and rollback primitives pass-real",
       "id": "p1_g01_postgresql_migration_pass_real"
     },
@@ -7528,7 +7529,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 136,
+      "community": 139,
       "norm_label": "p1-0-05 adr-0001/0002 contract accepted (decision evidence)",
       "id": "p1_0_05_adr_contract_accepted"
     },
@@ -7541,7 +7542,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 96,
+      "community": 100,
       "norm_label": "phase 1 backend baseline: 31 suites and 265 tests pass",
       "id": "phase1_tracker_baseline_31_suites_265_tests"
     },
@@ -7554,7 +7555,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 4,
       "norm_label": "historical p1-b-04 red/p1000 blocked attempt (superseded by pass-real)",
       "id": "phase1_b04_postgresql_concurrency_blocked"
     },
@@ -7567,7 +7568,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 54,
+      "community": 57,
       "norm_label": "historical p1-b-02 refactored/at_risk snapshot (superseded by focused 14/14 evidence)",
       "id": "phase1_b02_refactored_at_risk"
     },
@@ -7580,7 +7581,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 55,
+      "community": 58,
       "norm_label": "historical p1-b-01 schema backlog snapshot (superseded by pass-real migration evidence)",
       "id": "phase1_b01_schema_backlog"
     },
@@ -7593,7 +7594,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 4,
       "norm_label": "historical database-arbitrated idempotency unverified snapshot (superseded by p1-b-04 local evidence)",
       "id": "phase1_hash_refresh_database_idempotency_open"
     },
@@ -7606,36 +7607,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 96,
+      "community": 100,
       "norm_label": "historical 30-suite/256-test baseline snapshot (superseded by 31-suite/265-test baseline)",
       "id": "phase1_hash_refresh_default_suite"
-    },
-    {
-      "label": "validateMutationResult()",
-      "file_type": "code",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
-      "source_location": "L213",
-      "community": 12,
-      "norm_label": "validatemutationresult()",
-      "id": "financialmutationcoordinator_validatemutationresult"
-    },
-    {
-      "label": "ledgerTransactionOrchestration.test.ts",
-      "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerTransactionOrchestration.test.ts",
-      "source_location": "L1",
-      "community": 97,
-      "norm_label": "ledgertransactionorchestration.test.ts",
-      "id": "backend_src_services_ledgertransactionorchestration_test_ts"
-    },
-    {
-      "label": "createStore()",
-      "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerTransactionOrchestration.test.ts",
-      "source_location": "L15",
-      "community": 97,
-      "norm_label": "createstore()",
-      "id": "ledgertransactionorchestration_test_createstore"
     },
     {
       "label": "P1-A-03 Ledger Transaction Orchestration Skeleton",
@@ -7646,87 +7620,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 43,
       "norm_label": "p1-a-03 ledger transaction orchestration skeleton",
       "id": "p1_a_03_task"
-    },
-    {
-      "label": "coordinateFinancialMutation",
-      "file_type": "code",
-      "source_file": "backend/src/services/financialMutationCoordinator.ts",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 2,
-      "norm_label": "coordinatefinancialmutation",
-      "id": "coordinate_financial_mutation"
-    },
-    {
-      "label": "Ledger Transaction Boundary",
-      "file_type": "code",
-      "source_file": "backend/src/services/financialMutationCoordinator.ts",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 2,
-      "norm_label": "ledger transaction boundary",
-      "id": "ledger_transaction_boundary"
-    },
-    {
-      "label": "FinancialMutationExecutor",
-      "file_type": "code",
-      "source_file": "backend/src/services/financialMutationCoordinator.ts",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 2,
-      "norm_label": "financialmutationexecutor",
-      "id": "financial_mutation_executor"
-    },
-    {
-      "label": "Mutation Result Resource ID Validation",
-      "file_type": "code",
-      "source_file": "backend/src/services/financialMutationCoordinator.ts",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 2,
-      "norm_label": "mutation result resource id validation",
-      "id": "mutation_result_validation"
-    },
-    {
-      "label": "IdempotencyRecord",
-      "file_type": "code",
-      "source_file": "backend/src/services/financialMutationCoordinator.ts",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 2,
-      "norm_label": "idempotencyrecord",
-      "id": "idempotency_record"
-    },
-    {
-      "label": "AuditEvent",
-      "file_type": "code",
-      "source_file": "backend/src/services/financialMutationCoordinator.ts",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 2,
-      "norm_label": "auditevent",
-      "id": "audit_event"
     },
     {
       "label": "Income or Expense Ledger Fact",
@@ -7737,7 +7633,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 140,
       "norm_label": "income or expense ledger fact",
       "id": "ledger_fact"
     },
@@ -7750,7 +7646,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 43,
       "norm_label": "p1-a-03 pass-mock evidence",
       "id": "p1_a_03_pass_mock_evidence"
     },
@@ -7763,12 +7659,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 43,
       "norm_label": "global branch and function coverage gate",
       "id": "global_coverage_gate"
     },
     {
-      "id": "p1_a03_pre_audit_resourceid_validation",
       "label": "P1-A-03 pre-audit resourceId validation",
       "file_type": "document",
       "source_file": "docs/project-memory.md",
@@ -7777,11 +7672,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
-      "norm_label": "p1-a-03 pre-audit resourceid validation"
+      "community": 43,
+      "norm_label": "p1-a-03 pre-audit resourceid validation",
+      "id": "p1_a03_pre_audit_resourceid_validation"
     },
     {
-      "id": "p1_b04_unclassified_internal_error_risk",
       "label": "P1-B-04 unclassified INTERNAL_ERROR risk",
       "file_type": "document",
       "source_file": "docs/project-memory.md",
@@ -7790,11 +7685,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
-      "norm_label": "p1-b-04 unclassified internal_error risk"
+      "community": 4,
+      "norm_label": "p1-b-04 unclassified internal_error risk",
+      "id": "p1_b04_unclassified_internal_error_risk"
     },
     {
-      "id": "p1_b04_raw_prisma_error_capture_required",
       "label": "P1-B-04 raw Prisma error capture required",
       "file_type": "document",
       "source_file": "docs/delivery/phase-1/evidence/P1-B-04.md",
@@ -7803,8 +7698,165 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
-      "norm_label": "p1-b-04 raw prisma error capture required"
+      "community": 4,
+      "norm_label": "p1-b-04 raw prisma error capture required",
+      "id": "p1_b04_raw_prisma_error_capture_required"
+    },
+    {
+      "label": "DomainError.cause",
+      "file_type": "code",
+      "source_file": "backend/src/services/ledgerErrors.ts",
+      "source_location": "L23",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "ledgererrors_domainerror_cause",
+      "community": 24,
+      "norm_label": "domainerror.cause"
+    },
+    {
+      "label": "Raw Prisma Cause Preservation Test",
+      "file_type": "code",
+      "source_file": "backend/src/services/financialMutationCoordinator.test.ts",
+      "source_location": "L165",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "financialmutationcoordinator_test_raw_prisma_cause_preservation",
+      "community": 24,
+      "norm_label": "raw prisma cause preservation test"
+    },
+    {
+      "label": "P1-B-04 Raw Prisma Error Cause",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/evidence/P1-B-04.md",
+      "source_location": "L11",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "p1_b_04_prisma_raw_error_cause",
+      "community": 29,
+      "norm_label": "p1-b-04 raw prisma error cause"
+    },
+    {
+      "label": "Stable Client Error Contract",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/evidence/P1-B-04.md",
+      "source_location": "L11",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "p1_b_04_stable_client_error_contract",
+      "community": 29,
+      "norm_label": "stable client error contract"
+    },
+    {
+      "label": "Future Failure Diagnostic Classification",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/evidence/P1-B-04.md",
+      "source_location": "L18",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "p1_b_04_diagnostic_classification",
+      "community": 29,
+      "norm_label": "future failure diagnostic classification"
+    },
+    {
+      "label": "Unclassified Real-Failure Risk",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/evidence/P1-B-04.md",
+      "source_location": "L18",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "p1_b_04_unclassified_real_failure_risk",
+      "community": 29,
+      "norm_label": "unclassified real-failure risk"
+    },
+    {
+      "label": "P1-B-04 PostgreSQL Concurrency Arbitration Gate",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
+      "source_location": "L72",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "p1_b_04_postgresql_arbitration_gate",
+      "community": 29,
+      "norm_label": "p1-b-04 postgresql concurrency arbitration gate"
+    },
+    {
+      "label": "P1-B-04 AT_RISK Status",
+      "file_type": "document",
+      "source_file": "docs/project-memory.md",
+      "source_location": "L98",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "project_memory_p1_b_04_at_risk_status",
+      "community": 29,
+      "norm_label": "p1-b-04 at_risk status"
+    },
+    {
+      "label": "P1-G-06 Coverage Quality Gate",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "p1_g_06_coverage_quality_gate",
+      "community": 44,
+      "norm_label": "p1-g-06 coverage quality gate"
+    },
+    {
+      "label": "Failed Global Coverage Baseline",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L13",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "p1_g_06_failed_coverage_baseline",
+      "community": 44,
+      "norm_label": "failed global coverage baseline"
+    },
+    {
+      "label": "Behavior-Focused Coverage Tests",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L18",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "p1_g_06_behavior_focused_coverage_tests",
+      "community": 44,
+      "norm_label": "behavior-focused coverage tests"
+    },
+    {
+      "label": "Coverage-Threshold Reduction Is Not a Remedy",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L18",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "p1_g_06_threshold_reduction_not_remedy",
+      "community": 44,
+      "norm_label": "coverage-threshold reduction is not a remedy"
     }
   ],
   "links": [
@@ -7839,8 +7891,8 @@
       "source_file": "backend/src/config/ai.ts",
       "source_location": "lines 9-12",
       "weight": 1.0,
-      "_src": "ai_text_configuration",
-      "_tgt": "ai_configuration_check",
+      "_src": "ai_configuration_check",
+      "_tgt": "ai_text_configuration",
       "source": "ai_text_configuration",
       "target": "ai_configuration_check"
     },
@@ -7851,8 +7903,8 @@
       "source_file": "backend/src/config/ai.ts",
       "source_location": "lines 18-20",
       "weight": 1.0,
-      "_src": "ai_text_configuration",
-      "_tgt": "ai_vision_configuration",
+      "_src": "ai_vision_configuration",
+      "_tgt": "ai_text_configuration",
       "source": "ai_text_configuration",
       "target": "ai_vision_configuration"
     },
@@ -7863,8 +7915,8 @@
       "source_file": "backend/src/config/ai.ts",
       "source_location": "lines 25-34",
       "weight": 1.0,
-      "_src": "ai_vision_configuration",
-      "_tgt": "ai_vision_configuration_check",
+      "_src": "ai_vision_configuration_check",
+      "_tgt": "ai_vision_configuration",
       "source": "ai_vision_configuration",
       "target": "ai_vision_configuration_check"
     },
@@ -7875,8 +7927,8 @@
       "source_file": "backend/src/config/ai.ts",
       "source_location": "lines 14-16",
       "weight": 1.0,
-      "_src": "ai_vision_configuration",
-      "_tgt": "ai_local_ocr_fallback",
+      "_src": "ai_local_ocr_fallback",
+      "_tgt": "ai_vision_configuration",
       "source": "ai_vision_configuration",
       "target": "ai_local_ocr_fallback"
     },
@@ -7887,8 +7939,8 @@
       "source_file": "backend/src/config/ai.ts",
       "source_location": "line 22",
       "weight": 1.0,
-      "_src": "ai_vision_configuration",
-      "_tgt": "ai_vision_determinism_rationale",
+      "_src": "ai_vision_determinism_rationale",
+      "_tgt": "ai_vision_configuration",
       "source": "ai_vision_configuration",
       "target": "ai_vision_determinism_rationale"
     },
@@ -7923,8 +7975,8 @@
       "source_file": "backend/src/config/minio.ts",
       "source_location": "lines 29-66",
       "weight": 1.0,
-      "_src": "minio_internal_client",
-      "_tgt": "minio_object_lifecycle",
+      "_src": "minio_object_lifecycle",
+      "_tgt": "minio_internal_client",
       "source": "minio_internal_client",
       "target": "minio_object_lifecycle"
     },
@@ -7935,8 +7987,8 @@
       "source_file": "backend/src/config/minio.ts",
       "source_location": "lines 15-17",
       "weight": 1.0,
-      "_src": "minio_public_client",
-      "_tgt": "minio_public_endpoint_rationale",
+      "_src": "minio_public_endpoint_rationale",
+      "_tgt": "minio_public_client",
       "source": "minio_public_client",
       "target": "minio_public_endpoint_rationale"
     },
@@ -7959,8 +8011,8 @@
       "source_file": "backend/src/middleware/rateLimit.ts",
       "source_location": "lines 18-24",
       "weight": 1.0,
-      "_src": "redis_shared_client",
-      "_tgt": "ratelimit_redis_window",
+      "_src": "ratelimit_redis_window",
+      "_tgt": "redis_shared_client",
       "source": "redis_shared_client",
       "target": "ratelimit_redis_window"
     },
@@ -8007,8 +8059,8 @@
       "source_file": "backend/src/config/security.ts",
       "source_location": "lines 50-58",
       "weight": 1.0,
-      "_src": "security_jwt_secret_validation",
-      "_tgt": "security_fail_fast",
+      "_src": "security_fail_fast",
+      "_tgt": "security_jwt_secret_validation",
       "source": "security_jwt_secret_validation",
       "target": "security_fail_fast"
     },
@@ -8019,8 +8071,8 @@
       "source_file": "backend/src/config/security.ts",
       "source_location": "lines 24-27",
       "weight": 1.0,
-      "_src": "security_jwt_secret_validation",
-      "_tgt": "security_test_environment_bypass",
+      "_src": "security_test_environment_bypass",
+      "_tgt": "security_jwt_secret_validation",
       "source": "security_jwt_secret_validation",
       "target": "security_test_environment_bypass"
     },
@@ -8043,8 +8095,8 @@
       "source_file": "backend/src/middleware/rateLimit.ts",
       "source_location": "lines 10-14",
       "weight": 1.0,
-      "_src": "auth_authenticated_request_identity",
-      "_tgt": "ratelimit_identifier",
+      "_src": "ratelimit_identifier",
+      "_tgt": "auth_authenticated_request_identity",
       "source": "auth_authenticated_request_identity",
       "target": "ratelimit_identifier"
     },
@@ -8150,8 +8202,8 @@
       "source_file": "backend\\src\\middleware\\familyAccess.ts",
       "source_location": "L58",
       "weight": 1.0,
-      "_src": "familyaccess_loadfamilymembership",
-      "_tgt": "familyaccess_requirefamilyaccess",
+      "_src": "familyaccess_requirefamilyaccess",
+      "_tgt": "familyaccess_loadfamilymembership",
       "confidence_score": 1.0,
       "source": "familyaccess_loadfamilymembership",
       "target": "familyaccess_requirefamilyaccess"
@@ -8162,8 +8214,8 @@
       "source_file": "backend\\src\\middleware\\familyAccess.ts",
       "source_location": "L64",
       "weight": 1.0,
-      "_src": "familyaccess_attachfamilycontext",
-      "_tgt": "familyaccess_requirefamilyaccess",
+      "_src": "familyaccess_requirefamilyaccess",
+      "_tgt": "familyaccess_attachfamilycontext",
       "confidence_score": 1.0,
       "source": "familyaccess_attachfamilycontext",
       "target": "familyaccess_requirefamilyaccess"
@@ -8223,8 +8275,8 @@
       "source_file": "backend/src/middleware/rateLimit.ts",
       "source_location": "lines 18-35",
       "weight": 1.0,
-      "_src": "ratelimit_redis_window",
-      "_tgt": "ratelimit_fail_open",
+      "_src": "ratelimit_fail_open",
+      "_tgt": "ratelimit_redis_window",
       "source": "ratelimit_redis_window",
       "target": "ratelimit_fail_open"
     },
@@ -8666,8 +8718,8 @@
       "source_file": "backend\\src\\services\\aiActions.ts",
       "source_location": "L378",
       "weight": 1.0,
-      "_src": "aiactions_parseamount",
-      "_tgt": "aiactions_parselocalactions",
+      "_src": "aiactions_parselocalactions",
+      "_tgt": "aiactions_parseamount",
       "confidence_score": 1.0,
       "source": "aiactions_parseamount",
       "target": "aiactions_parselocalactions"
@@ -8678,8 +8730,8 @@
       "source_file": "backend\\src\\services\\aiActions.ts",
       "source_location": "L380",
       "weight": 1.0,
-      "_src": "aiactions_matchcategory",
-      "_tgt": "aiactions_parselocalactions",
+      "_src": "aiactions_parselocalactions",
+      "_tgt": "aiactions_matchcategory",
       "confidence_score": 1.0,
       "source": "aiactions_matchcategory",
       "target": "aiactions_parselocalactions"
@@ -8690,8 +8742,8 @@
       "source_file": "backend\\src\\services\\aiActions.ts",
       "source_location": "L386",
       "weight": 1.0,
-      "_src": "aiactions_todaystr",
-      "_tgt": "aiactions_parselocalactions",
+      "_src": "aiactions_parselocalactions",
+      "_tgt": "aiactions_todaystr",
       "confidence_score": 1.0,
       "source": "aiactions_todaystr",
       "target": "aiactions_parselocalactions"
@@ -8715,8 +8767,8 @@
       "source_file": "backend/src/services/aiService.ts",
       "source_location": "lines 211-226",
       "weight": 1.0,
-      "_src": "aiService_openai_compatible_chat_adapter",
-      "_tgt": "aiService_action_aware_chat",
+      "_src": "aiService_action_aware_chat",
+      "_tgt": "aiService_openai_compatible_chat_adapter",
       "source": "aiService_openai_compatible_chat_adapter",
       "target": "aiService_action_aware_chat"
     },
@@ -8727,8 +8779,8 @@
       "source_file": "backend/src/services/aiService.ts",
       "source_location": "lines 258-293",
       "weight": 1.0,
-      "_src": "aiService_openai_compatible_chat_adapter",
-      "_tgt": "aiService_financial_analysis",
+      "_src": "aiService_financial_analysis",
+      "_tgt": "aiService_openai_compatible_chat_adapter",
       "source": "aiService_openai_compatible_chat_adapter",
       "target": "aiService_financial_analysis"
     },
@@ -8739,8 +8791,8 @@
       "source_file": "backend/src/services/aiService.ts",
       "source_location": "lines 466-525",
       "weight": 1.0,
-      "_src": "aiService_openai_compatible_chat_adapter",
-      "_tgt": "aiService_tesseract_structured_ocr",
+      "_src": "aiService_tesseract_structured_ocr",
+      "_tgt": "aiService_openai_compatible_chat_adapter",
       "source": "aiService_openai_compatible_chat_adapter",
       "target": "aiService_tesseract_structured_ocr"
     },
@@ -8751,8 +8803,8 @@
       "source_file": "backend/src/services/aiService.ts",
       "source_location": "lines 187-189, 228-254",
       "weight": 1.0,
-      "_src": "aiService_offline_degradation_strategy",
-      "_tgt": "aiService_action_aware_chat",
+      "_src": "aiService_action_aware_chat",
+      "_tgt": "aiService_offline_degradation_strategy",
       "source": "aiService_offline_degradation_strategy",
       "target": "aiService_action_aware_chat"
     },
@@ -8763,8 +8815,8 @@
       "source_file": "backend/src/services/aiService.ts",
       "source_location": "lines 265-267, 295-355",
       "weight": 1.0,
-      "_src": "aiService_offline_degradation_strategy",
-      "_tgt": "aiService_financial_analysis",
+      "_src": "aiService_financial_analysis",
+      "_tgt": "aiService_offline_degradation_strategy",
       "source": "aiService_offline_degradation_strategy",
       "target": "aiService_financial_analysis"
     },
@@ -8775,8 +8827,8 @@
       "source_file": "backend/src/services/aiService.ts",
       "source_location": "lines 443-464, 527-533",
       "weight": 1.0,
-      "_src": "aiService_offline_degradation_strategy",
-      "_tgt": "aiService_tesseract_structured_ocr",
+      "_src": "aiService_tesseract_structured_ocr",
+      "_tgt": "aiService_offline_degradation_strategy",
       "source": "aiService_offline_degradation_strategy",
       "target": "aiService_tesseract_structured_ocr"
     },
@@ -8823,8 +8875,8 @@
       "source_file": "backend/src/services/aiService.ts",
       "source_location": "lines 381-405",
       "weight": 1.0,
-      "_src": "aiService_merged_ocr_result",
-      "_tgt": "aiService_ocr_to_actions",
+      "_src": "aiService_ocr_to_actions",
+      "_tgt": "aiService_merged_ocr_result",
       "source": "aiService_merged_ocr_result",
       "target": "aiService_ocr_to_actions"
     },
@@ -9000,18 +9052,6 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
-      "source_location": "L223",
-      "weight": 1.0,
-      "_src": "backend_src_services_financialmutationcoordinator_ts",
-      "_tgt": "financialmutationcoordinator_coordinatefinancialmutation",
-      "confidence_score": 1.0,
-      "source": "backend_src_services_financialmutationcoordinator_ts",
-      "target": "financialmutationcoordinator_coordinatefinancialmutation"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
       "source_location": "L213",
       "weight": 1.0,
       "_src": "backend_src_services_financialmutationcoordinator_ts",
@@ -9021,13 +9061,25 @@
       "target": "financialmutationcoordinator_validatemutationresult"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_location": "L223",
+      "weight": 1.0,
+      "_src": "backend_src_services_financialmutationcoordinator_ts",
+      "_tgt": "financialmutationcoordinator_coordinatefinancialmutation",
+      "confidence_score": 1.0,
+      "source": "backend_src_services_financialmutationcoordinator_ts",
+      "target": "financialmutationcoordinator_coordinatefinancialmutation"
+    },
+    {
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
       "source_location": "L68",
       "weight": 1.0,
-      "_src": "financialmutationcoordinator_canonicalize",
-      "_tgt": "financialmutationcoordinator_hashnormalizedpayload",
+      "_src": "financialmutationcoordinator_hashnormalizedpayload",
+      "_tgt": "financialmutationcoordinator_canonicalize",
       "confidence_score": 1.0,
       "source": "financialmutationcoordinator_canonicalize",
       "target": "financialmutationcoordinator_hashnormalizedpayload"
@@ -9099,8 +9151,8 @@
       "source_file": "backend/src/services/importService.ts",
       "source_location": null,
       "weight": 1.0,
-      "_src": "importservice_imported_transaction",
-      "_tgt": "importservice_parse_alipay",
+      "_src": "importservice_parse_alipay",
+      "_tgt": "importservice_imported_transaction",
       "source": "importservice_imported_transaction",
       "target": "importservice_parse_alipay"
     },
@@ -9111,8 +9163,8 @@
       "source_file": "backend/src/services/importService.ts",
       "source_location": null,
       "weight": 1.0,
-      "_src": "importservice_imported_transaction",
-      "_tgt": "importservice_parse_wechat",
+      "_src": "importservice_parse_wechat",
+      "_tgt": "importservice_imported_transaction",
       "source": "importservice_imported_transaction",
       "target": "importservice_parse_wechat"
     },
@@ -9123,8 +9175,8 @@
       "source_file": "backend/src/services/importService.ts",
       "source_location": null,
       "weight": 1.0,
-      "_src": "importservice_imported_transaction",
-      "_tgt": "importservice_parse_csv",
+      "_src": "importservice_parse_csv",
+      "_tgt": "importservice_imported_transaction",
       "source": "importservice_imported_transaction",
       "target": "importservice_parse_csv"
     },
@@ -9135,8 +9187,8 @@
       "source_file": "backend/src/services/importService.ts",
       "source_location": null,
       "weight": 1.0,
-      "_src": "importservice_parse_amount",
-      "_tgt": "importservice_parse_alipay",
+      "_src": "importservice_parse_alipay",
+      "_tgt": "importservice_parse_amount",
       "source": "importservice_parse_amount",
       "target": "importservice_parse_alipay"
     },
@@ -9147,57 +9199,9 @@
       "source_file": "backend/src/services/importService.ts",
       "source_location": null,
       "weight": 1.0,
-      "_src": "importservice_parse_amount",
-      "_tgt": "importservice_parse_wechat",
+      "_src": "importservice_parse_wechat",
+      "_tgt": "importservice_parse_amount",
       "source": "importservice_parse_amount",
-      "target": "importservice_parse_wechat"
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/services/importService.ts",
-      "source_location": null,
-      "weight": 1.0,
-      "_src": "importservice_normalize_date",
-      "_tgt": "importservice_parse_alipay",
-      "source": "importservice_normalize_date",
-      "target": "importservice_parse_alipay"
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/services/importService.ts",
-      "source_location": null,
-      "weight": 1.0,
-      "_src": "importservice_normalize_date",
-      "_tgt": "importservice_parse_wechat",
-      "source": "importservice_normalize_date",
-      "target": "importservice_parse_wechat"
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/services/importService.ts",
-      "source_location": null,
-      "weight": 1.0,
-      "_src": "importservice_parse_rows",
-      "_tgt": "importservice_parse_alipay",
-      "source": "importservice_parse_rows",
-      "target": "importservice_parse_alipay"
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/services/importService.ts",
-      "source_location": null,
-      "weight": 1.0,
-      "_src": "importservice_parse_rows",
-      "_tgt": "importservice_parse_wechat",
-      "source": "importservice_parse_rows",
       "target": "importservice_parse_wechat"
     },
     {
@@ -9208,7 +9212,55 @@
       "source_location": null,
       "weight": 1.0,
       "_src": "importservice_parse_alipay",
-      "_tgt": "importservice_parse_csv",
+      "_tgt": "importservice_normalize_date",
+      "source": "importservice_normalize_date",
+      "target": "importservice_parse_alipay"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/services/importService.ts",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "importservice_parse_wechat",
+      "_tgt": "importservice_normalize_date",
+      "source": "importservice_normalize_date",
+      "target": "importservice_parse_wechat"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/services/importService.ts",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "importservice_parse_alipay",
+      "_tgt": "importservice_parse_rows",
+      "source": "importservice_parse_rows",
+      "target": "importservice_parse_alipay"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/services/importService.ts",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "importservice_parse_wechat",
+      "_tgt": "importservice_parse_rows",
+      "source": "importservice_parse_rows",
+      "target": "importservice_parse_wechat"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/services/importService.ts",
+      "source_location": null,
+      "weight": 1.0,
+      "_src": "importservice_parse_csv",
+      "_tgt": "importservice_parse_alipay",
       "source": "importservice_parse_alipay",
       "target": "importservice_parse_csv"
     },
@@ -9219,8 +9271,8 @@
       "source_file": "backend/src/services/importService.ts",
       "source_location": null,
       "weight": 1.0,
-      "_src": "importservice_parse_wechat",
-      "_tgt": "importservice_parse_csv",
+      "_src": "importservice_parse_csv",
+      "_tgt": "importservice_parse_wechat",
       "source": "importservice_parse_wechat",
       "target": "importservice_parse_csv"
     },
@@ -9338,8 +9390,8 @@
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L69",
       "weight": 1.0,
-      "_src": "ledgerapplicationservice_requiretext",
-      "_tgt": "ledgerapplicationservice_validatecommandscope",
+      "_src": "ledgerapplicationservice_validatecommandscope",
+      "_tgt": "ledgerapplicationservice_requiretext",
       "confidence_score": 1.0,
       "source": "ledgerapplicationservice_requiretext",
       "target": "ledgerapplicationservice_validatecommandscope"
@@ -9350,8 +9402,8 @@
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L88",
       "weight": 1.0,
-      "_src": "ledgerapplicationservice_requiretext",
-      "_tgt": "ledgerapplicationservice_createincome",
+      "_src": "ledgerapplicationservice_createincome",
+      "_tgt": "ledgerapplicationservice_requiretext",
       "confidence_score": 1.0,
       "source": "ledgerapplicationservice_requiretext",
       "target": "ledgerapplicationservice_createincome"
@@ -9362,8 +9414,8 @@
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L132",
       "weight": 1.0,
-      "_src": "ledgerapplicationservice_requiretext",
-      "_tgt": "ledgerapplicationservice_createexpense",
+      "_src": "ledgerapplicationservice_createexpense",
+      "_tgt": "ledgerapplicationservice_requiretext",
       "confidence_score": 1.0,
       "source": "ledgerapplicationservice_requiretext",
       "target": "ledgerapplicationservice_createexpense"
@@ -9374,8 +9426,8 @@
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L89",
       "weight": 1.0,
-      "_src": "ledgerapplicationservice_optionaltext",
-      "_tgt": "ledgerapplicationservice_createincome",
+      "_src": "ledgerapplicationservice_createincome",
+      "_tgt": "ledgerapplicationservice_optionaltext",
       "confidence_score": 1.0,
       "source": "ledgerapplicationservice_optionaltext",
       "target": "ledgerapplicationservice_createincome"
@@ -9386,8 +9438,8 @@
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L133",
       "weight": 1.0,
-      "_src": "ledgerapplicationservice_optionaltext",
-      "_tgt": "ledgerapplicationservice_createexpense",
+      "_src": "ledgerapplicationservice_createexpense",
+      "_tgt": "ledgerapplicationservice_optionaltext",
       "confidence_score": 1.0,
       "source": "ledgerapplicationservice_optionaltext",
       "target": "ledgerapplicationservice_createexpense"
@@ -9398,8 +9450,8 @@
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L87",
       "weight": 1.0,
-      "_src": "ledgerapplicationservice_requireamount",
-      "_tgt": "ledgerapplicationservice_createincome",
+      "_src": "ledgerapplicationservice_createincome",
+      "_tgt": "ledgerapplicationservice_requireamount",
       "confidence_score": 1.0,
       "source": "ledgerapplicationservice_requireamount",
       "target": "ledgerapplicationservice_createincome"
@@ -9410,8 +9462,8 @@
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L131",
       "weight": 1.0,
-      "_src": "ledgerapplicationservice_requireamount",
-      "_tgt": "ledgerapplicationservice_createexpense",
+      "_src": "ledgerapplicationservice_createexpense",
+      "_tgt": "ledgerapplicationservice_requireamount",
       "confidence_score": 1.0,
       "source": "ledgerapplicationservice_requireamount",
       "target": "ledgerapplicationservice_createexpense"
@@ -9422,8 +9474,8 @@
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L91",
       "weight": 1.0,
-      "_src": "ledgerapplicationservice_requiredate",
-      "_tgt": "ledgerapplicationservice_createincome",
+      "_src": "ledgerapplicationservice_createincome",
+      "_tgt": "ledgerapplicationservice_requiredate",
       "confidence_score": 1.0,
       "source": "ledgerapplicationservice_requiredate",
       "target": "ledgerapplicationservice_createincome"
@@ -9434,8 +9486,8 @@
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L135",
       "weight": 1.0,
-      "_src": "ledgerapplicationservice_requiredate",
-      "_tgt": "ledgerapplicationservice_createexpense",
+      "_src": "ledgerapplicationservice_createexpense",
+      "_tgt": "ledgerapplicationservice_requiredate",
       "confidence_score": 1.0,
       "source": "ledgerapplicationservice_requiredate",
       "target": "ledgerapplicationservice_createexpense"
@@ -9446,8 +9498,8 @@
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L92",
       "weight": 1.0,
-      "_src": "ledgerapplicationservice_normalizecurrency",
-      "_tgt": "ledgerapplicationservice_createincome",
+      "_src": "ledgerapplicationservice_createincome",
+      "_tgt": "ledgerapplicationservice_normalizecurrency",
       "confidence_score": 1.0,
       "source": "ledgerapplicationservice_normalizecurrency",
       "target": "ledgerapplicationservice_createincome"
@@ -9458,8 +9510,8 @@
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L136",
       "weight": 1.0,
-      "_src": "ledgerapplicationservice_normalizecurrency",
-      "_tgt": "ledgerapplicationservice_createexpense",
+      "_src": "ledgerapplicationservice_createexpense",
+      "_tgt": "ledgerapplicationservice_normalizecurrency",
       "confidence_score": 1.0,
       "source": "ledgerapplicationservice_normalizecurrency",
       "target": "ledgerapplicationservice_createexpense"
@@ -9470,8 +9522,8 @@
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L85",
       "weight": 1.0,
-      "_src": "ledgerapplicationservice_validatecommandscope",
-      "_tgt": "ledgerapplicationservice_createincome",
+      "_src": "ledgerapplicationservice_createincome",
+      "_tgt": "ledgerapplicationservice_validatecommandscope",
       "confidence_score": 1.0,
       "source": "ledgerapplicationservice_validatecommandscope",
       "target": "ledgerapplicationservice_createincome"
@@ -9482,8 +9534,8 @@
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L129",
       "weight": 1.0,
-      "_src": "ledgerapplicationservice_validatecommandscope",
-      "_tgt": "ledgerapplicationservice_createexpense",
+      "_src": "ledgerapplicationservice_createexpense",
+      "_tgt": "ledgerapplicationservice_validatecommandscope",
       "confidence_score": 1.0,
       "source": "ledgerapplicationservice_validatecommandscope",
       "target": "ledgerapplicationservice_createexpense"
@@ -9504,7 +9556,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend\\src\\services\\ledgerErrors.ts",
-      "source_location": "L25",
+      "source_location": "L29",
       "weight": 1.0,
       "_src": "backend_src_services_ledgererrors_ts",
       "_tgt": "ledgererrors_prismacode",
@@ -9516,7 +9568,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend\\src\\services\\ledgerErrors.ts",
-      "source_location": "L33",
+      "source_location": "L37",
       "weight": 1.0,
       "_src": "backend_src_services_ledgererrors_ts",
       "_tgt": "ledgererrors_mapprismaerror",
@@ -9537,16 +9589,58 @@
       "target": "ledgererrors_domainerror_constructor"
     },
     {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/services/ledgerErrors.ts",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "ledgererrors_domainerror",
+      "target": "ledgererrors_domainerror_cause"
+    },
+    {
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "backend\\src\\services\\ledgerErrors.ts",
-      "source_location": "L36",
+      "source_location": "L40",
       "weight": 1.0,
-      "_src": "ledgererrors_prismacode",
-      "_tgt": "ledgererrors_mapprismaerror",
+      "_src": "ledgererrors_mapprismaerror",
+      "_tgt": "ledgererrors_prismacode",
       "confidence_score": 1.0,
       "source": "ledgererrors_prismacode",
       "target": "ledgererrors_mapprismaerror"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/services/ledgerErrors.ts",
+      "source_location": "L37",
+      "weight": 1.0,
+      "source": "ledgererrors_mapprismaerror",
+      "target": "ledgererrors_domainerror_cause"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/services/financialMutationCoordinator.test.ts",
+      "source_location": "L171",
+      "weight": 1.0,
+      "source": "ledgererrors_mapprismaerror",
+      "target": "financialmutationcoordinator_test_raw_prisma_cause_preservation"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend\\src\\services\\ledgerTransactionOrchestration.test.ts",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_src": "backend_src_services_ledgertransactionorchestration_test_ts",
+      "_tgt": "ledgertransactionorchestration_test_createstore",
+      "confidence_score": 1.0,
+      "source": "backend_src_services_ledgertransactionorchestration_test_ts",
+      "target": "ledgertransactionorchestration_test_createstore"
     },
     {
       "relation": "calls",
@@ -9591,8 +9685,8 @@
       "source_file": "backend/src/services/ocrService.ts",
       "source_location": null,
       "weight": 1.0,
-      "_src": "ocrservice_base64_to_buffer",
-      "_tgt": "ocrservice_extract_text_from_image",
+      "_src": "ocrservice_extract_text_from_image",
+      "_tgt": "ocrservice_base64_to_buffer",
       "source": "ocrservice_base64_to_buffer",
       "target": "ocrservice_extract_text_from_image"
     },
@@ -9603,8 +9697,8 @@
       "source_file": "backend/src/services/ocrService.ts",
       "source_location": null,
       "weight": 1.0,
-      "_src": "ocrservice_tesseract_ocr",
-      "_tgt": "ocrservice_extract_text_from_image",
+      "_src": "ocrservice_extract_text_from_image",
+      "_tgt": "ocrservice_tesseract_ocr",
       "source": "ocrservice_tesseract_ocr",
       "target": "ocrservice_extract_text_from_image"
     },
@@ -9627,8 +9721,8 @@
       "source_file": "backend/src/services/ocrService.ts",
       "source_location": null,
       "weight": 1.0,
-      "_src": "ocrservice_ocr_item",
-      "_tgt": "ocrservice_parsed_ocr",
+      "_src": "ocrservice_parsed_ocr",
+      "_tgt": "ocrservice_ocr_item",
       "source": "ocrservice_ocr_item",
       "target": "ocrservice_parsed_ocr"
     },
@@ -9639,8 +9733,8 @@
       "source_file": "backend/src/services/ocrService.ts",
       "source_location": null,
       "weight": 1.0,
-      "_src": "ocrservice_parsed_ocr",
-      "_tgt": "ocrservice_extract_via_vision",
+      "_src": "ocrservice_extract_via_vision",
+      "_tgt": "ocrservice_parsed_ocr",
       "source": "ocrservice_parsed_ocr",
       "target": "ocrservice_extract_via_vision"
     },
@@ -9651,8 +9745,8 @@
       "source_file": "backend/src/services/ocrService.ts",
       "source_location": null,
       "weight": 1.0,
-      "_src": "ocrservice_parsed_ocr",
-      "_tgt": "ocrservice_merged_ocr",
+      "_src": "ocrservice_merged_ocr",
+      "_tgt": "ocrservice_parsed_ocr",
       "source": "ocrservice_parsed_ocr",
       "target": "ocrservice_merged_ocr"
     },
@@ -9663,8 +9757,8 @@
       "source_file": "backend/src/services/ocrService.ts",
       "source_location": null,
       "weight": 1.0,
-      "_src": "ocrservice_parsed_ocr",
-      "_tgt": "ocrservice_merge_ocr_results",
+      "_src": "ocrservice_merge_ocr_results",
+      "_tgt": "ocrservice_parsed_ocr",
       "source": "ocrservice_parsed_ocr",
       "target": "ocrservice_merge_ocr_results"
     },
@@ -9675,8 +9769,8 @@
       "source_file": "backend/src/services/ocrService.ts",
       "source_location": null,
       "weight": 1.0,
-      "_src": "ocrservice_vision_system_prompt",
-      "_tgt": "ocrservice_extract_via_vision",
+      "_src": "ocrservice_extract_via_vision",
+      "_tgt": "ocrservice_vision_system_prompt",
       "source": "ocrservice_vision_system_prompt",
       "target": "ocrservice_extract_via_vision"
     },
@@ -9687,8 +9781,8 @@
       "source_file": "backend/src/services/ocrService.ts",
       "source_location": null,
       "weight": 1.0,
-      "_src": "ocrservice_vision_chat_completions",
-      "_tgt": "ocrservice_extract_via_vision",
+      "_src": "ocrservice_extract_via_vision",
+      "_tgt": "ocrservice_vision_chat_completions",
       "source": "ocrservice_vision_chat_completions",
       "target": "ocrservice_extract_via_vision"
     },
@@ -9711,8 +9805,8 @@
       "source_file": "backend/src/services/ocrService.ts",
       "source_location": null,
       "weight": 1.0,
-      "_src": "ocrservice_merge_ocr_results",
-      "_tgt": "ocrservice_hybrid_ocr_strategy",
+      "_src": "ocrservice_hybrid_ocr_strategy",
+      "_tgt": "ocrservice_merge_ocr_results",
       "source": "ocrservice_merge_ocr_results",
       "target": "ocrservice_hybrid_ocr_strategy"
     },
@@ -9794,8 +9888,8 @@
       "source_file": "backend\\src\\services\\prismaFinancialMutationStore.ts",
       "source_location": "L34",
       "weight": 1.0,
-      "_src": "prismafinancialmutationstore_operation",
-      "_tgt": "prismafinancialmutationstore_snapshot",
+      "_src": "prismafinancialmutationstore_snapshot",
+      "_tgt": "prismafinancialmutationstore_operation",
       "confidence_score": 1.0,
       "source": "prismafinancialmutationstore_operation",
       "target": "prismafinancialmutationstore_snapshot"
@@ -9951,8 +10045,8 @@
       "source_file": "backend/src/utils/pagination.ts",
       "source_location": null,
       "weight": 1.0,
-      "_src": "pagination_params",
-      "_tgt": "pagination_parse_pagination",
+      "_src": "pagination_parse_pagination",
+      "_tgt": "pagination_params",
       "source": "pagination_params",
       "target": "pagination_parse_pagination"
     },
@@ -9963,8 +10057,8 @@
       "source_file": "backend/src/utils/pagination.ts",
       "source_location": null,
       "weight": 1.0,
-      "_src": "pagination_params",
-      "_tgt": "pagination_paginate_response",
+      "_src": "pagination_paginate_response",
+      "_tgt": "pagination_params",
       "source": "pagination_params",
       "target": "pagination_paginate_response"
     },
@@ -9987,8 +10081,8 @@
       "source_file": "backend/src/utils/pagination.ts",
       "source_location": null,
       "weight": 1.0,
-      "_src": "pagination_parse_pagination",
-      "_tgt": "pagination_backward_compatibility",
+      "_src": "pagination_backward_compatibility",
+      "_tgt": "pagination_parse_pagination",
       "source": "pagination_parse_pagination",
       "target": "pagination_backward_compatibility"
     },
@@ -9999,8 +10093,8 @@
       "source_file": "backend/src/utils/pagination.ts",
       "source_location": null,
       "weight": 1.0,
-      "_src": "pagination_paginated_response",
-      "_tgt": "pagination_paginate_response",
+      "_src": "pagination_paginate_response",
+      "_tgt": "pagination_paginated_response",
       "source": "pagination_paginated_response",
       "target": "pagination_paginate_response"
     },
@@ -10023,8 +10117,8 @@
       "source_file": "backend/src/utils/phash.ts",
       "source_location": null,
       "weight": 1.0,
-      "_src": "phash_hamming_distance",
-      "_tgt": "phash_is_similar_image",
+      "_src": "phash_is_similar_image",
+      "_tgt": "phash_hamming_distance",
       "source": "phash_hamming_distance",
       "target": "phash_is_similar_image"
     },
@@ -10070,8 +10164,8 @@
       "source_file": "backend\\src\\utils\\reportFormulas.ts",
       "source_location": "L24",
       "weight": 1.0,
-      "_src": "reportformulas_includesany",
-      "_tgt": "reportformulas_classifycashflowcategory",
+      "_src": "reportformulas_classifycashflowcategory",
+      "_tgt": "reportformulas_includesany",
       "confidence_score": 1.0,
       "source": "reportformulas_includesany",
       "target": "reportformulas_classifycashflowcategory"
@@ -10203,8 +10297,8 @@
       "source_file": "frontend/src/main.tsx",
       "source_location": null,
       "weight": 1.0,
-      "_src": "app_route_map",
-      "_tgt": "main_react_bootstrap",
+      "_src": "main_react_bootstrap",
+      "_tgt": "app_route_map",
       "source": "app_route_map",
       "target": "main_react_bootstrap"
     },
@@ -10227,8 +10321,8 @@
       "source_file": "frontend/src/App.tsx",
       "source_location": null,
       "weight": 1.0,
-      "_src": "app_legacy_report_redirects",
-      "_tgt": "app_bookmark_backward_compatibility",
+      "_src": "app_bookmark_backward_compatibility",
+      "_tgt": "app_legacy_report_redirects",
       "source": "app_legacy_report_redirects",
       "target": "app_bookmark_backward_compatibility"
     },
@@ -10263,8 +10357,8 @@
       "source_file": "frontend/src/components/Layout.tsx",
       "source_location": null,
       "weight": 1.0,
-      "_src": "familyselector_component",
-      "_tgt": "layout_component",
+      "_src": "layout_component",
+      "_tgt": "familyselector_component",
       "source": "familyselector_component",
       "target": "layout_component"
     },
@@ -10335,8 +10429,8 @@
       "source_file": "frontend/src/components/ProtectedRoute.tsx",
       "source_location": null,
       "weight": 1.0,
-      "_src": "frontend_auth_state",
-      "_tgt": "protectedroute_auth_gate",
+      "_src": "protectedroute_auth_gate",
+      "_tgt": "frontend_auth_state",
       "source": "frontend_auth_state",
       "target": "protectedroute_auth_gate"
     },
@@ -10347,8 +10441,8 @@
       "source_file": "frontend/src/components/ProtectedRoute.tsx",
       "source_location": null,
       "weight": 1.0,
-      "_src": "protectedroute_login_redirect",
-      "_tgt": "protectedroute_auth_gate",
+      "_src": "protectedroute_auth_gate",
+      "_tgt": "protectedroute_login_redirect",
       "source": "protectedroute_login_redirect",
       "target": "protectedroute_auth_gate"
     },
@@ -10371,8 +10465,8 @@
       "source_file": "frontend/src/components/charts/AssetAllocationChart.tsx",
       "source_location": null,
       "weight": 1.0,
-      "_src": "assetallocation_chart",
-      "_tgt": "assetallocation_zero_value_filter",
+      "_src": "assetallocation_zero_value_filter",
+      "_tgt": "assetallocation_chart",
       "source": "assetallocation_chart",
       "target": "assetallocation_zero_value_filter"
     },
@@ -10455,8 +10549,8 @@
       "source_file": "frontend/src/pages/DashboardPage.tsx",
       "source_location": "IncomeExpenseChart props",
       "weight": 1.0,
-      "_src": "income_expense_month_chart",
-      "_tgt": "family_financial_dashboard",
+      "_src": "family_financial_dashboard",
+      "_tgt": "income_expense_month_chart",
       "source": "income_expense_month_chart",
       "target": "family_financial_dashboard"
     },
@@ -10479,8 +10573,8 @@
       "source_file": "frontend/src/pages/AIAnalysisPage.tsx",
       "source_location": "report split and line-prefix rendering",
       "weight": 1.0,
-      "_src": "ai_analysis_report_page",
-      "_tgt": "ai_analysis_markdown_renderer",
+      "_src": "ai_analysis_markdown_renderer",
+      "_tgt": "ai_analysis_report_page",
       "source": "ai_analysis_report_page",
       "target": "ai_analysis_markdown_renderer"
     },
@@ -10575,8 +10669,8 @@
       "source_file": "frontend/src/pages/AIPage.tsx",
       "source_location": "compressImage comment",
       "weight": 1.0,
-      "_src": "ai_client_image_compression",
-      "_tgt": "ai_image_compression_rationale",
+      "_src": "ai_image_compression_rationale",
+      "_tgt": "ai_client_image_compression",
       "source": "ai_client_image_compression",
       "target": "ai_image_compression_rationale"
     },
@@ -10599,8 +10693,8 @@
       "source_file": "frontend/src/pages/AIPage.tsx",
       "source_location": "EditableActionState and deleteEditableAction comments",
       "weight": 1.0,
-      "_src": "ai_proposed_action_review",
-      "_tgt": "ai_duplicate_flag_alignment",
+      "_src": "ai_duplicate_flag_alignment",
+      "_tgt": "ai_proposed_action_review",
       "source": "ai_proposed_action_review",
       "target": "ai_duplicate_flag_alignment"
     },
@@ -10635,8 +10729,8 @@
       "source_file": "frontend/src/pages/AssetsPage.tsx",
       "source_location": "totalValue",
       "weight": 1.0,
-      "_src": "family_asset_register",
-      "_tgt": "asset_valuation_summary",
+      "_src": "asset_valuation_summary",
+      "_tgt": "family_asset_register",
       "source": "family_asset_register",
       "target": "asset_valuation_summary"
     },
@@ -10671,8 +10765,8 @@
       "source_file": "frontend/src/pages/GoalsPage.tsx",
       "source_location": "INVESTMENT uses total assets",
       "weight": 1.0,
-      "_src": "family_asset_register",
-      "_tgt": "goal_progress_basis",
+      "_src": "goal_progress_basis",
+      "_tgt": "family_asset_register",
       "source": "family_asset_register",
       "target": "goal_progress_basis"
     },
@@ -10695,8 +10789,8 @@
       "source_file": "frontend/src/services/aiService.ts",
       "source_location": "assets resourceMap entry",
       "weight": 1.0,
-      "_src": "family_asset_register",
-      "_tgt": "ai_undo_resource_mapping",
+      "_src": "ai_undo_resource_mapping",
+      "_tgt": "family_asset_register",
       "source": "family_asset_register",
       "target": "ai_undo_resource_mapping"
     },
@@ -10707,8 +10801,8 @@
       "source_file": "frontend/src/pages/BalanceSheetPage.tsx",
       "source_location": "buildChartData",
       "weight": 1.0,
-      "_src": "family_balance_sheet",
-      "_tgt": "asset_liability_comparison",
+      "_src": "asset_liability_comparison",
+      "_tgt": "family_balance_sheet",
       "source": "family_balance_sheet",
       "target": "asset_liability_comparison"
     },
@@ -10767,8 +10861,8 @@
       "source_file": "frontend/src/pages/GoalsPage.tsx",
       "source_location": "SAVING uses net worth",
       "weight": 1.0,
-      "_src": "family_balance_sheet",
-      "_tgt": "goal_progress_basis",
+      "_src": "goal_progress_basis",
+      "_tgt": "family_balance_sheet",
       "source": "family_balance_sheet",
       "target": "goal_progress_basis"
     },
@@ -10779,8 +10873,8 @@
       "source_file": "frontend/src/pages/BudgetPage.tsx",
       "source_location": "percentage threshold helpers",
       "weight": 1.0,
-      "_src": "category_budget_progress",
-      "_tgt": "budget_threshold_alerting",
+      "_src": "budget_threshold_alerting",
+      "_tgt": "category_budget_progress",
       "source": "category_budget_progress",
       "target": "budget_threshold_alerting"
     },
@@ -10815,8 +10909,8 @@
       "source_file": "frontend/src/pages/CashFlowPage.tsx",
       "source_location": "CashFlowData and activity sections",
       "weight": 1.0,
-      "_src": "family_cash_flow_statement",
-      "_tgt": "cash_flow_activity_classification",
+      "_src": "cash_flow_activity_classification",
+      "_tgt": "family_cash_flow_statement",
       "source": "family_cash_flow_statement",
       "target": "cash_flow_activity_classification"
     },
@@ -10851,8 +10945,8 @@
       "source_file": "frontend/src/pages/ComparePage.tsx",
       "source_location": "maxByDim and radarData",
       "weight": 1.0,
-      "_src": "cross_family_comparison",
-      "_tgt": "normalized_family_radar",
+      "_src": "normalized_family_radar",
+      "_tgt": "cross_family_comparison",
       "source": "cross_family_comparison",
       "target": "normalized_family_radar"
     },
@@ -10935,8 +11029,8 @@
       "source_file": "frontend/src/pages/FamiliesPage.tsx",
       "source_location": "inviteRole and admin checks",
       "weight": 1.0,
-      "_src": "family_workspace",
-      "_tgt": "family_membership_roles",
+      "_src": "family_membership_roles",
+      "_tgt": "family_workspace",
       "source": "family_workspace",
       "target": "family_membership_roles"
     },
@@ -10947,8 +11041,8 @@
       "source_file": "frontend/src/pages/FamiliesPage.tsx",
       "source_location": "loadFamilies and handleCreateFamily",
       "weight": 1.0,
-      "_src": "family_workspace",
-      "_tgt": "family_store_synchronization",
+      "_src": "family_store_synchronization",
+      "_tgt": "family_workspace",
       "source": "family_workspace",
       "target": "family_store_synchronization"
     },
@@ -10959,8 +11053,8 @@
       "source_file": "frontend/src/pages/FamiliesPage.tsx",
       "source_location": "setCurrentFamily(newFamily)",
       "weight": 1.0,
-      "_src": "current_family_scope",
-      "_tgt": "family_store_synchronization",
+      "_src": "family_store_synchronization",
+      "_tgt": "current_family_scope",
       "source": "current_family_scope",
       "target": "family_store_synchronization"
     },
@@ -10971,8 +11065,8 @@
       "source_file": "frontend/src/pages/FilesPage.tsx",
       "source_location": "currentFamily guard and file calls",
       "weight": 1.0,
-      "_src": "current_family_scope",
-      "_tgt": "family_file_archive",
+      "_src": "family_file_archive",
+      "_tgt": "current_family_scope",
       "source": "current_family_scope",
       "target": "family_file_archive"
     },
@@ -10983,8 +11077,8 @@
       "source_file": "frontend/src/pages/GoalsPage.tsx",
       "source_location": "currentFamily guard and goal calls",
       "weight": 1.0,
-      "_src": "current_family_scope",
-      "_tgt": "financial_goal_tracking",
+      "_src": "financial_goal_tracking",
+      "_tgt": "current_family_scope",
       "source": "current_family_scope",
       "target": "financial_goal_tracking"
     },
@@ -10995,8 +11089,8 @@
       "source_file": "frontend/src/pages/ImportPage.tsx",
       "source_location": "currentFamily guard and import calls",
       "weight": 1.0,
-      "_src": "current_family_scope",
-      "_tgt": "payment_csv_import",
+      "_src": "payment_csv_import",
+      "_tgt": "current_family_scope",
       "source": "current_family_scope",
       "target": "payment_csv_import"
     },
@@ -11007,8 +11101,8 @@
       "source_file": "frontend/src/pages/IncomeStatementPage.tsx",
       "source_location": "currentFamily guard and endpoint",
       "weight": 1.0,
-      "_src": "current_family_scope",
-      "_tgt": "family_income_statement",
+      "_src": "family_income_statement",
+      "_tgt": "current_family_scope",
       "source": "current_family_scope",
       "target": "family_income_statement"
     },
@@ -11019,8 +11113,8 @@
       "source_file": "frontend/src/pages/InvestmentPage.tsx",
       "source_location": "currentFamily guard and summary call",
       "weight": 1.0,
-      "_src": "current_family_scope",
-      "_tgt": "family_investment_allocation",
+      "_src": "family_investment_allocation",
+      "_tgt": "current_family_scope",
       "source": "current_family_scope",
       "target": "family_investment_allocation"
     },
@@ -11031,8 +11125,8 @@
       "source_file": "frontend/src/pages/LiabilitiesPage.tsx",
       "source_location": "currentFamily guard and CRUD calls",
       "weight": 1.0,
-      "_src": "current_family_scope",
-      "_tgt": "family_liability_register",
+      "_src": "family_liability_register",
+      "_tgt": "current_family_scope",
       "source": "current_family_scope",
       "target": "family_liability_register"
     },
@@ -11043,8 +11137,8 @@
       "source_file": "frontend/src/pages/RecurringPage.tsx",
       "source_location": "currentFamily guard and recurring calls",
       "weight": 1.0,
-      "_src": "current_family_scope",
-      "_tgt": "recurring_transaction_rules",
+      "_src": "recurring_transaction_rules",
+      "_tgt": "current_family_scope",
       "source": "current_family_scope",
       "target": "recurring_transaction_rules"
     },
@@ -11055,8 +11149,8 @@
       "source_file": "frontend/src/pages/TransactionsPage.tsx",
       "source_location": "currentFamily guard and CRUD calls",
       "weight": 1.0,
-      "_src": "current_family_scope",
-      "_tgt": "family_transaction_ledger",
+      "_src": "family_transaction_ledger",
+      "_tgt": "current_family_scope",
       "source": "current_family_scope",
       "target": "family_transaction_ledger"
     },
@@ -11079,8 +11173,8 @@
       "source_file": "frontend/src/pages/FilesPage.tsx",
       "source_location": "handleDelete comments and rollback",
       "weight": 1.0,
-      "_src": "family_file_archive",
-      "_tgt": "optimistic_file_deletion",
+      "_src": "optimistic_file_deletion",
+      "_tgt": "family_file_archive",
       "source": "family_file_archive",
       "target": "optimistic_file_deletion"
     },
@@ -11091,8 +11185,8 @@
       "source_file": "frontend/src/pages/GoalsPage.tsx",
       "source_location": "goal type option labels",
       "weight": 1.0,
-      "_src": "financial_goal_tracking",
-      "_tgt": "goal_progress_basis",
+      "_src": "goal_progress_basis",
+      "_tgt": "financial_goal_tracking",
       "source": "financial_goal_tracking",
       "target": "goal_progress_basis"
     },
@@ -11115,8 +11209,8 @@
       "source_file": "frontend/src/pages/ImportPage.tsx",
       "source_location": "previewCSV then confirmImport",
       "weight": 1.0,
-      "_src": "payment_csv_import",
-      "_tgt": "editable_import_preview",
+      "_src": "editable_import_preview",
+      "_tgt": "payment_csv_import",
       "source": "payment_csv_import",
       "target": "editable_import_preview"
     },
@@ -11139,8 +11233,8 @@
       "source_file": "frontend/src/pages/IncomeStatementPage.tsx",
       "source_location": "loadData",
       "weight": 1.0,
-      "_src": "family_income_statement",
-      "_tgt": "income_statement_direct_fetch",
+      "_src": "income_statement_direct_fetch",
+      "_tgt": "family_income_statement",
       "source": "family_income_statement",
       "target": "income_statement_direct_fetch"
     },
@@ -11175,8 +11269,8 @@
       "source_file": "frontend/src/pages/LiabilitiesPage.tsx",
       "source_location": "formData and liability table",
       "weight": 1.0,
-      "_src": "family_liability_register",
-      "_tgt": "liability_debt_metadata",
+      "_src": "liability_debt_metadata",
+      "_tgt": "family_liability_register",
       "source": "family_liability_register",
       "target": "liability_debt_metadata"
     },
@@ -11187,8 +11281,8 @@
       "source_file": "frontend/src/services/aiService.ts",
       "source_location": "liabilities resourceMap entry",
       "weight": 1.0,
-      "_src": "family_liability_register",
-      "_tgt": "ai_undo_resource_mapping",
+      "_src": "ai_undo_resource_mapping",
+      "_tgt": "family_liability_register",
       "source": "family_liability_register",
       "target": "ai_undo_resource_mapping"
     },
@@ -11223,8 +11317,8 @@
       "source_file": "frontend/src/services/api.ts",
       "source_location": "401 handler window.location.href",
       "weight": 1.0,
-      "_src": "credential_login",
-      "_tgt": "unauthorized_session_eviction",
+      "_src": "unauthorized_session_eviction",
+      "_tgt": "credential_login",
       "source": "credential_login",
       "target": "unauthorized_session_eviction"
     },
@@ -11235,8 +11329,8 @@
       "source_file": "frontend/src/pages/RecurringPage.tsx",
       "source_location": "getDueRecurring and handleExecute",
       "weight": 1.0,
-      "_src": "recurring_transaction_rules",
-      "_tgt": "due_recurring_execution",
+      "_src": "due_recurring_execution",
+      "_tgt": "recurring_transaction_rules",
       "source": "recurring_transaction_rules",
       "target": "due_recurring_execution"
     },
@@ -11331,8 +11425,8 @@
       "source_file": "frontend/src/pages/TransactionsPage.tsx",
       "source_location": "checkDuplicate on amount/date/description blur",
       "weight": 1.0,
-      "_src": "family_transaction_ledger",
-      "_tgt": "transaction_duplicate_warning",
+      "_src": "transaction_duplicate_warning",
+      "_tgt": "family_transaction_ledger",
       "source": "family_transaction_ledger",
       "target": "transaction_duplicate_warning"
     },
@@ -11343,8 +11437,8 @@
       "source_file": "frontend/src/pages/TransactionsPage.tsx",
       "source_location": "handleDescriptionBlur",
       "weight": 1.0,
-      "_src": "family_transaction_ledger",
-      "_tgt": "description_category_suggestion",
+      "_src": "description_category_suggestion",
+      "_tgt": "family_transaction_ledger",
       "source": "family_transaction_ledger",
       "target": "description_category_suggestion"
     },
@@ -11355,8 +11449,8 @@
       "source_file": "frontend/src/services/aiService.ts",
       "source_location": "executeProposedActions with create_income/create_expense actions",
       "weight": 1.0,
-      "_src": "family_transaction_ledger",
-      "_tgt": "ai_confirmation_contract",
+      "_src": "ai_confirmation_contract",
+      "_tgt": "family_transaction_ledger",
       "source": "family_transaction_ledger",
       "target": "ai_confirmation_contract"
     },
@@ -11367,8 +11461,8 @@
       "source_file": "frontend/src/services/aiService.ts",
       "source_location": "incomes and expenses resourceMap entries",
       "weight": 1.0,
-      "_src": "family_transaction_ledger",
-      "_tgt": "ai_undo_resource_mapping",
+      "_src": "ai_undo_resource_mapping",
+      "_tgt": "family_transaction_ledger",
       "source": "family_transaction_ledger",
       "target": "ai_undo_resource_mapping"
     },
@@ -11499,8 +11593,8 @@
       "source_file": "frontend/src/store/useAuthStore.ts",
       "source_location": "lines 28-62",
       "weight": 1.0,
-      "_src": "authService_authentication_api",
-      "_tgt": "useAuthStore_authentication_state",
+      "_src": "useAuthStore_authentication_state",
+      "_tgt": "authService_authentication_api",
       "source": "authService_authentication_api",
       "target": "useAuthStore_authentication_state"
     },
@@ -11535,8 +11629,8 @@
       "source_file": "frontend/src/services/budgetService.ts",
       "source_location": "lines 16-24, 39-40",
       "weight": 1.0,
-      "_src": "budgetService_budget_management",
-      "_tgt": "budgetService_budget_progress",
+      "_src": "budgetService_budget_progress",
+      "_tgt": "budgetService_budget_management",
       "source": "budgetService_budget_management",
       "target": "budgetService_budget_progress"
     },
@@ -11703,8 +11797,8 @@
       "source_file": "frontend/src/services/fileService.ts",
       "source_location": "lines 12, 17-25, 45-47",
       "weight": 1.0,
-      "_src": "fileService_file_management",
-      "_tgt": "fileService_file_duplicate_detection",
+      "_src": "fileService_file_duplicate_detection",
+      "_tgt": "fileService_file_management",
       "source": "fileService_file_management",
       "target": "fileService_file_duplicate_detection"
     },
@@ -11751,8 +11845,8 @@
       "source_file": "frontend/src/services/financeService.ts",
       "source_location": "lines 59-62, 83-85",
       "weight": 1.0,
-      "_src": "financeService_income_ledger",
-      "_tgt": "financeService_transaction_duplicate_check",
+      "_src": "financeService_transaction_duplicate_check",
+      "_tgt": "financeService_income_ledger",
       "source": "financeService_income_ledger",
       "target": "financeService_transaction_duplicate_check"
     },
@@ -11811,8 +11905,8 @@
       "source_file": "frontend/src/services/financeService.ts",
       "source_location": "lines 59-62, 107-109",
       "weight": 1.0,
-      "_src": "financeService_expense_ledger",
-      "_tgt": "financeService_transaction_duplicate_check",
+      "_src": "financeService_transaction_duplicate_check",
+      "_tgt": "financeService_expense_ledger",
       "source": "financeService_expense_ledger",
       "target": "financeService_transaction_duplicate_check"
     },
@@ -11871,8 +11965,8 @@
       "source_file": "frontend/src/services/goalService.ts",
       "source_location": "lines 18-29, 34-35",
       "weight": 1.0,
-      "_src": "goalService_financial_goals",
-      "_tgt": "goalService_goal_progress",
+      "_src": "goalService_goal_progress",
+      "_tgt": "goalService_financial_goals",
       "source": "goalService_financial_goals",
       "target": "goalService_goal_progress"
     },
@@ -11907,8 +12001,8 @@
       "source_file": "frontend/src/services/recurringService.ts",
       "source_location": "lines 32-47",
       "weight": 1.0,
-      "_src": "recurringService_recurring_transactions",
-      "_tgt": "recurringService_due_execution",
+      "_src": "recurringService_due_execution",
+      "_tgt": "recurringService_recurring_transactions",
       "source": "recurringService_recurring_transactions",
       "target": "recurringService_due_execution"
     },
@@ -12015,8 +12109,8 @@
       "source_file": "frontend/src/types/index.ts",
       "source_location": "lines 8-15",
       "weight": 1.0,
-      "_src": "types_user_model",
-      "_tgt": "types_family_membership",
+      "_src": "types_family_membership",
+      "_tgt": "types_user_model",
       "source": "types_user_model",
       "target": "types_family_membership"
     },
@@ -12027,8 +12121,8 @@
       "source_file": "frontend/src/types/index.ts",
       "source_location": "lines 17-24",
       "weight": 1.0,
-      "_src": "types_family_membership",
-      "_tgt": "types_family_model",
+      "_src": "types_family_model",
+      "_tgt": "types_family_membership",
       "source": "types_family_membership",
       "target": "types_family_model"
     },
@@ -14703,8 +14797,8 @@
       "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
       "source_location": "line 9 historical snapshot and line 72 current status",
       "weight": 1.0,
-      "_src": "phase1_b04_postgresql_concurrency_blocked",
-      "_tgt": "p1_b04_local_postgresql_181_pass_real",
+      "_src": "p1_b04_local_postgresql_181_pass_real",
+      "_tgt": "phase1_b04_postgresql_concurrency_blocked",
       "source": "p1_b04_local_postgresql_181_pass_real",
       "target": "phase1_b04_postgresql_concurrency_blocked"
     },
@@ -14715,8 +14809,8 @@
       "source_file": "docs/project-memory.md",
       "source_location": "lines 95-98",
       "weight": 1.0,
-      "_src": "phase1_hash_refresh_database_idempotency_open",
-      "_tgt": "p1_b04_local_postgresql_181_pass_real",
+      "_src": "p1_b04_local_postgresql_181_pass_real",
+      "_tgt": "phase1_hash_refresh_database_idempotency_open",
       "source": "p1_b04_local_postgresql_181_pass_real",
       "target": "phase1_hash_refresh_database_idempotency_open"
     },
@@ -14727,6 +14821,8 @@
       "source_file": "docs/project-memory.md",
       "source_location": "line 98",
       "weight": 1.0,
+      "_src": "p1_b04_local_postgresql_181_pass_real",
+      "_tgt": "p1_b04_unclassified_internal_error_risk",
       "source": "p1_b04_local_postgresql_181_pass_real",
       "target": "p1_b04_unclassified_internal_error_risk"
     },
@@ -14851,66 +14947,6 @@
       "target": "p1_b04_single_audit_event"
     },
     {
-      "relation": "implements",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/services/financialMutationCoordinator.ts",
-      "source_location": "lines 228-281",
-      "weight": 1.0,
-      "_src": "p1_b04_one_committed_mutation",
-      "_tgt": "financial_mutation_coordinator",
-      "source": "p1_b04_one_committed_mutation",
-      "target": "financial_mutation_coordinator"
-    },
-    {
-      "relation": "implements",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/services/prismaFinancialMutationStore.ts",
-      "source_location": "lines 73-88, 103-111",
-      "weight": 1.0,
-      "_src": "p1_b04_single_idempotency_record",
-      "_tgt": "prisma_financial_mutation_store",
-      "source": "p1_b04_single_idempotency_record",
-      "target": "prisma_financial_mutation_store"
-    },
-    {
-      "relation": "implements",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/services/prismaFinancialMutationStore.ts",
-      "source_location": "lines 90-100",
-      "weight": 1.0,
-      "_src": "p1_b04_single_audit_event",
-      "_tgt": "prisma_financial_mutation_store",
-      "source": "p1_b04_single_audit_event",
-      "target": "prisma_financial_mutation_store"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-A-03.md",
-      "source_location": "Affected families/roles/routes/tables",
-      "weight": 1.0,
-      "_src": "p1_a_03_task",
-      "_tgt": "financial_mutation_coordinator",
-      "source": "financial_mutation_coordinator",
-      "target": "p1_a_03_task"
-    },
-    {
-      "relation": "implements",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/services/financialMutationCoordinator.ts",
-      "source_location": null,
-      "weight": 1.0,
-      "_src": "financial_mutation_coordinator",
-      "_tgt": "coordinate_financial_mutation",
-      "source": "financial_mutation_coordinator",
-      "target": "coordinate_financial_mutation"
-    },
-    {
       "relation": "references",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -14977,8 +15013,8 @@
       "source_file": "docs/delivery/phase-1/evidence/P1-B-02.md",
       "source_location": "line 13",
       "weight": 1.0,
-      "_src": "phase1_b02_refactored_at_risk",
-      "_tgt": "p1_b02_focused_14_of_14",
+      "_src": "p1_b02_focused_14_of_14",
+      "_tgt": "phase1_b02_refactored_at_risk",
       "source": "p1_b02_focused_14_of_14",
       "target": "phase1_b02_refactored_at_risk"
     },
@@ -15001,8 +15037,8 @@
       "source_file": "docs/delivery/phase-1/evidence/P1-B-01.md",
       "source_location": "lines 15, 18",
       "weight": 1.0,
-      "_src": "phase1_b01_schema_backlog",
-      "_tgt": "p1_b01_schema_pass_real",
+      "_src": "p1_b01_schema_pass_real",
+      "_tgt": "phase1_b01_schema_backlog",
       "source": "p1_b01_schema_pass_real",
       "target": "phase1_b01_schema_backlog"
     },
@@ -15013,34 +15049,10 @@
       "source_file": "docs/project-memory.md",
       "source_location": "line 96",
       "weight": 1.0,
-      "_src": "phase1_hash_refresh_default_suite",
-      "_tgt": "phase1_tracker_baseline_31_suites_265_tests",
+      "_src": "phase1_tracker_baseline_31_suites_265_tests",
+      "_tgt": "phase1_hash_refresh_default_suite",
       "source": "phase1_tracker_baseline_31_suites_265_tests",
       "target": "phase1_hash_refresh_default_suite"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerTransactionOrchestration.test.ts",
-      "source_location": "L15",
-      "weight": 1.0,
-      "_src": "backend_src_services_ledgertransactionorchestration_test_ts",
-      "_tgt": "ledgertransactionorchestration_test_createstore",
-      "confidence_score": 1.0,
-      "source": "backend_src_services_ledgertransactionorchestration_test_ts",
-      "target": "ledgertransactionorchestration_test_createstore"
-    },
-    {
-      "relation": "requires",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "\u00a74, P1-A-03 acceptance",
-      "weight": 1.0,
-      "_src": "p1_a_03_task",
-      "_tgt": "ledger_transaction_boundary",
-      "source": "p1_a_03_task",
-      "target": "ledger_transaction_boundary"
     },
     {
       "relation": "references",
@@ -15049,8 +15061,8 @@
       "source_file": "docs/delivery/phase-1/evidence/P1-A-03.md",
       "source_location": "Evidence status and Observed result",
       "weight": 1.0,
-      "_src": "p1_a_03_pass_mock_evidence",
-      "_tgt": "p1_a_03_task",
+      "_src": "p1_a_03_task",
+      "_tgt": "p1_a_03_pass_mock_evidence",
       "source": "p1_a_03_task",
       "target": "p1_a_03_pass_mock_evidence"
     },
@@ -15061,106 +15073,10 @@
       "source_file": "docs/delivery/phase-1/evidence/P1-A-03.md",
       "source_location": "Remaining risks",
       "weight": 1.0,
-      "_src": "global_coverage_gate",
-      "_tgt": "p1_a_03_task",
+      "_src": "p1_a_03_task",
+      "_tgt": "global_coverage_gate",
       "source": "p1_a_03_task",
       "target": "global_coverage_gate"
-    },
-    {
-      "relation": "uses",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/services/financialMutationCoordinator.ts",
-      "source_location": null,
-      "weight": 1.0,
-      "_src": "coordinate_financial_mutation",
-      "_tgt": "ledger_transaction_boundary",
-      "source": "coordinate_financial_mutation",
-      "target": "ledger_transaction_boundary"
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/services/financialMutationCoordinator.ts",
-      "source_location": null,
-      "weight": 1.0,
-      "_src": "coordinate_financial_mutation",
-      "_tgt": "financial_mutation_executor",
-      "source": "coordinate_financial_mutation",
-      "target": "financial_mutation_executor"
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/services/financialMutationCoordinator.ts",
-      "source_location": null,
-      "weight": 1.0,
-      "_src": "coordinate_financial_mutation",
-      "_tgt": "mutation_result_validation",
-      "source": "coordinate_financial_mutation",
-      "target": "mutation_result_validation"
-    },
-    {
-      "relation": "writes",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/services/financialMutationCoordinator.ts",
-      "source_location": null,
-      "weight": 1.0,
-      "_src": "coordinate_financial_mutation",
-      "_tgt": "idempotency_record",
-      "source": "coordinate_financial_mutation",
-      "target": "idempotency_record"
-    },
-    {
-      "relation": "writes",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/services/financialMutationCoordinator.ts",
-      "source_location": null,
-      "weight": 1.0,
-      "_src": "coordinate_financial_mutation",
-      "_tgt": "audit_event",
-      "source": "coordinate_financial_mutation",
-      "target": "audit_event"
-    },
-    {
-      "relation": "writes",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-A-03.md",
-      "source_location": "Affected families/roles/routes/tables",
-      "weight": 1.0,
-      "_src": "coordinate_financial_mutation",
-      "_tgt": "ledger_fact",
-      "source": "coordinate_financial_mutation",
-      "target": "ledger_fact"
-    },
-    {
-      "relation": "precedes",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-A-03.md",
-      "source_location": "GREEN commit and scope",
-      "weight": 1.0,
-      "_src": "mutation_result_validation",
-      "_tgt": "audit_event",
-      "source": "mutation_result_validation",
-      "target": "audit_event"
-    },
-    {
-      "relation": "precedes",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-A-03.md",
-      "source_location": "GREEN commit and scope",
-      "weight": 1.0,
-      "_src": "mutation_result_validation",
-      "_tgt": "idempotency_record",
-      "source": "mutation_result_validation",
-      "target": "idempotency_record"
     },
     {
       "relation": "references",
@@ -15169,6 +15085,8 @@
       "source_file": "docs/project-memory.md",
       "source_location": "line 105",
       "weight": 1.0,
+      "_src": "p1_a_03_pass_mock_evidence",
+      "_tgt": "p1_a03_pre_audit_resourceid_validation",
       "source": "p1_a_03_pass_mock_evidence",
       "target": "p1_a03_pre_audit_resourceid_validation"
     },
@@ -15179,8 +15097,100 @@
       "source_file": "docs/delivery/phase-1/evidence/P1-B-04.md",
       "source_location": "line 13",
       "weight": 1.0,
+      "_src": "p1_b04_unclassified_internal_error_risk",
+      "_tgt": "p1_b04_raw_prisma_error_capture_required",
       "source": "p1_b04_unclassified_internal_error_risk",
       "target": "p1_b04_raw_prisma_error_capture_required"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/services/financialMutationCoordinator.test.ts",
+      "source_location": "L178",
+      "weight": 1.0,
+      "source": "ledgererrors_domainerror_cause",
+      "target": "financialmutationcoordinator_test_raw_prisma_cause_preservation"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/delivery/phase-1/evidence/P1-B-04.md",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "p1_b_04_prisma_raw_error_cause",
+      "target": "p1_b_04_stable_client_error_contract"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/delivery/phase-1/evidence/P1-B-04.md",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "p1_b_04_prisma_raw_error_cause",
+      "target": "p1_b_04_diagnostic_classification"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
+      "source_location": "L72",
+      "weight": 1.0,
+      "source": "p1_b_04_prisma_raw_error_cause",
+      "target": "p1_b_04_postgresql_arbitration_gate"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/project-memory.md",
+      "source_location": "L98",
+      "weight": 1.0,
+      "source": "p1_b_04_unclassified_real_failure_risk",
+      "target": "project_memory_p1_b_04_at_risk_status"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
+      "source_location": "L72",
+      "weight": 1.0,
+      "source": "p1_b_04_unclassified_real_failure_risk",
+      "target": "p1_b_04_postgresql_arbitration_gate"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "p1_g_06_coverage_quality_gate",
+      "target": "p1_g_06_failed_coverage_baseline"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "p1_g_06_coverage_quality_gate",
+      "target": "p1_g_06_behavior_focused_coverage_tests"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "p1_g_06_coverage_quality_gate",
+      "target": "p1_g_06_threshold_reduction_not_remedy"
     }
   ],
   "hyperedges": [
