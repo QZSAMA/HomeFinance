@@ -173,6 +173,22 @@ describe('Prisma financial mutation store', () => {
     expect(transaction.idempotencyRecord.update).not.toHaveBeenCalled();
   });
 
+  test.each([
+    ['NaN', Number.NaN],
+    ['positive infinity', Number.POSITIVE_INFINITY],
+    ['negative infinity', Number.NEGATIVE_INFINITY],
+  ])('rejects %s before the persistence adapter writes it', async (_label, invalidNumber) => {
+    const { client, transaction } = createClient();
+    const store = createPrismaFinancialMutationStore(client);
+
+    await expect(store.$transaction((tx) => tx.idempotencyRecord.update({
+      where: { id: 'operation-1' },
+      data: { httpStatus: 201, responseJson: { amount: invalidNumber } },
+    }))).rejects.toThrow('Mutation JSON contains non-finite number');
+
+    expect(transaction.idempotencyRecord.update).not.toHaveBeenCalled();
+  });
+
   test('maps root snapshots and rejects an operation that is outside the coordinator contract', async () => {
     const { client } = createClient();
     const store = createPrismaFinancialMutationStore(client);

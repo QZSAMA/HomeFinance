@@ -1,64 +1,64 @@
 # Graph Report - .  (2026-08-31)
 
 ## Corpus Check
-- Large corpus: 221 files · ~110,568 words. Semantic extraction will be expensive (many Claude tokens). Consider running on a subfolder, or use --no-semantic to run AST-only.
+- Large corpus: 221 files · ~110,729 words. Semantic extraction will be expensive (many Claude tokens). Consider running on a subfolder, or use --no-semantic to run AST-only.
 
 ## Summary
-- 631 nodes · 617 edges · 142 communities detected
+- 646 nodes · 631 edges · 144 communities detected
 - Extraction: 87% EXTRACTED · 13% INFERRED · 0% AMBIGUOUS · INFERRED: 79 edges (avg confidence: 0.87)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
-- [[_COMMUNITY_Community 0|Community 0]]
-- [[_COMMUNITY_Community 1|Community 1]]
-- [[_COMMUNITY_Community 2|Community 2]]
-- [[_COMMUNITY_Community 3|Community 3]]
-- [[_COMMUNITY_Community 4|Community 4]]
-- [[_COMMUNITY_Community 5|Community 5]]
-- [[_COMMUNITY_Community 6|Community 6]]
-- [[_COMMUNITY_Community 7|Community 7]]
-- [[_COMMUNITY_Community 8|Community 8]]
-- [[_COMMUNITY_Community 9|Community 9]]
-- [[_COMMUNITY_Community 10|Community 10]]
-- [[_COMMUNITY_Community 11|Community 11]]
-- [[_COMMUNITY_Community 12|Community 12]]
-- [[_COMMUNITY_Community 13|Community 13]]
-- [[_COMMUNITY_Community 14|Community 14]]
-- [[_COMMUNITY_Community 15|Community 15]]
-- [[_COMMUNITY_Community 16|Community 16]]
-- [[_COMMUNITY_Community 17|Community 17]]
-- [[_COMMUNITY_Community 18|Community 18]]
-- [[_COMMUNITY_Community 19|Community 19]]
-- [[_COMMUNITY_Community 20|Community 20]]
-- [[_COMMUNITY_Community 21|Community 21]]
-- [[_COMMUNITY_Prisma Mutation Adapter|Prisma Mutation Adapter]]
-- [[_COMMUNITY_Community 23|Community 23]]
-- [[_COMMUNITY_Community 24|Community 24]]
-- [[_COMMUNITY_Community 25|Community 25]]
-- [[_COMMUNITY_Community 26|Community 26]]
-- [[_COMMUNITY_Community 27|Community 27]]
-- [[_COMMUNITY_Community 28|Community 28]]
-- [[_COMMUNITY_Community 29|Community 29]]
-- [[_COMMUNITY_Community 30|Community 30]]
-- [[_COMMUNITY_Community 31|Community 31]]
-- [[_COMMUNITY_Community 32|Community 32]]
-- [[_COMMUNITY_Community 33|Community 33]]
+- [[_COMMUNITY_AI and Finance Features|AI and Finance Features]]
+- [[_COMMUNITY_Core Finance Architecture|Core Finance Architecture]]
+- [[_COMMUNITY_Governed Knowledge Graph|Governed Knowledge Graph]]
+- [[_COMMUNITY_Finance Feature Modules|Finance Feature Modules]]
+- [[_COMMUNITY_Concurrency Evidence|Concurrency Evidence]]
+- [[_COMMUNITY_Frontend Application Shell|Frontend Application Shell]]
+- [[_COMMUNITY_Financial Semantics|Financial Semantics]]
+- [[_COMMUNITY_Cache Revision Integrity|Cache Revision Integrity]]
+- [[_COMMUNITY_OCR Pipeline|OCR Pipeline]]
+- [[_COMMUNITY_Brand Icon System|Brand Icon System]]
+- [[_COMMUNITY_Integration Contract Evidence|Integration Contract Evidence]]
+- [[_COMMUNITY_AI and OCR Services|AI and OCR Services]]
+- [[_COMMUNITY_Mutation Coordinator|Mutation Coordinator]]
+- [[_COMMUNITY_Atomic Mutation Roadmap|Atomic Mutation Roadmap]]
+- [[_COMMUNITY_Phase 0 Quality Evidence|Phase 0 Quality Evidence]]
+- [[_COMMUNITY_Ledger Command Validation|Ledger Command Validation]]
+- [[_COMMUNITY_Ledger JSON Boundary|Ledger JSON Boundary]]
+- [[_COMMUNITY_Financial Chart Contracts|Financial Chart Contracts]]
+- [[_COMMUNITY_Architecture and Operations|Architecture and Operations]]
+- [[_COMMUNITY_Authentication and Rate Limiting|Authentication and Rate Limiting]]
+- [[_COMMUNITY_AI Action Parsing|AI Action Parsing]]
+- [[_COMMUNITY_Import Parsing|Import Parsing]]
+- [[_COMMUNITY_Prisma Error Mapping|Prisma Error Mapping]]
+- [[_COMMUNITY_Prisma Adapter Core|Prisma Adapter Core]]
+- [[_COMMUNITY_Pagination Contracts|Pagination Contracts]]
+- [[_COMMUNITY_React Visual Identity|React Visual Identity]]
+- [[_COMMUNITY_AI Configuration and OCR|AI Configuration and OCR]]
+- [[_COMMUNITY_Unclustered|Unclustered]]
+- [[_COMMUNITY_Unclustered|Unclustered]]
+- [[_COMMUNITY_Layered Visual System|Layered Visual System]]
+- [[_COMMUNITY_Concurrency Error Evidence|Concurrency Error Evidence]]
 - [[_COMMUNITY_Coverage Quality Gate|Coverage Quality Gate]]
-- [[_COMMUNITY_Community 35|Community 35]]
-- [[_COMMUNITY_Community 36|Community 36]]
-- [[_COMMUNITY_Community 37|Community 37]]
-- [[_COMMUNITY_Community 38|Community 38]]
-- [[_COMMUNITY_Community 39|Community 39]]
-- [[_COMMUNITY_Community 40|Community 40]]
-- [[_COMMUNITY_Community 41|Community 41]]
-- [[_COMMUNITY_Community 42|Community 42]]
-- [[_COMMUNITY_Community 43|Community 43]]
-- [[_COMMUNITY_Community 44|Community 44]]
-- [[_COMMUNITY_Prisma Mutation Adapter|Prisma Mutation Adapter]]
-- [[_COMMUNITY_Community 46|Community 46]]
-- [[_COMMUNITY_Community 47|Community 47]]
-- [[_COMMUNITY_Community 48|Community 48]]
-- [[_COMMUNITY_Community 49|Community 49]]
+- [[_COMMUNITY_Family Authorization|Family Authorization]]
+- [[_COMMUNITY_Statement Reconciliation|Statement Reconciliation]]
+- [[_COMMUNITY_Favicon Visual Identity|Favicon Visual Identity]]
+- [[_COMMUNITY_Vite Visual Identity|Vite Visual Identity]]
+- [[_COMMUNITY_Coverage Contract Evidence|Coverage Contract Evidence]]
+- [[_COMMUNITY_Object Storage URL Contract|Object Storage URL Contract]]
+- [[_COMMUNITY_Security Configuration|Security Configuration]]
+- [[_COMMUNITY_Unclustered|Unclustered]]
+- [[_COMMUNITY_Cash Flow Classification|Cash Flow Classification]]
+- [[_COMMUNITY_Budgets and Goals|Budgets and Goals]]
+- [[_COMMUNITY_Cache Authorization|Cache Authorization]]
+- [[_COMMUNITY_Remediation Strategy|Remediation Strategy]]
+- [[_COMMUNITY_Write Authorization|Write Authorization]]
+- [[_COMMUNITY_Phase 0 Evidence|Phase 0 Evidence]]
+- [[_COMMUNITY_P1-A-03 Orchestration|P1-A-03 Orchestration]]
+- [[_COMMUNITY_Unclustered|Unclustered]]
+- [[_COMMUNITY_Unclustered|Unclustered]]
+- [[_COMMUNITY_Unclustered|Unclustered]]
 - [[_COMMUNITY_Community 50|Community 50]]
 - [[_COMMUNITY_Community 51|Community 51]]
 - [[_COMMUNITY_Community 52|Community 52]]
@@ -151,6 +151,8 @@
 - [[_COMMUNITY_Community 139|Community 139]]
 - [[_COMMUNITY_Community 140|Community 140]]
 - [[_COMMUNITY_Community 141|Community 141]]
+- [[_COMMUNITY_Community 142|Community 142]]
+- [[_COMMUNITY_Community 143|Community 143]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `Current Family Data Scope` - 16 edges
@@ -167,14 +169,14 @@
 ## Surprising Connections (you probably didn't know these)
 - `Income Ledger` --conceptually_related_to--> `Frontend Resource Service Convention`  [INFERRED]
   frontend/src/services/financeService.ts → docs/contributing.md
+- `Income Ledger` --shares_data_with--> `Core Family Finance Data Model`  [INFERRED]
+  frontend/src/services/financeService.ts → docs/wiki.md
 - `Asset Registry` --shares_data_with--> `Core Family Finance Data Model`  [INFERRED]
   frontend/src/services/financeService.ts → docs/wiki.md
 - `Authentication API Client` --references--> `HomeFinance API Contracts`  [INFERRED]
   frontend/src/services/authService.ts → docs/wiki.md
 - `Transaction Category Suggestion` --references--> `Intelligent Finance Features`  [INFERRED]
   frontend/src/services/categoryService.ts → README.md
-- `Financial Excel Export` --references--> `Intelligent Finance Features`  [INFERRED]
-  frontend/src/services/exportService.ts → README.md
 
 ## Hyperedges (group relationships)
 - **Redis-Backed Graceful Degradation Services** — redis_shared_client, cache_response_middleware, ratelimit_redis_window, app_redis_degraded_startup [INFERRED 0.90]
@@ -207,213 +209,213 @@
 
 ## Communities
 
-### Community 0 - "Community 0"
+### Community 0 - "AI and Finance Features"
 Cohesion: 0.05
 Nodes (57): User Account Registration, Undo of AI-Created Finance Records, Lightweight AI Report Markdown Renderer, Family AI Financial Analysis Report, Family AI API Facade, Conversational Family Finance Assistant, Multimodal Chat and Action Response Contract, Client-Side Receipt Image Compression (+49 more)
 
-### Community 1 - "Community 1"
-Cohesion: 0.06
-Nodes (40): Family Collaboration and Visualization, Intelligent Finance Features, Authentication Response, Authentication API Client, Transaction Category Suggestion, Frontend Resource Service Convention, Admin Member Viewer Permissions, Browser Blob Download (+32 more)
+### Community 1 - "Core Finance Architecture"
+Cohesion: 0.07
+Nodes (30): Enterprise Finance Methods for Families, HomeFinance System, HomeFinance Technology Stack, Three Core Financial Statements, Authentication Response, Authentication API Client, Simplified Git Flow, Consistency and Maintainability Rationale (+22 more)
 
-### Community 2 - "Community 2"
+### Community 2 - "Governed Knowledge Graph"
 Cohesion: 0.09
 Nodes (29): Knowledge Graph Memory and Governance Analysis, Policy Ledger Exactly-Once and Production Dependency Chain, Generated Graphs Must Not Override Executable Evidence, Change Evidence Card Lifecycle, Graphify as Navigation Memory, Graphify Semantic Update Protocol, Inferred Edge Verification Review, Executable Source of Truth Hierarchy (+21 more)
 
-### Community 3 - "Community 3"
+### Community 3 - "Finance Feature Modules"
+Cohesion: 0.1
+Nodes (27): Family Collaboration and Visualization, Intelligent Finance Features, Transaction Category Suggestion, Contribution Development Workflow, Family Resource Access Enforcement, Frontend Resource Service Convention, Admin Member Viewer Permissions, Backend API Test Matrix (+19 more)
+
+### Community 4 - "Concurrency Evidence"
 Cohesion: 0.12
 Nodes (20): Income/Expense routes still bypass coordinator, P1-B-04 local PostgreSQL 18.1 PASS-REAL, One committed mutation and 19 replays, P1-B-04 raw Prisma error capture required, P1-B-04 coordinator concurrency/replay REGRESSION_VERIFIED locally, Response-loss replay passes, Same key with different payload is rejected without second write, Single AuditEvent after concurrent replay (+12 more)
 
-### Community 4 - "Community 4"
+### Community 5 - "Frontend Application Shell"
 Cohesion: 0.12
 Nodes (19): Authenticated Application Shell, Legacy Bookmark Compatibility, Legacy Report Route Redirects, Family Finance Route Map, Family Selector Component, Family List API Loading, Current Family Selection State, Frontend Authentication State (+11 more)
 
-### Community 5 - "Community 5"
+### Community 6 - "Financial Semantics"
 Cohesion: 0.11
 Nodes (19): Budget Period Window Contract, Financial Correctness Analysis, Currency-Safe Financial Totals, Explicit Half-Open Date Interval and Family Timezone, Goal Allocation Isolation, Historical FX Requires Valuation Date Source Rounding and Replay, Recent Transaction Ordering Semantics, Financial Statement Reconciliation Invariants (+11 more)
 
-### Community 6 - "Community 6"
-Cohesion: 0.12
-Nodes (17): Enterprise Finance Methods for Families, HomeFinance System, HomeFinance Technology Stack, Three Core Financial Statements, Contribution Development Workflow, Family Resource Access Enforcement, Backend API Test Matrix, Simplified Git Flow (+9 more)
-
-### Community 7 - "Community 7"
+### Community 7 - "Cache Revision Integrity"
 Cohesion: 0.22
 Nodes (14): AI Proposal Confirmation and Atomic Commit, Classified Retry and Conflict Semantics, Database Uniqueness Must Arbitrate Concurrent Replay, Commit-Time Family Finance Revision, Object Storage and Database Compensation Gap, Idempotency and Optimistic Concurrency Contract, Import Batch Atomic Confirmation, Financial Write Integrity Analysis (+6 more)
 
-### Community 8 - "Community 8"
+### Community 8 - "OCR Pipeline"
 Cohesion: 0.18
 Nodes (13): OCR Base64 Image Decoder, OCR UI Noise Cleaning, Extract Text From Image, Vision-based Receipt Extraction, Hybrid Tesseract and Vision OCR Strategy, Merge OCR Results, Merged OCR Contract, OCR Transaction Item Contract (+5 more)
 
-### Community 9 - "Community 9"
+### Community 9 - "Brand Icon System"
 Cohesion: 0.24
 Nodes (12): Bluesky Brand Icon, Brand-versus-Utility Visual Role Separation, Community and Developer Navigation Surface, Dark Filled Brand Icon Style, Discord Brand Icon, Documentation and Code Icon, GitHub Brand Icon, ID-Addressable SVG Symbol Architecture (+4 more)
 
-### Community 10 - "Community 10"
+### Community 10 - "Integration Contract Evidence"
 Cohesion: 0.18
 Nodes (12): P1-A-02 Evidence Is PASS-MOCK, ADR-0001 and ADR-0002 Remain Proposed References, Phase 1 Amendment Commit db98a00, effectiveDate Validated Before Authorization or Mutation, Only Exact RUN_INTEGRATION=1 Enables Database Tests, RUN_INTEGRATION Values 0 and false Stay Opted Out, Cross-Platform Jest Integration Isolation, Focused Ledger Run Passes 2 Suites and 12 Tests (+4 more)
 
-### Community 11 - "Community 11"
+### Community 11 - "AI and OCR Services"
 Cohesion: 0.27
 Nodes (10): Action-Aware Financial Chat Orchestrator, OCR Financial Category Whitelist, Parallel Dual-Path Receipt OCR, AI or Rule-Based Family Financial Analysis, Merged OCR Result, OCR-to-Automatic-Bookkeeping Actions, Offline-Capable AI Degradation Strategy, OpenAI-Compatible Chat Completion Adapter (+2 more)
 
-### Community 12 - "Community 12"
+### Community 12 - "Mutation Coordinator"
 Cohesion: 0.33
 Nodes (8): canonicalize(), coordinateFinancialMutation(), hashNormalizedPayload(), isScopedArbitrationConflict(), replayResult(), requireWriteMembership(), validateScope(), waitForWinner()
 
-### Community 13 - "Community 13"
+### Community 13 - "Atomic Mutation Roadmap"
 Cohesion: 0.24
 Nodes (10): Atomic and Idempotent Transaction Generation, Domain and Application Service Boundary, Route-Heavy Modular Monolith Hypothesis, Route-Heavy Modular Monolith Finding, Fragmented Transaction-Generating Ingresses, Unified Policy Ledger and Report Services Recommendation, Atomic Idempotent Import Batch, Policy-Ledger-Exactly-Once Dependency Sequence (+2 more)
 
-### Community 14 - "Community 14"
+### Community 14 - "Phase 0 Quality Evidence"
 Cohesion: 0.2
 Nodes (10): App Import Isolation PASS-MOCK, Global Branch Coverage Is 43.17 Percent, Coverage Gate Fails the 60 Percent Branch Threshold, P1-G-00 Remains REFACTORED and AT_RISK, Real PostgreSQL Evidence Is Unavailable, Prisma Format Gate Remains Open, Prisma Validate Passes with Matching Local 5.22 Engines, App, Server, and Prisma Ownership Separation (+2 more)
 
-### Community 15 - "Community 15"
+### Community 15 - "Ledger Command Validation"
 Cohesion: 0.58
 Nodes (8): createExpense(), createIncome(), normalizeCurrency(), optionalText(), requireAmount(), requireDate(), requireText(), validateCommandScope()
 
-### Community 16 - "Community 16"
+### Community 16 - "Ledger JSON Boundary"
+Cohesion: 0.22
+Nodes (9): Prisma adapter contract tests, P1-G-06 Prisma adapter JSON-boundary quality slice, Malformed and unsupported JSON boundary inputs, Non-finite JSON numbers: NaN, Infinity, and -Infinity, JSON rejection before Prisma persistence, IdempotencyRecord, AuditEvent, and other adapter writes, Prisma financial-mutation adapter, Phase 1 Prisma financial-mutation adapter facts (+1 more)
+
+### Community 17 - "Financial Chart Contracts"
 Cohesion: 0.29
 Nodes (8): Asset Allocation Donut Chart, Asset Chart CNY Formatting, Asset Allocation Data Contract, Zero-value Asset Slice Filtering, Cash Flow Activity Bar Chart, Cash Flow Chart CNY Formatting, Cash Flow Segment Contract, Empty Cash Flow State
 
-### Community 17 - "Community 17"
+### Community 18 - "Architecture and Operations"
 Cohesion: 0.29
 Nodes (8): Express App and Server Startup Separation, Bounded Database Aggregation and Pagination, CI Coverage Integration and Frontend Behavior Gates, Measure Query Count Bundle Graph and Recovery Before Setting Targets, Modular Monolith Policy Ledger Report and Cache Boundaries, Microservices Would Amplify Transaction Retry and Operations Cost, Observability Degradation and Recovery Contracts, Architecture Performance and Operations Analysis
 
-### Community 18 - "Community 18"
+### Community 19 - "Authentication and Rate Limiting"
 Cohesion: 0.33
 Nodes (7): Authenticated Request Identity, Bearer JWT Authentication Middleware, Fail-Open Rate Limit Behavior, User-or-IP Rate Limit Identifier, Rate Limit Threshold and Isolation Tests, Redis Fixed-Window Rate Limiter, Shared Redis Client
 
-### Community 19 - "Community 19"
+### Community 20 - "AI Action Parsing"
 Cohesion: 0.48
 Nodes (6): executeAction(), executeActions(), matchCategory(), parseAmount(), parseLocalActions(), todayStr()
 
-### Community 20 - "Community 20"
+### Community 21 - "Import Parsing"
 Cohesion: 0.52
 Nodes (7): Imported Transaction Contract, Imported Date Normalization, Alipay Transaction Parser, Imported Amount Normalization, Format-dispatched CSV Import, CSV Row Parsing, WeChat Transaction Parser
 
-### Community 21 - "Community 21"
+### Community 22 - "Prisma Error Mapping"
 Cohesion: 0.43
 Nodes (5): Raw Prisma Cause Preservation Test, DomainError, DomainError.cause, mapPrismaError(), prismaCode()
 
-### Community 22 - "Prisma Mutation Adapter"
+### Community 23 - "Prisma Adapter Core"
 Cohesion: 0.33
 Nodes (2): operation(), snapshot()
 
-### Community 23 - "Community 23"
+### Community 24 - "Pagination Contracts"
 Cohesion: 0.43
 Nodes (7): Unpaginated Backward Compatibility, Bounded Pagination Page Size, Build Paginated Response, Paginated Response Contract, Pagination Parameters Contract, Parse Pagination Query, Pagination Utility Test Suite
 
-### Community 24 - "Community 24"
+### Community 25 - "React Visual Identity"
 Cohesion: 0.38
 Nodes (7): Atom-like Orbital Mark, Cyan Brand Color #00D8FF, React Framework Brand, Accessibility Tree Exclusion, React SVG Logo Asset, Image Role Semantics, Centered Aspect-Ratio-preserving Scaling
 
-### Community 25 - "Community 25"
+### Community 26 - "AI Configuration and OCR"
 Cohesion: 0.33
 Nodes (6): AI Credential Configuration Check, Tesseract-Only OCR Fallback, Text AI Service Configuration, Optional Vision AI Configuration, Vision Credential and Model Check, Low-Temperature Vision Determinism Rationale
 
-### Community 26 - "Community 26"
+### Community 27 - "Unclustered"
 Cohesion: 0.33
 Nodes (0):
 
-### Community 27 - "Community 27"
+### Community 28 - "Unclustered"
 Cohesion: 0.33
 Nodes (0):
 
-### Community 28 - "Community 28"
+### Community 29 - "Layered Visual System"
 Cohesion: 0.67
 Nodes (6): Depth Through Layer Separation, Dashed Inter-Layer Guides, Layered System Architecture Metaphor, Layered Stack Hero Illustration, Purple Foundation Layer, Upper Rounded Layer
 
-### Community 29 - "Community 29"
+### Community 30 - "Concurrency Error Evidence"
 Cohesion: 0.33
 Nodes (6): Future Failure Diagnostic Classification, P1-B-04 PostgreSQL Concurrency Arbitration Gate, P1-B-04 Raw Prisma Error Cause, Stable Client Error Contract, Unclassified Real-Failure Risk, P1-B-04 AT_RISK Status
 
-### Community 30 - "Community 30"
+### Community 31 - "Coverage Quality Gate"
+Cohesion: 0.4
+Nodes (6): 33 backend suites and 276 tests, Coverage: 62.16% statements, 45.23% branches, 62.18% functions, 62.58% lines, 60% global branch coverage threshold, P1-G-06 quality gate remains FAILED, Required global coverage command, P1-G-06 coverage/lint/advisory gate
+
+### Community 32 - "Family Authorization"
 Cohesion: 0.6
 Nodes (3): attachFamilyContext(), loadFamilyMembership(), requireFamilyAccess()
 
-### Community 31 - "Community 31"
+### Community 33 - "Statement Reconciliation"
 Cohesion: 0.4
 Nodes (5): Derived Statement Reconciliation Invariant, Baseline Other Cash Flow Omission, Baseline Income Statement Authentication Break, UI Smoke Evidence Citation, Report Runtime and Reconciliation Epic
 
-### Community 32 - "Community 32"
+### Community 34 - "Favicon Visual Identity"
 Cohesion: 0.5
 Nodes (5): Compact Browser Identity Mark, Gradient Lightning-Bolt Favicon, Lightning-Bolt Silhouette, Mask-Clipped Blurred Ellipse Shading, Purple-Cyan Glow Palette
 
-### Community 33 - "Community 33"
+### Community 35 - "Vite Visual Identity"
 Cohesion: 0.4
 Nodes (5): Lightning Bolt Symbol, Parenthesis Frame, Purple-Blue Gradient, Theme-Adaptive Contrast, Vite Brand Mark
 
-### Community 34 - "Coverage Quality Gate"
+### Community 36 - "Coverage Contract Evidence"
 Cohesion: 0.4
 Nodes (5): Behavior-Focused Prisma Adapter Contract Tests, P1-G-06 Coverage Quality Gate, P1-G-06 Branch Coverage 45.18 Percent Below 60 Percent Gate, Prisma Financial-Mutation Adapter Contract Tests, Coverage Threshold Reduction Is Not a Remedy
 
-### Community 35 - "Community 35"
+### Community 37 - "Object Storage URL Contract"
 Cohesion: 0.67
 Nodes (4): Presigned Browser File URL, Browser-Facing MinIO Client, Separate Public Endpoint Rationale, MinIO Public Endpoint Contract Tests
 
-### Community 36 - "Community 36"
+### Community 38 - "Security Configuration"
 Cohesion: 0.83
 Nodes (4): Fail-Fast Security Configuration, JWT Secret Strength Validation, Test-Environment Secret Validation Bypass, Security Configuration Contract Tests
 
-### Community 37 - "Community 37"
+### Community 39 - "Unclustered"
 Cohesion: 0.5
 Nodes (0):
 
-### Community 38 - "Community 38"
+### Community 40 - "Cash Flow Classification"
 Cohesion: 0.67
 Nodes (2): classifyCashFlowCategory(), includesAny()
 
-### Community 39 - "Community 39"
+### Community 41 - "Budgets and Goals"
 Cohesion: 0.5
 Nodes (4): Family Budget Management, Budget Progress Tracking, Family Financial Goals, Financial Goal Progress
 
-### Community 40 - "Community 40"
-Cohesion: 0.5
-Nodes (4): Centralized Family Authorization Policy Boundary, Viewer Read-Only Invariant, Baseline Viewer Write Authorization Bypass, Unified Write Authorization Epic
-
-### Community 41 - "Community 41"
+### Community 42 - "Cache Authorization"
 Cohesion: 0.5
 Nodes (4): Cache Is Not an Authorization Boundary, Baseline Cache-Before-Authorization Bypass, Redis Security and Cache Key Best Practices Citation, Authorization-First Tenant-Safe Cache Epic
 
-### Community 42 - "Community 42"
+### Community 43 - "Remediation Strategy"
 Cohesion: 0.5
 Nodes (4): Trust Before Scale and Intelligence Strategy, Delay New Write Features Until Stabilization Rationale, Risk-First Modular Monolith Evolution, Behavior Tests Make Incremental Strategy Safer Rationale
 
-### Community 43 - "Community 43"
+### Community 44 - "Write Authorization"
+Cohesion: 0.5
+Nodes (4): Centralized Family Authorization Policy Boundary, Viewer Read-Only Invariant, Baseline Viewer Write Authorization Bypass, Unified Write Authorization Epic
+
+### Community 45 - "Phase 0 Evidence"
 Cohesion: 0.5
 Nodes (4): Remediation Evidence State Machine, P0-B Authorization and Versioned Cache Plan, Phase 0 Cache Remediation, Phase 0 Not Released or Observed
 
-### Community 44 - "Community 44"
+### Community 46 - "P1-A-03 Orchestration"
 Cohesion: 0.5
 Nodes (4): Global Branch and Function Coverage Gate, P1-A-03 pre-audit resourceId validation, P1-A-03 PASS-MOCK Evidence, P1-A-03 Ledger Transaction Orchestration Skeleton
 
-### Community 45 - "Prisma Mutation Adapter"
+### Community 47 - "Unclustered"
 Cohesion: 0.5
 Nodes (0):
 
-### Community 46 - "Community 46"
+### Community 48 - "Unclustered"
 Cohesion: 0.67
 Nodes (0):
 
-### Community 47 - "Community 47"
+### Community 49 - "Unclustered"
 Cohesion: 0.67
 Nodes (0):
-
-### Community 48 - "Community 48"
-Cohesion: 0.67
-Nodes (0):
-
-### Community 49 - "Community 49"
-Cohesion: 1.0
-Nodes (2): base64ToBuffer(), storeOcrImage()
 
 ### Community 50 - "Community 50"
 Cohesion: 0.67
 Nodes (0):
 
 ### Community 51 - "Community 51"
-Cohesion: 0.67
-Nodes (0):
+Cohesion: 1.0
+Nodes (2): base64ToBuffer(), storeOcrImage()
 
 ### Community 52 - "Community 52"
 Cohesion: 0.67
@@ -421,7 +423,7 @@ Nodes (0):
 
 ### Community 53 - "Community 53"
 Cohesion: 0.67
-Nodes (3): Perceptual Image Hash Computation, Perceptual Hash Hamming Distance, Similar Image Threshold Check
+Nodes (0):
 
 ### Community 54 - "Community 54"
 Cohesion: 0.67
@@ -429,35 +431,35 @@ Nodes (0):
 
 ### Community 55 - "Community 55"
 Cohesion: 0.67
-Nodes (3): Single Declared Base Currency Totals, Multi-Currency Calculation Semantics Gap, Do Not Fake Multi-Currency Aggregation Rationale
+Nodes (3): Perceptual Image Hash Computation, Perceptual Hash Hamming Distance, Similar Image Threshold Check
 
 ### Community 56 - "Community 56"
 Cohesion: 0.67
-Nodes (3): Development and Build Performance Rationale, React Compiler Disabled, Vite React TypeScript Template
+Nodes (0):
 
 ### Community 57 - "Community 57"
 Cohesion: 0.67
-Nodes (3): P1-0-07 EVIDENCE_CONFIRMED and AT_RISK, P1-A-02 REFACTORED and AT_RISK, Backend Coverage Gate Failed Against 60 Percent Threshold
+Nodes (3): Single Declared Base Currency Totals, Multi-Currency Calculation Semantics Gap, Do Not Fake Multi-Currency Aggregation Rationale
 
 ### Community 58 - "Community 58"
 Cohesion: 0.67
-Nodes (3): P1-B-02 coordinator focused tests PASS 14/14, P1-B-02 pure coordinator contract remains PASS-MOCK, Historical P1-B-02 REFACTORED/AT_RISK snapshot (superseded by focused 14/14 evidence)
+Nodes (3): Development and Build Performance Rationale, React Compiler Disabled, Vite React TypeScript Template
 
 ### Community 59 - "Community 59"
 Cohesion: 0.67
-Nodes (3): P1-B-01 schema and migration PASS-REAL, P1-G-01 PostgreSQL migration and rollback primitives PASS-REAL, Historical P1-B-01 schema backlog snapshot (superseded by PASS-REAL migration evidence)
+Nodes (3): P1-0-07 EVIDENCE_CONFIRMED and AT_RISK, P1-A-02 REFACTORED and AT_RISK, Backend Coverage Gate Failed Against 60 Percent Threshold
 
 ### Community 60 - "Community 60"
-Cohesion: 1.0
-Nodes (0):
+Cohesion: 0.67
+Nodes (3): P1-B-02 coordinator focused tests PASS 14/14, P1-B-02 pure coordinator contract remains PASS-MOCK, Historical P1-B-02 REFACTORED/AT_RISK snapshot (superseded by focused 14/14 evidence)
 
 ### Community 61 - "Community 61"
-Cohesion: 1.0
-Nodes (0):
+Cohesion: 0.67
+Nodes (3): P1-B-01 schema and migration PASS-REAL, P1-G-01 PostgreSQL migration and rollback primitives PASS-REAL, Historical P1-B-01 schema backlog snapshot (superseded by PASS-REAL migration evidence)
 
 ### Community 62 - "Community 62"
 Cohesion: 1.0
-Nodes (2): Internal MinIO Client, MinIO Object Storage Lifecycle
+Nodes (0):
 
 ### Community 63 - "Community 63"
 Cohesion: 1.0
@@ -465,7 +467,7 @@ Nodes (0):
 
 ### Community 64 - "Community 64"
 Cohesion: 1.0
-Nodes (0):
+Nodes (2): Internal MinIO Client, MinIO Object Storage Lifecycle
 
 ### Community 65 - "Community 65"
 Cohesion: 1.0
@@ -577,7 +579,7 @@ Nodes (0):
 
 ### Community 92 - "Community 92"
 Cohesion: 1.0
-Nodes (2): Family-scoped Fixture Contracts, Finance Domain Test Data Factories
+Nodes (0):
 
 ### Community 93 - "Community 93"
 Cohesion: 1.0
@@ -585,7 +587,7 @@ Nodes (0):
 
 ### Community 94 - "Community 94"
 Cohesion: 1.0
-Nodes (0):
+Nodes (2): Family-scoped Fixture Contracts, Finance Domain Test Data Factories
 
 ### Community 95 - "Community 95"
 Cohesion: 1.0
@@ -593,35 +595,35 @@ Nodes (0):
 
 ### Community 96 - "Community 96"
 Cohesion: 1.0
-Nodes (2): Sustainable Project Memory Loop, Graphify Knowledge Graph Evidence Citation
+Nodes (0):
 
 ### Community 97 - "Community 97"
 Cohesion: 1.0
-Nodes (2): Executable Source-of-Truth Hierarchy, Code-Level Regression Verified Status
+Nodes (0):
 
 ### Community 98 - "Community 98"
 Cohesion: 1.0
-Nodes (2): Evidence-Backed Deep Review Framework, HomeFinance Source Baseline Citation
+Nodes (2): Sustainable Project Memory Loop, Graphify Knowledge Graph Evidence Citation
 
 ### Community 99 - "Community 99"
 Cohesion: 1.0
-Nodes (2): Focused RED-GREEN-REFACTOR Workflow, Executable CI Quality Gates
+Nodes (2): Executable Source-of-Truth Hierarchy, Code-Level Regression Verified Status
 
 ### Community 100 - "Community 100"
 Cohesion: 1.0
-Nodes (2): Auditability Precedes More Generative AI Rationale, Immutable Audit Trail and Reconciliation
+Nodes (2): Evidence-Backed Deep Review Framework, HomeFinance Source Baseline Citation
 
 ### Community 101 - "Community 101"
 Cohesion: 1.0
-Nodes (2): Historical 30-suite/256-test baseline snapshot (superseded by 31-suite/265-test baseline), Phase 1 backend baseline: 31 suites and 265 tests pass
+Nodes (2): Focused RED-GREEN-REFACTOR Workflow, Executable CI Quality Gates
 
 ### Community 102 - "Community 102"
 Cohesion: 1.0
-Nodes (0):
+Nodes (2): Auditability Precedes More Generative AI Rationale, Immutable Audit Trail and Reconciliation
 
 ### Community 103 - "Community 103"
 Cohesion: 1.0
-Nodes (0):
+Nodes (2): Historical 30-suite/256-test baseline snapshot (superseded by 31-suite/265-test baseline), Phase 1 backend baseline: 31 suites and 265 tests pass
 
 ### Community 104 - "Community 104"
 Cohesion: 1.0
@@ -669,7 +671,7 @@ Nodes (0):
 
 ### Community 115 - "Community 115"
 Cohesion: 1.0
-Nodes (1): Recurring Transaction Next-date Calculation
+Nodes (0):
 
 ### Community 116 - "Community 116"
 Cohesion: 1.0
@@ -677,286 +679,294 @@ Nodes (0):
 
 ### Community 117 - "Community 117"
 Cohesion: 1.0
-Nodes (1): Backend Test Environment Setup
+Nodes (1): Recurring Transaction Next-date Calculation
 
 ### Community 118 - "Community 118"
 Cohesion: 1.0
-Nodes (1): Decimal-to-Number Conversion
+Nodes (0):
 
 ### Community 119 - "Community 119"
 Cohesion: 1.0
-Nodes (0):
+Nodes (1): Backend Test Environment Setup
 
 ### Community 120 - "Community 120"
 Cohesion: 1.0
-Nodes (1): Multi-Family Financial Comparison
+Nodes (1): Decimal-to-Number Conversion
 
 ### Community 121 - "Community 121"
 Cohesion: 1.0
-Nodes (1): Liability Registry
+Nodes (0):
 
 ### Community 122 - "Community 122"
 Cohesion: 1.0
-Nodes (0):
+Nodes (1): Multi-Family Financial Comparison
 
 ### Community 123 - "Community 123"
 Cohesion: 1.0
-Nodes (1): Family ID Tenant Boundary
+Nodes (1): Liability Registry
 
 ### Community 124 - "Community 124"
 Cohesion: 1.0
-Nodes (1): Explicit Confirmation for AI Mutations
+Nodes (0):
 
 ### Community 125 - "Community 125"
 Cohesion: 1.0
-Nodes (1): Configured Frontend API Client Boundary
+Nodes (1): Family ID Tenant Boundary
 
 ### Community 126 - "Community 126"
 Cohesion: 1.0
-Nodes (1): Zustand Global State Convention
+Nodes (1): Explicit Confirmation for AI Mutations
 
 ### Community 127 - "Community 127"
 Cohesion: 1.0
-Nodes (1): Evidence-to-Observed Risk Status Workflow
+Nodes (1): Configured Frontend API Client Boundary
 
 ### Community 128 - "Community 128"
 Cohesion: 1.0
-Nodes (1): Cache Rollback Must Preserve Authorization
+Nodes (1): Zustand Global State Convention
 
 ### Community 129 - "Community 129"
 Cohesion: 1.0
-Nodes (1): PostgreSQL Revision Survives Redis Outage and Restart
+Nodes (1): Evidence-to-Observed Risk Status Workflow
 
 ### Community 130 - "Community 130"
 Cohesion: 1.0
-Nodes (1): Dynamic Family Financial Reporting
+Nodes (1): Cache Rollback Must Preserve Authorization
 
 ### Community 131 - "Community 131"
 Cohesion: 1.0
-Nodes (1): Desktop Login Screenshot
+Nodes (1): PostgreSQL Revision Survives Redis Outage and Restart
 
 ### Community 132 - "Community 132"
 Cohesion: 1.0
-Nodes (1): Labeled Login Form
+Nodes (1): Dynamic Family Financial Reporting
 
 ### Community 133 - "Community 133"
 Cohesion: 1.0
-Nodes (1): Desktop Reports Screenshot
+Nodes (1): Desktop Login Screenshot
 
 ### Community 134 - "Community 134"
 Cohesion: 1.0
-Nodes (1): Financial Reports Dashboard UI
+Nodes (1): Labeled Login Form
 
 ### Community 135 - "Community 135"
 Cohesion: 1.0
-Nodes (1): Server Owns Process Lifecycle
+Nodes (1): Desktop Reports Screenshot
 
 ### Community 136 - "Community 136"
 Cohesion: 1.0
-Nodes (1): P1-G-00 REFACTORED and AT_RISK
+Nodes (1): Financial Reports Dashboard UI
 
 ### Community 137 - "Community 137"
 Cohesion: 1.0
-Nodes (1): PostgreSQL Test Environment Unavailable
+Nodes (1): Server Owns Process Lifecycle
 
 ### Community 138 - "Community 138"
 Cohesion: 1.0
-Nodes (1): Database-First Idempotency and Concurrency Plan
+Nodes (1): P1-G-00 REFACTORED and AT_RISK
 
 ### Community 139 - "Community 139"
 Cohesion: 1.0
-Nodes (1): IdempotencyRecord and AuditEvent Are Absent from Prisma
+Nodes (1): PostgreSQL Test Environment Unavailable
 
 ### Community 140 - "Community 140"
 Cohesion: 1.0
-Nodes (1): P1-0-05 ADR-0001/0002 contract accepted (decision evidence)
+Nodes (1): Database-First Idempotency and Concurrency Plan
 
 ### Community 141 - "Community 141"
+Cohesion: 1.0
+Nodes (1): IdempotencyRecord and AuditEvent Are Absent from Prisma
+
+### Community 142 - "Community 142"
+Cohesion: 1.0
+Nodes (1): P1-0-05 ADR-0001/0002 contract accepted (decision evidence)
+
+### Community 143 - "Community 143"
 Cohesion: 1.0
 Nodes (1): Income or Expense Ledger Fact
 
 ## Knowledge Gaps
-- **203 isolated node(s):** `AI Credential Configuration Check`, `Vision Credential and Model Check`, `Tesseract-Only OCR Fallback`, `Low-Temperature Vision Determinism Rationale`, `Internal MinIO Client` (+198 more)
+- **210 isolated node(s):** `AI Credential Configuration Check`, `Vision Credential and Model Check`, `Tesseract-Only OCR Fallback`, `Low-Temperature Vision Determinism Rationale`, `Internal MinIO Client` (+205 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **Thin community `Community 60`** (2 nodes): `createApp()`, `app.ts`
+- **Thin community `Community 62`** (2 nodes): `createApp()`, `app.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 61`** (2 nodes): `server.ts`, `startServer()`
+- **Thin community `Community 63`** (2 nodes): `server.ts`, `startServer()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 62`** (2 nodes): `Internal MinIO Client`, `MinIO Object Storage Lifecycle`
+- **Thin community `Community 64`** (2 nodes): `Internal MinIO Client`, `MinIO Object Storage Lifecycle`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 63`** (2 nodes): `cache.authorization.test.ts`, `createToken()`
+- **Thin community `Community 65`** (2 nodes): `cache.authorization.test.ts`, `createToken()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 64`** (2 nodes): `cache.invalidation.test.ts`, `createToken()`
+- **Thin community `Community 66`** (2 nodes): `cache.invalidation.test.ts`, `createToken()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 65`** (2 nodes): `cache.ts`, `cacheMiddleware()`
+- **Thin community `Community 67`** (2 nodes): `cache.ts`, `cacheMiddleware()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 66`** (2 nodes): `familyAccess.test.ts`, `createResponse()`
+- **Thin community `Community 68`** (2 nodes): `familyAccess.test.ts`, `createResponse()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 67`** (2 nodes): `familyCache.ts`, `familyReportCacheKey()`
+- **Thin community `Community 69`** (2 nodes): `familyCache.ts`, `familyReportCacheKey()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 68`** (2 nodes): `checkFamilyAccess()`, `assets.ts`
+- **Thin community `Community 70`** (2 nodes): `checkFamilyAccess()`, `assets.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 69`** (2 nodes): `budgets.test.ts`, `createToken()`
+- **Thin community `Community 71`** (2 nodes): `budgets.test.ts`, `createToken()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 70`** (2 nodes): `budgets.ts`, `checkFamilyAccess()`
+- **Thin community `Community 72`** (2 nodes): `budgets.ts`, `checkFamilyAccess()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 71`** (2 nodes): `category.test.ts`, `createToken()`
+- **Thin community `Community 73`** (2 nodes): `category.test.ts`, `createToken()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 72`** (2 nodes): `category.ts`, `checkFamilyAccess()`
+- **Thin community `Community 74`** (2 nodes): `category.ts`, `checkFamilyAccess()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 73`** (2 nodes): `compare.test.ts`, `createToken()`
+- **Thin community `Community 75`** (2 nodes): `compare.test.ts`, `createToken()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 74`** (2 nodes): `compare.ts`, `sumAmount()`
+- **Thin community `Community 76`** (2 nodes): `compare.ts`, `sumAmount()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 75`** (2 nodes): `expenses.ts`, `checkFamilyAccess()`
+- **Thin community `Community 77`** (2 nodes): `expenses.ts`, `checkFamilyAccess()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 76`** (2 nodes): `export.test.ts`, `createToken()`
+- **Thin community `Community 78`** (2 nodes): `export.test.ts`, `createToken()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 77`** (2 nodes): `families.test.ts`, `createToken()`
+- **Thin community `Community 79`** (2 nodes): `families.test.ts`, `createToken()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 78`** (2 nodes): `files.test.ts`, `createToken()`
+- **Thin community `Community 80`** (2 nodes): `files.test.ts`, `createToken()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 79`** (2 nodes): `goals.test.ts`, `createToken()`
+- **Thin community `Community 81`** (2 nodes): `goals.test.ts`, `createToken()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 80`** (2 nodes): `goals.ts`, `checkFamilyAccess()`
+- **Thin community `Community 82`** (2 nodes): `goals.ts`, `checkFamilyAccess()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 81`** (2 nodes): `import.test.ts`, `createToken()`
+- **Thin community `Community 83`** (2 nodes): `import.test.ts`, `createToken()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 82`** (2 nodes): `import.ts`, `checkFamilyAccess()`
+- **Thin community `Community 84`** (2 nodes): `import.ts`, `checkFamilyAccess()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 83`** (2 nodes): `incomes.ts`, `checkFamilyAccess()`
+- **Thin community `Community 85`** (2 nodes): `incomes.ts`, `checkFamilyAccess()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 84`** (2 nodes): `liabilities.ts`, `checkFamilyAccess()`
+- **Thin community `Community 86`** (2 nodes): `liabilities.ts`, `checkFamilyAccess()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 85`** (2 nodes): `recurring.test.ts`, `createToken()`
+- **Thin community `Community 87`** (2 nodes): `recurring.test.ts`, `createToken()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 86`** (2 nodes): `recurring.ts`, `checkFamilyAccess()`
+- **Thin community `Community 88`** (2 nodes): `recurring.ts`, `checkFamilyAccess()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 87`** (2 nodes): `reports.test.ts`, `createToken()`
+- **Thin community `Community 89`** (2 nodes): `reports.test.ts`, `createToken()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 88`** (2 nodes): `categoryService.ts`, `suggestCategory()`
+- **Thin community `Community 90`** (2 nodes): `categoryService.ts`, `suggestCategory()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 89`** (2 nodes): `ledgerApplicationService.test.ts`, `createStore()`
+- **Thin community `Community 91`** (2 nodes): `ledgerApplicationService.test.ts`, `createStore()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 90`** (2 nodes): `ledgerTransactionOrchestration.test.ts`, `createStore()`
+- **Thin community `Community 92`** (2 nodes): `ledgerTransactionOrchestration.test.ts`, `createStore()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 91`** (2 nodes): `database.integration.test.ts`, `uniqueId()`
+- **Thin community `Community 93`** (2 nodes): `database.integration.test.ts`, `uniqueId()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 92`** (2 nodes): `Family-scoped Fixture Contracts`, `Finance Domain Test Data Factories`
+- **Thin community `Community 94`** (2 nodes): `Family-scoped Fixture Contracts`, `Finance Domain Test Data Factories`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 93`** (2 nodes): `jestConfig.test.ts`, `loadConfig()`
+- **Thin community `Community 95`** (2 nodes): `jestConfig.test.ts`, `loadConfig()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 94`** (2 nodes): `phase1-concurrency.integration.test.ts`, `command()`
+- **Thin community `Community 96`** (2 nodes): `phase1-concurrency.integration.test.ts`, `command()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 95`** (2 nodes): `ReportsPage.test.tsx`, `deferred()`
+- **Thin community `Community 97`** (2 nodes): `ReportsPage.test.tsx`, `deferred()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 96`** (2 nodes): `Sustainable Project Memory Loop`, `Graphify Knowledge Graph Evidence Citation`
+- **Thin community `Community 98`** (2 nodes): `Sustainable Project Memory Loop`, `Graphify Knowledge Graph Evidence Citation`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 97`** (2 nodes): `Executable Source-of-Truth Hierarchy`, `Code-Level Regression Verified Status`
+- **Thin community `Community 99`** (2 nodes): `Executable Source-of-Truth Hierarchy`, `Code-Level Regression Verified Status`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 98`** (2 nodes): `Evidence-Backed Deep Review Framework`, `HomeFinance Source Baseline Citation`
+- **Thin community `Community 100`** (2 nodes): `Evidence-Backed Deep Review Framework`, `HomeFinance Source Baseline Citation`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 99`** (2 nodes): `Focused RED-GREEN-REFACTOR Workflow`, `Executable CI Quality Gates`
+- **Thin community `Community 101`** (2 nodes): `Focused RED-GREEN-REFACTOR Workflow`, `Executable CI Quality Gates`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 100`** (2 nodes): `Auditability Precedes More Generative AI Rationale`, `Immutable Audit Trail and Reconciliation`
+- **Thin community `Community 102`** (2 nodes): `Auditability Precedes More Generative AI Rationale`, `Immutable Audit Trail and Reconciliation`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 101`** (2 nodes): `Historical 30-suite/256-test baseline snapshot (superseded by 31-suite/265-test baseline)`, `Phase 1 backend baseline: 31 suites and 265 tests pass`
+- **Thin community `Community 103`** (2 nodes): `Historical 30-suite/256-test baseline snapshot (superseded by 31-suite/265-test baseline)`, `Phase 1 backend baseline: 31 suites and 265 tests pass`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 102`** (1 nodes): `jest.config.js`
+- **Thin community `Community 104`** (1 nodes): `jest.config.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 103`** (1 nodes): `app.test.ts`
+- **Thin community `Community 105`** (1 nodes): `app.test.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 104`** (1 nodes): `prisma.ts`
+- **Thin community `Community 106`** (1 nodes): `prisma.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 105`** (1 nodes): `cache.test.ts`
+- **Thin community `Community 107`** (1 nodes): `cache.test.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 106`** (1 nodes): `familyCache.persistence.test.ts`
+- **Thin community `Community 108`** (1 nodes): `familyCache.persistence.test.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 107`** (1 nodes): `auth.test.ts`
+- **Thin community `Community 109`** (1 nodes): `auth.test.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 108`** (1 nodes): `auth.ts`
+- **Thin community `Community 110`** (1 nodes): `auth.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 109`** (1 nodes): `families.ts`
+- **Thin community `Community 111`** (1 nodes): `families.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 110`** (1 nodes): `reports.ts`
+- **Thin community `Community 112`** (1 nodes): `reports.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 111`** (1 nodes): `aiService.test.ts`
+- **Thin community `Community 113`** (1 nodes): `aiService.test.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 112`** (1 nodes): `categoryService.test.ts`
+- **Thin community `Community 114`** (1 nodes): `categoryService.test.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 113`** (1 nodes): `fileStorageService.test.ts`
+- **Thin community `Community 115`** (1 nodes): `fileStorageService.test.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 114`** (1 nodes): `ledgerTypes.ts`
+- **Thin community `Community 116`** (1 nodes): `ledgerTypes.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 115`** (1 nodes): `Recurring Transaction Next-date Calculation`
+- **Thin community `Community 117`** (1 nodes): `Recurring Transaction Next-date Calculation`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 116`** (1 nodes): `database.phase1.integration.test.ts`
+- **Thin community `Community 118`** (1 nodes): `database.phase1.integration.test.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 117`** (1 nodes): `Backend Test Environment Setup`
+- **Thin community `Community 119`** (1 nodes): `Backend Test Environment Setup`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 118`** (1 nodes): `Decimal-to-Number Conversion`
+- **Thin community `Community 120`** (1 nodes): `Decimal-to-Number Conversion`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 119`** (1 nodes): `vitest.config.ts`
+- **Thin community `Community 121`** (1 nodes): `vitest.config.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 120`** (1 nodes): `Multi-Family Financial Comparison`
+- **Thin community `Community 122`** (1 nodes): `Multi-Family Financial Comparison`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 121`** (1 nodes): `Liability Registry`
+- **Thin community `Community 123`** (1 nodes): `Liability Registry`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 122`** (1 nodes): `setup.ts`
+- **Thin community `Community 124`** (1 nodes): `setup.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 123`** (1 nodes): `Family ID Tenant Boundary`
+- **Thin community `Community 125`** (1 nodes): `Family ID Tenant Boundary`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 124`** (1 nodes): `Explicit Confirmation for AI Mutations`
+- **Thin community `Community 126`** (1 nodes): `Explicit Confirmation for AI Mutations`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 125`** (1 nodes): `Configured Frontend API Client Boundary`
+- **Thin community `Community 127`** (1 nodes): `Configured Frontend API Client Boundary`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 126`** (1 nodes): `Zustand Global State Convention`
+- **Thin community `Community 128`** (1 nodes): `Zustand Global State Convention`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 127`** (1 nodes): `Evidence-to-Observed Risk Status Workflow`
+- **Thin community `Community 129`** (1 nodes): `Evidence-to-Observed Risk Status Workflow`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 128`** (1 nodes): `Cache Rollback Must Preserve Authorization`
+- **Thin community `Community 130`** (1 nodes): `Cache Rollback Must Preserve Authorization`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 129`** (1 nodes): `PostgreSQL Revision Survives Redis Outage and Restart`
+- **Thin community `Community 131`** (1 nodes): `PostgreSQL Revision Survives Redis Outage and Restart`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 130`** (1 nodes): `Dynamic Family Financial Reporting`
+- **Thin community `Community 132`** (1 nodes): `Dynamic Family Financial Reporting`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 131`** (1 nodes): `Desktop Login Screenshot`
+- **Thin community `Community 133`** (1 nodes): `Desktop Login Screenshot`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 132`** (1 nodes): `Labeled Login Form`
+- **Thin community `Community 134`** (1 nodes): `Labeled Login Form`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 133`** (1 nodes): `Desktop Reports Screenshot`
+- **Thin community `Community 135`** (1 nodes): `Desktop Reports Screenshot`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 134`** (1 nodes): `Financial Reports Dashboard UI`
+- **Thin community `Community 136`** (1 nodes): `Financial Reports Dashboard UI`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 135`** (1 nodes): `Server Owns Process Lifecycle`
+- **Thin community `Community 137`** (1 nodes): `Server Owns Process Lifecycle`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 136`** (1 nodes): `P1-G-00 REFACTORED and AT_RISK`
+- **Thin community `Community 138`** (1 nodes): `P1-G-00 REFACTORED and AT_RISK`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 137`** (1 nodes): `PostgreSQL Test Environment Unavailable`
+- **Thin community `Community 139`** (1 nodes): `PostgreSQL Test Environment Unavailable`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 138`** (1 nodes): `Database-First Idempotency and Concurrency Plan`
+- **Thin community `Community 140`** (1 nodes): `Database-First Idempotency and Concurrency Plan`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 139`** (1 nodes): `IdempotencyRecord and AuditEvent Are Absent from Prisma`
+- **Thin community `Community 141`** (1 nodes): `IdempotencyRecord and AuditEvent Are Absent from Prisma`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 140`** (1 nodes): `P1-0-05 ADR-0001/0002 contract accepted (decision evidence)`
+- **Thin community `Community 142`** (1 nodes): `P1-0-05 ADR-0001/0002 contract accepted (decision evidence)`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 141`** (1 nodes): `Income or Expense Ledger Fact`
+- **Thin community `Community 143`** (1 nodes): `Income or Expense Ledger Fact`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `HomeFinance Graphify Knowledge Graph Report` connect `Community 2` to `Community 5`, `Community 7`?**
+- **Why does `HomeFinance Graphify Knowledge Graph Report` connect `Governed Knowledge Graph` to `Financial Semantics`, `Cache Revision Integrity`?**
   _High betweenness centrality (0.007) - this node is a cross-community bridge._
-- **Why does `Low-Cohesion Frontend Finance Domain` connect `Community 5` to `Community 2`?**
+- **Why does `Core Family Finance Data Model` connect `Core Finance Architecture` to `Finance Feature Modules`?**
+  _High betweenness centrality (0.004) - this node is a cross-community bridge._
+- **Why does `Low-Cohesion Frontend Finance Domain` connect `Financial Semantics` to `Governed Knowledge Graph`?**
   _High betweenness centrality (0.004) - this node is a cross-community bridge._
 - **Are the 6 inferred relationships involving `Dual-Mode Family Income and Expense Ledger` (e.g. with `Category Budget Progress Tracking` and `Family Cash Flow Statement`) actually correct?**
   _`Dual-Mode Family Income and Expense Ledger` has 6 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `AI Credential Configuration Check`, `Vision Credential and Model Check`, `Tesseract-Only OCR Fallback` to the rest of the system?**
-  _203 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Community 0` be split into smaller, more focused modules?**
+  _210 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `AI and Finance Features` be split into smaller, more focused modules?**
   _Cohesion score 0.05 - nodes in this community are weakly interconnected._
-- **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.06 - nodes in this community are weakly interconnected._
-- **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.09 - nodes in this community are weakly interconnected._
+- **Should `Core Finance Architecture` be split into smaller, more focused modules?**
+  _Cohesion score 0.07 - nodes in this community are weakly interconnected._

@@ -40,7 +40,11 @@ const toJson = (value: unknown): Prisma.JsonValue => {
     if (Number.isNaN(value.getTime())) throw new Error('Mutation JSON contains invalid date');
     return value.toISOString();
   }
-  if (typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number') return value;
+  if (typeof value === 'string' || typeof value === 'boolean') return value;
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) throw new Error('Mutation JSON contains non-finite number');
+    return value;
+  }
   if (Array.isArray(value)) return value.map((item) => toJson(item));
   if (typeof value === 'object') {
     const object: Prisma.JsonObject = {};
