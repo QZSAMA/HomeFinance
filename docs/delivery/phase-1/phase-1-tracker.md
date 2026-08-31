@@ -6,7 +6,7 @@
 - 设计规格：docs/superpowers/specs/2026-08-28-homefinance-phase1-design.md
 - 开发基线：codex/phase0-remediation@081084a
 - 实施分支：codex/phase1-ledger-trust
-- 当前快照：2026-08-31；设计已批准，P1-B-04 已在 PostgreSQL 18.1 localhost:5433 完成真实并发/重放回归，并在 `DomainError.cause` 保留未分类 Prisma 原始错误；P1-G-06 的 Prisma 适配器测试使默认 function coverage 达到 64.06%，branch coverage 从 45.38% 提升至 46.01%，补上 `Map`/`Set`/`RegExp` 非普通对象拒绝契约，并使 MinIO 初始化失败可交给 `server.ts` 统一降级、验证重复 shutdown 仅释放一次；P1-A-03 已以真实 PostgreSQL failure injection 证明空 resourceId 会回滚 Income、IdempotencyRecord 和 AuditEvent（PASS-REAL）；Income/Expense route adoption、upgrade/restore、staging/release 仍未完成
+- 当前快照：2026-08-31；设计已批准，P1-B-04 已在 PostgreSQL 18.1 localhost:5433 完成真实并发/重放回归，并在 `DomainError.cause` 保留未分类 Prisma 原始错误；P1-G-06 的 Prisma 适配器测试使默认 function coverage 达到 64.06%，branch coverage 从 45.38% 提升至 46.01%，补上 `Map`/`Set`/`RegExp` 非普通对象拒绝契约，并使 MinIO 初始化失败可交给 `server.ts` 统一降级、验证重复 shutdown 仅释放一次；P1-G-03 已为 ImportPage 建立 3 条 PASS-MOCK 交互合同：可访问文件选择、失败/成功状态和悬挂确认的本地防重复；P1-A-03 已以真实 PostgreSQL failure injection 证明空 resourceId 会回滚 Income、IdempotencyRecord 和 AuditEvent（PASS-REAL）；Income/Expense route adoption、upgrade/restore、staging/release 仍未完成
 
 ## 1. 状态和字段规则
 
@@ -94,7 +94,7 @@
 | P1-F-05 | GATE | P1-F | 建立三表 reconciliation fixtures | P0 | BACKLOG | ON_TRACK | QA/Evidence Owner | Finance/Product Owner | hard:P1-F-01@ACCEPTED; hard:P1-F-02@ACCEPTED | net income/cash flow/balance/dashboard 恒等式 | evidence/P1-F-05.md | ADR-0005 | 未知不渲染为零；建 fixture | 2026-08-28 |
 | P1-G-01 | GATE | P1-G | 真实 PostgreSQL migration/事务 | P0 | REFACTORED | AT_RISK | QA/Evidence Owner | Release Owner | external:POSTGRES_TEST_ENV@AVAILABLE | migration、trigger、rollback、concurrency PASS-REAL | evidence/P1-G-01.md | ADR-0001, ADR-0002 | `17c2644` fresh migration/trigger/rollback PASS-REAL；待并发、populated upgrade、restore/staging | 2026-08-28 |
 | P1-G-02 | GATE | P1-G | 完成角色×方法×入口矩阵 | P0 | BACKLOG | ON_TRACK | Security Reviewer | Repository Owner | hard:P1-0-04@READY | 401/403/200/2xx 且零副作用 | evidence/P1-G-02.md | ADR-0001 | 不降低断言；扩展 tests | 2026-08-28 |
-| P1-G-03 | TASK | P1-G | 补齐前端 mutation 行为测试 | P1 | BACKLOG | ON_TRACK | Frontend Agent | QA/Evidence Owner | hard:P1-0-03@IN_REVIEW | error/loading/confirm/replay 可测 | evidence/P1-G-03.md | — | build 不替代行为；建立 harness | 2026-08-28 |
+| P1-G-03 | TASK | P1-G | 补齐前端 mutation 行为测试 | P1 | GREEN_MINIMAL | AT_RISK | Frontend Agent | QA/Evidence Owner | hard:P1-0-03@IN_REVIEW | error/loading/confirm/replay 可测 | evidence/P1-G-03.md | — | ImportPage 3 条 PASS-MOCK 合同已覆盖可访问文件选择、alert/status 与悬挂确认本地防重复；继续覆盖其他 mutation entry，且不把 UI 禁用当成服务端幂等 | 2026-08-31 |
 | P1-G-04 | GATE | P1-G | 建立 Playwright 关键旅程 | P1 | BACKLOG | ON_TRACK | Integration Agent | QA/Evidence Owner | hard:P1-G-00@REGRESSION_VERIFIED | login/switch/CRUD/report/viewer/import/AI | evidence/P1-G-04.md | — | 只 mock 外部 AI；选 E2E 栈 | 2026-08-28 |
 | P1-G-05 | GATE | P1-G | Redis/MinIO/Compose 故障恢复 | P0 | BLOCKED | AT_RISK | Integration Agent | Release Owner | external:COMPOSE_ENV@AVAILABLE | down/up、授权、生命周期、降级 PASS-REAL | evidence/P1-G-05.md | — | 不隐藏依赖故障；准备 Compose | 2026-08-28 |
 | P1-G-06 | GATE | P1-G | coverage/lint/advisory 门禁 | P1 | RED_REPRODUCED | AT_RISK | QA/Evidence Owner | Repository Owner | hard:P1-0-07@REGRESSION_VERIFIED | coverage 真执行、warning 不增、high 有处置 | evidence/P1-G-06.md | — | Prisma 适配器现拒绝 NaN/±Infinity 和非普通对象；MinIO 初始化错误由 `server.ts` 统一降级并有幂等 shutdown 回归。34 suites/281 tests 通过；branch 46.01% 仍低于 60%，继续安全关键分支测试且不降低阈值 | 2026-08-31 |

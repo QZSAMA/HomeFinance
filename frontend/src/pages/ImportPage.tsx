@@ -86,8 +86,9 @@ const ImportPage = () => {
             </select>
           </div>
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">CSV 文件</label>
+            <label htmlFor="import-file" className="block text-sm font-medium text-gray-700 mb-1">CSV 文件</label>
             <input
+              id="import-file"
               type="file"
               accept=".csv"
               onChange={(e) => {
@@ -109,10 +110,10 @@ const ImportPage = () => {
       </div>
 
       {error && (
-        <div className="mb-4 text-red-700 text-sm bg-red-50 p-3 rounded">{error}</div>
+        <div role="alert" className="mb-4 text-red-700 text-sm bg-red-50 p-3 rounded">{error}</div>
       )}
       {successMsg && (
-        <div className="mb-4 text-green-700 text-sm bg-green-50 p-3 rounded">{successMsg}</div>
+        <div role="status" className="mb-4 text-green-700 text-sm bg-green-50 p-3 rounded">{successMsg}</div>
       )}
 
       {items.length > 0 && (

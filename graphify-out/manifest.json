@@ -107,7 +107,7 @@
   "frontend\\src\\pages\\FamiliesPage.tsx": 1787891521.4996173,
   "frontend\\src\\pages\\FilesPage.tsx": 1787891521.5001333,
   "frontend\\src\\pages\\GoalsPage.tsx": 1787891521.5011528,
-  "frontend\\src\\pages\\ImportPage.tsx": 1787891521.5046747,
+  "frontend\\src\\pages\\ImportPage.tsx": 1788161206.324124,
   "frontend\\src\\pages\\IncomeStatementPage.tsx": 1787891521.5061822,
   "frontend\\src\\pages\\InvestmentPage.tsx": 1787891521.5071912,
   "frontend\\src\\pages\\LiabilitiesPage.tsx": 1787891521.5103462,
@@ -139,7 +139,7 @@
   "README.md": 1787891521.1168218,
   "docs\\contributing.md": 1787891521.4129086,
   "docs\\development-rules.md": 1787891521.4154155,
-  "docs\\project-memory.md": 1788158631.3430088,
+  "docs\\project-memory.md": 1788161297.981181,
   "docs\\wiki.md": 1787891521.4245322,
   "docs\\adr\\0001-unified-financial-mutation-coordinator.md": 1787902094.3952098,
   "docs\\adr\\0002-database-arbitrated-idempotency.md": 1787902094.3972843,
@@ -157,7 +157,7 @@
   "docs\\audit\\parallel-analysis\\04-frontend-quality.md": 1787891521.4058113,
   "docs\\audit\\parallel-analysis\\05-architecture-operations.md": 1787891521.4078302,
   "docs\\audit\\parallel-analysis\\06-knowledge-governance.md": 1787891521.411909,
-  "docs\\delivery\\phase-1\\phase-1-tracker.md": 1788158296.4511523,
+  "docs\\delivery\\phase-1\\phase-1-tracker.md": 1788161297.9796708,
   "docs\\delivery\\phase-1\\evidence\\P1-0-01.md": 1787892521.2966416,
   "docs\\delivery\\phase-1\\evidence\\P1-0-02.md": 1787892580.5635087,
   "docs\\delivery\\phase-1\\evidence\\P1-0-03.md": 1787892592.0028167,
@@ -201,7 +201,7 @@
   "docs\\delivery\\phase-1\\evidence\\P1-G-00.md": 1787901970.9695191,
   "docs\\delivery\\phase-1\\evidence\\P1-G-01.md": 1787912531.5136518,
   "docs\\delivery\\phase-1\\evidence\\P1-G-02.md": 1787893117.7948847,
-  "docs\\delivery\\phase-1\\evidence\\P1-G-03.md": 1787893117.7958834,
+  "docs\\delivery\\phase-1\\evidence\\P1-G-03.md": 1788161297.9786754,
   "docs\\delivery\\phase-1\\evidence\\P1-G-04.md": 1787893117.7968817,
   "docs\\delivery\\phase-1\\evidence\\P1-G-05.md": 1787893117.797884,
   "docs\\delivery\\phase-1\\evidence\\P1-G-06.md": 1788159061.9599068,
@@ -220,5 +220,6 @@
   "frontend\\public\\icons.svg": 1787891521.4526768,
   "frontend\\src\\assets\\hero.png": 1787891521.4570258,
   "frontend\\src\\assets\\react.svg": 1787891521.4587114,
-  "frontend\\src\\assets\\vite.svg": 1787891521.4602392
+  "frontend\\src\\assets\\vite.svg": 1787891521.4602392,
+  "frontend\\src\\pages\\ImportPage.test.tsx": 1788161227.6406448
 }

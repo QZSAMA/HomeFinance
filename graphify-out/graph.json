@@ -1,12 +1,14 @@
 {
   "directed": false,
   "multigraph": false,
-  "graph": {},
+  "graph": {
+    "hyperedges": []
+  },
   "nodes": [
     {
       "label": "jest.config.js",
       "file_type": "code",
-      "source_file": "backend\\jest.config.js",
+      "source_file": "backend/jest.config.js",
       "source_location": "L1",
       "community": 99,
       "norm_label": "jest.config.js",
@@ -15,7 +17,7 @@
     {
       "label": "app.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\app.test.ts",
+      "source_file": "backend/src/app.test.ts",
       "source_location": "L1",
       "community": 100,
       "norm_label": "app.test.ts",
@@ -24,7 +26,7 @@
     {
       "label": "app.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\app.ts",
+      "source_file": "backend/src/app.ts",
       "source_location": "L1",
       "community": 57,
       "norm_label": "app.ts",
@@ -33,7 +35,7 @@
     {
       "label": "createApp()",
       "file_type": "code",
-      "source_file": "backend\\src\\app.ts",
+      "source_file": "backend/src/app.ts",
       "source_location": "L27",
       "community": 57,
       "norm_label": "createapp()",
@@ -42,7 +44,7 @@
     {
       "label": "server.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\server.ts",
+      "source_file": "backend/src/server.ts",
       "source_location": "L1",
       "community": 4,
       "norm_label": "server.ts",
@@ -51,7 +53,7 @@
     {
       "label": "startServer()",
       "file_type": "code",
-      "source_file": "backend\\src\\server.ts",
+      "source_file": "backend/src/server.ts",
       "source_location": "L7",
       "community": 4,
       "norm_label": "startserver()",
@@ -203,7 +205,7 @@
     {
       "label": "prisma.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\db\\prisma.ts",
+      "source_file": "backend/src/db/prisma.ts",
       "source_location": "L1",
       "community": 101,
       "norm_label": "prisma.ts",
@@ -238,7 +240,7 @@
     {
       "label": "cache.authorization.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\middleware\\cache.authorization.test.ts",
+      "source_file": "backend/src/middleware/cache.authorization.test.ts",
       "source_location": "L1",
       "community": 58,
       "norm_label": "cache.authorization.test.ts",
@@ -247,7 +249,7 @@
     {
       "label": "createToken()",
       "file_type": "code",
-      "source_file": "backend\\src\\middleware\\cache.authorization.test.ts",
+      "source_file": "backend/src/middleware/cache.authorization.test.ts",
       "source_location": "L33",
       "community": 58,
       "norm_label": "createtoken()",
@@ -256,7 +258,7 @@
     {
       "label": "cache.invalidation.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\middleware\\cache.invalidation.test.ts",
+      "source_file": "backend/src/middleware/cache.invalidation.test.ts",
       "source_location": "L1",
       "community": 59,
       "norm_label": "cache.invalidation.test.ts",
@@ -265,7 +267,7 @@
     {
       "label": "createToken()",
       "file_type": "code",
-      "source_file": "backend\\src\\middleware\\cache.invalidation.test.ts",
+      "source_file": "backend/src/middleware/cache.invalidation.test.ts",
       "source_location": "L44",
       "community": 59,
       "norm_label": "createtoken()",
@@ -274,7 +276,7 @@
     {
       "label": "cache.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\middleware\\cache.test.ts",
+      "source_file": "backend/src/middleware/cache.test.ts",
       "source_location": "L1",
       "community": 102,
       "norm_label": "cache.test.ts",
@@ -283,7 +285,7 @@
     {
       "label": "cache.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\middleware\\cache.ts",
+      "source_file": "backend/src/middleware/cache.ts",
       "source_location": "L1",
       "community": 60,
       "norm_label": "cache.ts",
@@ -292,7 +294,7 @@
     {
       "label": "cacheMiddleware()",
       "file_type": "code",
-      "source_file": "backend\\src\\middleware\\cache.ts",
+      "source_file": "backend/src/middleware/cache.ts",
       "source_location": "L6",
       "community": 60,
       "norm_label": "cachemiddleware()",
@@ -301,7 +303,7 @@
     {
       "label": "familyAccess.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\middleware\\familyAccess.test.ts",
+      "source_file": "backend/src/middleware/familyAccess.test.ts",
       "source_location": "L1",
       "community": 61,
       "norm_label": "familyaccess.test.ts",
@@ -310,7 +312,7 @@
     {
       "label": "createResponse()",
       "file_type": "code",
-      "source_file": "backend\\src\\middleware\\familyAccess.test.ts",
+      "source_file": "backend/src/middleware/familyAccess.test.ts",
       "source_location": "L16",
       "community": 61,
       "norm_label": "createresponse()",
@@ -319,7 +321,7 @@
     {
       "label": "familyAccess.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\middleware\\familyAccess.ts",
+      "source_file": "backend/src/middleware/familyAccess.ts",
       "source_location": "L1",
       "community": 29,
       "norm_label": "familyaccess.ts",
@@ -328,7 +330,7 @@
     {
       "label": "loadFamilyMembership()",
       "file_type": "code",
-      "source_file": "backend\\src\\middleware\\familyAccess.ts",
+      "source_file": "backend/src/middleware/familyAccess.ts",
       "source_location": "L18",
       "community": 29,
       "norm_label": "loadfamilymembership()",
@@ -337,7 +339,7 @@
     {
       "label": "attachFamilyContext()",
       "file_type": "code",
-      "source_file": "backend\\src\\middleware\\familyAccess.ts",
+      "source_file": "backend/src/middleware/familyAccess.ts",
       "source_location": "L35",
       "community": 29,
       "norm_label": "attachfamilycontext()",
@@ -346,7 +348,7 @@
     {
       "label": "requireFamilyAccess()",
       "file_type": "code",
-      "source_file": "backend\\src\\middleware\\familyAccess.ts",
+      "source_file": "backend/src/middleware/familyAccess.ts",
       "source_location": "L52",
       "community": 29,
       "norm_label": "requirefamilyaccess()",
@@ -355,7 +357,7 @@
     {
       "label": "createFamilyWriteAccess()",
       "file_type": "code",
-      "source_file": "backend\\src\\middleware\\familyAccess.ts",
+      "source_file": "backend/src/middleware/familyAccess.ts",
       "source_location": "L72",
       "community": 29,
       "norm_label": "createfamilywriteaccess()",
@@ -364,7 +366,7 @@
     {
       "label": "familyCache.persistence.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\middleware\\familyCache.persistence.test.ts",
+      "source_file": "backend/src/middleware/familyCache.persistence.test.ts",
       "source_location": "L1",
       "community": 103,
       "norm_label": "familycache.persistence.test.ts",
@@ -373,7 +375,7 @@
     {
       "label": "familyCache.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\middleware\\familyCache.ts",
+      "source_file": "backend/src/middleware/familyCache.ts",
       "source_location": "L1",
       "community": 62,
       "norm_label": "familycache.ts",
@@ -382,7 +384,7 @@
     {
       "label": "familyReportCacheKey()",
       "file_type": "code",
-      "source_file": "backend\\src\\middleware\\familyCache.ts",
+      "source_file": "backend/src/middleware/familyCache.ts",
       "source_location": "L3",
       "community": 62,
       "norm_label": "familyreportcachekey()",
@@ -443,7 +445,7 @@
     {
       "label": "ai.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\ai.test.ts",
+      "source_file": "backend/src/routes/ai.test.ts",
       "source_location": "L1",
       "community": 44,
       "norm_label": "ai.test.ts",
@@ -452,7 +454,7 @@
     {
       "label": "constructor()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\ai.test.ts",
+      "source_file": "backend/src/routes/ai.test.ts",
       "source_location": "L55",
       "community": 44,
       "norm_label": "constructor()",
@@ -461,7 +463,7 @@
     {
       "label": "createToken()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\ai.test.ts",
+      "source_file": "backend/src/routes/ai.test.ts",
       "source_location": "L84",
       "community": 44,
       "norm_label": "createtoken()",
@@ -470,7 +472,7 @@
     {
       "label": "ai.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\ai.ts",
+      "source_file": "backend/src/routes/ai.ts",
       "source_location": "L1",
       "community": 45,
       "norm_label": "ai.ts",
@@ -479,7 +481,7 @@
     {
       "label": "checkFamilyAccess()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\ai.ts",
+      "source_file": "backend/src/routes/ai.ts",
       "source_location": "L15",
       "community": 45,
       "norm_label": "checkfamilyaccess()",
@@ -488,7 +490,7 @@
     {
       "label": "checkDuplicateActions()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\ai.ts",
+      "source_file": "backend/src/routes/ai.ts",
       "source_location": "L28",
       "community": 45,
       "norm_label": "checkduplicateactions()",
@@ -497,7 +499,7 @@
     {
       "label": "assets.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\assets.ts",
+      "source_file": "backend/src/routes/assets.ts",
       "source_location": "L1",
       "community": 63,
       "norm_label": "assets.ts",
@@ -506,7 +508,7 @@
     {
       "label": "checkFamilyAccess()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\assets.ts",
+      "source_file": "backend/src/routes/assets.ts",
       "source_location": "L22",
       "community": 63,
       "norm_label": "checkfamilyaccess()",
@@ -515,7 +517,7 @@
     {
       "label": "auth.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\auth.test.ts",
+      "source_file": "backend/src/routes/auth.test.ts",
       "source_location": "L1",
       "community": 104,
       "norm_label": "auth.test.ts",
@@ -524,7 +526,7 @@
     {
       "label": "auth.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\auth.ts",
+      "source_file": "backend/src/routes/auth.ts",
       "source_location": "L1",
       "community": 105,
       "norm_label": "auth.ts",
@@ -533,7 +535,7 @@
     {
       "label": "budgets.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\budgets.test.ts",
+      "source_file": "backend/src/routes/budgets.test.ts",
       "source_location": "L1",
       "community": 64,
       "norm_label": "budgets.test.ts",
@@ -542,7 +544,7 @@
     {
       "label": "createToken()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\budgets.test.ts",
+      "source_file": "backend/src/routes/budgets.test.ts",
       "source_location": "L36",
       "community": 64,
       "norm_label": "createtoken()",
@@ -551,7 +553,7 @@
     {
       "label": "budgets.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\budgets.ts",
+      "source_file": "backend/src/routes/budgets.ts",
       "source_location": "L1",
       "community": 65,
       "norm_label": "budgets.ts",
@@ -560,7 +562,7 @@
     {
       "label": "checkFamilyAccess()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\budgets.ts",
+      "source_file": "backend/src/routes/budgets.ts",
       "source_location": "L23",
       "community": 65,
       "norm_label": "checkfamilyaccess()",
@@ -569,7 +571,7 @@
     {
       "label": "category.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\category.test.ts",
+      "source_file": "backend/src/routes/category.test.ts",
       "source_location": "L1",
       "community": 66,
       "norm_label": "category.test.ts",
@@ -578,7 +580,7 @@
     {
       "label": "createToken()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\category.test.ts",
+      "source_file": "backend/src/routes/category.test.ts",
       "source_location": "L28",
       "community": 66,
       "norm_label": "createtoken()",
@@ -587,7 +589,7 @@
     {
       "label": "category.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\category.ts",
+      "source_file": "backend/src/routes/category.ts",
       "source_location": "L1",
       "community": 67,
       "norm_label": "category.ts",
@@ -596,7 +598,7 @@
     {
       "label": "checkFamilyAccess()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\category.ts",
+      "source_file": "backend/src/routes/category.ts",
       "source_location": "L8",
       "community": 67,
       "norm_label": "checkfamilyaccess()",
@@ -605,7 +607,7 @@
     {
       "label": "compare.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\compare.test.ts",
+      "source_file": "backend/src/routes/compare.test.ts",
       "source_location": "L1",
       "community": 68,
       "norm_label": "compare.test.ts",
@@ -614,7 +616,7 @@
     {
       "label": "createToken()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\compare.test.ts",
+      "source_file": "backend/src/routes/compare.test.ts",
       "source_location": "L26",
       "community": 68,
       "norm_label": "createtoken()",
@@ -623,7 +625,7 @@
     {
       "label": "compare.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\compare.ts",
+      "source_file": "backend/src/routes/compare.ts",
       "source_location": "L1",
       "community": 69,
       "norm_label": "compare.ts",
@@ -632,7 +634,7 @@
     {
       "label": "sumAmount()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\compare.ts",
+      "source_file": "backend/src/routes/compare.ts",
       "source_location": "L7",
       "community": 69,
       "norm_label": "sumamount()",
@@ -641,7 +643,7 @@
     {
       "label": "expenses.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\expenses.ts",
+      "source_file": "backend/src/routes/expenses.ts",
       "source_location": "L1",
       "community": 70,
       "norm_label": "expenses.ts",
@@ -650,7 +652,7 @@
     {
       "label": "checkFamilyAccess()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\expenses.ts",
+      "source_file": "backend/src/routes/expenses.ts",
       "source_location": "L20",
       "community": 70,
       "norm_label": "checkfamilyaccess()",
@@ -659,7 +661,7 @@
     {
       "label": "export.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\export.test.ts",
+      "source_file": "backend/src/routes/export.test.ts",
       "source_location": "L1",
       "community": 71,
       "norm_label": "export.test.ts",
@@ -668,7 +670,7 @@
     {
       "label": "createToken()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\export.test.ts",
+      "source_file": "backend/src/routes/export.test.ts",
       "source_location": "L38",
       "community": 71,
       "norm_label": "createtoken()",
@@ -677,7 +679,7 @@
     {
       "label": "export.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\export.ts",
+      "source_file": "backend/src/routes/export.ts",
       "source_location": "L1",
       "community": 35,
       "norm_label": "export.ts",
@@ -686,7 +688,7 @@
     {
       "label": "checkFamilyAccess()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\export.ts",
+      "source_file": "backend/src/routes/export.ts",
       "source_location": "L11",
       "community": 35,
       "norm_label": "checkfamilyaccess()",
@@ -695,7 +697,7 @@
     {
       "label": "buildDateFilter()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\export.ts",
+      "source_file": "backend/src/routes/export.ts",
       "source_location": "L23",
       "community": 35,
       "norm_label": "builddatefilter()",
@@ -704,7 +706,7 @@
     {
       "label": "sendWorkbook()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\export.ts",
+      "source_file": "backend/src/routes/export.ts",
       "source_location": "L30",
       "community": 35,
       "norm_label": "sendworkbook()",
@@ -713,7 +715,7 @@
     {
       "label": "families.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\families.test.ts",
+      "source_file": "backend/src/routes/families.test.ts",
       "source_location": "L1",
       "community": 72,
       "norm_label": "families.test.ts",
@@ -722,7 +724,7 @@
     {
       "label": "createToken()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\families.test.ts",
+      "source_file": "backend/src/routes/families.test.ts",
       "source_location": "L36",
       "community": 72,
       "norm_label": "createtoken()",
@@ -731,7 +733,7 @@
     {
       "label": "families.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\families.ts",
+      "source_file": "backend/src/routes/families.ts",
       "source_location": "L1",
       "community": 106,
       "norm_label": "families.ts",
@@ -740,7 +742,7 @@
     {
       "label": "files.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\files.test.ts",
+      "source_file": "backend/src/routes/files.test.ts",
       "source_location": "L1",
       "community": 73,
       "norm_label": "files.test.ts",
@@ -749,7 +751,7 @@
     {
       "label": "createToken()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\files.test.ts",
+      "source_file": "backend/src/routes/files.test.ts",
       "source_location": "L39",
       "community": 73,
       "norm_label": "createtoken()",
@@ -758,7 +760,7 @@
     {
       "label": "files.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\files.ts",
+      "source_file": "backend/src/routes/files.ts",
       "source_location": "L1",
       "community": 46,
       "norm_label": "files.ts",
@@ -767,7 +769,7 @@
     {
       "label": "checkFamilyAccess()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\files.ts",
+      "source_file": "backend/src/routes/files.ts",
       "source_location": "L22",
       "community": 46,
       "norm_label": "checkfamilyaccess()",
@@ -776,7 +778,7 @@
     {
       "label": "attachUrls()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\files.ts",
+      "source_file": "backend/src/routes/files.ts",
       "source_location": "L46",
       "community": 46,
       "norm_label": "attachurls()",
@@ -785,7 +787,7 @@
     {
       "label": "goals.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\goals.test.ts",
+      "source_file": "backend/src/routes/goals.test.ts",
       "source_location": "L1",
       "community": 74,
       "norm_label": "goals.test.ts",
@@ -794,7 +796,7 @@
     {
       "label": "createToken()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\goals.test.ts",
+      "source_file": "backend/src/routes/goals.test.ts",
       "source_location": "L29",
       "community": 74,
       "norm_label": "createtoken()",
@@ -803,7 +805,7 @@
     {
       "label": "goals.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\goals.ts",
+      "source_file": "backend/src/routes/goals.ts",
       "source_location": "L1",
       "community": 75,
       "norm_label": "goals.ts",
@@ -812,7 +814,7 @@
     {
       "label": "checkFamilyAccess()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\goals.ts",
+      "source_file": "backend/src/routes/goals.ts",
       "source_location": "L22",
       "community": 75,
       "norm_label": "checkfamilyaccess()",
@@ -821,7 +823,7 @@
     {
       "label": "import.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\import.test.ts",
+      "source_file": "backend/src/routes/import.test.ts",
       "source_location": "L1",
       "community": 76,
       "norm_label": "import.test.ts",
@@ -830,7 +832,7 @@
     {
       "label": "createToken()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\import.test.ts",
+      "source_file": "backend/src/routes/import.test.ts",
       "source_location": "L28",
       "community": 76,
       "norm_label": "createtoken()",
@@ -839,7 +841,7 @@
     {
       "label": "import.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\import.ts",
+      "source_file": "backend/src/routes/import.ts",
       "source_location": "L1",
       "community": 77,
       "norm_label": "import.ts",
@@ -848,7 +850,7 @@
     {
       "label": "checkFamilyAccess()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\import.ts",
+      "source_file": "backend/src/routes/import.ts",
       "source_location": "L14",
       "community": 77,
       "norm_label": "checkfamilyaccess()",
@@ -857,7 +859,7 @@
     {
       "label": "incomes.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\incomes.ts",
+      "source_file": "backend/src/routes/incomes.ts",
       "source_location": "L1",
       "community": 78,
       "norm_label": "incomes.ts",
@@ -866,7 +868,7 @@
     {
       "label": "checkFamilyAccess()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\incomes.ts",
+      "source_file": "backend/src/routes/incomes.ts",
       "source_location": "L20",
       "community": 78,
       "norm_label": "checkfamilyaccess()",
@@ -875,7 +877,7 @@
     {
       "label": "liabilities.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\liabilities.ts",
+      "source_file": "backend/src/routes/liabilities.ts",
       "source_location": "L1",
       "community": 79,
       "norm_label": "liabilities.ts",
@@ -884,7 +886,7 @@
     {
       "label": "checkFamilyAccess()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\liabilities.ts",
+      "source_file": "backend/src/routes/liabilities.ts",
       "source_location": "L21",
       "community": 79,
       "norm_label": "checkfamilyaccess()",
@@ -893,7 +895,7 @@
     {
       "label": "recurring.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\recurring.test.ts",
+      "source_file": "backend/src/routes/recurring.test.ts",
       "source_location": "L1",
       "community": 80,
       "norm_label": "recurring.test.ts",
@@ -902,7 +904,7 @@
     {
       "label": "createToken()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\recurring.test.ts",
+      "source_file": "backend/src/routes/recurring.test.ts",
       "source_location": "L33",
       "community": 80,
       "norm_label": "createtoken()",
@@ -911,7 +913,7 @@
     {
       "label": "recurring.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\recurring.ts",
+      "source_file": "backend/src/routes/recurring.ts",
       "source_location": "L1",
       "community": 81,
       "norm_label": "recurring.ts",
@@ -920,7 +922,7 @@
     {
       "label": "checkFamilyAccess()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\recurring.ts",
+      "source_file": "backend/src/routes/recurring.ts",
       "source_location": "L29",
       "community": 81,
       "norm_label": "checkfamilyaccess()",
@@ -929,7 +931,7 @@
     {
       "label": "reports.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\reports.test.ts",
+      "source_file": "backend/src/routes/reports.test.ts",
       "source_location": "L1",
       "community": 82,
       "norm_label": "reports.test.ts",
@@ -938,7 +940,7 @@
     {
       "label": "createToken()",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\reports.test.ts",
+      "source_file": "backend/src/routes/reports.test.ts",
       "source_location": "L38",
       "community": 82,
       "norm_label": "createtoken()",
@@ -947,7 +949,7 @@
     {
       "label": "reports.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\routes\\reports.ts",
+      "source_file": "backend/src/routes/reports.ts",
       "source_location": "L1",
       "community": 107,
       "norm_label": "reports.ts",
@@ -956,7 +958,7 @@
     {
       "label": "aiActions.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\aiActions.ts",
+      "source_file": "backend/src/services/aiActions.ts",
       "source_location": "L1",
       "community": 18,
       "norm_label": "aiactions.ts",
@@ -965,7 +967,7 @@
     {
       "label": "executeActions()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\aiActions.ts",
+      "source_file": "backend/src/services/aiActions.ts",
       "source_location": "L34",
       "community": 18,
       "norm_label": "executeactions()",
@@ -974,7 +976,7 @@
     {
       "label": "executeAction()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\aiActions.ts",
+      "source_file": "backend/src/services/aiActions.ts",
       "source_location": "L57",
       "community": 18,
       "norm_label": "executeaction()",
@@ -983,7 +985,7 @@
     {
       "label": "parseAmount()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\aiActions.ts",
+      "source_file": "backend/src/services/aiActions.ts",
       "source_location": "L315",
       "community": 18,
       "norm_label": "parseamount()",
@@ -992,7 +994,7 @@
     {
       "label": "matchCategory()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\aiActions.ts",
+      "source_file": "backend/src/services/aiActions.ts",
       "source_location": "L335",
       "community": 18,
       "norm_label": "matchcategory()",
@@ -1001,7 +1003,7 @@
     {
       "label": "todayStr()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\aiActions.ts",
+      "source_file": "backend/src/services/aiActions.ts",
       "source_location": "L345",
       "community": 18,
       "norm_label": "todaystr()",
@@ -1010,7 +1012,7 @@
     {
       "label": "parseLocalActions()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\aiActions.ts",
+      "source_file": "backend/src/services/aiActions.ts",
       "source_location": "L349",
       "community": 18,
       "norm_label": "parselocalactions()",
@@ -1019,7 +1021,7 @@
     {
       "label": "aiService.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\aiService.test.ts",
+      "source_file": "backend/src/services/aiService.test.ts",
       "source_location": "L1",
       "community": 108,
       "norm_label": "aiservice.test.ts",
@@ -1158,7 +1160,7 @@
     {
       "label": "categoryService.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\categoryService.test.ts",
+      "source_file": "backend/src/services/categoryService.test.ts",
       "source_location": "L1",
       "community": 109,
       "norm_label": "categoryservice.test.ts",
@@ -1167,7 +1169,7 @@
     {
       "label": "categoryService.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\categoryService.ts",
+      "source_file": "backend/src/services/categoryService.ts",
       "source_location": "L1",
       "community": 83,
       "norm_label": "categoryservice.ts",
@@ -1176,7 +1178,7 @@
     {
       "label": "suggestCategory()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\categoryService.ts",
+      "source_file": "backend/src/services/categoryService.ts",
       "source_location": "L8",
       "community": 83,
       "norm_label": "suggestcategory()",
@@ -1185,7 +1187,7 @@
     {
       "label": "fileStorageService.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\fileStorageService.test.ts",
+      "source_file": "backend/src/services/fileStorageService.test.ts",
       "source_location": "L1",
       "community": 110,
       "norm_label": "filestorageservice.test.ts",
@@ -1194,7 +1196,7 @@
     {
       "label": "fileStorageService.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\fileStorageService.ts",
+      "source_file": "backend/src/services/fileStorageService.ts",
       "source_location": "L1",
       "community": 47,
       "norm_label": "filestorageservice.ts",
@@ -1203,7 +1205,7 @@
     {
       "label": "storeOcrImage()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\fileStorageService.ts",
+      "source_file": "backend/src/services/fileStorageService.ts",
       "source_location": "L13",
       "community": 47,
       "norm_label": "storeocrimage()",
@@ -1212,7 +1214,7 @@
     {
       "label": "base64ToBuffer()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\fileStorageService.ts",
+      "source_file": "backend/src/services/fileStorageService.ts",
       "source_location": "L61",
       "community": 47,
       "norm_label": "base64tobuffer()",
@@ -1221,7 +1223,7 @@
     {
       "label": "financialMutationCoordinator.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.test.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.test.ts",
       "source_location": "L1",
       "community": 48,
       "norm_label": "financialmutationcoordinator.test.ts",
@@ -1230,7 +1232,7 @@
     {
       "label": "createCoordinatorStore()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.test.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.test.ts",
       "source_location": "L13",
       "community": 48,
       "norm_label": "createcoordinatorstore()",
@@ -1239,7 +1241,7 @@
     {
       "label": "createInput()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.test.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.test.ts",
       "source_location": "L65",
       "community": 48,
       "norm_label": "createinput()",
@@ -1248,7 +1250,7 @@
     {
       "label": "financialMutationCoordinator.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L1",
       "community": 12,
       "norm_label": "financialmutationcoordinator.ts",
@@ -1257,7 +1259,7 @@
     {
       "label": "canonicalize()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L11",
       "community": 12,
       "norm_label": "canonicalize()",
@@ -1266,7 +1268,7 @@
     {
       "label": "hashNormalizedPayload()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L67",
       "community": 12,
       "norm_label": "hashnormalizedpayload()",
@@ -1275,7 +1277,7 @@
     {
       "label": "replayResult()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L72",
       "community": 12,
       "norm_label": "replayresult()",
@@ -1284,7 +1286,7 @@
     {
       "label": "requireWriteMembership()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L95",
       "community": 12,
       "norm_label": "requirewritemembership()",
@@ -1293,7 +1295,7 @@
     {
       "label": "isScopedArbitrationConflict()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L124",
       "community": 12,
       "norm_label": "isscopedarbitrationconflict()",
@@ -1302,7 +1304,7 @@
     {
       "label": "waitForWinner()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L151",
       "community": 12,
       "norm_label": "waitforwinner()",
@@ -1311,7 +1313,7 @@
     {
       "label": "validateScope()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L195",
       "community": 12,
       "norm_label": "validatescope()",
@@ -1320,7 +1322,7 @@
     {
       "label": "validateMutationResult()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L213",
       "community": 12,
       "norm_label": "validatemutationresult()",
@@ -1329,7 +1331,7 @@
     {
       "label": "coordinateFinancialMutation()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L223",
       "community": 12,
       "norm_label": "coordinatefinancialmutation()",
@@ -1429,7 +1431,7 @@
     {
       "label": "ledgerApplicationService.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.test.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.test.ts",
       "source_location": "L1",
       "community": 84,
       "norm_label": "ledgerapplicationservice.test.ts",
@@ -1438,7 +1440,7 @@
     {
       "label": "createStore()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.test.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.test.ts",
       "source_location": "L39",
       "community": 84,
       "norm_label": "createstore()",
@@ -1447,7 +1449,7 @@
     {
       "label": "ledgerApplicationService.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L1",
       "community": 3,
       "norm_label": "ledgerapplicationservice.ts",
@@ -1456,7 +1458,7 @@
     {
       "label": "requireText()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L13",
       "community": 3,
       "norm_label": "requiretext()",
@@ -1465,7 +1467,7 @@
     {
       "label": "optionalText()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L24",
       "community": 3,
       "norm_label": "optionaltext()",
@@ -1474,7 +1476,7 @@
     {
       "label": "requireAmount()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L29",
       "community": 3,
       "norm_label": "requireamount()",
@@ -1483,7 +1485,7 @@
     {
       "label": "requireDate()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L40",
       "community": 3,
       "norm_label": "requiredate()",
@@ -1492,7 +1494,7 @@
     {
       "label": "normalizeCurrency()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L51",
       "community": 3,
       "norm_label": "normalizecurrency()",
@@ -1501,7 +1503,7 @@
     {
       "label": "validateCommandScope()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L63",
       "community": 3,
       "norm_label": "validatecommandscope()",
@@ -1510,7 +1512,7 @@
     {
       "label": "createIncome()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L81",
       "community": 3,
       "norm_label": "createincome()",
@@ -1519,7 +1521,7 @@
     {
       "label": "createExpense()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L125",
       "community": 3,
       "norm_label": "createexpense()",
@@ -1528,7 +1530,7 @@
     {
       "label": "ledgerErrors.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerErrors.ts",
+      "source_file": "backend/src/services/ledgerErrors.ts",
       "source_location": "L1",
       "community": 20,
       "norm_label": "ledgererrors.ts",
@@ -1537,7 +1539,7 @@
     {
       "label": "DomainError",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerErrors.ts",
+      "source_file": "backend/src/services/ledgerErrors.ts",
       "source_location": "L12",
       "community": 20,
       "norm_label": "domainerror",
@@ -1546,7 +1548,7 @@
     {
       "label": ".constructor()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerErrors.ts",
+      "source_file": "backend/src/services/ledgerErrors.ts",
       "source_location": "L13",
       "community": 20,
       "norm_label": ".constructor()",
@@ -1555,7 +1557,7 @@
     {
       "label": "prismaCode()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerErrors.ts",
+      "source_file": "backend/src/services/ledgerErrors.ts",
       "source_location": "L29",
       "community": 20,
       "norm_label": "prismacode()",
@@ -1564,7 +1566,7 @@
     {
       "label": "mapPrismaError()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerErrors.ts",
+      "source_file": "backend/src/services/ledgerErrors.ts",
       "source_location": "L37",
       "community": 20,
       "norm_label": "mapprismaerror()",
@@ -1573,7 +1575,7 @@
     {
       "label": "ledgerTransactionOrchestration.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerTransactionOrchestration.test.ts",
+      "source_file": "backend/src/services/ledgerTransactionOrchestration.test.ts",
       "source_location": "L1",
       "community": 85,
       "norm_label": "ledgertransactionorchestration.test.ts",
@@ -1582,7 +1584,7 @@
     {
       "label": "createStore()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerTransactionOrchestration.test.ts",
+      "source_file": "backend/src/services/ledgerTransactionOrchestration.test.ts",
       "source_location": "L15",
       "community": 85,
       "norm_label": "createstore()",
@@ -1591,7 +1593,7 @@
     {
       "label": "ledgerTypes.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\ledgerTypes.ts",
+      "source_file": "backend/src/services/ledgerTypes.ts",
       "source_location": "L1",
       "community": 3,
       "norm_label": "ledgertypes.ts",
@@ -1782,7 +1784,7 @@
     {
       "label": "database.integration.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\tests\\database.integration.test.ts",
+      "source_file": "backend/src/tests/database.integration.test.ts",
       "source_location": "L1",
       "community": 86,
       "norm_label": "database.integration.test.ts",
@@ -1791,7 +1793,7 @@
     {
       "label": "uniqueId()",
       "file_type": "code",
-      "source_file": "backend\\src\\tests\\database.integration.test.ts",
+      "source_file": "backend/src/tests/database.integration.test.ts",
       "source_location": "L18",
       "community": 86,
       "norm_label": "uniqueid()",
@@ -1800,7 +1802,7 @@
     {
       "label": "database.phase1.integration.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\tests\\database.phase1.integration.test.ts",
+      "source_file": "backend/src/tests/database.phase1.integration.test.ts",
       "source_location": "L1",
       "community": 112,
       "norm_label": "database.phase1.integration.test.ts",
@@ -1835,7 +1837,7 @@
     {
       "label": "family-permissions.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\tests\\family-permissions.test.ts",
+      "source_file": "backend/src/tests/family-permissions.test.ts",
       "source_location": "L1",
       "community": 49,
       "norm_label": "family-permissions.test.ts",
@@ -1844,7 +1846,7 @@
     {
       "label": "model()",
       "file_type": "code",
-      "source_file": "backend\\src\\tests\\family-permissions.test.ts",
+      "source_file": "backend/src/tests/family-permissions.test.ts",
       "source_location": "L16",
       "community": 49,
       "norm_label": "model()",
@@ -1853,7 +1855,7 @@
     {
       "label": "createToken()",
       "file_type": "code",
-      "source_file": "backend\\src\\tests\\family-permissions.test.ts",
+      "source_file": "backend/src/tests/family-permissions.test.ts",
       "source_location": "L96",
       "community": 49,
       "norm_label": "createtoken()",
@@ -1862,7 +1864,7 @@
     {
       "label": "jestConfig.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\tests\\jestConfig.test.ts",
+      "source_file": "backend/src/tests/jestConfig.test.ts",
       "source_location": "L1",
       "community": 88,
       "norm_label": "jestconfig.test.ts",
@@ -1871,7 +1873,7 @@
     {
       "label": "loadConfig()",
       "file_type": "code",
-      "source_file": "backend\\src\\tests\\jestConfig.test.ts",
+      "source_file": "backend/src/tests/jestConfig.test.ts",
       "source_location": "L9",
       "community": 88,
       "norm_label": "loadconfig()",
@@ -1880,7 +1882,7 @@
     {
       "label": "phase1-concurrency.integration.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\tests\\phase1-concurrency.integration.test.ts",
+      "source_file": "backend/src/tests/phase1-concurrency.integration.test.ts",
       "source_location": "L1",
       "community": 3,
       "norm_label": "phase1-concurrency.integration.test.ts",
@@ -1889,7 +1891,7 @@
     {
       "label": "command()",
       "file_type": "code",
-      "source_file": "backend\\src\\tests\\phase1-concurrency.integration.test.ts",
+      "source_file": "backend/src/tests/phase1-concurrency.integration.test.ts",
       "source_location": "L14",
       "community": 3,
       "norm_label": "command()",
@@ -1898,7 +1900,7 @@
     {
       "label": "phase1SchemaContract.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\tests\\phase1SchemaContract.test.ts",
+      "source_file": "backend/src/tests/phase1SchemaContract.test.ts",
       "source_location": "L1",
       "community": 50,
       "norm_label": "phase1schemacontract.test.ts",
@@ -1907,7 +1909,7 @@
     {
       "label": "readSchema()",
       "file_type": "code",
-      "source_file": "backend\\src\\tests\\phase1SchemaContract.test.ts",
+      "source_file": "backend/src/tests/phase1SchemaContract.test.ts",
       "source_location": "L7",
       "community": 50,
       "norm_label": "readschema()",
@@ -1916,7 +1918,7 @@
     {
       "label": "readMigration()",
       "file_type": "code",
-      "source_file": "backend\\src\\tests\\phase1SchemaContract.test.ts",
+      "source_file": "backend/src/tests/phase1SchemaContract.test.ts",
       "source_location": "L9",
       "community": 50,
       "norm_label": "readmigration()",
@@ -2081,7 +2083,7 @@
     {
       "label": "reportFormulas.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\utils\\reportFormulas.ts",
+      "source_file": "backend/src/utils/reportFormulas.ts",
       "source_location": "L1",
       "community": 36,
       "norm_label": "reportformulas.ts",
@@ -2090,7 +2092,7 @@
     {
       "label": "calculateNetCashFlow()",
       "file_type": "code",
-      "source_file": "backend\\src\\utils\\reportFormulas.ts",
+      "source_file": "backend/src/utils/reportFormulas.ts",
       "source_location": "L8",
       "community": 36,
       "norm_label": "calculatenetcashflow()",
@@ -2099,7 +2101,7 @@
     {
       "label": "includesAny()",
       "file_type": "code",
-      "source_file": "backend\\src\\utils\\reportFormulas.ts",
+      "source_file": "backend/src/utils/reportFormulas.ts",
       "source_location": "L14",
       "community": 36,
       "norm_label": "includesany()",
@@ -2108,7 +2110,7 @@
     {
       "label": "classifyCashFlowCategory()",
       "file_type": "code",
-      "source_file": "backend\\src\\utils\\reportFormulas.ts",
+      "source_file": "backend/src/utils/reportFormulas.ts",
       "source_location": "L18",
       "community": 36,
       "norm_label": "classifycashflowcategory()",
@@ -2117,7 +2119,7 @@
     {
       "label": "ui_smoke.py",
       "file_type": "code",
-      "source_file": "docs\\audit\\evidence\\ui_smoke.py",
+      "source_file": "docs/audit/evidence/ui_smoke.py",
       "source_location": "L1",
       "community": 52,
       "norm_label": "ui_smoke.py",
@@ -2126,7 +2128,7 @@
     {
       "label": "json_response()",
       "file_type": "code",
-      "source_file": "docs\\audit\\evidence\\ui_smoke.py",
+      "source_file": "docs/audit/evidence/ui_smoke.py",
       "source_location": "L11",
       "community": 52,
       "norm_label": "json_response()",
@@ -2135,7 +2137,7 @@
     {
       "label": "main()",
       "file_type": "code",
-      "source_file": "docs\\audit\\evidence\\ui_smoke.py",
+      "source_file": "docs/audit/evidence/ui_smoke.py",
       "source_location": "L19",
       "community": 52,
       "norm_label": "main()",
@@ -2196,7 +2198,7 @@
     {
       "label": "vitest.config.ts",
       "file_type": "code",
-      "source_file": "frontend\\vitest.config.ts",
+      "source_file": "frontend/vitest.config.ts",
       "source_location": "L1",
       "community": 115,
       "norm_label": "vitest.config.ts",
@@ -3089,7 +3091,7 @@
     {
       "label": "ReportsPage.test.tsx",
       "file_type": "code",
-      "source_file": "frontend\\src\\pages\\ReportsPage.test.tsx",
+      "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L1",
       "community": 89,
       "norm_label": "reportspage.test.tsx",
@@ -3098,7 +3100,7 @@
     {
       "label": "deferred()",
       "file_type": "code",
-      "source_file": "frontend\\src\\pages\\ReportsPage.test.tsx",
+      "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L28",
       "community": 89,
       "norm_label": "deferred()",
@@ -3107,7 +3109,7 @@
     {
       "label": "ReportsPage.tsx",
       "file_type": "code",
-      "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
+      "source_file": "frontend/src/pages/ReportsPage.tsx",
       "source_location": "L1",
       "community": 25,
       "norm_label": "reportspage.tsx",
@@ -3116,7 +3118,7 @@
     {
       "label": "formatMoney()",
       "file_type": "code",
-      "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
+      "source_file": "frontend/src/pages/ReportsPage.tsx",
       "source_location": "L72",
       "community": 25,
       "norm_label": "formatmoney()",
@@ -3125,7 +3127,7 @@
     {
       "label": "formatMoneyShort()",
       "file_type": "code",
-      "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
+      "source_file": "frontend/src/pages/ReportsPage.tsx",
       "source_location": "L75",
       "community": 25,
       "norm_label": "formatmoneyshort()",
@@ -3134,7 +3136,7 @@
     {
       "label": "formatPercentage()",
       "file_type": "code",
-      "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
+      "source_file": "frontend/src/pages/ReportsPage.tsx",
       "source_location": "L78",
       "community": 25,
       "norm_label": "formatpercentage()",
@@ -3143,7 +3145,7 @@
     {
       "label": "handleExport()",
       "file_type": "code",
-      "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
+      "source_file": "frontend/src/pages/ReportsPage.tsx",
       "source_location": "L120",
       "community": 25,
       "norm_label": "handleexport()",
@@ -3152,7 +3154,7 @@
     {
       "label": "handleReset()",
       "file_type": "code",
-      "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
+      "source_file": "frontend/src/pages/ReportsPage.tsx",
       "source_location": "L295",
       "community": 25,
       "norm_label": "handlereset()",
@@ -3616,7 +3618,7 @@
     {
       "label": "reportService.ts",
       "file_type": "code",
-      "source_file": "frontend\\src\\services\\reportService.ts",
+      "source_file": "frontend/src/services/reportService.ts",
       "source_location": "L1",
       "community": 26,
       "norm_label": "reportservice.ts",
@@ -3625,7 +3627,7 @@
     {
       "label": "getBalanceSheet()",
       "file_type": "code",
-      "source_file": "frontend\\src\\services\\reportService.ts",
+      "source_file": "frontend/src/services/reportService.ts",
       "source_location": "L68",
       "community": 26,
       "norm_label": "getbalancesheet()",
@@ -3634,7 +3636,7 @@
     {
       "label": "getIncomeStatement()",
       "file_type": "code",
-      "source_file": "frontend\\src\\services\\reportService.ts",
+      "source_file": "frontend/src/services/reportService.ts",
       "source_location": "L73",
       "community": 26,
       "norm_label": "getincomestatement()",
@@ -3643,7 +3645,7 @@
     {
       "label": "getCashFlow()",
       "file_type": "code",
-      "source_file": "frontend\\src\\services\\reportService.ts",
+      "source_file": "frontend/src/services/reportService.ts",
       "source_location": "L81",
       "community": 26,
       "norm_label": "getcashflow()",
@@ -3652,7 +3654,7 @@
     {
       "label": "getSummary()",
       "file_type": "code",
-      "source_file": "frontend\\src\\services\\reportService.ts",
+      "source_file": "frontend/src/services/reportService.ts",
       "source_location": "L89",
       "community": 26,
       "norm_label": "getsummary()",
@@ -3661,7 +3663,7 @@
     {
       "label": "getInvestmentAllocation()",
       "file_type": "code",
-      "source_file": "frontend\\src\\services\\reportService.ts",
+      "source_file": "frontend/src/services/reportService.ts",
       "source_location": "L94",
       "community": 26,
       "norm_label": "getinvestmentallocation()",
@@ -3709,7 +3711,7 @@
     {
       "label": "setup.ts",
       "file_type": "code",
-      "source_file": "frontend\\src\\test\\setup.ts",
+      "source_file": "frontend/src/test/setup.ts",
       "source_location": "L1",
       "community": 118,
       "norm_label": "setup.ts",
@@ -6929,7 +6931,7 @@
     {
       "label": "prismaFinancialMutationStore.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.ts",
       "source_location": "L1",
       "community": 3,
       "norm_label": "prismafinancialmutationstore.ts",
@@ -6938,7 +6940,7 @@
     {
       "label": "operation()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.ts",
       "source_location": "L16",
       "community": 3,
       "norm_label": "operation()",
@@ -6947,7 +6949,7 @@
     {
       "label": "snapshot()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.ts",
       "source_location": "L23",
       "community": 3,
       "norm_label": "snapshot()",
@@ -6956,7 +6958,7 @@
     {
       "label": "toJson()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.ts",
       "source_location": "L37",
       "community": 3,
       "norm_label": "tojson()",
@@ -6965,7 +6967,7 @@
     {
       "label": "toLedgerRecord()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.ts",
       "source_location": "L63",
       "community": 3,
       "norm_label": "toledgerrecord()",
@@ -6974,7 +6976,7 @@
     {
       "label": "adapt()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.ts",
       "source_location": "L81",
       "community": 3,
       "norm_label": "adapt()",
@@ -6983,7 +6985,7 @@
     {
       "label": "createPrismaFinancialMutationStore()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.ts",
       "source_location": "L110",
       "community": 3,
       "norm_label": "createprismafinancialmutationstore()",
@@ -6992,7 +6994,7 @@
     {
       "label": "prismaFinancialMutationStore.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.test.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.test.ts",
       "source_location": "L1",
       "community": 3,
       "norm_label": "prismafinancialmutationstore.test.ts",
@@ -7001,7 +7003,7 @@
     {
       "label": "persistedRecord()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.test.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.test.ts",
       "source_location": "L4",
       "community": 3,
       "norm_label": "persistedrecord()",
@@ -7010,7 +7012,7 @@
     {
       "label": "ledgerRecord()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.test.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.test.ts",
       "source_location": "L16",
       "community": 3,
       "norm_label": "ledgerrecord()",
@@ -7019,7 +7021,7 @@
     {
       "label": "createClient()",
       "file_type": "code",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.test.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.test.ts",
       "source_location": "L35",
       "community": 3,
       "norm_label": "createclient()",
@@ -7150,74 +7152,74 @@
     {
       "label": "minio.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\config\\minio.ts",
+      "source_file": "backend/src/config/minio.ts",
       "source_location": "L1",
-      "id": "backend_src_config_minio_ts",
       "community": 4,
-      "norm_label": "minio.ts"
+      "norm_label": "minio.ts",
+      "id": "backend_src_config_minio_ts"
     },
     {
       "label": "ensureBucket()",
       "file_type": "code",
-      "source_file": "backend\\src\\config\\minio.ts",
+      "source_file": "backend/src/config/minio.ts",
       "source_location": "L29",
-      "id": "minio_ensurebucket",
       "community": 4,
-      "norm_label": "ensurebucket()"
+      "norm_label": "ensurebucket()",
+      "id": "minio_ensurebucket"
     },
     {
       "label": "uploadFile()",
       "file_type": "code",
-      "source_file": "backend\\src\\config\\minio.ts",
+      "source_file": "backend/src/config/minio.ts",
       "source_location": "L37",
-      "id": "minio_uploadfile",
       "community": 4,
-      "norm_label": "uploadfile()"
+      "norm_label": "uploadfile()",
+      "id": "minio_uploadfile"
     },
     {
       "label": "uploadFileBuffer()",
       "file_type": "code",
-      "source_file": "backend\\src\\config\\minio.ts",
+      "source_file": "backend/src/config/minio.ts",
       "source_location": "L46",
-      "id": "minio_uploadfilebuffer",
       "community": 4,
-      "norm_label": "uploadfilebuffer()"
+      "norm_label": "uploadfilebuffer()",
+      "id": "minio_uploadfilebuffer"
     },
     {
       "label": "getFileUrl()",
       "file_type": "code",
-      "source_file": "backend\\src\\config\\minio.ts",
+      "source_file": "backend/src/config/minio.ts",
       "source_location": "L56",
-      "id": "minio_getfileurl",
       "community": 4,
-      "norm_label": "getfileurl()"
+      "norm_label": "getfileurl()",
+      "id": "minio_getfileurl"
     },
     {
       "label": "deleteFile()",
       "file_type": "code",
-      "source_file": "backend\\src\\config\\minio.ts",
+      "source_file": "backend/src/config/minio.ts",
       "source_location": "L60",
-      "id": "minio_deletefile",
       "community": 4,
-      "norm_label": "deletefile()"
+      "norm_label": "deletefile()",
+      "id": "minio_deletefile"
     },
     {
       "label": "minio.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\config\\minio.test.ts",
+      "source_file": "backend/src/config/minio.test.ts",
       "source_location": "L1",
-      "id": "backend_src_config_minio_test_ts",
       "community": 143,
-      "norm_label": "minio.test.ts"
+      "norm_label": "minio.test.ts",
+      "id": "backend_src_config_minio_test_ts"
     },
     {
       "label": "server.test.ts",
       "file_type": "code",
-      "source_file": "backend\\src\\server.test.ts",
+      "source_file": "backend/src/server.test.ts",
       "source_location": "L1",
-      "id": "backend_src_server_test_ts",
       "community": 144,
-      "norm_label": "server.test.ts"
+      "norm_label": "server.test.ts",
+      "id": "backend_src_server_test_ts"
     },
     {
       "label": "Internal MinIO Client",
@@ -7228,9 +7230,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minio_internal_client",
       "community": 98,
-      "norm_label": "internal minio client"
+      "norm_label": "internal minio client",
+      "id": "minio_internal_client"
     },
     {
       "label": "Browser-Facing MinIO Client",
@@ -7241,9 +7243,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minio_public_client",
       "community": 43,
-      "norm_label": "browser-facing minio client"
+      "norm_label": "browser-facing minio client",
+      "id": "minio_public_client"
     },
     {
       "label": "Separate Public Endpoint Rationale",
@@ -7254,9 +7256,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minio_public_endpoint_rationale",
       "community": 43,
-      "norm_label": "separate public endpoint rationale"
+      "norm_label": "separate public endpoint rationale",
+      "id": "minio_public_endpoint_rationale"
     },
     {
       "label": "MinIO Object Storage Lifecycle",
@@ -7267,9 +7269,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minio_object_lifecycle",
       "community": 98,
-      "norm_label": "minio object storage lifecycle"
+      "norm_label": "minio object storage lifecycle",
+      "id": "minio_object_lifecycle"
     },
     {
       "label": "Presigned Browser File URL",
@@ -7280,9 +7282,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minio_presigned_file_url",
       "community": 43,
-      "norm_label": "presigned browser file url"
+      "norm_label": "presigned browser file url",
+      "id": "minio_presigned_file_url"
     },
     {
       "label": "MinIO startup failure propagation",
@@ -7293,9 +7295,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minio_startup_failure_propagation",
       "community": 145,
-      "norm_label": "minio startup failure propagation"
+      "norm_label": "minio startup failure propagation",
+      "id": "minio_startup_failure_propagation"
     },
     {
       "label": "MinIO Public Endpoint Contract Tests",
@@ -7306,9 +7308,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minio_public_endpoint_tests",
       "community": 43,
-      "norm_label": "minio public endpoint contract tests"
+      "norm_label": "minio public endpoint contract tests",
+      "id": "minio_public_endpoint_tests"
     },
     {
       "label": "ensureBucket failure propagation test",
@@ -7319,9 +7321,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minio_bucket_failure_propagation_test",
       "community": 4,
-      "norm_label": "ensurebucket failure propagation test"
+      "norm_label": "ensurebucket failure propagation test",
+      "id": "minio_bucket_failure_propagation_test"
     },
     {
       "label": "Server lifecycle degraded-startup test",
@@ -7332,9 +7334,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "server_lifecycle_degraded_startup_test",
       "community": 4,
-      "norm_label": "server lifecycle degraded-startup test"
+      "norm_label": "server lifecycle degraded-startup test",
+      "id": "server_lifecycle_degraded_startup_test"
     },
     {
       "label": "P1-G-06 Coverage Quality Gate",
@@ -7345,9 +7347,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "p1_g_06_coverage_quality_gate",
       "community": 28,
-      "norm_label": "p1-g-06 coverage quality gate"
+      "norm_label": "p1-g-06 coverage quality gate",
+      "id": "p1_g_06_coverage_quality_gate"
     },
     {
       "label": "Prisma Financial-Mutation Adapter Contract Tests",
@@ -7358,9 +7360,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "p1_g_06_prisma_adapter_contract_tests",
       "community": 28,
-      "norm_label": "prisma financial-mutation adapter contract tests"
+      "norm_label": "prisma financial-mutation adapter contract tests",
+      "id": "p1_g_06_prisma_adapter_contract_tests"
     },
     {
       "label": "toJson() finite-number validation",
@@ -7371,9 +7373,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "tojson_finite_number_validation",
       "community": 28,
-      "norm_label": "tojson() finite-number validation"
+      "norm_label": "tojson() finite-number validation",
+      "id": "tojson_finite_number_validation"
     },
     {
       "label": "Non-finite JSON numbers: NaN, Infinity, and -Infinity",
@@ -7384,9 +7386,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "non_finite_json_numbers",
       "community": 28,
-      "norm_label": "non-finite json numbers: nan, infinity, and -infinity"
+      "norm_label": "non-finite json numbers: nan, infinity, and -infinity",
+      "id": "non_finite_json_numbers"
     },
     {
       "label": "JSON rejection before Prisma persistence",
@@ -7397,9 +7399,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "pre_persistence_json_rejection",
       "community": 28,
-      "norm_label": "json rejection before prisma persistence"
+      "norm_label": "json rejection before prisma persistence",
+      "id": "pre_persistence_json_rejection"
     },
     {
       "label": "P1-G-06 regression results on 2026-08-31",
@@ -7410,9 +7412,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "p1_g_06_regression_results_2026_08_31",
       "community": 4,
-      "norm_label": "p1-g-06 regression results on 2026-08-31"
+      "norm_label": "p1-g-06 regression results on 2026-08-31",
+      "id": "p1_g_06_regression_results_2026_08_31"
     },
     {
       "label": "Backend test run: 34 suites and 281 tests",
@@ -7423,9 +7425,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "p1_g_06_backend_test_run_34_281",
       "community": 4,
-      "norm_label": "backend test run: 34 suites and 281 tests"
+      "norm_label": "backend test run: 34 suites and 281 tests",
+      "id": "p1_g_06_backend_test_run_34_281"
     },
     {
       "label": "Backend coverage: statements 63.22%, branches 46.01%, functions 64.06%, lines 63.58%",
@@ -7436,9 +7438,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "p1_g_06_backend_coverage_63_22_46_01_64_06_63_58",
       "community": 4,
-      "norm_label": "backend coverage: statements 63.22%, branches 46.01%, functions 64.06%, lines 63.58%"
+      "norm_label": "backend coverage: statements 63.22%, branches 46.01%, functions 64.06%, lines 63.58%",
+      "id": "p1_g_06_backend_coverage_63_22_46_01_64_06_63_58"
     },
     {
       "label": "P1-G-06 quality gate remains FAILED",
@@ -7449,9 +7451,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "p1_g_06_gate_failed",
       "community": 4,
-      "norm_label": "p1-g-06 quality gate remains failed"
+      "norm_label": "p1-g-06 quality gate remains failed",
+      "id": "p1_g_06_gate_failed"
     },
     {
       "label": "MinIO lifecycle-owner degradation evidence",
@@ -7462,9 +7464,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "p1_g_06_minio_lifecycle_degradation",
       "community": 4,
-      "norm_label": "minio lifecycle-owner degradation evidence"
+      "norm_label": "minio lifecycle-owner degradation evidence",
+      "id": "p1_g_06_minio_lifecycle_degradation"
     },
     {
       "label": "P1-G-06 coverage/lint/advisory gate",
@@ -7475,9 +7477,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "tracker_p1_g_06_quality_gate",
       "community": 4,
-      "norm_label": "p1-g-06 coverage/lint/advisory gate"
+      "norm_label": "p1-g-06 coverage/lint/advisory gate",
+      "id": "tracker_p1_g_06_quality_gate"
     },
     {
       "label": "Phase 1 current P1-G-06 quality snapshot",
@@ -7488,9 +7490,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "phase1_g06_current_snapshot",
       "community": 4,
-      "norm_label": "phase 1 current p1-g-06 quality snapshot"
+      "norm_label": "phase 1 current p1-g-06 quality snapshot",
+      "id": "phase1_g06_current_snapshot"
     },
     {
       "label": "Phase 1 Prisma financial-mutation adapter facts",
@@ -7501,9 +7503,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "project_memory_phase1_adapter_facts",
       "community": 28,
-      "norm_label": "phase 1 prisma financial-mutation adapter facts"
+      "norm_label": "phase 1 prisma financial-mutation adapter facts",
+      "id": "project_memory_phase1_adapter_facts"
     },
     {
       "label": "MinIO lifecycle-owner startup degradation",
@@ -7514,9 +7516,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "project_memory_minio_lifecycle_fact",
       "community": 4,
-      "norm_label": "minio lifecycle-owner startup degradation"
+      "norm_label": "minio lifecycle-owner startup degradation",
+      "id": "project_memory_minio_lifecycle_fact"
     },
     {
       "label": "Global coverage gate remains below threshold",
@@ -7527,9 +7529,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "phase1_global_coverage_gate_open",
       "community": 4,
-      "norm_label": "global coverage gate remains below threshold"
+      "norm_label": "global coverage gate remains below threshold",
+      "id": "phase1_global_coverage_gate_open"
     },
     {
       "label": "minio package",
@@ -7540,16 +7542,160 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minio",
       "community": 4,
-      "norm_label": "minio package"
+      "norm_label": "minio package",
+      "id": "minio"
+    },
+    {
+      "label": "ImportPage.tsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/ImportPage.tsx",
+      "source_location": "L1",
+      "community": 0,
+      "id": "frontend_src_pages_importpage_tsx",
+      "norm_label": "importpage.tsx"
+    },
+    {
+      "label": "handlePreview()",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/ImportPage.tsx",
+      "source_location": "L28",
+      "community": 0,
+      "id": "importpage_handlepreview",
+      "norm_label": "handlepreview()"
+    },
+    {
+      "label": "handleItemChange()",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/ImportPage.tsx",
+      "source_location": "L50",
+      "community": 0,
+      "id": "importpage_handleitemchange",
+      "norm_label": "handleitemchange()"
+    },
+    {
+      "label": "handleConfirm()",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/ImportPage.tsx",
+      "source_location": "L54",
+      "community": 0,
+      "id": "importpage_handleconfirm",
+      "norm_label": "handleconfirm()"
+    },
+    {
+      "label": "ImportPage.test.tsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/ImportPage.test.tsx",
+      "source_location": "L1",
+      "community": 0,
+      "id": "frontend_src_pages_importpage_test_tsx",
+      "norm_label": "importpage.test.tsx"
+    },
+    {
+      "label": "deferred()",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/ImportPage.test.tsx",
+      "source_location": "L23",
+      "community": 0,
+      "id": "importpage_test_deferred",
+      "norm_label": "deferred()"
+    },
+    {
+      "label": "ImportPage",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/ImportPage.tsx",
+      "source_location": "L14",
+      "community": 0,
+      "id": "importPage_ImportPage",
+      "norm_label": "importpage"
+    },
+    {
+      "label": "useFamilyStore",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/ImportPage.tsx",
+      "source_location": "L15",
+      "community": 0,
+      "id": "importPage_useFamilyStore",
+      "norm_label": "usefamilystore"
+    },
+    {
+      "label": "previewCSV",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/ImportPage.tsx",
+      "source_location": "L37",
+      "community": 0,
+      "id": "importService_previewCSV",
+      "norm_label": "previewcsv"
+    },
+    {
+      "label": "confirmImport",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/ImportPage.tsx",
+      "source_location": "L60",
+      "community": 0,
+      "id": "importService_confirmImport",
+      "norm_label": "confirmimport"
+    },
+    {
+      "label": "Accessible CSV File Input",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/ImportPage.tsx",
+      "source_location": "L89-L99",
+      "community": 0,
+      "id": "importPage_accessibleCsvInput",
+      "norm_label": "accessible csv file input"
+    },
+    {
+      "label": "Import Confirmation Feedback",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/ImportPage.tsx",
+      "source_location": "L112-L130",
+      "community": 0,
+      "id": "importPage_confirmationFeedback",
+      "norm_label": "import confirmation feedback"
+    },
+    {
+      "label": "ImportPage Confirmation Contracts",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/ImportPage.test.tsx",
+      "source_location": "L31-L90",
+      "community": 0,
+      "id": "importPageTest_confirmationContracts",
+      "norm_label": "importpage confirmation contracts"
+    },
+    {
+      "label": "P1-G-03 Evidence",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-03.md",
+      "source_location": "L1-L21",
+      "community": 0,
+      "id": "p1g03_evidence",
+      "norm_label": "p1-g-03 evidence"
+    },
+    {
+      "label": "P1-G-03 Tracker Entry",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
+      "source_location": "L97",
+      "community": 0,
+      "id": "phase1Tracker_p1g03",
+      "norm_label": "p1-g-03 tracker entry"
+    },
+    {
+      "label": "P1-G-03 Frontend Slice Facts",
+      "file_type": "document",
+      "source_file": "docs/project-memory.md",
+      "source_location": "L97",
+      "community": 0,
+      "id": "projectMemory_p1g03",
+      "norm_label": "p1-g-03 frontend slice facts"
     }
   ],
   "links": [
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\app.ts",
+      "source_file": "backend/src/app.ts",
       "source_location": "L27",
       "weight": 1.0,
       "_src": "backend_src_app_ts",
@@ -7561,7 +7707,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\server.ts",
+      "source_file": "backend/src/server.ts",
       "source_location": "L7",
       "weight": 1.0,
       "_src": "backend_src_server_ts",
@@ -7749,7 +7895,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\middleware\\cache.authorization.test.ts",
+      "source_file": "backend/src/middleware/cache.authorization.test.ts",
       "source_location": "L33",
       "weight": 1.0,
       "_src": "backend_src_middleware_cache_authorization_test_ts",
@@ -7761,7 +7907,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\middleware\\cache.invalidation.test.ts",
+      "source_file": "backend/src/middleware/cache.invalidation.test.ts",
       "source_location": "L44",
       "weight": 1.0,
       "_src": "backend_src_middleware_cache_invalidation_test_ts",
@@ -7773,7 +7919,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\middleware\\cache.ts",
+      "source_file": "backend/src/middleware/cache.ts",
       "source_location": "L6",
       "weight": 1.0,
       "_src": "backend_src_middleware_cache_ts",
@@ -7785,7 +7931,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\middleware\\familyAccess.test.ts",
+      "source_file": "backend/src/middleware/familyAccess.test.ts",
       "source_location": "L16",
       "weight": 1.0,
       "_src": "backend_src_middleware_familyaccess_test_ts",
@@ -7797,7 +7943,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\middleware\\familyAccess.ts",
+      "source_file": "backend/src/middleware/familyAccess.ts",
       "source_location": "L18",
       "weight": 1.0,
       "_src": "backend_src_middleware_familyaccess_ts",
@@ -7809,7 +7955,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\middleware\\familyAccess.ts",
+      "source_file": "backend/src/middleware/familyAccess.ts",
       "source_location": "L35",
       "weight": 1.0,
       "_src": "backend_src_middleware_familyaccess_ts",
@@ -7821,7 +7967,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\middleware\\familyAccess.ts",
+      "source_file": "backend/src/middleware/familyAccess.ts",
       "source_location": "L52",
       "weight": 1.0,
       "_src": "backend_src_middleware_familyaccess_ts",
@@ -7833,7 +7979,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\middleware\\familyAccess.ts",
+      "source_file": "backend/src/middleware/familyAccess.ts",
       "source_location": "L72",
       "weight": 1.0,
       "_src": "backend_src_middleware_familyaccess_ts",
@@ -7845,7 +7991,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\middleware\\familyAccess.ts",
+      "source_file": "backend/src/middleware/familyAccess.ts",
       "source_location": "L58",
       "weight": 1.0,
       "_src": "familyaccess_loadfamilymembership",
@@ -7857,7 +8003,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\middleware\\familyAccess.ts",
+      "source_file": "backend/src/middleware/familyAccess.ts",
       "source_location": "L64",
       "weight": 1.0,
       "_src": "familyaccess_attachfamilycontext",
@@ -7869,7 +8015,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\middleware\\familyCache.ts",
+      "source_file": "backend/src/middleware/familyCache.ts",
       "source_location": "L3",
       "weight": 1.0,
       "_src": "backend_src_middleware_familycache_ts",
@@ -7929,7 +8075,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\ai.test.ts",
+      "source_file": "backend/src/routes/ai.test.ts",
       "source_location": "L55",
       "weight": 1.0,
       "_src": "backend_src_routes_ai_test_ts",
@@ -7941,7 +8087,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\ai.test.ts",
+      "source_file": "backend/src/routes/ai.test.ts",
       "source_location": "L84",
       "weight": 1.0,
       "_src": "backend_src_routes_ai_test_ts",
@@ -7953,7 +8099,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\ai.ts",
+      "source_file": "backend/src/routes/ai.ts",
       "source_location": "L15",
       "weight": 1.0,
       "_src": "backend_src_routes_ai_ts",
@@ -7965,7 +8111,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\ai.ts",
+      "source_file": "backend/src/routes/ai.ts",
       "source_location": "L28",
       "weight": 1.0,
       "_src": "backend_src_routes_ai_ts",
@@ -7977,7 +8123,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\assets.ts",
+      "source_file": "backend/src/routes/assets.ts",
       "source_location": "L22",
       "weight": 1.0,
       "_src": "backend_src_routes_assets_ts",
@@ -7989,7 +8135,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\budgets.test.ts",
+      "source_file": "backend/src/routes/budgets.test.ts",
       "source_location": "L36",
       "weight": 1.0,
       "_src": "backend_src_routes_budgets_test_ts",
@@ -8001,7 +8147,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\budgets.ts",
+      "source_file": "backend/src/routes/budgets.ts",
       "source_location": "L23",
       "weight": 1.0,
       "_src": "backend_src_routes_budgets_ts",
@@ -8013,7 +8159,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\category.test.ts",
+      "source_file": "backend/src/routes/category.test.ts",
       "source_location": "L28",
       "weight": 1.0,
       "_src": "backend_src_routes_category_test_ts",
@@ -8025,7 +8171,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\category.ts",
+      "source_file": "backend/src/routes/category.ts",
       "source_location": "L8",
       "weight": 1.0,
       "_src": "backend_src_routes_category_ts",
@@ -8037,7 +8183,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\compare.test.ts",
+      "source_file": "backend/src/routes/compare.test.ts",
       "source_location": "L26",
       "weight": 1.0,
       "_src": "backend_src_routes_compare_test_ts",
@@ -8049,7 +8195,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\compare.ts",
+      "source_file": "backend/src/routes/compare.ts",
       "source_location": "L7",
       "weight": 1.0,
       "_src": "backend_src_routes_compare_ts",
@@ -8061,7 +8207,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\expenses.ts",
+      "source_file": "backend/src/routes/expenses.ts",
       "source_location": "L20",
       "weight": 1.0,
       "_src": "backend_src_routes_expenses_ts",
@@ -8073,7 +8219,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\export.test.ts",
+      "source_file": "backend/src/routes/export.test.ts",
       "source_location": "L38",
       "weight": 1.0,
       "_src": "backend_src_routes_export_test_ts",
@@ -8085,7 +8231,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\export.ts",
+      "source_file": "backend/src/routes/export.ts",
       "source_location": "L11",
       "weight": 1.0,
       "_src": "backend_src_routes_export_ts",
@@ -8097,7 +8243,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\export.ts",
+      "source_file": "backend/src/routes/export.ts",
       "source_location": "L23",
       "weight": 1.0,
       "_src": "backend_src_routes_export_ts",
@@ -8109,7 +8255,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\export.ts",
+      "source_file": "backend/src/routes/export.ts",
       "source_location": "L30",
       "weight": 1.0,
       "_src": "backend_src_routes_export_ts",
@@ -8121,7 +8267,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\families.test.ts",
+      "source_file": "backend/src/routes/families.test.ts",
       "source_location": "L36",
       "weight": 1.0,
       "_src": "backend_src_routes_families_test_ts",
@@ -8133,7 +8279,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\files.test.ts",
+      "source_file": "backend/src/routes/files.test.ts",
       "source_location": "L39",
       "weight": 1.0,
       "_src": "backend_src_routes_files_test_ts",
@@ -8145,7 +8291,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\files.ts",
+      "source_file": "backend/src/routes/files.ts",
       "source_location": "L22",
       "weight": 1.0,
       "_src": "backend_src_routes_files_ts",
@@ -8157,7 +8303,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\files.ts",
+      "source_file": "backend/src/routes/files.ts",
       "source_location": "L46",
       "weight": 1.0,
       "_src": "backend_src_routes_files_ts",
@@ -8169,7 +8315,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\goals.test.ts",
+      "source_file": "backend/src/routes/goals.test.ts",
       "source_location": "L29",
       "weight": 1.0,
       "_src": "backend_src_routes_goals_test_ts",
@@ -8181,7 +8327,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\goals.ts",
+      "source_file": "backend/src/routes/goals.ts",
       "source_location": "L22",
       "weight": 1.0,
       "_src": "backend_src_routes_goals_ts",
@@ -8193,7 +8339,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\import.test.ts",
+      "source_file": "backend/src/routes/import.test.ts",
       "source_location": "L28",
       "weight": 1.0,
       "_src": "backend_src_routes_import_test_ts",
@@ -8205,7 +8351,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\import.ts",
+      "source_file": "backend/src/routes/import.ts",
       "source_location": "L14",
       "weight": 1.0,
       "_src": "backend_src_routes_import_ts",
@@ -8217,7 +8363,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\incomes.ts",
+      "source_file": "backend/src/routes/incomes.ts",
       "source_location": "L20",
       "weight": 1.0,
       "_src": "backend_src_routes_incomes_ts",
@@ -8229,7 +8375,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\liabilities.ts",
+      "source_file": "backend/src/routes/liabilities.ts",
       "source_location": "L21",
       "weight": 1.0,
       "_src": "backend_src_routes_liabilities_ts",
@@ -8241,7 +8387,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\recurring.test.ts",
+      "source_file": "backend/src/routes/recurring.test.ts",
       "source_location": "L33",
       "weight": 1.0,
       "_src": "backend_src_routes_recurring_test_ts",
@@ -8253,7 +8399,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\recurring.ts",
+      "source_file": "backend/src/routes/recurring.ts",
       "source_location": "L29",
       "weight": 1.0,
       "_src": "backend_src_routes_recurring_ts",
@@ -8265,7 +8411,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\routes\\reports.test.ts",
+      "source_file": "backend/src/routes/reports.test.ts",
       "source_location": "L38",
       "weight": 1.0,
       "_src": "backend_src_routes_reports_test_ts",
@@ -8277,7 +8423,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\aiActions.ts",
+      "source_file": "backend/src/services/aiActions.ts",
       "source_location": "L34",
       "weight": 1.0,
       "_src": "backend_src_services_aiactions_ts",
@@ -8289,7 +8435,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\aiActions.ts",
+      "source_file": "backend/src/services/aiActions.ts",
       "source_location": "L57",
       "weight": 1.0,
       "_src": "backend_src_services_aiactions_ts",
@@ -8301,7 +8447,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\aiActions.ts",
+      "source_file": "backend/src/services/aiActions.ts",
       "source_location": "L315",
       "weight": 1.0,
       "_src": "backend_src_services_aiactions_ts",
@@ -8313,7 +8459,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\aiActions.ts",
+      "source_file": "backend/src/services/aiActions.ts",
       "source_location": "L335",
       "weight": 1.0,
       "_src": "backend_src_services_aiactions_ts",
@@ -8325,7 +8471,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\aiActions.ts",
+      "source_file": "backend/src/services/aiActions.ts",
       "source_location": "L345",
       "weight": 1.0,
       "_src": "backend_src_services_aiactions_ts",
@@ -8337,7 +8483,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\aiActions.ts",
+      "source_file": "backend/src/services/aiActions.ts",
       "source_location": "L349",
       "weight": 1.0,
       "_src": "backend_src_services_aiactions_ts",
@@ -8349,7 +8495,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\aiActions.ts",
+      "source_file": "backend/src/services/aiActions.ts",
       "source_location": "L43",
       "weight": 1.0,
       "_src": "aiactions_executeactions",
@@ -8361,7 +8507,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\aiActions.ts",
+      "source_file": "backend/src/services/aiActions.ts",
       "source_location": "L378",
       "weight": 1.0,
       "_src": "aiactions_parseamount",
@@ -8373,7 +8519,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\aiActions.ts",
+      "source_file": "backend/src/services/aiActions.ts",
       "source_location": "L380",
       "weight": 1.0,
       "_src": "aiactions_matchcategory",
@@ -8385,7 +8531,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\aiActions.ts",
+      "source_file": "backend/src/services/aiActions.ts",
       "source_location": "L386",
       "weight": 1.0,
       "_src": "aiactions_todaystr",
@@ -8541,7 +8687,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\categoryService.ts",
+      "source_file": "backend/src/services/categoryService.ts",
       "source_location": "L8",
       "weight": 1.0,
       "_src": "backend_src_services_categoryservice_ts",
@@ -8553,7 +8699,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\fileStorageService.ts",
+      "source_file": "backend/src/services/fileStorageService.ts",
       "source_location": "L13",
       "weight": 1.0,
       "_src": "backend_src_services_filestorageservice_ts",
@@ -8565,7 +8711,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\fileStorageService.ts",
+      "source_file": "backend/src/services/fileStorageService.ts",
       "source_location": "L61",
       "weight": 1.0,
       "_src": "backend_src_services_filestorageservice_ts",
@@ -8577,7 +8723,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\fileStorageService.ts",
+      "source_file": "backend/src/services/fileStorageService.ts",
       "source_location": "L20",
       "weight": 1.0,
       "_src": "filestorageservice_storeocrimage",
@@ -8589,7 +8735,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.test.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.test.ts",
       "source_location": "L13",
       "weight": 1.0,
       "_src": "backend_src_services_financialmutationcoordinator_test_ts",
@@ -8601,7 +8747,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.test.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.test.ts",
       "source_location": "L65",
       "weight": 1.0,
       "_src": "backend_src_services_financialmutationcoordinator_test_ts",
@@ -8613,7 +8759,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L11",
       "weight": 1.0,
       "_src": "backend_src_services_financialmutationcoordinator_ts",
@@ -8625,7 +8771,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L67",
       "weight": 1.0,
       "_src": "backend_src_services_financialmutationcoordinator_ts",
@@ -8637,7 +8783,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L72",
       "weight": 1.0,
       "_src": "backend_src_services_financialmutationcoordinator_ts",
@@ -8649,7 +8795,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L95",
       "weight": 1.0,
       "_src": "backend_src_services_financialmutationcoordinator_ts",
@@ -8661,7 +8807,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L124",
       "weight": 1.0,
       "_src": "backend_src_services_financialmutationcoordinator_ts",
@@ -8673,7 +8819,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L151",
       "weight": 1.0,
       "_src": "backend_src_services_financialmutationcoordinator_ts",
@@ -8685,7 +8831,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L195",
       "weight": 1.0,
       "_src": "backend_src_services_financialmutationcoordinator_ts",
@@ -8697,7 +8843,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L213",
       "weight": 1.0,
       "_src": "backend_src_services_financialmutationcoordinator_ts",
@@ -8709,7 +8855,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L223",
       "weight": 1.0,
       "_src": "backend_src_services_financialmutationcoordinator_ts",
@@ -8721,7 +8867,7 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\tests\\phase1-concurrency.integration.test.ts",
+      "source_file": "backend/src/tests/phase1-concurrency.integration.test.ts",
       "source_location": "L4",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -8733,7 +8879,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L68",
       "weight": 1.0,
       "_src": "financialmutationcoordinator_canonicalize",
@@ -8745,7 +8891,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L229",
       "weight": 1.0,
       "_src": "financialmutationcoordinator_hashnormalizedpayload",
@@ -8757,7 +8903,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L178",
       "weight": 1.0,
       "_src": "financialmutationcoordinator_replayresult",
@@ -8769,7 +8915,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L162",
       "weight": 1.0,
       "_src": "financialmutationcoordinator_requirewritemembership",
@@ -8781,7 +8927,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L303",
       "weight": 1.0,
       "_src": "financialmutationcoordinator_isscopedarbitrationconflict",
@@ -8793,7 +8939,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
+      "source_file": "backend/src/services/financialMutationCoordinator.ts",
       "source_location": "L228",
       "weight": 1.0,
       "_src": "financialmutationcoordinator_validatescope",
@@ -8937,7 +9083,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.test.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.test.ts",
       "source_location": "L39",
       "weight": 1.0,
       "_src": "backend_src_services_ledgerapplicationservice_test_ts",
@@ -8949,7 +9095,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L13",
       "weight": 1.0,
       "_src": "backend_src_services_ledgerapplicationservice_ts",
@@ -8961,7 +9107,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L24",
       "weight": 1.0,
       "_src": "backend_src_services_ledgerapplicationservice_ts",
@@ -8973,7 +9119,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L29",
       "weight": 1.0,
       "_src": "backend_src_services_ledgerapplicationservice_ts",
@@ -8985,7 +9131,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L40",
       "weight": 1.0,
       "_src": "backend_src_services_ledgerapplicationservice_ts",
@@ -8997,7 +9143,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L51",
       "weight": 1.0,
       "_src": "backend_src_services_ledgerapplicationservice_ts",
@@ -9009,7 +9155,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L63",
       "weight": 1.0,
       "_src": "backend_src_services_ledgerapplicationservice_ts",
@@ -9021,7 +9167,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L81",
       "weight": 1.0,
       "_src": "backend_src_services_ledgerapplicationservice_ts",
@@ -9033,7 +9179,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L125",
       "weight": 1.0,
       "_src": "backend_src_services_ledgerapplicationservice_ts",
@@ -9045,7 +9191,7 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\tests\\phase1-concurrency.integration.test.ts",
+      "source_file": "backend/src/tests/phase1-concurrency.integration.test.ts",
       "source_location": "L3",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -9057,7 +9203,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L69",
       "weight": 1.0,
       "_src": "ledgerapplicationservice_requiretext",
@@ -9069,7 +9215,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L88",
       "weight": 1.0,
       "_src": "ledgerapplicationservice_requiretext",
@@ -9081,7 +9227,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L132",
       "weight": 1.0,
       "_src": "ledgerapplicationservice_requiretext",
@@ -9093,7 +9239,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L89",
       "weight": 1.0,
       "_src": "ledgerapplicationservice_optionaltext",
@@ -9105,7 +9251,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L133",
       "weight": 1.0,
       "_src": "ledgerapplicationservice_optionaltext",
@@ -9117,7 +9263,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L87",
       "weight": 1.0,
       "_src": "ledgerapplicationservice_requireamount",
@@ -9129,7 +9275,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L131",
       "weight": 1.0,
       "_src": "ledgerapplicationservice_requireamount",
@@ -9141,7 +9287,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L91",
       "weight": 1.0,
       "_src": "ledgerapplicationservice_requiredate",
@@ -9153,7 +9299,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L135",
       "weight": 1.0,
       "_src": "ledgerapplicationservice_requiredate",
@@ -9165,7 +9311,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L92",
       "weight": 1.0,
       "_src": "ledgerapplicationservice_normalizecurrency",
@@ -9177,7 +9323,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L136",
       "weight": 1.0,
       "_src": "ledgerapplicationservice_normalizecurrency",
@@ -9189,7 +9335,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L85",
       "weight": 1.0,
       "_src": "ledgerapplicationservice_validatecommandscope",
@@ -9201,7 +9347,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
+      "source_file": "backend/src/services/ledgerApplicationService.ts",
       "source_location": "L129",
       "weight": 1.0,
       "_src": "ledgerapplicationservice_validatecommandscope",
@@ -9213,7 +9359,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerErrors.ts",
+      "source_file": "backend/src/services/ledgerErrors.ts",
       "source_location": "L12",
       "weight": 1.0,
       "_src": "backend_src_services_ledgererrors_ts",
@@ -9225,7 +9371,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerErrors.ts",
+      "source_file": "backend/src/services/ledgerErrors.ts",
       "source_location": "L29",
       "weight": 1.0,
       "_src": "backend_src_services_ledgererrors_ts",
@@ -9237,7 +9383,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerErrors.ts",
+      "source_file": "backend/src/services/ledgerErrors.ts",
       "source_location": "L37",
       "weight": 1.0,
       "_src": "backend_src_services_ledgererrors_ts",
@@ -9249,7 +9395,7 @@
     {
       "relation": "method",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerErrors.ts",
+      "source_file": "backend/src/services/ledgerErrors.ts",
       "source_location": "L13",
       "weight": 1.0,
       "_src": "ledgererrors_domainerror",
@@ -9273,7 +9419,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerErrors.ts",
+      "source_file": "backend/src/services/ledgerErrors.ts",
       "source_location": "L40",
       "weight": 1.0,
       "_src": "ledgererrors_prismacode",
@@ -9309,7 +9455,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\ledgerTransactionOrchestration.test.ts",
+      "source_file": "backend/src/services/ledgerTransactionOrchestration.test.ts",
       "source_location": "L15",
       "weight": 1.0,
       "_src": "backend_src_services_ledgertransactionorchestration_test_ts",
@@ -9321,7 +9467,7 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.ts",
       "source_location": "L2",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -9333,7 +9479,7 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\tests\\phase1-concurrency.integration.test.ts",
+      "source_file": "backend/src/tests/phase1-concurrency.integration.test.ts",
       "source_location": "L5",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -9513,7 +9659,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\tests\\database.integration.test.ts",
+      "source_file": "backend/src/tests/database.integration.test.ts",
       "source_location": "L18",
       "weight": 1.0,
       "_src": "backend_src_tests_database_integration_test_ts",
@@ -9537,7 +9683,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\tests\\family-permissions.test.ts",
+      "source_file": "backend/src/tests/family-permissions.test.ts",
       "source_location": "L16",
       "weight": 1.0,
       "_src": "backend_src_tests_family_permissions_test_ts",
@@ -9549,7 +9695,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\tests\\family-permissions.test.ts",
+      "source_file": "backend/src/tests/family-permissions.test.ts",
       "source_location": "L96",
       "weight": 1.0,
       "_src": "backend_src_tests_family_permissions_test_ts",
@@ -9561,7 +9707,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\tests\\jestConfig.test.ts",
+      "source_file": "backend/src/tests/jestConfig.test.ts",
       "source_location": "L9",
       "weight": 1.0,
       "_src": "backend_src_tests_jestconfig_test_ts",
@@ -9573,7 +9719,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\tests\\phase1-concurrency.integration.test.ts",
+      "source_file": "backend/src/tests/phase1-concurrency.integration.test.ts",
       "source_location": "L15",
       "weight": 1.0,
       "_src": "backend_src_tests_phase1_concurrency_integration_test_ts",
@@ -9585,7 +9731,7 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\tests\\phase1-concurrency.integration.test.ts",
+      "source_file": "backend/src/tests/phase1-concurrency.integration.test.ts",
       "source_location": "L1",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -9597,7 +9743,7 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\tests\\phase1-concurrency.integration.test.ts",
+      "source_file": "backend/src/tests/phase1-concurrency.integration.test.ts",
       "source_location": "L2",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -9609,7 +9755,7 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\tests\\phase1-concurrency.integration.test.ts",
+      "source_file": "backend/src/tests/phase1-concurrency.integration.test.ts",
       "source_location": "L6",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -9621,7 +9767,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\tests\\phase1SchemaContract.test.ts",
+      "source_file": "backend/src/tests/phase1SchemaContract.test.ts",
       "source_location": "L7",
       "weight": 1.0,
       "_src": "backend_src_tests_phase1schemacontract_test_ts",
@@ -9633,7 +9779,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\tests\\phase1SchemaContract.test.ts",
+      "source_file": "backend/src/tests/phase1SchemaContract.test.ts",
       "source_location": "L9",
       "weight": 1.0,
       "_src": "backend_src_tests_phase1schemacontract_test_ts",
@@ -9777,7 +9923,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\utils\\reportFormulas.ts",
+      "source_file": "backend/src/utils/reportFormulas.ts",
       "source_location": "L8",
       "weight": 1.0,
       "_src": "backend_src_utils_reportformulas_ts",
@@ -9789,7 +9935,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\utils\\reportFormulas.ts",
+      "source_file": "backend/src/utils/reportFormulas.ts",
       "source_location": "L14",
       "weight": 1.0,
       "_src": "backend_src_utils_reportformulas_ts",
@@ -9801,7 +9947,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\utils\\reportFormulas.ts",
+      "source_file": "backend/src/utils/reportFormulas.ts",
       "source_location": "L18",
       "weight": 1.0,
       "_src": "backend_src_utils_reportformulas_ts",
@@ -9813,7 +9959,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\utils\\reportFormulas.ts",
+      "source_file": "backend/src/utils/reportFormulas.ts",
       "source_location": "L24",
       "weight": 1.0,
       "_src": "reportformulas_includesany",
@@ -9825,7 +9971,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs\\audit\\evidence\\ui_smoke.py",
+      "source_file": "docs/audit/evidence/ui_smoke.py",
       "source_location": "L11",
       "weight": 1.0,
       "_src": "docs_audit_evidence_ui_smoke_py",
@@ -9837,7 +9983,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs\\audit\\evidence\\ui_smoke.py",
+      "source_file": "docs/audit/evidence/ui_smoke.py",
       "source_location": "L19",
       "weight": 1.0,
       "_src": "docs_audit_evidence_ui_smoke_py",
@@ -11001,7 +11147,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "frontend\\src\\pages\\ReportsPage.test.tsx",
+      "source_file": "frontend/src/pages/ReportsPage.test.tsx",
       "source_location": "L28",
       "weight": 1.0,
       "_src": "frontend_src_pages_reportspage_test_tsx",
@@ -11013,7 +11159,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
+      "source_file": "frontend/src/pages/ReportsPage.tsx",
       "source_location": "L72",
       "weight": 1.0,
       "_src": "frontend_src_pages_reportspage_tsx",
@@ -11025,7 +11171,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
+      "source_file": "frontend/src/pages/ReportsPage.tsx",
       "source_location": "L75",
       "weight": 1.0,
       "_src": "frontend_src_pages_reportspage_tsx",
@@ -11037,7 +11183,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
+      "source_file": "frontend/src/pages/ReportsPage.tsx",
       "source_location": "L78",
       "weight": 1.0,
       "_src": "frontend_src_pages_reportspage_tsx",
@@ -11049,7 +11195,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
+      "source_file": "frontend/src/pages/ReportsPage.tsx",
       "source_location": "L120",
       "weight": 1.0,
       "_src": "frontend_src_pages_reportspage_tsx",
@@ -11061,7 +11207,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
+      "source_file": "frontend/src/pages/ReportsPage.tsx",
       "source_location": "L468",
       "weight": 1.0,
       "_src": "frontend_src_pages_reportspage_tsx",
@@ -11661,7 +11807,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "frontend\\src\\services\\reportService.ts",
+      "source_file": "frontend/src/services/reportService.ts",
       "source_location": "L68",
       "weight": 1.0,
       "_src": "frontend_src_services_reportservice_ts",
@@ -11673,7 +11819,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "frontend\\src\\services\\reportService.ts",
+      "source_file": "frontend/src/services/reportService.ts",
       "source_location": "L73",
       "weight": 1.0,
       "_src": "frontend_src_services_reportservice_ts",
@@ -11685,7 +11831,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "frontend\\src\\services\\reportService.ts",
+      "source_file": "frontend/src/services/reportService.ts",
       "source_location": "L81",
       "weight": 1.0,
       "_src": "frontend_src_services_reportservice_ts",
@@ -11697,7 +11843,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "frontend\\src\\services\\reportService.ts",
+      "source_file": "frontend/src/services/reportService.ts",
       "source_location": "L89",
       "weight": 1.0,
       "_src": "frontend_src_services_reportservice_ts",
@@ -11709,7 +11855,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "frontend\\src\\services\\reportService.ts",
+      "source_file": "frontend/src/services/reportService.ts",
       "source_location": "L94",
       "weight": 1.0,
       "_src": "frontend_src_services_reportservice_ts",
@@ -14409,7 +14555,7 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.ts",
       "source_location": "L1",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -14421,7 +14567,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.ts",
       "source_location": "L16",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -14433,7 +14579,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.ts",
       "source_location": "L23",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -14445,7 +14591,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.ts",
       "source_location": "L37",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -14457,7 +14603,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.ts",
       "source_location": "L63",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -14469,7 +14615,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.ts",
       "source_location": "L81",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -14481,7 +14627,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.ts",
       "source_location": "L110",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -14493,7 +14639,7 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.test.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.test.ts",
       "source_location": "L2",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -14505,7 +14651,7 @@
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.ts",
       "source_location": "L34",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -14529,7 +14675,7 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.test.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.test.ts",
       "source_location": "L1",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -14541,7 +14687,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.test.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.test.ts",
       "source_location": "L4",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -14553,7 +14699,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.test.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.test.ts",
       "source_location": "L16",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -14565,7 +14711,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\services\\prismaFinancialMutationStore.test.ts",
+      "source_file": "backend/src/services/prismaFinancialMutationStore.test.ts",
       "source_location": "L35",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -14661,62 +14807,62 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\config\\minio.ts",
+      "source_file": "backend/src/config/minio.ts",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_src_config_minio_ts",
-      "target": "minio",
-      "confidence_score": 1.0
+      "target": "minio"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\config\\minio.ts",
+      "source_file": "backend/src/config/minio.ts",
       "source_location": "L29",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_src_config_minio_ts",
-      "target": "minio_ensurebucket",
-      "confidence_score": 1.0
+      "target": "minio_ensurebucket"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\config\\minio.ts",
+      "source_file": "backend/src/config/minio.ts",
       "source_location": "L37",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_src_config_minio_ts",
-      "target": "minio_uploadfile",
-      "confidence_score": 1.0
+      "target": "minio_uploadfile"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\config\\minio.ts",
+      "source_file": "backend/src/config/minio.ts",
       "source_location": "L46",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_src_config_minio_ts",
-      "target": "minio_uploadfilebuffer",
-      "confidence_score": 1.0
+      "target": "minio_uploadfilebuffer"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\config\\minio.ts",
+      "source_file": "backend/src/config/minio.ts",
       "source_location": "L56",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_src_config_minio_ts",
-      "target": "minio_getfileurl",
-      "confidence_score": 1.0
+      "target": "minio_getfileurl"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "backend\\src\\config\\minio.ts",
+      "source_file": "backend/src/config/minio.ts",
       "source_location": "L60",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_src_config_minio_ts",
-      "target": "minio_deletefile",
-      "confidence_score": 1.0
+      "target": "minio_deletefile"
     },
     {
       "relation": "references",
@@ -14927,6 +15073,174 @@
       "weight": 1.0,
       "source": "p1_g_06_minio_lifecycle_degradation",
       "target": "project_memory_minio_lifecycle_fact"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/ImportPage.tsx",
+      "source_location": "L28",
+      "weight": 1.0,
+      "_src": "frontend_src_pages_importpage_tsx",
+      "_tgt": "importpage_handlepreview",
+      "source": "frontend_src_pages_importpage_tsx",
+      "target": "importpage_handlepreview",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/ImportPage.tsx",
+      "source_location": "L50",
+      "weight": 1.0,
+      "_src": "frontend_src_pages_importpage_tsx",
+      "_tgt": "importpage_handleitemchange",
+      "source": "frontend_src_pages_importpage_tsx",
+      "target": "importpage_handleitemchange",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/ImportPage.tsx",
+      "source_location": "L54",
+      "weight": 1.0,
+      "_src": "frontend_src_pages_importpage_tsx",
+      "_tgt": "importpage_handleconfirm",
+      "source": "frontend_src_pages_importpage_tsx",
+      "target": "importpage_handleconfirm",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/ImportPage.test.tsx",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_src": "frontend_src_pages_importpage_test_tsx",
+      "_tgt": "importpage_test_deferred",
+      "source": "frontend_src_pages_importpage_test_tsx",
+      "target": "importpage_test_deferred",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/ImportPage.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_src": "importPage_ImportPage",
+      "_tgt": "importPage_useFamilyStore",
+      "source": "importPage_ImportPage",
+      "target": "importPage_useFamilyStore"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/ImportPage.tsx",
+      "source_location": "L37",
+      "weight": 1.0,
+      "_src": "importPage_ImportPage",
+      "_tgt": "importService_previewCSV",
+      "source": "importPage_ImportPage",
+      "target": "importService_previewCSV"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/ImportPage.tsx",
+      "source_location": "L60",
+      "weight": 1.0,
+      "_src": "importPage_ImportPage",
+      "_tgt": "importService_confirmImport",
+      "source": "importPage_ImportPage",
+      "target": "importService_confirmImport"
+    },
+    {
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/ImportPage.tsx",
+      "source_location": "L89-L99",
+      "weight": 1.0,
+      "_src": "importPage_ImportPage",
+      "_tgt": "importPage_accessibleCsvInput",
+      "source": "importPage_ImportPage",
+      "target": "importPage_accessibleCsvInput"
+    },
+    {
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/ImportPage.tsx",
+      "source_location": "L112-L130",
+      "weight": 1.0,
+      "_src": "importPage_ImportPage",
+      "_tgt": "importPage_confirmationFeedback",
+      "source": "importPage_ImportPage",
+      "target": "importPage_confirmationFeedback"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/ImportPage.test.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_src": "importPageTest_confirmationContracts",
+      "_tgt": "importPage_ImportPage",
+      "source": "importPage_ImportPage",
+      "target": "importPageTest_confirmationContracts"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-03.md",
+      "source_location": "L7,L11",
+      "weight": 1.0,
+      "_src": "p1g03_evidence",
+      "_tgt": "importPage_ImportPage",
+      "source": "importPage_ImportPage",
+      "target": "p1g03_evidence"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/project-memory.md",
+      "source_location": "L97",
+      "weight": 1.0,
+      "_src": "projectMemory_p1g03",
+      "_tgt": "importPage_ImportPage",
+      "source": "importPage_ImportPage",
+      "target": "projectMemory_p1g03"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-03.md",
+      "source_location": "L7,L11",
+      "weight": 1.0,
+      "_src": "p1g03_evidence",
+      "_tgt": "importPageTest_confirmationContracts",
+      "source": "importPageTest_confirmationContracts",
+      "target": "p1g03_evidence"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
+      "source_location": "L97",
+      "weight": 1.0,
+      "_src": "phase1Tracker_p1g03",
+      "_tgt": "p1g03_evidence",
+      "source": "p1g03_evidence",
+      "target": "phase1Tracker_p1g03"
     }
   ],
   "hyperedges": []

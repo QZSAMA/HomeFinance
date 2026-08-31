@@ -69,6 +69,13 @@
       "output_tokens": 0,
       "files": 222,
       "metering": "unavailable for local semantic agent"
+    },
+    {
+      "date": "2026-08-31T07:45:13.363341+00:00",
+      "files": 5,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "scope": "incremental semantic refresh; P1-G-03 ImportPage accessibility and confirmation contracts; source provenance replacement"
     }
   ],
   "total_input_tokens": 13847,
