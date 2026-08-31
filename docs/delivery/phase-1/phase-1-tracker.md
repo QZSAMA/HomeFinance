@@ -6,7 +6,7 @@
 - 设计规格：docs/superpowers/specs/2026-08-28-homefinance-phase1-design.md
 - 开发基线：codex/phase0-remediation@081084a
 - 实施分支：codex/phase1-ledger-trust
-- 当前快照：2026-08-31；设计已批准，P1-B-04 已在 PostgreSQL 18.1 localhost:5433 完成真实并发/重放回归，并在 `DomainError.cause` 保留未分类 Prisma 原始错误；P1-G-06 的 Prisma 适配器测试使默认 function coverage 达到 64.06%，branch coverage 从 45.38% 提升至 46.01%，补上 `Map`/`Set`/`RegExp` 非普通对象拒绝契约，并使 MinIO 初始化失败可交给 `server.ts` 统一降级、验证重复 shutdown 仅释放一次；P1-G-03 已为 ImportPage 建立 3 条 PASS-MOCK 交互合同：可访问文件选择、失败/成功状态和悬挂确认的本地防重复；P1-A-03 已以真实 PostgreSQL failure injection 证明空 resourceId 会回滚 Income、IdempotencyRecord 和 AuditEvent（PASS-REAL）；Income/Expense route adoption、upgrade/restore、staging/release 仍未完成
+- 当前快照：2026-08-31；设计已批准，P1-B-04 已在 PostgreSQL 18.1 localhost:5433 完成真实并发/重放回归，并在 `DomainError.cause` 保留未分类 Prisma 原始错误；P1-B-05 新增真实数据库证明：20 路相同命令只使 `Family.cacheVersion` 前进一次，已完成的回放不新增事实也不前进 revision（PASS-REAL）；P1-G-06 的 Prisma 适配器测试使默认 function coverage 达到 64.06%，branch coverage 从 45.38% 提升至 46.01%，补上 `Map`/`Set`/`RegExp` 非普通对象拒绝契约，并使 MinIO 初始化失败可交给 `server.ts` 统一降级、验证重复 shutdown 仅释放一次；P1-G-03 已为 ImportPage 建立 3 条 PASS-MOCK 交互合同：可访问文件选择、失败/成功状态和悬挂确认的本地防重复；P1-A-03 已以真实 PostgreSQL failure injection 证明空 resourceId 会回滚 Income、IdempotencyRecord 和 AuditEvent（PASS-REAL）；Income/Expense route adoption、upgrade/restore、staging/release 仍未完成
 
 ## 1. 状态和字段规则
 
@@ -26,8 +26,8 @@
 |---|---|---|
 | Phase 0 后端 26 suites / 241 tests | PASS-MOCK | 历史证据，081084a，本轮未重跑 |
 | Phase 0 前端 5 tests | PASS-MOCK | 历史证据，081084a |
-| backend coverage | FAILED | 33 suites / 279 tests 通过；本轮 coverage 为 statements 62.21%、branches 45.38%、functions 62.18%、lines 62.63%，全局 branch threshold 60% 未达标；OCR/MinIO fixtures 有既有 console.warn |
-| PostgreSQL migration/业务并发 | PASS-REAL | localhost:5433 `homefinance_phase1_test`；fresh migration、schema/rollback 与 P1-B-04 20 路 coordinator replay 已通过 |
+| backend coverage | FAILED | 34 suites / 281 tests 通过；本轮 coverage 为 statements 63.22%、branches 46.01%、functions 64.06%、lines 63.58%，全局 branch threshold 60% 未达标；OCR/MinIO fixtures 有既有 console.warn |
+| PostgreSQL migration/业务并发 | PASS-REAL | localhost:5433 `homefinance_phase1_test`；fresh migration、schema/rollback、P1-B-04 20 路 coordinator replay 与 P1-B-05 revision/replay 一致性已通过 |
 | Redis 故障恢复 | NOT_RUN | 现有主要为 mock |
 | MinIO 生命周期 | NOT_RUN | 现有主要为 mock |
 | Compose 全栈 | NOT_RUN | 当前未完成全栈验证 |
@@ -70,7 +70,7 @@
 | P1-B-02 | TASK | P1-B | 实现 payload hash/coordinator | P0 | REFACTORED | AT_RISK | Ledger Agent | Technical Approver | hard:P1-B-01@REGRESSION_VERIFIED; hard:P1-A-02@REGRESSION_VERIFIED | 相同 key/hash 重放一份结果 | evidence/P1-B-02.md | ADR-0002 | 纯合同为 PASS-MOCK；P1-B-04 已补真实 adapter/replay 证据；route adoption 仍未完成 | 2026-08-28 |
 | P1-B-03 | TASK | P1-B | 固化 key 冲突错误 | P0 | BACKLOG | ON_TRACK | Ledger Agent | Security Reviewer | hard:P1-B-02@REGRESSION_VERIFIED | 同 key/不同 hash 409 且零写入 | evidence/P1-B-03.md | ADR-0002 | 不复用不同 payload | 2026-08-28 |
 | P1-B-04 | GATE | P1-B | 真实 PostgreSQL 并发仲裁 | P0 | REGRESSION_VERIFIED | AT_RISK | Database Agent | QA/Evidence Owner | hard:P1-B-02@REGRESSION_VERIFIED; external:POSTGRES_TEST_ENV@AVAILABLE | 20 并发一条账且可 replay | evidence/P1-B-04.md | ADR-0002 | localhost:5433 全套重跑通过；映射前原始 Prisma 异常现保留在非枚举 `DomainError.cause`，但尚未在真实偶发故障中采样；route adoption 与全局 coverage 仍是后续门禁 | 2026-08-31 |
-| P1-B-05 | GATE | P1-B | 验证 revision/幂等一致 | P0 | BACKLOG | ON_TRACK | Database Agent | Technical Approver | hard:P1-B-04@REGRESSION_VERIFIED | replay 不重复事实且读到最新 | evidence/P1-B-05.md | ADR-0001, ADR-0002 | 不手工 bump trigger | 2026-08-28 |
+| P1-B-05 | GATE | P1-B | 验证 revision/幂等一致 | P0 | REGRESSION_VERIFIED | AT_RISK | Database Agent | Technical Approver | hard:P1-B-04@REGRESSION_VERIFIED; external:POSTGRES_TEST_ENV@AVAILABLE | 20 路同命令 revision 只前进一次；completed replay 不新增事实且不前进 revision | evidence/P1-B-05.md | ADR-0001, ADR-0002 | localhost:5433 PASS-REAL；不手工 bump trigger；route adoption、P1-B-04 偶发 INTERNAL_ERROR 分类、upgrade/restore、staging/release 与全局 coverage 仍为门禁 | 2026-08-31 |
 | P1-C-01 | TASK | P1-C | 固化 import 资源限制 | P1 | BACKLOG | ON_TRACK | Import Agent | Security Reviewer | hard:P1-0-06@ACCEPTED | byte/row/field limit 边界返回 413 | evidence/P1-C-01.md | ADR-0003 | limit-1/limit/limit+1 | 2026-08-28 |
 | P1-C-02 | TASK | P1-C | 新增 ImportBatch/ImportRow schema | P0 | BACKLOG | ON_TRACK | Database Agent | Technical Approver | hard:P1-B-01@REGRESSION_VERIFIED | hash/version/status 可追踪 | evidence/P1-C-02.md | ADR-0003 | additive migration；写 RED | 2026-08-28 |
 | P1-C-03 | TASK | P1-C | 持久化服务端 preview | P0 | BACKLOG | ON_TRACK | Import Agent | Technical Approver | hard:P1-C-02@REGRESSION_VERIFIED | confirm 不信任客户端日期/金额/type | evidence/P1-C-03.md | ADR-0003 | 保留 preview adapter；写篡改 RED | 2026-08-28 |

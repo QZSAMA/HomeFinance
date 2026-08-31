@@ -53,22 +53,71 @@ describe('Phase 1 real PostgreSQL coordinator concurrency', () => {
     await expect(prisma.auditEvent.count({ where: { familyId } })).resolves.toBe(1);
   });
 
+  test('advances the durable family revision once for a database-arbitrated mutation', async () => {
+    const before = await prisma.family.findUniqueOrThrow({
+      where: { id: familyId },
+      select: { cacheVersion: true },
+    });
+
+    await Promise.all(Array.from({ length: 20 }, () => createIncome(command('revision-once'), store)));
+
+    const after = await prisma.family.findUniqueOrThrow({
+      where: { id: familyId },
+      select: { cacheVersion: true },
+    });
+    expect(after.cacheVersion).toBe(before.cacheVersion + 1);
+  });
+
+  test('replays a completed mutation without creating facts or advancing the family revision', async () => {
+    const first = await createIncome(command('revision-replay'), store);
+    const afterCommit = await prisma.family.findUniqueOrThrow({
+      where: { id: familyId },
+      select: { cacheVersion: true },
+    });
+    const countsAfterCommit = await Promise.all([
+      prisma.income.count({ where: { familyId } }),
+      prisma.idempotencyRecord.count({ where: { familyId } }),
+      prisma.auditEvent.count({ where: { familyId } }),
+    ]);
+
+    const replay = await createIncome(command('revision-replay'), store);
+
+    expect(replay).toMatchObject({
+      operationId: first.operationId,
+      resourceId: first.resourceId,
+      version: first.version,
+      deduplicated: true,
+    });
+    await expect(prisma.family.findUniqueOrThrow({
+      where: { id: familyId },
+      select: { cacheVersion: true },
+    })).resolves.toEqual(afterCommit);
+    await expect(Promise.all([
+      prisma.income.count({ where: { familyId } }),
+      prisma.idempotencyRecord.count({ where: { familyId } }),
+      prisma.auditEvent.count({ where: { familyId } }),
+    ])).resolves.toEqual(countsAfterCommit);
+  });
+
   test('rejects the same key with a different payload hash without a second income', async () => {
+    const beforeIncomeCount = await prisma.income.count({ where: { familyId } });
+
     await expect(createIncome(command('different-key', 200), store)).resolves.toMatchObject({ deduplicated: false });
     await expect(createIncome(command('different-key', 201), store)).rejects.toMatchObject({
       code: 'IDEMPOTENCY_KEY_REUSED', status: 409, retryable: false,
     });
-    await expect(prisma.income.count({ where: { familyId } })).resolves.toBe(2);
+    await expect(prisma.income.count({ where: { familyId } })).resolves.toBe(beforeIncomeCount + 1);
   });
 
   test('replays a committed response after simulated response loss', async () => {
+    const beforeIncomeCount = await prisma.income.count({ where: { familyId } });
     const first = await createIncome(command('response-loss'), store);
     const replay = await createIncome(command('response-loss'), store);
     expect(JSON.parse(JSON.stringify(replay))).toEqual({
       ...JSON.parse(JSON.stringify(first)),
       deduplicated: true,
     });
-    await expect(prisma.income.count({ where: { familyId } })).resolves.toBe(3);
+    await expect(prisma.income.count({ where: { familyId } })).resolves.toBe(beforeIncomeCount + 1);
   });
 
   test('rolls back the income, idempotency record, and audit event when an executor returns an invalid result', async () => {
