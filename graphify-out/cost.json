@@ -62,6 +62,13 @@
       "output_tokens": 0,
       "files": 221,
       "scope": "incremental semantic refresh; P1-A-03 PostgreSQL rollback evidence; 13 source-backed EXTRACTED edges"
+    },
+    {
+      "date": "2026-08-31T07:13:39.982770+00:00",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "files": 222,
+      "metering": "unavailable for local semantic agent"
     }
   ],
   "total_input_tokens": 13847,

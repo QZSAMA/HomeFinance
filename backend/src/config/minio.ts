@@ -27,14 +27,10 @@ const minioPublicClient = new Minio.Client({
 const BUCKET_NAME = process.env.MINIO_BUCKET || 'family-finance';
 
 export const ensureBucket = async () => {
-  try {
-    const exists = await minioClient.bucketExists(BUCKET_NAME);
-    if (!exists) {
-      await minioClient.makeBucket(BUCKET_NAME, 'us-east-1');
-      console.log(`Bucket ${BUCKET_NAME} created`);
-    }
-  } catch (error) {
-    console.error('Error ensuring bucket:', error);
+  const exists = await minioClient.bucketExists(BUCKET_NAME);
+  if (!exists) {
+    await minioClient.makeBucket(BUCKET_NAME, 'us-east-1');
+    console.log(`Bucket ${BUCKET_NAME} created`);
   }
 };
 

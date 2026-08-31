@@ -8,7 +8,7 @@
       "file_type": "code",
       "source_file": "backend\\jest.config.js",
       "source_location": "L1",
-      "community": 103,
+      "community": 99,
       "norm_label": "jest.config.js",
       "id": "backend_jest_config_js"
     },
@@ -17,7 +17,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\app.test.ts",
       "source_location": "L1",
-      "community": 104,
+      "community": 100,
       "norm_label": "app.test.ts",
       "id": "backend_src_app_test_ts"
     },
@@ -26,7 +26,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\app.ts",
       "source_location": "L1",
-      "community": 62,
+      "community": 57,
       "norm_label": "app.ts",
       "id": "backend_src_app_ts"
     },
@@ -35,7 +35,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\app.ts",
       "source_location": "L27",
-      "community": 62,
+      "community": 57,
       "norm_label": "createapp()",
       "id": "app_createapp"
     },
@@ -44,7 +44,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\server.ts",
       "source_location": "L1",
-      "community": 63,
+      "community": 4,
       "norm_label": "server.ts",
       "id": "backend_src_server_ts"
     },
@@ -53,7 +53,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\server.ts",
       "source_location": "L7",
-      "community": 63,
+      "community": 4,
       "norm_label": "startserver()",
       "id": "server_startserver"
     },
@@ -66,7 +66,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 26,
+      "community": 24,
       "norm_label": "text ai service configuration",
       "id": "ai_text_configuration"
     },
@@ -79,7 +79,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 26,
+      "community": 24,
       "norm_label": "ai credential configuration check",
       "id": "ai_configuration_check"
     },
@@ -92,7 +92,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 26,
+      "community": 24,
       "norm_label": "optional vision ai configuration",
       "id": "ai_vision_configuration"
     },
@@ -105,7 +105,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 26,
+      "community": 24,
       "norm_label": "vision credential and model check",
       "id": "ai_vision_configuration_check"
     },
@@ -118,7 +118,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 26,
+      "community": 24,
       "norm_label": "tesseract-only ocr fallback",
       "id": "ai_local_ocr_fallback"
     },
@@ -131,87 +131,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 26,
+      "community": 24,
       "norm_label": "low-temperature vision determinism rationale",
       "id": "ai_vision_determinism_rationale"
-    },
-    {
-      "label": "MinIO Public Endpoint Contract Tests",
-      "file_type": "code",
-      "source_file": "backend/src/config/minio.test.ts",
-      "source_location": "lines 1-72",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 38,
-      "norm_label": "minio public endpoint contract tests",
-      "id": "minio_public_endpoint_tests"
-    },
-    {
-      "label": "Internal MinIO Client",
-      "file_type": "code",
-      "source_file": "backend/src/config/minio.ts",
-      "source_location": "lines 3-13",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 64,
-      "norm_label": "internal minio client",
-      "id": "minio_internal_client"
-    },
-    {
-      "label": "Browser-Facing MinIO Client",
-      "file_type": "code",
-      "source_file": "backend/src/config/minio.ts",
-      "source_location": "lines 15-25",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 38,
-      "norm_label": "browser-facing minio client",
-      "id": "minio_public_client"
-    },
-    {
-      "label": "Presigned Browser File URL",
-      "file_type": "code",
-      "source_file": "backend/src/config/minio.ts",
-      "source_location": "lines 60-62",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 38,
-      "norm_label": "presigned browser file url",
-      "id": "minio_presigned_file_url"
-    },
-    {
-      "label": "MinIO Object Storage Lifecycle",
-      "file_type": "code",
-      "source_file": "backend/src/config/minio.ts",
-      "source_location": "lines 29-66",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 64,
-      "norm_label": "minio object storage lifecycle",
-      "id": "minio_object_lifecycle"
-    },
-    {
-      "label": "Separate Public Endpoint Rationale",
-      "file_type": "code",
-      "source_file": "backend/src/config/minio.ts",
-      "source_location": "lines 15-17",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 38,
-      "norm_label": "separate public endpoint rationale",
-      "id": "minio_public_endpoint_rationale"
     },
     {
       "label": "Shared Redis Client",
@@ -222,7 +144,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 20,
+      "community": 17,
       "norm_label": "shared redis client",
       "id": "redis_shared_client"
     },
@@ -235,7 +157,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 39,
+      "community": 34,
       "norm_label": "security configuration contract tests",
       "id": "security_validation_tests"
     },
@@ -248,7 +170,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 39,
+      "community": 34,
       "norm_label": "jwt secret strength validation",
       "id": "security_jwt_secret_validation"
     },
@@ -261,7 +183,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 39,
+      "community": 34,
       "norm_label": "fail-fast security configuration",
       "id": "security_fail_fast"
     },
@@ -274,7 +196,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 39,
+      "community": 34,
       "norm_label": "test-environment secret validation bypass",
       "id": "security_test_environment_bypass"
     },
@@ -283,7 +205,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\db\\prisma.ts",
       "source_location": "L1",
-      "community": 105,
+      "community": 101,
       "norm_label": "prisma.ts",
       "id": "backend_src_db_prisma_ts"
     },
@@ -296,7 +218,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 20,
+      "community": 17,
       "norm_label": "bearer jwt authentication middleware",
       "id": "auth_bearer_authentication"
     },
@@ -309,7 +231,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 20,
+      "community": 17,
       "norm_label": "authenticated request identity",
       "id": "auth_authenticated_request_identity"
     },
@@ -318,7 +240,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\cache.authorization.test.ts",
       "source_location": "L1",
-      "community": 65,
+      "community": 58,
       "norm_label": "cache.authorization.test.ts",
       "id": "backend_src_middleware_cache_authorization_test_ts"
     },
@@ -327,7 +249,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\cache.authorization.test.ts",
       "source_location": "L33",
-      "community": 65,
+      "community": 58,
       "norm_label": "createtoken()",
       "id": "cache_authorization_test_createtoken"
     },
@@ -336,7 +258,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\cache.invalidation.test.ts",
       "source_location": "L1",
-      "community": 66,
+      "community": 59,
       "norm_label": "cache.invalidation.test.ts",
       "id": "backend_src_middleware_cache_invalidation_test_ts"
     },
@@ -345,7 +267,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\cache.invalidation.test.ts",
       "source_location": "L44",
-      "community": 66,
+      "community": 59,
       "norm_label": "createtoken()",
       "id": "cache_invalidation_test_createtoken"
     },
@@ -354,7 +276,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\cache.test.ts",
       "source_location": "L1",
-      "community": 106,
+      "community": 102,
       "norm_label": "cache.test.ts",
       "id": "backend_src_middleware_cache_test_ts"
     },
@@ -363,7 +285,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\cache.ts",
       "source_location": "L1",
-      "community": 67,
+      "community": 60,
       "norm_label": "cache.ts",
       "id": "backend_src_middleware_cache_ts"
     },
@@ -372,7 +294,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\cache.ts",
       "source_location": "L6",
-      "community": 67,
+      "community": 60,
       "norm_label": "cachemiddleware()",
       "id": "cache_cachemiddleware"
     },
@@ -381,7 +303,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\familyAccess.test.ts",
       "source_location": "L1",
-      "community": 68,
+      "community": 61,
       "norm_label": "familyaccess.test.ts",
       "id": "backend_src_middleware_familyaccess_test_ts"
     },
@@ -390,7 +312,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\familyAccess.test.ts",
       "source_location": "L16",
-      "community": 68,
+      "community": 61,
       "norm_label": "createresponse()",
       "id": "familyaccess_test_createresponse"
     },
@@ -399,7 +321,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\familyAccess.ts",
       "source_location": "L1",
-      "community": 33,
+      "community": 29,
       "norm_label": "familyaccess.ts",
       "id": "backend_src_middleware_familyaccess_ts"
     },
@@ -408,7 +330,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\familyAccess.ts",
       "source_location": "L18",
-      "community": 33,
+      "community": 29,
       "norm_label": "loadfamilymembership()",
       "id": "familyaccess_loadfamilymembership"
     },
@@ -417,7 +339,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\familyAccess.ts",
       "source_location": "L35",
-      "community": 33,
+      "community": 29,
       "norm_label": "attachfamilycontext()",
       "id": "familyaccess_attachfamilycontext"
     },
@@ -426,7 +348,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\familyAccess.ts",
       "source_location": "L52",
-      "community": 33,
+      "community": 29,
       "norm_label": "requirefamilyaccess()",
       "id": "familyaccess_requirefamilyaccess"
     },
@@ -435,7 +357,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\familyAccess.ts",
       "source_location": "L72",
-      "community": 33,
+      "community": 29,
       "norm_label": "createfamilywriteaccess()",
       "id": "familyaccess_createfamilywriteaccess"
     },
@@ -444,7 +366,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\familyCache.persistence.test.ts",
       "source_location": "L1",
-      "community": 107,
+      "community": 103,
       "norm_label": "familycache.persistence.test.ts",
       "id": "backend_src_middleware_familycache_persistence_test_ts"
     },
@@ -453,7 +375,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\familyCache.ts",
       "source_location": "L1",
-      "community": 69,
+      "community": 62,
       "norm_label": "familycache.ts",
       "id": "backend_src_middleware_familycache_ts"
     },
@@ -462,7 +384,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\middleware\\familyCache.ts",
       "source_location": "L3",
-      "community": 69,
+      "community": 62,
       "norm_label": "familyreportcachekey()",
       "id": "familycache_familyreportcachekey"
     },
@@ -475,7 +397,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 20,
+      "community": 17,
       "norm_label": "rate limit threshold and isolation tests",
       "id": "ratelimit_middleware_tests"
     },
@@ -488,7 +410,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 20,
+      "community": 17,
       "norm_label": "redis fixed-window rate limiter",
       "id": "ratelimit_redis_window"
     },
@@ -501,7 +423,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 20,
+      "community": 17,
       "norm_label": "user-or-ip rate limit identifier",
       "id": "ratelimit_identifier"
     },
@@ -514,7 +436,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 20,
+      "community": 17,
       "norm_label": "fail-open rate limit behavior",
       "id": "ratelimit_fail_open"
     },
@@ -523,7 +445,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\ai.test.ts",
       "source_location": "L1",
-      "community": 48,
+      "community": 44,
       "norm_label": "ai.test.ts",
       "id": "backend_src_routes_ai_test_ts"
     },
@@ -532,7 +454,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\ai.test.ts",
       "source_location": "L55",
-      "community": 48,
+      "community": 44,
       "norm_label": "constructor()",
       "id": "ai_test_constructor"
     },
@@ -541,7 +463,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\ai.test.ts",
       "source_location": "L84",
-      "community": 48,
+      "community": 44,
       "norm_label": "createtoken()",
       "id": "ai_test_createtoken"
     },
@@ -550,7 +472,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\ai.ts",
       "source_location": "L1",
-      "community": 49,
+      "community": 45,
       "norm_label": "ai.ts",
       "id": "backend_src_routes_ai_ts"
     },
@@ -559,7 +481,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\ai.ts",
       "source_location": "L15",
-      "community": 49,
+      "community": 45,
       "norm_label": "checkfamilyaccess()",
       "id": "ai_checkfamilyaccess"
     },
@@ -568,7 +490,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\ai.ts",
       "source_location": "L28",
-      "community": 49,
+      "community": 45,
       "norm_label": "checkduplicateactions()",
       "id": "ai_checkduplicateactions"
     },
@@ -577,7 +499,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\assets.ts",
       "source_location": "L1",
-      "community": 70,
+      "community": 63,
       "norm_label": "assets.ts",
       "id": "backend_src_routes_assets_ts"
     },
@@ -586,7 +508,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\assets.ts",
       "source_location": "L22",
-      "community": 70,
+      "community": 63,
       "norm_label": "checkfamilyaccess()",
       "id": "assets_checkfamilyaccess"
     },
@@ -595,7 +517,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\auth.test.ts",
       "source_location": "L1",
-      "community": 108,
+      "community": 104,
       "norm_label": "auth.test.ts",
       "id": "backend_src_routes_auth_test_ts"
     },
@@ -604,7 +526,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\auth.ts",
       "source_location": "L1",
-      "community": 109,
+      "community": 105,
       "norm_label": "auth.ts",
       "id": "backend_src_routes_auth_ts"
     },
@@ -613,7 +535,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\budgets.test.ts",
       "source_location": "L1",
-      "community": 71,
+      "community": 64,
       "norm_label": "budgets.test.ts",
       "id": "backend_src_routes_budgets_test_ts"
     },
@@ -622,7 +544,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\budgets.test.ts",
       "source_location": "L36",
-      "community": 71,
+      "community": 64,
       "norm_label": "createtoken()",
       "id": "budgets_test_createtoken"
     },
@@ -631,7 +553,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\budgets.ts",
       "source_location": "L1",
-      "community": 72,
+      "community": 65,
       "norm_label": "budgets.ts",
       "id": "backend_src_routes_budgets_ts"
     },
@@ -640,7 +562,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\budgets.ts",
       "source_location": "L23",
-      "community": 72,
+      "community": 65,
       "norm_label": "checkfamilyaccess()",
       "id": "budgets_checkfamilyaccess"
     },
@@ -649,7 +571,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\category.test.ts",
       "source_location": "L1",
-      "community": 73,
+      "community": 66,
       "norm_label": "category.test.ts",
       "id": "backend_src_routes_category_test_ts"
     },
@@ -658,7 +580,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\category.test.ts",
       "source_location": "L28",
-      "community": 73,
+      "community": 66,
       "norm_label": "createtoken()",
       "id": "category_test_createtoken"
     },
@@ -667,7 +589,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\category.ts",
       "source_location": "L1",
-      "community": 74,
+      "community": 67,
       "norm_label": "category.ts",
       "id": "backend_src_routes_category_ts"
     },
@@ -676,7 +598,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\category.ts",
       "source_location": "L8",
-      "community": 74,
+      "community": 67,
       "norm_label": "checkfamilyaccess()",
       "id": "category_checkfamilyaccess"
     },
@@ -685,7 +607,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\compare.test.ts",
       "source_location": "L1",
-      "community": 75,
+      "community": 68,
       "norm_label": "compare.test.ts",
       "id": "backend_src_routes_compare_test_ts"
     },
@@ -694,7 +616,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\compare.test.ts",
       "source_location": "L26",
-      "community": 75,
+      "community": 68,
       "norm_label": "createtoken()",
       "id": "compare_test_createtoken"
     },
@@ -703,7 +625,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\compare.ts",
       "source_location": "L1",
-      "community": 76,
+      "community": 69,
       "norm_label": "compare.ts",
       "id": "backend_src_routes_compare_ts"
     },
@@ -712,7 +634,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\compare.ts",
       "source_location": "L7",
-      "community": 76,
+      "community": 69,
       "norm_label": "sumamount()",
       "id": "compare_sumamount"
     },
@@ -721,7 +643,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\expenses.ts",
       "source_location": "L1",
-      "community": 77,
+      "community": 70,
       "norm_label": "expenses.ts",
       "id": "backend_src_routes_expenses_ts"
     },
@@ -730,7 +652,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\expenses.ts",
       "source_location": "L20",
-      "community": 77,
+      "community": 70,
       "norm_label": "checkfamilyaccess()",
       "id": "expenses_checkfamilyaccess"
     },
@@ -739,7 +661,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\export.test.ts",
       "source_location": "L1",
-      "community": 78,
+      "community": 71,
       "norm_label": "export.test.ts",
       "id": "backend_src_routes_export_test_ts"
     },
@@ -748,7 +670,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\export.test.ts",
       "source_location": "L38",
-      "community": 78,
+      "community": 71,
       "norm_label": "createtoken()",
       "id": "export_test_createtoken"
     },
@@ -757,7 +679,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\export.ts",
       "source_location": "L1",
-      "community": 40,
+      "community": 35,
       "norm_label": "export.ts",
       "id": "backend_src_routes_export_ts"
     },
@@ -766,7 +688,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\export.ts",
       "source_location": "L11",
-      "community": 40,
+      "community": 35,
       "norm_label": "checkfamilyaccess()",
       "id": "export_checkfamilyaccess"
     },
@@ -775,7 +697,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\export.ts",
       "source_location": "L23",
-      "community": 40,
+      "community": 35,
       "norm_label": "builddatefilter()",
       "id": "export_builddatefilter"
     },
@@ -784,7 +706,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\export.ts",
       "source_location": "L30",
-      "community": 40,
+      "community": 35,
       "norm_label": "sendworkbook()",
       "id": "export_sendworkbook"
     },
@@ -793,7 +715,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\families.test.ts",
       "source_location": "L1",
-      "community": 79,
+      "community": 72,
       "norm_label": "families.test.ts",
       "id": "backend_src_routes_families_test_ts"
     },
@@ -802,7 +724,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\families.test.ts",
       "source_location": "L36",
-      "community": 79,
+      "community": 72,
       "norm_label": "createtoken()",
       "id": "families_test_createtoken"
     },
@@ -811,7 +733,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\families.ts",
       "source_location": "L1",
-      "community": 110,
+      "community": 106,
       "norm_label": "families.ts",
       "id": "backend_src_routes_families_ts"
     },
@@ -820,7 +742,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\files.test.ts",
       "source_location": "L1",
-      "community": 80,
+      "community": 73,
       "norm_label": "files.test.ts",
       "id": "backend_src_routes_files_test_ts"
     },
@@ -829,7 +751,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\files.test.ts",
       "source_location": "L39",
-      "community": 80,
+      "community": 73,
       "norm_label": "createtoken()",
       "id": "files_test_createtoken"
     },
@@ -838,7 +760,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\files.ts",
       "source_location": "L1",
-      "community": 50,
+      "community": 46,
       "norm_label": "files.ts",
       "id": "backend_src_routes_files_ts"
     },
@@ -847,7 +769,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\files.ts",
       "source_location": "L22",
-      "community": 50,
+      "community": 46,
       "norm_label": "checkfamilyaccess()",
       "id": "files_checkfamilyaccess"
     },
@@ -856,7 +778,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\files.ts",
       "source_location": "L46",
-      "community": 50,
+      "community": 46,
       "norm_label": "attachurls()",
       "id": "files_attachurls"
     },
@@ -865,7 +787,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\goals.test.ts",
       "source_location": "L1",
-      "community": 81,
+      "community": 74,
       "norm_label": "goals.test.ts",
       "id": "backend_src_routes_goals_test_ts"
     },
@@ -874,7 +796,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\goals.test.ts",
       "source_location": "L29",
-      "community": 81,
+      "community": 74,
       "norm_label": "createtoken()",
       "id": "goals_test_createtoken"
     },
@@ -883,7 +805,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\goals.ts",
       "source_location": "L1",
-      "community": 82,
+      "community": 75,
       "norm_label": "goals.ts",
       "id": "backend_src_routes_goals_ts"
     },
@@ -892,7 +814,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\goals.ts",
       "source_location": "L22",
-      "community": 82,
+      "community": 75,
       "norm_label": "checkfamilyaccess()",
       "id": "goals_checkfamilyaccess"
     },
@@ -901,7 +823,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\import.test.ts",
       "source_location": "L1",
-      "community": 83,
+      "community": 76,
       "norm_label": "import.test.ts",
       "id": "backend_src_routes_import_test_ts"
     },
@@ -910,7 +832,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\import.test.ts",
       "source_location": "L28",
-      "community": 83,
+      "community": 76,
       "norm_label": "createtoken()",
       "id": "import_test_createtoken"
     },
@@ -919,7 +841,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\import.ts",
       "source_location": "L1",
-      "community": 84,
+      "community": 77,
       "norm_label": "import.ts",
       "id": "backend_src_routes_import_ts"
     },
@@ -928,7 +850,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\import.ts",
       "source_location": "L14",
-      "community": 84,
+      "community": 77,
       "norm_label": "checkfamilyaccess()",
       "id": "import_checkfamilyaccess"
     },
@@ -937,7 +859,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\incomes.ts",
       "source_location": "L1",
-      "community": 85,
+      "community": 78,
       "norm_label": "incomes.ts",
       "id": "backend_src_routes_incomes_ts"
     },
@@ -946,7 +868,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\incomes.ts",
       "source_location": "L20",
-      "community": 85,
+      "community": 78,
       "norm_label": "checkfamilyaccess()",
       "id": "incomes_checkfamilyaccess"
     },
@@ -955,7 +877,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\liabilities.ts",
       "source_location": "L1",
-      "community": 86,
+      "community": 79,
       "norm_label": "liabilities.ts",
       "id": "backend_src_routes_liabilities_ts"
     },
@@ -964,7 +886,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\liabilities.ts",
       "source_location": "L21",
-      "community": 86,
+      "community": 79,
       "norm_label": "checkfamilyaccess()",
       "id": "liabilities_checkfamilyaccess"
     },
@@ -973,7 +895,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\recurring.test.ts",
       "source_location": "L1",
-      "community": 87,
+      "community": 80,
       "norm_label": "recurring.test.ts",
       "id": "backend_src_routes_recurring_test_ts"
     },
@@ -982,7 +904,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\recurring.test.ts",
       "source_location": "L33",
-      "community": 87,
+      "community": 80,
       "norm_label": "createtoken()",
       "id": "recurring_test_createtoken"
     },
@@ -991,7 +913,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\recurring.ts",
       "source_location": "L1",
-      "community": 88,
+      "community": 81,
       "norm_label": "recurring.ts",
       "id": "backend_src_routes_recurring_ts"
     },
@@ -1000,7 +922,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\recurring.ts",
       "source_location": "L29",
-      "community": 88,
+      "community": 81,
       "norm_label": "checkfamilyaccess()",
       "id": "recurring_checkfamilyaccess"
     },
@@ -1009,7 +931,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\reports.test.ts",
       "source_location": "L1",
-      "community": 89,
+      "community": 82,
       "norm_label": "reports.test.ts",
       "id": "backend_src_routes_reports_test_ts"
     },
@@ -1018,7 +940,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\reports.test.ts",
       "source_location": "L38",
-      "community": 89,
+      "community": 82,
       "norm_label": "createtoken()",
       "id": "reports_test_createtoken"
     },
@@ -1027,7 +949,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\routes\\reports.ts",
       "source_location": "L1",
-      "community": 111,
+      "community": 107,
       "norm_label": "reports.ts",
       "id": "backend_src_routes_reports_ts"
     },
@@ -1036,7 +958,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\aiActions.ts",
       "source_location": "L1",
-      "community": 21,
+      "community": 18,
       "norm_label": "aiactions.ts",
       "id": "backend_src_services_aiactions_ts"
     },
@@ -1045,7 +967,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\aiActions.ts",
       "source_location": "L34",
-      "community": 21,
+      "community": 18,
       "norm_label": "executeactions()",
       "id": "aiactions_executeactions"
     },
@@ -1054,7 +976,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\aiActions.ts",
       "source_location": "L57",
-      "community": 21,
+      "community": 18,
       "norm_label": "executeaction()",
       "id": "aiactions_executeaction"
     },
@@ -1063,7 +985,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\aiActions.ts",
       "source_location": "L315",
-      "community": 21,
+      "community": 18,
       "norm_label": "parseamount()",
       "id": "aiactions_parseamount"
     },
@@ -1072,7 +994,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\aiActions.ts",
       "source_location": "L335",
-      "community": 21,
+      "community": 18,
       "norm_label": "matchcategory()",
       "id": "aiactions_matchcategory"
     },
@@ -1081,7 +1003,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\aiActions.ts",
       "source_location": "L345",
-      "community": 21,
+      "community": 18,
       "norm_label": "todaystr()",
       "id": "aiactions_todaystr"
     },
@@ -1090,7 +1012,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\aiActions.ts",
       "source_location": "L349",
-      "community": 21,
+      "community": 18,
       "norm_label": "parselocalactions()",
       "id": "aiactions_parselocalactions"
     },
@@ -1099,7 +1021,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\aiService.test.ts",
       "source_location": "L1",
-      "community": 112,
+      "community": 108,
       "norm_label": "aiservice.test.ts",
       "id": "backend_src_services_aiservice_test_ts"
     },
@@ -1112,7 +1034,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 12,
+      "community": 11,
       "norm_label": "openai-compatible chat completion adapter",
       "id": "aiService_openai_compatible_chat_adapter"
     },
@@ -1125,7 +1047,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 12,
+      "community": 11,
       "norm_label": "offline-capable ai degradation strategy",
       "id": "aiService_offline_degradation_strategy"
     },
@@ -1138,7 +1060,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 12,
+      "community": 11,
       "norm_label": "action-aware financial chat orchestrator",
       "id": "aiService_action_aware_chat"
     },
@@ -1151,7 +1073,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 12,
+      "community": 11,
       "norm_label": "ai or rule-based family financial analysis",
       "id": "aiService_financial_analysis"
     },
@@ -1164,7 +1086,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 12,
+      "community": 11,
       "norm_label": "parallel dual-path receipt ocr",
       "id": "aiService_dual_path_ocr"
     },
@@ -1177,7 +1099,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 12,
+      "community": 11,
       "norm_label": "tesseract-to-structured-json ocr path",
       "id": "aiService_tesseract_structured_ocr"
     },
@@ -1190,7 +1112,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 12,
+      "community": 11,
       "norm_label": "vision model ocr branch",
       "id": "aiService_vision_ocr_branch"
     },
@@ -1203,7 +1125,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 12,
+      "community": 11,
       "norm_label": "merged ocr result",
       "id": "aiService_merged_ocr_result"
     },
@@ -1216,7 +1138,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 12,
+      "community": 11,
       "norm_label": "ocr-to-automatic-bookkeeping actions",
       "id": "aiService_ocr_to_actions"
     },
@@ -1229,7 +1151,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 12,
+      "community": 11,
       "norm_label": "ocr financial category whitelist",
       "id": "aiService_category_whitelist"
     },
@@ -1238,7 +1160,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\categoryService.test.ts",
       "source_location": "L1",
-      "community": 113,
+      "community": 109,
       "norm_label": "categoryservice.test.ts",
       "id": "backend_src_services_categoryservice_test_ts"
     },
@@ -1247,7 +1169,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\categoryService.ts",
       "source_location": "L1",
-      "community": 90,
+      "community": 83,
       "norm_label": "categoryservice.ts",
       "id": "backend_src_services_categoryservice_ts"
     },
@@ -1256,7 +1178,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\categoryService.ts",
       "source_location": "L8",
-      "community": 90,
+      "community": 83,
       "norm_label": "suggestcategory()",
       "id": "categoryservice_suggestcategory"
     },
@@ -1265,7 +1187,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\fileStorageService.test.ts",
       "source_location": "L1",
-      "community": 114,
+      "community": 110,
       "norm_label": "filestorageservice.test.ts",
       "id": "backend_src_services_filestorageservice_test_ts"
     },
@@ -1274,7 +1196,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\fileStorageService.ts",
       "source_location": "L1",
-      "community": 51,
+      "community": 47,
       "norm_label": "filestorageservice.ts",
       "id": "backend_src_services_filestorageservice_ts"
     },
@@ -1283,7 +1205,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\fileStorageService.ts",
       "source_location": "L13",
-      "community": 51,
+      "community": 47,
       "norm_label": "storeocrimage()",
       "id": "filestorageservice_storeocrimage"
     },
@@ -1292,7 +1214,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\fileStorageService.ts",
       "source_location": "L61",
-      "community": 51,
+      "community": 47,
       "norm_label": "base64tobuffer()",
       "id": "filestorageservice_base64tobuffer"
     },
@@ -1301,7 +1223,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\financialMutationCoordinator.test.ts",
       "source_location": "L1",
-      "community": 52,
+      "community": 48,
       "norm_label": "financialmutationcoordinator.test.ts",
       "id": "backend_src_services_financialmutationcoordinator_test_ts"
     },
@@ -1310,7 +1232,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\financialMutationCoordinator.test.ts",
       "source_location": "L13",
-      "community": 52,
+      "community": 48,
       "norm_label": "createcoordinatorstore()",
       "id": "financialmutationcoordinator_test_createcoordinatorstore"
     },
@@ -1319,7 +1241,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\financialMutationCoordinator.test.ts",
       "source_location": "L65",
-      "community": 52,
+      "community": 48,
       "norm_label": "createinput()",
       "id": "financialmutationcoordinator_test_createinput"
     },
@@ -1328,7 +1250,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
       "source_location": "L1",
-      "community": 13,
+      "community": 12,
       "norm_label": "financialmutationcoordinator.ts",
       "id": "backend_src_services_financialmutationcoordinator_ts"
     },
@@ -1337,7 +1259,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
       "source_location": "L11",
-      "community": 13,
+      "community": 12,
       "norm_label": "canonicalize()",
       "id": "financialmutationcoordinator_canonicalize"
     },
@@ -1346,7 +1268,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
       "source_location": "L67",
-      "community": 13,
+      "community": 12,
       "norm_label": "hashnormalizedpayload()",
       "id": "financialmutationcoordinator_hashnormalizedpayload"
     },
@@ -1355,7 +1277,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
       "source_location": "L72",
-      "community": 13,
+      "community": 12,
       "norm_label": "replayresult()",
       "id": "financialmutationcoordinator_replayresult"
     },
@@ -1364,7 +1286,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
       "source_location": "L95",
-      "community": 13,
+      "community": 12,
       "norm_label": "requirewritemembership()",
       "id": "financialmutationcoordinator_requirewritemembership"
     },
@@ -1373,7 +1295,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
       "source_location": "L124",
-      "community": 13,
+      "community": 12,
       "norm_label": "isscopedarbitrationconflict()",
       "id": "financialmutationcoordinator_isscopedarbitrationconflict"
     },
@@ -1382,7 +1304,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
       "source_location": "L151",
-      "community": 13,
+      "community": 12,
       "norm_label": "waitforwinner()",
       "id": "financialmutationcoordinator_waitforwinner"
     },
@@ -1391,7 +1313,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
       "source_location": "L195",
-      "community": 13,
+      "community": 12,
       "norm_label": "validatescope()",
       "id": "financialmutationcoordinator_validatescope"
     },
@@ -1400,7 +1322,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
       "source_location": "L213",
-      "community": 13,
+      "community": 12,
       "norm_label": "validatemutationresult()",
       "id": "financialmutationcoordinator_validatemutationresult"
     },
@@ -1409,7 +1331,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\financialMutationCoordinator.ts",
       "source_location": "L223",
-      "community": 13,
+      "community": 12,
       "norm_label": "coordinatefinancialmutation()",
       "id": "financialmutationcoordinator_coordinatefinancialmutation"
     },
@@ -1422,7 +1344,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 22,
+      "community": 19,
       "norm_label": "imported transaction contract",
       "id": "importservice_imported_transaction"
     },
@@ -1435,7 +1357,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 22,
+      "community": 19,
       "norm_label": "imported amount normalization",
       "id": "importservice_parse_amount"
     },
@@ -1448,7 +1370,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 22,
+      "community": 19,
       "norm_label": "imported date normalization",
       "id": "importservice_normalize_date"
     },
@@ -1461,7 +1383,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 22,
+      "community": 19,
       "norm_label": "csv row parsing",
       "id": "importservice_parse_rows"
     },
@@ -1474,7 +1396,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 22,
+      "community": 19,
       "norm_label": "alipay transaction parser",
       "id": "importservice_parse_alipay"
     },
@@ -1487,7 +1409,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 22,
+      "community": 19,
       "norm_label": "wechat transaction parser",
       "id": "importservice_parse_wechat"
     },
@@ -1500,7 +1422,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 22,
+      "community": 19,
       "norm_label": "format-dispatched csv import",
       "id": "importservice_parse_csv"
     },
@@ -1509,7 +1431,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerApplicationService.test.ts",
       "source_location": "L1",
-      "community": 91,
+      "community": 84,
       "norm_label": "ledgerapplicationservice.test.ts",
       "id": "backend_src_services_ledgerapplicationservice_test_ts"
     },
@@ -1518,7 +1440,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerApplicationService.test.ts",
       "source_location": "L39",
-      "community": 91,
+      "community": 84,
       "norm_label": "createstore()",
       "id": "ledgerapplicationservice_test_createstore"
     },
@@ -1527,7 +1449,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L1",
-      "community": 16,
+      "community": 3,
       "norm_label": "ledgerapplicationservice.ts",
       "id": "backend_src_services_ledgerapplicationservice_ts"
     },
@@ -1536,7 +1458,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L13",
-      "community": 16,
+      "community": 3,
       "norm_label": "requiretext()",
       "id": "ledgerapplicationservice_requiretext"
     },
@@ -1545,7 +1467,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L24",
-      "community": 16,
+      "community": 3,
       "norm_label": "optionaltext()",
       "id": "ledgerapplicationservice_optionaltext"
     },
@@ -1554,7 +1476,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L29",
-      "community": 16,
+      "community": 3,
       "norm_label": "requireamount()",
       "id": "ledgerapplicationservice_requireamount"
     },
@@ -1563,7 +1485,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L40",
-      "community": 16,
+      "community": 3,
       "norm_label": "requiredate()",
       "id": "ledgerapplicationservice_requiredate"
     },
@@ -1572,7 +1494,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L51",
-      "community": 16,
+      "community": 3,
       "norm_label": "normalizecurrency()",
       "id": "ledgerapplicationservice_normalizecurrency"
     },
@@ -1581,7 +1503,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L63",
-      "community": 16,
+      "community": 3,
       "norm_label": "validatecommandscope()",
       "id": "ledgerapplicationservice_validatecommandscope"
     },
@@ -1590,7 +1512,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L81",
-      "community": 16,
+      "community": 3,
       "norm_label": "createincome()",
       "id": "ledgerapplicationservice_createincome"
     },
@@ -1599,7 +1521,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerApplicationService.ts",
       "source_location": "L125",
-      "community": 16,
+      "community": 3,
       "norm_label": "createexpense()",
       "id": "ledgerapplicationservice_createexpense"
     },
@@ -1608,7 +1530,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerErrors.ts",
       "source_location": "L1",
-      "community": 23,
+      "community": 20,
       "norm_label": "ledgererrors.ts",
       "id": "backend_src_services_ledgererrors_ts"
     },
@@ -1617,7 +1539,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerErrors.ts",
       "source_location": "L12",
-      "community": 23,
+      "community": 20,
       "norm_label": "domainerror",
       "id": "ledgererrors_domainerror"
     },
@@ -1626,7 +1548,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerErrors.ts",
       "source_location": "L13",
-      "community": 23,
+      "community": 20,
       "norm_label": ".constructor()",
       "id": "ledgererrors_domainerror_constructor"
     },
@@ -1635,7 +1557,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerErrors.ts",
       "source_location": "L29",
-      "community": 23,
+      "community": 20,
       "norm_label": "prismacode()",
       "id": "ledgererrors_prismacode"
     },
@@ -1644,7 +1566,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerErrors.ts",
       "source_location": "L37",
-      "community": 23,
+      "community": 20,
       "norm_label": "mapprismaerror()",
       "id": "ledgererrors_mapprismaerror"
     },
@@ -1653,7 +1575,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerTransactionOrchestration.test.ts",
       "source_location": "L1",
-      "community": 92,
+      "community": 85,
       "norm_label": "ledgertransactionorchestration.test.ts",
       "id": "backend_src_services_ledgertransactionorchestration_test_ts"
     },
@@ -1662,7 +1584,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\services\\ledgerTransactionOrchestration.test.ts",
       "source_location": "L15",
-      "community": 92,
+      "community": 85,
       "norm_label": "createstore()",
       "id": "ledgertransactionorchestration_test_createstore"
     },
@@ -1853,7 +1775,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 115,
+      "community": 111,
       "norm_label": "recurring transaction next-date calculation",
       "id": "recurringservice_calculate_next_date"
     },
@@ -1862,7 +1784,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\database.integration.test.ts",
       "source_location": "L1",
-      "community": 93,
+      "community": 86,
       "norm_label": "database.integration.test.ts",
       "id": "backend_src_tests_database_integration_test_ts"
     },
@@ -1871,7 +1793,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\database.integration.test.ts",
       "source_location": "L18",
-      "community": 93,
+      "community": 86,
       "norm_label": "uniqueid()",
       "id": "database_integration_test_uniqueid"
     },
@@ -1880,7 +1802,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\database.phase1.integration.test.ts",
       "source_location": "L1",
-      "community": 116,
+      "community": 112,
       "norm_label": "database.phase1.integration.test.ts",
       "id": "backend_src_tests_database_phase1_integration_test_ts"
     },
@@ -1893,7 +1815,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 94,
+      "community": 87,
       "norm_label": "finance domain test data factories",
       "id": "factories_test_data_factories"
     },
@@ -1906,7 +1828,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 94,
+      "community": 87,
       "norm_label": "family-scoped fixture contracts",
       "id": "factories_family_scoped_contracts"
     },
@@ -1915,7 +1837,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\family-permissions.test.ts",
       "source_location": "L1",
-      "community": 53,
+      "community": 49,
       "norm_label": "family-permissions.test.ts",
       "id": "backend_src_tests_family_permissions_test_ts"
     },
@@ -1924,7 +1846,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\family-permissions.test.ts",
       "source_location": "L16",
-      "community": 53,
+      "community": 49,
       "norm_label": "model()",
       "id": "family_permissions_test_model"
     },
@@ -1933,7 +1855,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\family-permissions.test.ts",
       "source_location": "L96",
-      "community": 53,
+      "community": 49,
       "norm_label": "createtoken()",
       "id": "family_permissions_test_createtoken"
     },
@@ -1942,7 +1864,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\jestConfig.test.ts",
       "source_location": "L1",
-      "community": 95,
+      "community": 88,
       "norm_label": "jestconfig.test.ts",
       "id": "backend_src_tests_jestconfig_test_ts"
     },
@@ -1951,7 +1873,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\jestConfig.test.ts",
       "source_location": "L9",
-      "community": 95,
+      "community": 88,
       "norm_label": "loadconfig()",
       "id": "jestconfig_test_loadconfig"
     },
@@ -1978,7 +1900,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\phase1SchemaContract.test.ts",
       "source_location": "L1",
-      "community": 54,
+      "community": 50,
       "norm_label": "phase1schemacontract.test.ts",
       "id": "backend_src_tests_phase1schemacontract_test_ts"
     },
@@ -1987,7 +1909,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\phase1SchemaContract.test.ts",
       "source_location": "L7",
-      "community": 54,
+      "community": 50,
       "norm_label": "readschema()",
       "id": "phase1schemacontract_test_readschema"
     },
@@ -1996,7 +1918,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\tests\\phase1SchemaContract.test.ts",
       "source_location": "L9",
-      "community": 54,
+      "community": 50,
       "norm_label": "readmigration()",
       "id": "phase1schemacontract_test_readmigration"
     },
@@ -2009,7 +1931,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 117,
+      "community": 113,
       "norm_label": "backend test environment setup",
       "id": "setup_test_environment"
     },
@@ -2022,7 +1944,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 118,
+      "community": 114,
       "norm_label": "decimal-to-number conversion",
       "id": "decimal_to_number"
     },
@@ -2035,7 +1957,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 24,
+      "community": 21,
       "norm_label": "pagination utility test suite",
       "id": "pagination_test_suite"
     },
@@ -2048,7 +1970,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 24,
+      "community": 21,
       "norm_label": "pagination parameters contract",
       "id": "pagination_params"
     },
@@ -2061,7 +1983,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 24,
+      "community": 21,
       "norm_label": "parse pagination query",
       "id": "pagination_parse_pagination"
     },
@@ -2074,7 +1996,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 24,
+      "community": 21,
       "norm_label": "paginated response contract",
       "id": "pagination_paginated_response"
     },
@@ -2087,7 +2009,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 24,
+      "community": 21,
       "norm_label": "build paginated response",
       "id": "pagination_paginate_response"
     },
@@ -2100,7 +2022,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 24,
+      "community": 21,
       "norm_label": "unpaginated backward compatibility",
       "id": "pagination_backward_compatibility"
     },
@@ -2113,7 +2035,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 24,
+      "community": 21,
       "norm_label": "bounded pagination page size",
       "id": "pagination_bounded_page_size"
     },
@@ -2126,7 +2048,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 55,
+      "community": 51,
       "norm_label": "perceptual image hash computation",
       "id": "phash_compute"
     },
@@ -2139,7 +2061,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 55,
+      "community": 51,
       "norm_label": "perceptual hash hamming distance",
       "id": "phash_hamming_distance"
     },
@@ -2152,7 +2074,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 55,
+      "community": 51,
       "norm_label": "similar image threshold check",
       "id": "phash_is_similar_image"
     },
@@ -2161,7 +2083,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\utils\\reportFormulas.ts",
       "source_location": "L1",
-      "community": 41,
+      "community": 36,
       "norm_label": "reportformulas.ts",
       "id": "backend_src_utils_reportformulas_ts"
     },
@@ -2170,7 +2092,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\utils\\reportFormulas.ts",
       "source_location": "L8",
-      "community": 41,
+      "community": 36,
       "norm_label": "calculatenetcashflow()",
       "id": "reportformulas_calculatenetcashflow"
     },
@@ -2179,7 +2101,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\utils\\reportFormulas.ts",
       "source_location": "L14",
-      "community": 41,
+      "community": 36,
       "norm_label": "includesany()",
       "id": "reportformulas_includesany"
     },
@@ -2188,7 +2110,7 @@
       "file_type": "code",
       "source_file": "backend\\src\\utils\\reportFormulas.ts",
       "source_location": "L18",
-      "community": 41,
+      "community": 36,
       "norm_label": "classifycashflowcategory()",
       "id": "reportformulas_classifycashflowcategory"
     },
@@ -2197,7 +2119,7 @@
       "file_type": "code",
       "source_file": "docs\\audit\\evidence\\ui_smoke.py",
       "source_location": "L1",
-      "community": 56,
+      "community": 52,
       "norm_label": "ui_smoke.py",
       "id": "docs_audit_evidence_ui_smoke_py"
     },
@@ -2206,7 +2128,7 @@
       "file_type": "code",
       "source_file": "docs\\audit\\evidence\\ui_smoke.py",
       "source_location": "L11",
-      "community": 56,
+      "community": 52,
       "norm_label": "json_response()",
       "id": "ui_smoke_json_response"
     },
@@ -2215,7 +2137,7 @@
       "file_type": "code",
       "source_file": "docs\\audit\\evidence\\ui_smoke.py",
       "source_location": "L19",
-      "community": 56,
+      "community": 52,
       "norm_label": "main()",
       "id": "ui_smoke_main"
     },
@@ -2276,7 +2198,7 @@
       "file_type": "code",
       "source_file": "frontend\\vitest.config.ts",
       "source_location": "L1",
-      "community": 119,
+      "community": 115,
       "norm_label": "vitest.config.ts",
       "id": "frontend_vitest_config_ts"
     },
@@ -2484,7 +2406,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 18,
+      "community": 15,
       "norm_label": "asset allocation donut chart",
       "id": "assetallocation_chart"
     },
@@ -2497,7 +2419,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 18,
+      "community": 15,
       "norm_label": "asset allocation data contract",
       "id": "assetallocation_data_contract"
     },
@@ -2510,7 +2432,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 18,
+      "community": 15,
       "norm_label": "zero-value asset slice filtering",
       "id": "assetallocation_zero_value_filter"
     },
@@ -2523,7 +2445,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 18,
+      "community": 15,
       "norm_label": "asset chart cny formatting",
       "id": "assetallocation_cny_formatting"
     },
@@ -2536,7 +2458,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 18,
+      "community": 15,
       "norm_label": "cash flow activity bar chart",
       "id": "cashflow_chart"
     },
@@ -2549,7 +2471,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 18,
+      "community": 15,
       "norm_label": "cash flow segment contract",
       "id": "cashflow_segment_contract"
     },
@@ -2562,7 +2484,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 18,
+      "community": 15,
       "norm_label": "empty cash flow state",
       "id": "cashflow_zero_state"
     },
@@ -2575,7 +2497,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 18,
+      "community": 15,
       "norm_label": "cash flow chart cny formatting",
       "id": "cashflow_cny_formatting"
     },
@@ -3169,7 +3091,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\pages\\ReportsPage.test.tsx",
       "source_location": "L1",
-      "community": 96,
+      "community": 89,
       "norm_label": "reportspage.test.tsx",
       "id": "frontend_src_pages_reportspage_test_tsx"
     },
@@ -3178,7 +3100,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\pages\\ReportsPage.test.tsx",
       "source_location": "L28",
-      "community": 96,
+      "community": 89,
       "norm_label": "deferred()",
       "id": "reportspage_test_deferred"
     },
@@ -3187,7 +3109,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
       "source_location": "L1",
-      "community": 27,
+      "community": 25,
       "norm_label": "reportspage.tsx",
       "id": "frontend_src_pages_reportspage_tsx"
     },
@@ -3196,7 +3118,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
       "source_location": "L72",
-      "community": 27,
+      "community": 25,
       "norm_label": "formatmoney()",
       "id": "reportspage_formatmoney"
     },
@@ -3205,7 +3127,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
       "source_location": "L75",
-      "community": 27,
+      "community": 25,
       "norm_label": "formatmoneyshort()",
       "id": "reportspage_formatmoneyshort"
     },
@@ -3214,7 +3136,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
       "source_location": "L78",
-      "community": 27,
+      "community": 25,
       "norm_label": "formatpercentage()",
       "id": "reportspage_formatpercentage"
     },
@@ -3223,7 +3145,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
       "source_location": "L120",
-      "community": 27,
+      "community": 25,
       "norm_label": "handleexport()",
       "id": "reportspage_handleexport"
     },
@@ -3232,7 +3154,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\pages\\ReportsPage.tsx",
       "source_location": "L295",
-      "community": 27,
+      "community": 25,
       "norm_label": "handlereset()",
       "id": "reportspage_handlereset"
     },
@@ -3427,7 +3349,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 42,
+      "community": 37,
       "norm_label": "family budget management",
       "id": "budgetService_budget_management"
     },
@@ -3440,7 +3362,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 42,
+      "community": 37,
       "norm_label": "budget progress tracking",
       "id": "budgetService_budget_progress"
     },
@@ -3466,7 +3388,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 120,
+      "community": 116,
       "norm_label": "multi-family financial comparison",
       "id": "compareService_multi_family_comparison"
     },
@@ -3596,7 +3518,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 121,
+      "community": 117,
       "norm_label": "liability registry",
       "id": "financeService_liability_registry"
     },
@@ -3622,7 +3544,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 42,
+      "community": 37,
       "norm_label": "family financial goals",
       "id": "goalService_financial_goals"
     },
@@ -3635,7 +3557,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 42,
+      "community": 37,
       "norm_label": "financial goal progress",
       "id": "goalService_goal_progress"
     },
@@ -3696,7 +3618,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\services\\reportService.ts",
       "source_location": "L1",
-      "community": 28,
+      "community": 26,
       "norm_label": "reportservice.ts",
       "id": "frontend_src_services_reportservice_ts"
     },
@@ -3705,7 +3627,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\services\\reportService.ts",
       "source_location": "L68",
-      "community": 28,
+      "community": 26,
       "norm_label": "getbalancesheet()",
       "id": "reportservice_getbalancesheet"
     },
@@ -3714,7 +3636,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\services\\reportService.ts",
       "source_location": "L73",
-      "community": 28,
+      "community": 26,
       "norm_label": "getincomestatement()",
       "id": "reportservice_getincomestatement"
     },
@@ -3723,7 +3645,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\services\\reportService.ts",
       "source_location": "L81",
-      "community": 28,
+      "community": 26,
       "norm_label": "getcashflow()",
       "id": "reportservice_getcashflow"
     },
@@ -3732,7 +3654,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\services\\reportService.ts",
       "source_location": "L89",
-      "community": 28,
+      "community": 26,
       "norm_label": "getsummary()",
       "id": "reportservice_getsummary"
     },
@@ -3741,7 +3663,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\services\\reportService.ts",
       "source_location": "L94",
-      "community": 28,
+      "community": 26,
       "norm_label": "getinvestmentallocation()",
       "id": "reportservice_getinvestmentallocation"
     },
@@ -3789,7 +3711,7 @@
       "file_type": "code",
       "source_file": "frontend\\src\\test\\setup.ts",
       "source_location": "L1",
-      "community": 122,
+      "community": 118,
       "norm_label": "setup.ts",
       "id": "frontend_src_test_setup_ts"
     },
@@ -3841,7 +3763,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 123,
+      "community": 119,
       "norm_label": "family id tenant boundary",
       "id": "agents_family_tenant_boundary"
     },
@@ -3854,7 +3776,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 43,
+      "community": 39,
       "norm_label": "viewer read-only invariant",
       "id": "agents_viewer_read_only"
     },
@@ -3867,7 +3789,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 57,
+      "community": 53,
       "norm_label": "single declared base currency totals",
       "id": "agents_single_currency_totals"
     },
@@ -3880,7 +3802,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 34,
+      "community": 30,
       "norm_label": "derived statement reconciliation invariant",
       "id": "agents_statement_reconciliation"
     },
@@ -3893,7 +3815,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 14,
+      "community": 13,
       "norm_label": "atomic and idempotent transaction generation",
       "id": "agents_atomic_idempotent_mutations"
     },
@@ -3906,7 +3828,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 124,
+      "community": 120,
       "norm_label": "explicit confirmation for ai mutations",
       "id": "agents_explicit_ai_confirmation"
     },
@@ -3919,7 +3841,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 44,
+      "community": 38,
       "norm_label": "cache is not an authorization boundary",
       "id": "agents_cache_not_authorization_boundary"
     },
@@ -3932,7 +3854,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 97,
+      "community": 93,
       "norm_label": "focused red-green-refactor workflow",
       "id": "agents_tdd_change_workflow"
     },
@@ -3945,7 +3867,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 43,
+      "community": 39,
       "norm_label": "centralized family authorization policy boundary",
       "id": "agents_centralized_family_policy"
     },
@@ -3958,7 +3880,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 14,
+      "community": 13,
       "norm_label": "domain and application service boundary",
       "id": "agents_domain_service_boundary"
     },
@@ -3971,7 +3893,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 125,
+      "community": 121,
       "norm_label": "configured frontend api client boundary",
       "id": "agents_configured_frontend_api_client"
     },
@@ -3984,7 +3906,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 98,
+      "community": 90,
       "norm_label": "executable source-of-truth hierarchy",
       "id": "agents_source_of_truth_hierarchy"
     },
@@ -4153,7 +4075,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 126,
+      "community": 122,
       "norm_label": "zustand global state convention",
       "id": "development_rules_zustand_state"
     },
@@ -4283,7 +4205,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 99,
+      "community": 91,
       "norm_label": "evidence-backed deep review framework",
       "id": "audit_framework_evidence_backed_review"
     },
@@ -4296,7 +4218,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 14,
+      "community": 13,
       "norm_label": "route-heavy modular monolith hypothesis",
       "id": "audit_framework_modular_monolith_hypothesis"
     },
@@ -4309,7 +4231,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 100,
+      "community": 92,
       "norm_label": "sustainable project memory loop",
       "id": "audit_framework_sustainable_memory_loop"
     },
@@ -4322,7 +4244,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 14,
+      "community": 13,
       "norm_label": "route-heavy modular monolith finding",
       "id": "deep_audit_route_heavy_modular_monolith"
     },
@@ -4335,7 +4257,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 14,
+      "community": 13,
       "norm_label": "unified policy ledger and report services recommendation",
       "id": "deep_audit_unified_services_recommendation"
     },
@@ -4348,7 +4270,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 43,
+      "community": 39,
       "norm_label": "baseline viewer write authorization bypass",
       "id": "deep_audit_baseline_viewer_write_bypass"
     },
@@ -4361,7 +4283,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 44,
+      "community": 38,
       "norm_label": "baseline cache-before-authorization bypass",
       "id": "deep_audit_baseline_cache_authorization_bypass"
     },
@@ -4374,7 +4296,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 34,
+      "community": 30,
       "norm_label": "baseline income statement authentication break",
       "id": "deep_audit_baseline_frontend_fetch_break"
     },
@@ -4387,7 +4309,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 34,
+      "community": 30,
       "norm_label": "baseline other cash flow omission",
       "id": "deep_audit_baseline_cash_flow_omission"
     },
@@ -4400,7 +4322,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 14,
+      "community": 13,
       "norm_label": "fragmented transaction-generating ingresses",
       "id": "deep_audit_transaction_ingress_fragmentation"
     },
@@ -4413,7 +4335,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 57,
+      "community": 53,
       "norm_label": "multi-currency calculation semantics gap",
       "id": "deep_audit_multicurrency_semantics_gap"
     },
@@ -4426,7 +4348,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 45,
+      "community": 40,
       "norm_label": "trust before scale and intelligence strategy",
       "id": "deep_audit_trust_first_strategy"
     },
@@ -4439,7 +4361,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 98,
+      "community": 90,
       "norm_label": "code-level regression verified status",
       "id": "deep_audit_regression_verified_status"
     },
@@ -4452,7 +4374,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 99,
+      "community": 91,
       "norm_label": "homefinance source baseline citation",
       "id": "deep_audit_homefinance_source_citation"
     },
@@ -4465,7 +4387,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 34,
+      "community": 30,
       "norm_label": "ui smoke evidence citation",
       "id": "deep_audit_ui_smoke_evidence_citation"
     },
@@ -4478,7 +4400,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 100,
+      "community": 92,
       "norm_label": "graphify knowledge graph evidence citation",
       "id": "deep_audit_graphify_evidence_citation"
     },
@@ -4491,7 +4413,7 @@
       "captured_at": null,
       "author": "Redis",
       "contributor": null,
-      "community": 44,
+      "community": 38,
       "norm_label": "redis security and cache key best practices citation",
       "id": "deep_audit_redis_best_practices_citation"
     },
@@ -4504,7 +4426,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 45,
+      "community": 40,
       "norm_label": "risk-first modular monolith evolution",
       "id": "improvement_risk_first_modular_monolith_evolution"
     },
@@ -4517,7 +4439,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 45,
+      "community": 40,
       "norm_label": "behavior tests make incremental strategy safer rationale",
       "id": "improvement_strategy_a_rationale"
     },
@@ -4530,7 +4452,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 43,
+      "community": 39,
       "norm_label": "unified write authorization epic",
       "id": "improvement_unified_write_authorization_epic"
     },
@@ -4543,7 +4465,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 44,
+      "community": 38,
       "norm_label": "authorization-first tenant-safe cache epic",
       "id": "improvement_authorization_first_cache_epic"
     },
@@ -4556,7 +4478,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 34,
+      "community": 30,
       "norm_label": "report runtime and reconciliation epic",
       "id": "improvement_report_runtime_reconciliation_epic"
     },
@@ -4569,7 +4491,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 14,
+      "community": 13,
       "norm_label": "ledger application service",
       "id": "improvement_ledger_application_service"
     },
@@ -4582,7 +4504,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 14,
+      "community": 13,
       "norm_label": "recurring exactly-once execution",
       "id": "improvement_recurring_exactly_once"
     },
@@ -4595,7 +4517,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 14,
+      "community": 13,
       "norm_label": "atomic idempotent import batch",
       "id": "improvement_atomic_import_batch"
     },
@@ -4608,7 +4530,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 97,
+      "community": 93,
       "norm_label": "executable ci quality gates",
       "id": "improvement_ci_quality_gates"
     },
@@ -4621,7 +4543,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 101,
+      "community": 94,
       "norm_label": "immutable audit trail and reconciliation",
       "id": "improvement_immutable_audit_reconciliation"
     },
@@ -4634,7 +4556,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 101,
+      "community": 94,
       "norm_label": "auditability precedes more generative ai rationale",
       "id": "improvement_immutable_audit_priority_rationale"
     },
@@ -4647,7 +4569,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 14,
+      "community": 13,
       "norm_label": "policy-ledger-exactly-once dependency sequence",
       "id": "improvement_dependency_sequence"
     },
@@ -4660,7 +4582,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 127,
+      "community": 123,
       "norm_label": "evidence-to-observed risk status workflow",
       "id": "improvement_evidence_status_workflow"
     },
@@ -4673,7 +4595,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 45,
+      "community": 40,
       "norm_label": "delay new write features until stabilization rationale",
       "id": "improvement_delay_feature_expansion_rationale"
     },
@@ -4686,7 +4608,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 57,
+      "community": 53,
       "norm_label": "do not fake multi-currency aggregation rationale",
       "id": "improvement_no_fake_multicurrency_rationale"
     },
@@ -4699,7 +4621,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 46,
+      "community": 41,
       "norm_label": "p0-b authorization and versioned cache plan",
       "id": "p0b_versioned_cache_plan"
     },
@@ -4712,7 +4634,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 128,
+      "community": 124,
       "norm_label": "cache rollback must preserve authorization",
       "id": "cache_rollback_policy"
     },
@@ -4725,7 +4647,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 46,
+      "community": 41,
       "norm_label": "remediation evidence state machine",
       "id": "evidence_state_machine"
     },
@@ -4738,7 +4660,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 46,
+      "community": 41,
       "norm_label": "phase 0 cache remediation",
       "id": "phase0_cache_remediation"
     },
@@ -4751,7 +4673,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 129,
+      "community": 125,
       "norm_label": "postgresql revision survives redis outage and restart",
       "id": "postgres_revision_rationale"
     },
@@ -4764,7 +4686,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 46,
+      "community": 41,
       "norm_label": "phase 0 not released or observed",
       "id": "phase0_not_released_observed"
     },
@@ -5336,7 +5258,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 19,
+      "community": 16,
       "norm_label": "architecture performance and operations analysis",
       "id": "architecture_operations_analysis"
     },
@@ -5349,7 +5271,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 19,
+      "community": 16,
       "norm_label": "modular monolith policy ledger report and cache boundaries",
       "id": "architecture_modular_monolith"
     },
@@ -5362,7 +5284,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 19,
+      "community": 16,
       "norm_label": "express app and server startup separation",
       "id": "architecture_app_server_separation"
     },
@@ -5375,7 +5297,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 19,
+      "community": 16,
       "norm_label": "bounded database aggregation and pagination",
       "id": "architecture_bounded_db_aggregation"
     },
@@ -5388,7 +5310,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 19,
+      "community": 16,
       "norm_label": "ci coverage integration and frontend behavior gates",
       "id": "architecture_ci_quality_gates"
     },
@@ -5401,7 +5323,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 19,
+      "community": 16,
       "norm_label": "observability degradation and recovery contracts",
       "id": "architecture_observability_recovery"
     },
@@ -5414,7 +5336,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 19,
+      "community": 16,
       "norm_label": "microservices would amplify transaction retry and operations cost",
       "id": "architecture_modular_monolith_rationale"
     },
@@ -5427,7 +5349,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 19,
+      "community": 16,
       "norm_label": "measure query count bundle graph and recovery before setting targets",
       "id": "architecture_measure_before_targets_rationale"
     },
@@ -5648,7 +5570,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 130,
+      "community": 126,
       "norm_label": "dynamic family financial reporting",
       "id": "family_finance_design_dynamic_reporting"
     },
@@ -5713,7 +5635,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 58,
+      "community": 54,
       "norm_label": "vite react typescript template",
       "id": "frontend_README_vite_react_template"
     },
@@ -5726,7 +5648,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 58,
+      "community": 54,
       "norm_label": "react compiler disabled",
       "id": "frontend_README_react_compiler_disabled"
     },
@@ -5739,7 +5661,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 58,
+      "community": 54,
       "norm_label": "development and build performance rationale",
       "id": "frontend_README_build_performance_rationale"
     },
@@ -5908,7 +5830,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 131,
+      "community": 127,
       "norm_label": "desktop login screenshot",
       "id": "file:docs/audit/evidence/login-desktop.png"
     },
@@ -5921,7 +5843,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 132,
+      "community": 128,
       "norm_label": "labeled login form",
       "id": "concept:login-form"
     },
@@ -5934,7 +5856,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 133,
+      "community": 129,
       "norm_label": "desktop reports screenshot",
       "id": "file:docs/audit/evidence/reports-desktop.png"
     },
@@ -5947,7 +5869,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 134,
+      "community": 130,
       "norm_label": "financial reports dashboard ui",
       "id": "concept:reports-dashboard-ui"
     },
@@ -5960,7 +5882,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 35,
+      "community": 31,
       "norm_label": "gradient lightning-bolt favicon",
       "id": "favicon_gradient_lightning_bolt_mark"
     },
@@ -5973,7 +5895,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 35,
+      "community": 31,
       "norm_label": "lightning-bolt silhouette",
       "id": "favicon_lightning_bolt_silhouette"
     },
@@ -5986,7 +5908,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 35,
+      "community": 31,
       "norm_label": "purple-cyan glow palette",
       "id": "favicon_purple_cyan_glow_palette"
     },
@@ -5999,7 +5921,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 35,
+      "community": 31,
       "norm_label": "mask-clipped blurred ellipse shading",
       "id": "favicon_mask_clipped_blurred_ellipse_shading"
     },
@@ -6012,7 +5934,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 35,
+      "community": 31,
       "norm_label": "compact browser identity mark",
       "id": "favicon_compact_browser_identity_mark"
     },
@@ -6181,7 +6103,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 29,
+      "community": 27,
       "norm_label": "layered stack hero illustration",
       "id": "hero_layered_stack_illustration"
     },
@@ -6194,7 +6116,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 29,
+      "community": 27,
       "norm_label": "upper rounded layer",
       "id": "hero_upper_rounded_layer"
     },
@@ -6207,7 +6129,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 29,
+      "community": 27,
       "norm_label": "purple foundation layer",
       "id": "hero_lower_purple_foundation_layer"
     },
@@ -6220,7 +6142,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 29,
+      "community": 27,
       "norm_label": "dashed inter-layer guides",
       "id": "hero_inter_layer_guides"
     },
@@ -6233,7 +6155,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 29,
+      "community": 27,
       "norm_label": "layered system architecture metaphor",
       "id": "hero_layered_architecture_metaphor"
     },
@@ -6246,7 +6168,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 29,
+      "community": 27,
       "norm_label": "depth through layer separation",
       "id": "hero_depth_separation"
     },
@@ -6259,7 +6181,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 25,
+      "community": 22,
       "norm_label": "react svg logo asset",
       "id": "react_svg_asset"
     },
@@ -6272,7 +6194,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 25,
+      "community": 22,
       "norm_label": "react framework brand",
       "id": "react_framework_brand"
     },
@@ -6285,7 +6207,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 25,
+      "community": 22,
       "norm_label": "atom-like orbital mark",
       "id": "react_atom_like_mark"
     },
@@ -6298,7 +6220,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 25,
+      "community": 22,
       "norm_label": "cyan brand color #00d8ff",
       "id": "react_cyan_brand_color"
     },
@@ -6311,7 +6233,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 25,
+      "community": 22,
       "norm_label": "accessibility tree exclusion",
       "id": "react_svg_accessibility_exclusion"
     },
@@ -6324,7 +6246,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 25,
+      "community": 22,
       "norm_label": "image role semantics",
       "id": "react_svg_image_role"
     },
@@ -6337,7 +6259,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 25,
+      "community": 22,
       "norm_label": "centered aspect-ratio-preserving scaling",
       "id": "react_svg_responsive_scaling"
     },
@@ -6350,7 +6272,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 36,
+      "community": 32,
       "norm_label": "vite brand mark",
       "id": "vite_vite_brand_mark"
     },
@@ -6363,7 +6285,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 36,
+      "community": 32,
       "norm_label": "lightning bolt symbol",
       "id": "vite_lightning_bolt_symbol"
     },
@@ -6376,7 +6298,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 36,
+      "community": 32,
       "norm_label": "parenthesis frame",
       "id": "vite_parenthesis_frame"
     },
@@ -6389,7 +6311,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 36,
+      "community": 32,
       "norm_label": "purple-blue gradient",
       "id": "vite_purple_blue_gradient"
     },
@@ -6402,7 +6324,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 36,
+      "community": 32,
       "norm_label": "theme-adaptive contrast",
       "id": "vite_theme_adaptive_contrast"
     },
@@ -6415,74 +6337,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 135,
+      "community": 131,
       "norm_label": "server owns process lifecycle",
       "id": "phase1_server_owns_process_lifecycle"
-    },
-    {
-      "label": "P1-G-00 REFACTORED and AT_RISK",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "\u00a74 Task table, line 61",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 136,
-      "norm_label": "p1-g-00 refactored and at_risk",
-      "id": "phase1_g00_refactored_at_risk"
-    },
-    {
-      "label": "P1-A-02 REFACTORED and AT_RISK",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "\u00a74 Task table, line 63",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 59,
-      "norm_label": "p1-a-02 refactored and at_risk",
-      "id": "phase1_a02_refactored_at_risk"
-    },
-    {
-      "label": "PostgreSQL Test Environment Unavailable",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "Current snapshot, line 9; blocker register, lines 110-115",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 137,
-      "norm_label": "postgresql test environment unavailable",
-      "id": "phase1_postgresql_test_environment_unavailable"
-    },
-    {
-      "label": "Backend Coverage Gate Failed Against 60 Percent Threshold",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "\u00a72 Baseline evidence, line 29",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 59,
-      "norm_label": "backend coverage gate failed against 60 percent threshold",
-      "id": "phase1_coverage_gate_failed"
-    },
-    {
-      "label": "P1-0-07 EVIDENCE_CONFIRMED and AT_RISK",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "\u00a74 Task table, line 60",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 59,
-      "norm_label": "p1-0-07 evidence_confirmed and at_risk",
-      "id": "phase1_0_07_evidence_confirmed_at_risk"
     },
     {
       "label": "Database-First Idempotency and Concurrency Plan",
@@ -6493,35 +6350,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 138,
+      "community": 132,
       "norm_label": "database-first idempotency and concurrency plan",
       "id": "phase1_database_first_idempotency_plan"
-    },
-    {
-      "label": "Phase 1 Amendment Commit db98a00",
-      "file_type": "document",
-      "source_file": "docs/project-memory.md",
-      "source_location": "\u00a76 Phase 1 implementation facts, line 94",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 11,
-      "norm_label": "phase 1 amendment commit db98a00",
-      "id": "phase1_hash_refresh_db98a00"
-    },
-    {
-      "label": "App, Server, and Prisma Ownership Separation",
-      "file_type": "document",
-      "source_file": "docs/project-memory.md",
-      "source_location": "\u00a73 System map, line 27; \u00a76 Phase 1 implementation facts, line 93",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 15,
-      "norm_label": "app, server, and prisma ownership separation",
-      "id": "phase1_hash_refresh_process_boundary"
     },
     {
       "label": "App Import Isolation PASS-MOCK",
@@ -6532,7 +6363,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 15,
+      "community": 23,
       "norm_label": "app import isolation pass-mock",
       "id": "phase1_hash_refresh_app_isolation_mock"
     },
@@ -6545,22 +6376,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 15,
+      "community": 133,
       "norm_label": "server owns startup, shutdown, and external initialization",
       "id": "phase1_hash_refresh_server_lifecycle"
-    },
-    {
-      "label": "Pure Ledger and Coordinator Contracts",
-      "file_type": "document",
-      "source_file": "docs/project-memory.md",
-      "source_location": "\u00a76 Phase 1 implementation facts, line 94",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 11,
-      "norm_label": "pure ledger and coordinator contracts",
-      "id": "phase1_hash_refresh_ledger_contracts"
     },
     {
       "label": "Top-Level effectiveDate Command Boundary",
@@ -6571,7 +6389,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 11,
+      "community": 42,
       "norm_label": "top-level effectivedate command boundary",
       "id": "phase1_hash_refresh_top_level_effective_date"
     },
@@ -6584,7 +6402,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 11,
+      "community": 42,
       "norm_label": "effectivedate validated before authorization or mutation",
       "id": "phase1_hash_refresh_effective_date_prevalidation"
     },
@@ -6597,7 +6415,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 11,
+      "community": 42,
       "norm_label": "focused ledger run passes 2 suites and 12 tests",
       "id": "phase1_hash_refresh_ledger_12_tests"
     },
@@ -6610,7 +6428,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 11,
+      "community": 42,
       "norm_label": "viewer denial has zero financial side effects in mock tests",
       "id": "phase1_hash_refresh_viewer_zero_effect_mock"
     },
@@ -6623,35 +6441,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 11,
+      "community": 95,
       "norm_label": "p1-a-02 evidence is pass-mock",
       "id": "phase1_hash_refresh_a02_pass_mock"
-    },
-    {
-      "label": "Income and Expense Routes Have Not Adopted Ledger Services",
-      "file_type": "document",
-      "source_file": "docs/project-memory.md",
-      "source_location": "\u00a76 Phase 1 implementation facts, line 95; \u00a77 Risk status, line 102",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 11,
-      "norm_label": "income and expense routes have not adopted ledger services",
-      "id": "phase1_hash_refresh_routes_not_adopted"
-    },
-    {
-      "label": "IdempotencyRecord and AuditEvent Are Absent from Prisma",
-      "file_type": "document",
-      "source_file": "docs/project-memory.md",
-      "source_location": "\u00a76 Phase 1 implementation facts, line 95",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 139,
-      "norm_label": "idempotencyrecord and auditevent are absent from prisma",
-      "id": "phase1_hash_refresh_models_absent"
     },
     {
       "label": "Cross-Platform Jest Integration Isolation",
@@ -6662,7 +6454,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 11,
+      "community": 55,
       "norm_label": "cross-platform jest integration isolation",
       "id": "phase1_hash_refresh_jest_cross_platform"
     },
@@ -6675,7 +6467,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 11,
+      "community": 55,
       "norm_label": "only exact run_integration=1 enables database tests",
       "id": "phase1_hash_refresh_exact_integration_opt_in"
     },
@@ -6688,7 +6480,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 11,
+      "community": 55,
       "norm_label": "run_integration values 0 and false stay opted out",
       "id": "phase1_hash_refresh_falsey_env_regression"
     },
@@ -6701,7 +6493,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 15,
+      "community": 23,
       "norm_label": "global branch coverage is 43.17 percent",
       "id": "phase1_hash_refresh_coverage_43_17"
     },
@@ -6714,22 +6506,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 15,
+      "community": 23,
       "norm_label": "coverage gate fails the 60 percent branch threshold",
       "id": "phase1_hash_refresh_coverage_gate_failed"
-    },
-    {
-      "label": "Prisma Validate Passes with Matching Local 5.22 Engines",
-      "file_type": "document",
-      "source_file": "docs/project-memory.md",
-      "source_location": "\u00a76 Phase 1 implementation facts, line 96",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 15,
-      "norm_label": "prisma validate passes with matching local 5.22 engines",
-      "id": "phase1_hash_refresh_prisma_validate_pass"
     },
     {
       "label": "Prisma Format Gate Remains Open",
@@ -6740,7 +6519,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 15,
+      "community": 23,
       "norm_label": "prisma format gate remains open",
       "id": "phase1_hash_refresh_prisma_format_open"
     },
@@ -6753,7 +6532,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 15,
+      "community": 23,
       "norm_label": "real postgresql evidence is unavailable",
       "id": "phase1_hash_refresh_postgresql_unavailable"
     },
@@ -6766,7 +6545,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 15,
+      "community": 23,
       "norm_label": "real startup dependencies and infrastructure remain unobserved",
       "id": "phase1_hash_refresh_real_infrastructure_unobserved"
     },
@@ -6779,7 +6558,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 15,
+      "community": 23,
       "norm_label": "p1-g-00 remains refactored and at_risk",
       "id": "phase1_hash_refresh_g00_refactored_at_risk"
     },
@@ -6792,7 +6571,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 11,
+      "community": 95,
       "norm_label": "adr-0001 and adr-0002 remain proposed references",
       "id": "phase1_hash_refresh_adrs_proposed_only"
     },
@@ -6805,22 +6584,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 14,
       "norm_label": "p1-b-04 local postgresql 18.1 pass-real",
       "id": "p1_b04_local_postgresql_181_pass_real"
-    },
-    {
-      "label": "P1-B-04 coordinator concurrency/replay REGRESSION_VERIFIED locally",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "\u00a74 task table line 72",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 4,
-      "norm_label": "p1-b-04 coordinator concurrency/replay regression_verified locally",
-      "id": "p1_b04_regression_verified_gate"
     },
     {
       "label": "20 identical createIncome requests",
@@ -6831,7 +6597,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 14,
       "norm_label": "20 identical createincome requests",
       "id": "p1_b04_twenty_identical_createincome"
     },
@@ -6844,7 +6610,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 14,
       "norm_label": "one committed mutation and 19 replays",
       "id": "p1_b04_one_committed_mutation"
     },
@@ -6857,7 +6623,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 14,
       "norm_label": "single income record after concurrent replay",
       "id": "p1_b04_single_income_record"
     },
@@ -6870,7 +6636,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 14,
       "norm_label": "single idempotencyrecord after concurrent replay",
       "id": "p1_b04_single_idempotency_record"
     },
@@ -6883,7 +6649,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 14,
       "norm_label": "single auditevent after concurrent replay",
       "id": "p1_b04_single_audit_event"
     },
@@ -6896,7 +6662,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 14,
       "norm_label": "response-loss replay passes",
       "id": "p1_b04_response_loss_replay"
     },
@@ -6909,7 +6675,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 14,
       "norm_label": "same key with different payload is rejected without second write",
       "id": "p1_b04_same_key_different_payload"
     },
@@ -6922,22 +6688,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 14,
       "norm_label": "stale-version competition passes",
       "id": "p1_b04_stale_version_arbitration"
-    },
-    {
-      "label": "Income/Expense routes still bypass coordinator",
-      "file_type": "document",
-      "source_file": "docs/project-memory.md",
-      "source_location": "lines 95, 98; P1-B-02/P1-B-04 remaining risks",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 4,
-      "norm_label": "income/expense routes still bypass coordinator",
-      "id": "income_expense_routes_bypass_coordinator"
     },
     {
       "label": "Import/recurring/AI mutation adoption remains open",
@@ -6948,7 +6701,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 134,
       "norm_label": "import/recurring/ai mutation adoption remains open",
       "id": "phase1_import_recurring_ai_adoption_open"
     },
@@ -6961,7 +6714,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 135,
       "norm_label": "populated upgrade/restore remains unverified",
       "id": "phase1_upgrade_restore_open"
     },
@@ -6974,35 +6727,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 136,
       "norm_label": "staging/release observation remains open",
       "id": "phase1_staging_release_open"
-    },
-    {
-      "label": "Global coverage gate remains below threshold",
-      "file_type": "document",
-      "source_file": "docs/project-memory.md",
-      "source_location": "line 96; tracker baseline row 29",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 4,
-      "norm_label": "global coverage gate remains below threshold",
-      "id": "phase1_global_coverage_gate_open"
-    },
-    {
-      "label": "End-to-end production exactly-once remains unverified",
-      "file_type": "document",
-      "source_file": "docs/project-memory.md",
-      "source_location": "lines 95, 98",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 4,
-      "norm_label": "end-to-end production exactly-once remains unverified",
-      "id": "phase1_production_exactly_once_unverified"
     },
     {
       "label": "P1-B-02 coordinator focused tests PASS 14/14",
@@ -7013,7 +6740,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 60,
+      "community": 96,
       "norm_label": "p1-b-02 coordinator focused tests pass 14/14",
       "id": "p1_b02_focused_14_of_14"
     },
@@ -7026,7 +6753,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 60,
+      "community": 96,
       "norm_label": "p1-b-02 pure coordinator contract remains pass-mock",
       "id": "p1_b02_pass_mock_contract"
     },
@@ -7039,7 +6766,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 61,
+      "community": 97,
       "norm_label": "p1-b-01 schema and migration pass-real",
       "id": "p1_b01_schema_pass_real"
     },
@@ -7052,7 +6779,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 61,
+      "community": 97,
       "norm_label": "p1-g-01 postgresql migration and rollback primitives pass-real",
       "id": "p1_g01_postgresql_migration_pass_real"
     },
@@ -7065,100 +6792,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 140,
+      "community": 137,
       "norm_label": "p1-0-05 adr-0001/0002 contract accepted (decision evidence)",
       "id": "p1_0_05_adr_contract_accepted"
-    },
-    {
-      "label": "Phase 1 backend baseline: 31 suites and 265 tests pass",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "\u00a72 baseline rows 29-30; \u00a74 task notes",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 102,
-      "norm_label": "phase 1 backend baseline: 31 suites and 265 tests pass",
-      "id": "phase1_tracker_baseline_31_suites_265_tests"
-    },
-    {
-      "label": "Historical P1-B-04 RED/P1000 blocked attempt (superseded by PASS-REAL)",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "line 9 historical snapshot; superseded by line 72 and P1-B-04 evidence",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 4,
-      "norm_label": "historical p1-b-04 red/p1000 blocked attempt (superseded by pass-real)",
-      "id": "phase1_b04_postgresql_concurrency_blocked"
-    },
-    {
-      "label": "Historical P1-B-02 REFACTORED/AT_RISK snapshot (superseded by focused 14/14 evidence)",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "line 70 historical status; current contract evidence in P1-B-02 card",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 60,
-      "norm_label": "historical p1-b-02 refactored/at_risk snapshot (superseded by focused 14/14 evidence)",
-      "id": "phase1_b02_refactored_at_risk"
-    },
-    {
-      "label": "Historical P1-B-01 schema backlog snapshot (superseded by PASS-REAL migration evidence)",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "line 69 historical status; current status is REFACTORED/AT_RISK",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 61,
-      "norm_label": "historical p1-b-01 schema backlog snapshot (superseded by pass-real migration evidence)",
-      "id": "phase1_b01_schema_backlog"
-    },
-    {
-      "label": "Historical database-arbitrated idempotency unverified snapshot (superseded by P1-B-04 local evidence)",
-      "file_type": "document",
-      "source_file": "docs/project-memory.md",
-      "source_location": "historical \u00a76 wording superseded by current lines 95-98",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 4,
-      "norm_label": "historical database-arbitrated idempotency unverified snapshot (superseded by p1-b-04 local evidence)",
-      "id": "phase1_hash_refresh_database_idempotency_open"
-    },
-    {
-      "label": "Historical 30-suite/256-test baseline snapshot (superseded by 31-suite/265-test baseline)",
-      "file_type": "document",
-      "source_file": "docs/project-memory.md",
-      "source_location": "historical \u00a76 wording superseded by current line 96",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 102,
-      "norm_label": "historical 30-suite/256-test baseline snapshot (superseded by 31-suite/265-test baseline)",
-      "id": "phase1_hash_refresh_default_suite"
-    },
-    {
-      "label": "P1-A-03 Ledger Transaction Orchestration Skeleton",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "\u00a74, P1-A-03 row",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 47,
-      "norm_label": "p1-a-03 ledger transaction orchestration skeleton",
-      "id": "p1_a_03_task"
     },
     {
       "label": "Income or Expense Ledger Fact",
@@ -7169,7 +6805,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 141,
+      "community": 138,
       "norm_label": "income or expense ledger fact",
       "id": "ledger_fact"
     },
@@ -7182,7 +6818,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 47,
+      "community": 139,
       "norm_label": "p1-a-03 pass-mock evidence",
       "id": "p1_a_03_pass_mock_evidence"
     },
@@ -7195,35 +6831,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 47,
+      "community": 140,
       "norm_label": "global branch and function coverage gate",
       "id": "global_coverage_gate"
-    },
-    {
-      "label": "P1-A-03 pre-audit resourceId validation",
-      "file_type": "document",
-      "source_file": "docs/project-memory.md",
-      "source_location": "line 105",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 47,
-      "norm_label": "p1-a-03 pre-audit resourceid validation",
-      "id": "p1_a03_pre_audit_resourceid_validation"
-    },
-    {
-      "label": "P1-B-04 unclassified INTERNAL_ERROR risk",
-      "file_type": "document",
-      "source_file": "docs/project-memory.md",
-      "source_location": "line 98",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 4,
-      "norm_label": "p1-b-04 unclassified internal_error risk",
-      "id": "p1_b04_unclassified_internal_error_risk"
     },
     {
       "label": "P1-B-04 raw Prisma error capture required",
@@ -7234,7 +6844,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 141,
       "norm_label": "p1-b-04 raw prisma error capture required",
       "id": "p1_b04_raw_prisma_error_capture_required"
     },
@@ -7247,7 +6857,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 23,
+      "community": 20,
       "norm_label": "domainerror.cause",
       "id": "ledgererrors_domainerror_cause"
     },
@@ -7260,7 +6870,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 23,
+      "community": 20,
       "norm_label": "raw prisma cause preservation test",
       "id": "financialmutationcoordinator_test_raw_prisma_cause_preservation"
     },
@@ -7273,7 +6883,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 30,
+      "community": 56,
       "norm_label": "p1-b-04 raw prisma error cause",
       "id": "p1_b_04_prisma_raw_error_cause"
     },
@@ -7286,7 +6896,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 30,
+      "community": 56,
       "norm_label": "stable client error contract",
       "id": "p1_b_04_stable_client_error_contract"
     },
@@ -7299,7 +6909,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 30,
+      "community": 56,
       "norm_label": "future failure diagnostic classification",
       "id": "p1_b_04_diagnostic_classification"
     },
@@ -7312,291 +6922,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 30,
+      "community": 142,
       "norm_label": "unclassified real-failure risk",
       "id": "p1_b_04_unclassified_real_failure_risk"
-    },
-    {
-      "label": "P1-B-04 PostgreSQL Concurrency Arbitration Gate",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "L72",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 30,
-      "norm_label": "p1-b-04 postgresql concurrency arbitration gate",
-      "id": "p1_b_04_postgresql_arbitration_gate"
-    },
-    {
-      "label": "P1-B-04 AT_RISK Status",
-      "file_type": "document",
-      "source_file": "docs/project-memory.md",
-      "source_location": "L98",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 30,
-      "norm_label": "p1-b-04 at_risk status",
-      "id": "project_memory_p1_b_04_at_risk_status"
-    },
-    {
-      "label": "P1-G-06 Coverage Quality Gate",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L4",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 37,
-      "norm_label": "p1-g-06 coverage quality gate",
-      "id": "p1_g_06_coverage_quality_gate"
-    },
-    {
-      "label": "P1-G-06 Branch Coverage 45.18 Percent Below 60 Percent Gate",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L12",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 37,
-      "norm_label": "p1-g-06 branch coverage 45.18 percent below 60 percent gate",
-      "id": "p1_g_06_failed_coverage_baseline"
-    },
-    {
-      "label": "Behavior-Focused Prisma Adapter Contract Tests",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L10, L17",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 37,
-      "norm_label": "behavior-focused prisma adapter contract tests",
-      "id": "p1_g_06_behavior_focused_coverage_tests"
-    },
-    {
-      "label": "Coverage Threshold Reduction Is Not a Remedy",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L17",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 37,
-      "norm_label": "coverage threshold reduction is not a remedy",
-      "id": "p1_g_06_threshold_reduction_not_remedy"
-    },
-    {
-      "label": "Prisma Financial-Mutation Adapter Contract Tests",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L10",
-      "community": 37,
-      "norm_label": "prisma financial-mutation adapter contract tests",
-      "id": "p1_g_06_prisma_adapter_contract_tests"
-    },
-    {
-      "label": "Phase 1 Prisma financial-mutation adapter facts",
-      "file_type": "document",
-      "source_file": "docs/project-memory.md",
-      "source_location": "L96",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 17,
-      "norm_label": "phase 1 prisma financial-mutation adapter facts",
-      "id": "project_memory_phase1_adapter_facts"
-    },
-    {
-      "label": "P1-G-06 coverage/lint/advisory gate",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "L100",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 31,
-      "norm_label": "p1-g-06 coverage/lint/advisory gate",
-      "id": "tracker_p1_g_06_quality_gate"
-    },
-    {
-      "label": "P1-G-06 Prisma adapter JSON-boundary quality slice",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L6",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 17,
-      "norm_label": "p1-g-06 prisma adapter json-boundary quality slice",
-      "id": "evidence_p1_g_06_json_boundary_slice"
-    },
-    {
-      "label": "Prisma financial-mutation adapter",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L8",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 17,
-      "norm_label": "prisma financial-mutation adapter",
-      "id": "prisma_financial_mutation_adapter"
-    },
-    {
-      "label": "toJson() finite-number validation",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L11",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 17,
-      "norm_label": "tojson() finite-number validation",
-      "id": "tojson_finite_number_validation"
-    },
-    {
-      "label": "Non-finite JSON numbers: NaN, Infinity, and -Infinity",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L11",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 17,
-      "norm_label": "non-finite json numbers: nan, infinity, and -infinity",
-      "id": "non_finite_json_numbers"
-    },
-    {
-      "label": "JSON rejection before Prisma persistence",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L11",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 17,
-      "norm_label": "json rejection before prisma persistence",
-      "id": "pre_persistence_json_rejection"
-    },
-    {
-      "label": "Prisma adapter contract tests",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L13",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 17,
-      "norm_label": "prisma adapter contract tests",
-      "id": "adapter_contract_tests"
-    },
-    {
-      "label": "Malformed and unsupported JSON boundary inputs",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L14",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 17,
-      "norm_label": "malformed and unsupported json boundary inputs",
-      "id": "financial_json_boundary_inputs"
-    },
-    {
-      "label": "IdempotencyRecord, AuditEvent, and other adapter writes",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L11",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 17,
-      "norm_label": "idempotencyrecord, auditevent, and other adapter writes",
-      "id": "prisma_financial_adapter_writes"
-    },
-    {
-      "label": "Required global coverage command",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L9",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 31,
-      "norm_label": "required global coverage command",
-      "id": "required_global_coverage_command"
-    },
-    {
-      "label": "33 backend suites and 276 tests",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L13",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 31,
-      "norm_label": "33 backend suites and 276 tests",
-      "id": "backend_test_suite_33_276"
-    },
-    {
-      "label": "Coverage: 62.16% statements, 45.23% branches, 62.18% functions, 62.58% lines",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L13",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 31,
-      "norm_label": "coverage: 62.16% statements, 45.23% branches, 62.18% functions, 62.58% lines",
-      "id": "coverage_measurement_p1_g_06"
-    },
-    {
-      "label": "60% global branch coverage threshold",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L10",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 31,
-      "norm_label": "60% global branch coverage threshold",
-      "id": "global_branch_threshold_60"
-    },
-    {
-      "label": "P1-G-06 quality gate remains FAILED",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L18",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 31,
-      "norm_label": "p1-g-06 quality gate remains failed",
-      "id": "p1_g_06_gate_failed"
     },
     {
       "label": "prismaFinancialMutationStore.ts",
@@ -7733,19 +7061,6 @@
       "id": "concept:map-set-regexp-json-inputs"
     },
     {
-      "label": "Ordinary and null-prototype JSON objects",
-      "file_type": "document",
-      "source_file": "docs/project-memory.md",
-      "source_location": "Phase 1 implementation facts",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 3,
-      "norm_label": "ordinary and null-prototype json objects",
-      "id": "concept:ordinary-and-null-prototype-json-objects"
-    },
-    {
       "label": "Pre-persistence JSON validation",
       "file_type": "code",
       "source_file": "backend/src/services/prismaFinancialMutationStore.test.ts",
@@ -7759,58 +7074,6 @@
       "id": "concept:pre-persistence-json-validation"
     },
     {
-      "label": "P1-G-06 regression results on 2026-08-31",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "Regression commands/results",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 3,
-      "norm_label": "p1-g-06 regression results on 2026-08-31",
-      "id": "evidence:p1-g-06-regression-results-2026-08-31"
-    },
-    {
-      "label": "Backend test run: 33 suites and 279 tests",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "Regression commands/results",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 3,
-      "norm_label": "backend test run: 33 suites and 279 tests",
-      "id": "evidence:backend-tests-33-suites-279-tests"
-    },
-    {
-      "label": "Backend coverage: statements 62.21%, branches 45.38%, functions 62.18%, lines 62.63%",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "Regression commands/results",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 3,
-      "norm_label": "backend coverage: statements 62.21%, branches 45.38%, functions 62.18%, lines 62.63%",
-      "id": "evidence:backend-coverage-62-21-45-38-62-18-62-63"
-    },
-    {
-      "label": "Global branch-coverage gate remains failed",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "Regression commands/results",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 3,
-      "norm_label": "global branch-coverage gate remains failed",
-      "id": "risk:global-branch-coverage-gate-failed"
-    },
-    {
       "label": "P1-A-03 service-boundary hardening",
       "file_type": "document",
       "source_file": "docs/delivery/phase-1/evidence/P1-A-03.md",
@@ -7819,9 +7082,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "p1-a-03-service-boundary-hardening",
-      "community": 32,
-      "norm_label": "p1-a-03 service-boundary hardening"
+      "community": 33,
+      "norm_label": "p1-a-03 service-boundary hardening",
+      "id": "p1-a-03-service-boundary-hardening"
     },
     {
       "label": "Coordinator pre-audit resourceId result guard",
@@ -7832,9 +7095,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "p1-a-03-pre-audit-resource-id-guard",
-      "community": 32,
-      "norm_label": "coordinator pre-audit resourceid result guard"
+      "community": 33,
+      "norm_label": "coordinator pre-audit resourceid result guard",
+      "id": "p1-a-03-pre-audit-resource-id-guard"
     },
     {
       "label": "VALIDATION_FAILED for an empty or whitespace-only resourceId",
@@ -7845,9 +7108,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "p1-a-03-validation-failed-invalid-resource-id",
-      "community": 32,
-      "norm_label": "validation_failed for an empty or whitespace-only resourceid"
+      "community": 33,
+      "norm_label": "validation_failed for an empty or whitespace-only resourceid",
+      "id": "p1-a-03-validation-failed-invalid-resource-id"
     },
     {
       "label": "Real PostgreSQL failure-injection rollback test",
@@ -7858,9 +7121,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "p1-a-03-real-postgresql-failure-injection",
-      "community": 32,
-      "norm_label": "real postgresql failure-injection rollback test"
+      "community": 33,
+      "norm_label": "real postgresql failure-injection rollback test",
+      "id": "p1-a-03-real-postgresql-failure-injection"
     },
     {
       "label": "Invalid-result rollback leaves Income, IdempotencyRecord, and AuditEvent unchanged",
@@ -7871,31 +7134,415 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "p1-a-03-transactional-zero-persistence",
-      "community": 32,
-      "norm_label": "invalid-result rollback leaves income, idempotencyrecord, and auditevent unchanged"
-    },
-    {
-      "label": "P1-A-03 PASS-REAL PostgreSQL rollback evidence",
-      "file_type": "document",
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "Current snapshot; P1-A-03 task row",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "id": "p1-a-03-pass-real-postgresql-evidence",
-      "community": 32,
-      "norm_label": "p1-a-03 pass-real postgresql rollback evidence"
+      "community": 33,
+      "norm_label": "invalid-result rollback leaves income, idempotencyrecord, and auditevent unchanged",
+      "id": "p1-a-03-transactional-zero-persistence"
     },
     {
       "label": "crypto",
       "file_type": "code",
       "source_file": "crypto",
       "source_location": null,
-      "id": "external_crypto",
       "community": 3,
-      "norm_label": "crypto"
+      "norm_label": "crypto",
+      "id": "external_crypto"
+    },
+    {
+      "label": "minio.ts",
+      "file_type": "code",
+      "source_file": "backend\\src\\config\\minio.ts",
+      "source_location": "L1",
+      "id": "backend_src_config_minio_ts",
+      "community": 4,
+      "norm_label": "minio.ts"
+    },
+    {
+      "label": "ensureBucket()",
+      "file_type": "code",
+      "source_file": "backend\\src\\config\\minio.ts",
+      "source_location": "L29",
+      "id": "minio_ensurebucket",
+      "community": 4,
+      "norm_label": "ensurebucket()"
+    },
+    {
+      "label": "uploadFile()",
+      "file_type": "code",
+      "source_file": "backend\\src\\config\\minio.ts",
+      "source_location": "L37",
+      "id": "minio_uploadfile",
+      "community": 4,
+      "norm_label": "uploadfile()"
+    },
+    {
+      "label": "uploadFileBuffer()",
+      "file_type": "code",
+      "source_file": "backend\\src\\config\\minio.ts",
+      "source_location": "L46",
+      "id": "minio_uploadfilebuffer",
+      "community": 4,
+      "norm_label": "uploadfilebuffer()"
+    },
+    {
+      "label": "getFileUrl()",
+      "file_type": "code",
+      "source_file": "backend\\src\\config\\minio.ts",
+      "source_location": "L56",
+      "id": "minio_getfileurl",
+      "community": 4,
+      "norm_label": "getfileurl()"
+    },
+    {
+      "label": "deleteFile()",
+      "file_type": "code",
+      "source_file": "backend\\src\\config\\minio.ts",
+      "source_location": "L60",
+      "id": "minio_deletefile",
+      "community": 4,
+      "norm_label": "deletefile()"
+    },
+    {
+      "label": "minio.test.ts",
+      "file_type": "code",
+      "source_file": "backend\\src\\config\\minio.test.ts",
+      "source_location": "L1",
+      "id": "backend_src_config_minio_test_ts",
+      "community": 143,
+      "norm_label": "minio.test.ts"
+    },
+    {
+      "label": "server.test.ts",
+      "file_type": "code",
+      "source_file": "backend\\src\\server.test.ts",
+      "source_location": "L1",
+      "id": "backend_src_server_test_ts",
+      "community": 144,
+      "norm_label": "server.test.ts"
+    },
+    {
+      "label": "Internal MinIO Client",
+      "file_type": "code",
+      "source_file": "backend/src/config/minio.ts",
+      "source_location": "L5-L13",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "minio_internal_client",
+      "community": 98,
+      "norm_label": "internal minio client"
+    },
+    {
+      "label": "Browser-Facing MinIO Client",
+      "file_type": "code",
+      "source_file": "backend/src/config/minio.ts",
+      "source_location": "L16-L25",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "minio_public_client",
+      "community": 43,
+      "norm_label": "browser-facing minio client"
+    },
+    {
+      "label": "Separate Public Endpoint Rationale",
+      "file_type": "code",
+      "source_file": "backend/src/config/minio.ts",
+      "source_location": "L15-L17",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "minio_public_endpoint_rationale",
+      "community": 43,
+      "norm_label": "separate public endpoint rationale"
+    },
+    {
+      "label": "MinIO Object Storage Lifecycle",
+      "file_type": "code",
+      "source_file": "backend/src/config/minio.ts",
+      "source_location": "L29-L64",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "minio_object_lifecycle",
+      "community": 98,
+      "norm_label": "minio object storage lifecycle"
+    },
+    {
+      "label": "Presigned Browser File URL",
+      "file_type": "code",
+      "source_file": "backend/src/config/minio.ts",
+      "source_location": "L56-L57",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "minio_presigned_file_url",
+      "community": 43,
+      "norm_label": "presigned browser file url"
+    },
+    {
+      "label": "MinIO startup failure propagation",
+      "file_type": "code",
+      "source_file": "backend/src/config/minio.ts",
+      "source_location": "L29-L35",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "minio_startup_failure_propagation",
+      "community": 145,
+      "norm_label": "minio startup failure propagation"
+    },
+    {
+      "label": "MinIO Public Endpoint Contract Tests",
+      "file_type": "code",
+      "source_file": "backend/src/config/minio.test.ts",
+      "source_location": "L1-L72",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "minio_public_endpoint_tests",
+      "community": 43,
+      "norm_label": "minio public endpoint contract tests"
+    },
+    {
+      "label": "ensureBucket failure propagation test",
+      "file_type": "code",
+      "source_file": "backend/src/config/minio.test.ts",
+      "source_location": "L74-L88",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "minio_bucket_failure_propagation_test",
+      "community": 4,
+      "norm_label": "ensurebucket failure propagation test"
+    },
+    {
+      "label": "Server lifecycle degraded-startup test",
+      "file_type": "code",
+      "source_file": "backend/src/server.test.ts",
+      "source_location": "L7-L62",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "server_lifecycle_degraded_startup_test",
+      "community": 4,
+      "norm_label": "server lifecycle degraded-startup test"
+    },
+    {
+      "label": "P1-G-06 Coverage Quality Gate",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L1-L4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "p1_g_06_coverage_quality_gate",
+      "community": 28,
+      "norm_label": "p1-g-06 coverage quality gate"
+    },
+    {
+      "label": "Prisma Financial-Mutation Adapter Contract Tests",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L10-L14",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "p1_g_06_prisma_adapter_contract_tests",
+      "community": 28,
+      "norm_label": "prisma financial-mutation adapter contract tests"
+    },
+    {
+      "label": "toJson() finite-number validation",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L11",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "tojson_finite_number_validation",
+      "community": 28,
+      "norm_label": "tojson() finite-number validation"
+    },
+    {
+      "label": "Non-finite JSON numbers: NaN, Infinity, and -Infinity",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L11",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "non_finite_json_numbers",
+      "community": 28,
+      "norm_label": "non-finite json numbers: nan, infinity, and -infinity"
+    },
+    {
+      "label": "JSON rejection before Prisma persistence",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L11-L14",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "pre_persistence_json_rejection",
+      "community": 28,
+      "norm_label": "json rejection before prisma persistence"
+    },
+    {
+      "label": "P1-G-06 regression results on 2026-08-31",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L13",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "p1_g_06_regression_results_2026_08_31",
+      "community": 4,
+      "norm_label": "p1-g-06 regression results on 2026-08-31"
+    },
+    {
+      "label": "Backend test run: 34 suites and 281 tests",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L13",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "p1_g_06_backend_test_run_34_281",
+      "community": 4,
+      "norm_label": "backend test run: 34 suites and 281 tests"
+    },
+    {
+      "label": "Backend coverage: statements 63.22%, branches 46.01%, functions 64.06%, lines 63.58%",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L13",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "p1_g_06_backend_coverage_63_22_46_01_64_06_63_58",
+      "community": 4,
+      "norm_label": "backend coverage: statements 63.22%, branches 46.01%, functions 64.06%, lines 63.58%"
+    },
+    {
+      "label": "P1-G-06 quality gate remains FAILED",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L18",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "p1_g_06_gate_failed",
+      "community": 4,
+      "norm_label": "p1-g-06 quality gate remains failed"
+    },
+    {
+      "label": "MinIO lifecycle-owner degradation evidence",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L11-L18",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "p1_g_06_minio_lifecycle_degradation",
+      "community": 4,
+      "norm_label": "minio lifecycle-owner degradation evidence"
+    },
+    {
+      "label": "P1-G-06 coverage/lint/advisory gate",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
+      "source_location": "L100",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "tracker_p1_g_06_quality_gate",
+      "community": 4,
+      "norm_label": "p1-g-06 coverage/lint/advisory gate"
+    },
+    {
+      "label": "Phase 1 current P1-G-06 quality snapshot",
+      "file_type": "document",
+      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
+      "source_location": "L9",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "phase1_g06_current_snapshot",
+      "community": 4,
+      "norm_label": "phase 1 current p1-g-06 quality snapshot"
+    },
+    {
+      "label": "Phase 1 Prisma financial-mutation adapter facts",
+      "file_type": "document",
+      "source_file": "docs/project-memory.md",
+      "source_location": "L96",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "project_memory_phase1_adapter_facts",
+      "community": 28,
+      "norm_label": "phase 1 prisma financial-mutation adapter facts"
+    },
+    {
+      "label": "MinIO lifecycle-owner startup degradation",
+      "file_type": "document",
+      "source_file": "docs/project-memory.md",
+      "source_location": "L96",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "project_memory_minio_lifecycle_fact",
+      "community": 4,
+      "norm_label": "minio lifecycle-owner startup degradation"
+    },
+    {
+      "label": "Global coverage gate remains below threshold",
+      "file_type": "document",
+      "source_file": "docs/project-memory.md",
+      "source_location": "L96",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "phase1_global_coverage_gate_open",
+      "community": 4,
+      "norm_label": "global coverage gate remains below threshold"
+    },
+    {
+      "label": "minio package",
+      "file_type": "code",
+      "source_file": "backend/src/config/minio.ts",
+      "source_location": "L1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "minio",
+      "community": 4,
+      "norm_label": "minio package"
     }
   ],
   "links": [
@@ -7922,6 +7569,26 @@
       "confidence_score": 1.0,
       "source": "backend_src_server_ts",
       "target": "server_startserver"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/server.ts",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "server_startserver",
+      "target": "minio_ensurebucket"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/server.test.ts",
+      "source_location": "L7-L62",
+      "weight": 1.0,
+      "source": "server_startserver",
+      "target": "server_lifecycle_degraded_startup_test"
     },
     {
       "relation": "references",
@@ -7982,66 +7649,6 @@
       "_tgt": "ai_vision_determinism_rationale",
       "source": "ai_vision_configuration",
       "target": "ai_vision_determinism_rationale"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/config/minio.test.ts",
-      "source_location": "lines 43-71",
-      "weight": 1.0,
-      "_src": "minio_public_endpoint_tests",
-      "_tgt": "minio_presigned_file_url",
-      "source": "minio_public_endpoint_tests",
-      "target": "minio_presigned_file_url"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/config/minio.test.ts",
-      "source_location": "lines 51-71",
-      "weight": 1.0,
-      "_src": "minio_public_endpoint_tests",
-      "_tgt": "minio_public_client",
-      "source": "minio_public_endpoint_tests",
-      "target": "minio_public_client"
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/config/minio.ts",
-      "source_location": "lines 29-66",
-      "weight": 1.0,
-      "_src": "minio_internal_client",
-      "_tgt": "minio_object_lifecycle",
-      "source": "minio_internal_client",
-      "target": "minio_object_lifecycle"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/config/minio.ts",
-      "source_location": "lines 15-17",
-      "weight": 1.0,
-      "_src": "minio_public_client",
-      "_tgt": "minio_public_endpoint_rationale",
-      "source": "minio_public_client",
-      "target": "minio_public_endpoint_rationale"
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/config/minio.ts",
-      "source_location": "lines 60-62",
-      "weight": 1.0,
-      "_src": "minio_public_client",
-      "_tgt": "minio_presigned_file_url",
-      "source": "minio_public_client",
-      "target": "minio_presigned_file_url"
     },
     {
       "relation": "calls",
@@ -14500,90 +14107,6 @@
       "target": "vite_theme_adaptive_contrast"
     },
     {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "\u00a74 Task table, line 63",
-      "weight": 1.0,
-      "_src": "phase1_a02_refactored_at_risk",
-      "_tgt": "phase1_coverage_gate_failed",
-      "source": "phase1_a02_refactored_at_risk",
-      "target": "phase1_coverage_gate_failed"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "\u00a72 Baseline evidence, line 29; \u00a74 Task table, line 60",
-      "weight": 1.0,
-      "_src": "phase1_coverage_gate_failed",
-      "_tgt": "phase1_0_07_evidence_confirmed_at_risk",
-      "source": "phase1_coverage_gate_failed",
-      "target": "phase1_0_07_evidence_confirmed_at_risk"
-    },
-    {
-      "relation": "implements",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/project-memory.md",
-      "source_location": "\u00a76 Phase 1 implementation facts, line 94",
-      "weight": 1.0,
-      "_src": "phase1_hash_refresh_db98a00",
-      "_tgt": "phase1_hash_refresh_top_level_effective_date",
-      "source": "phase1_hash_refresh_db98a00",
-      "target": "phase1_hash_refresh_top_level_effective_date"
-    },
-    {
-      "relation": "implements",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/project-memory.md",
-      "source_location": "\u00a76 Phase 1 implementation facts, line 94",
-      "weight": 1.0,
-      "_src": "phase1_hash_refresh_db98a00",
-      "_tgt": "phase1_hash_refresh_jest_cross_platform",
-      "source": "phase1_hash_refresh_db98a00",
-      "target": "phase1_hash_refresh_jest_cross_platform"
-    },
-    {
-      "relation": "implements",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-0-07.md",
-      "source_location": "Branch/commit and regression commands/results, lines 7 and 13",
-      "weight": 1.0,
-      "_src": "phase1_hash_refresh_db98a00",
-      "_tgt": "phase1_hash_refresh_exact_integration_opt_in",
-      "source": "phase1_hash_refresh_db98a00",
-      "target": "phase1_hash_refresh_exact_integration_opt_in"
-    },
-    {
-      "relation": "implements",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-00.md",
-      "source_location": "GREEN command/result and scope, lines 11-12",
-      "weight": 1.0,
-      "_src": "phase1_hash_refresh_process_boundary",
-      "_tgt": "phase1_hash_refresh_app_isolation_mock",
-      "source": "phase1_hash_refresh_process_boundary",
-      "target": "phase1_hash_refresh_app_isolation_mock"
-    },
-    {
-      "relation": "implements",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-00.md",
-      "source_location": "GREEN scope and REFACTOR summary, lines 12-13",
-      "weight": 1.0,
-      "_src": "phase1_hash_refresh_process_boundary",
-      "_tgt": "phase1_hash_refresh_server_lifecycle",
-      "source": "phase1_hash_refresh_process_boundary",
-      "target": "phase1_hash_refresh_server_lifecycle"
-    },
-    {
       "relation": "conceptually_related_to",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -14594,30 +14117,6 @@
       "_tgt": "phase1_hash_refresh_g00_refactored_at_risk",
       "source": "phase1_hash_refresh_app_isolation_mock",
       "target": "phase1_hash_refresh_g00_refactored_at_risk"
-    },
-    {
-      "relation": "implements",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-A-02.md",
-      "source_location": "GREEN commit and scope, line 11",
-      "weight": 1.0,
-      "_src": "phase1_hash_refresh_ledger_contracts",
-      "_tgt": "phase1_hash_refresh_top_level_effective_date",
-      "source": "phase1_hash_refresh_ledger_contracts",
-      "target": "phase1_hash_refresh_top_level_effective_date"
-    },
-    {
-      "relation": "verifies",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-A-02.md",
-      "source_location": "Evidence status and affected scope, lines 4 and 8",
-      "weight": 1.0,
-      "_src": "phase1_hash_refresh_ledger_contracts",
-      "_tgt": "phase1_hash_refresh_a02_pass_mock",
-      "source": "phase1_hash_refresh_ledger_contracts",
-      "target": "phase1_hash_refresh_a02_pass_mock"
     },
     {
       "relation": "implements",
@@ -14654,18 +14153,6 @@
       "_tgt": "phase1_hash_refresh_viewer_zero_effect_mock",
       "source": "phase1_hash_refresh_ledger_12_tests",
       "target": "phase1_hash_refresh_viewer_zero_effect_mock"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-A-02.md",
-      "source_location": "Affected scope and remaining risks, lines 8 and 21",
-      "weight": 1.0,
-      "_src": "phase1_hash_refresh_a02_pass_mock",
-      "_tgt": "phase1_hash_refresh_routes_not_adopted",
-      "source": "phase1_hash_refresh_a02_pass_mock",
-      "target": "phase1_hash_refresh_routes_not_adopted"
     },
     {
       "relation": "conceptually_related_to",
@@ -14728,18 +14215,6 @@
       "target": "phase1_hash_refresh_g00_refactored_at_risk"
     },
     {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-0-07.md",
-      "source_location": "Observed result, line 18",
-      "weight": 1.0,
-      "_src": "phase1_hash_refresh_prisma_validate_pass",
-      "_tgt": "phase1_hash_refresh_prisma_format_open",
-      "source": "phase1_hash_refresh_prisma_validate_pass",
-      "target": "phase1_hash_refresh_prisma_format_open"
-    },
-    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -14774,18 +14249,6 @@
       "_tgt": "phase1_hash_refresh_g00_refactored_at_risk",
       "source": "phase1_hash_refresh_real_infrastructure_unobserved",
       "target": "phase1_hash_refresh_g00_refactored_at_risk"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-B-04.md",
-      "source_location": "line 18",
-      "weight": 1.0,
-      "_src": "p1_b04_local_postgresql_181_pass_real",
-      "_tgt": "p1_b04_regression_verified_gate",
-      "source": "p1_b04_local_postgresql_181_pass_real",
-      "target": "p1_b04_regression_verified_gate"
     },
     {
       "relation": "references",
@@ -14834,114 +14297,6 @@
       "_tgt": "p1_b04_stale_version_arbitration",
       "source": "p1_b04_local_postgresql_181_pass_real",
       "target": "p1_b04_stale_version_arbitration"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "line 9 historical snapshot and line 72 current status",
-      "weight": 1.0,
-      "_src": "p1_b04_local_postgresql_181_pass_real",
-      "_tgt": "phase1_b04_postgresql_concurrency_blocked",
-      "source": "p1_b04_local_postgresql_181_pass_real",
-      "target": "phase1_b04_postgresql_concurrency_blocked"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/project-memory.md",
-      "source_location": "lines 95-98",
-      "weight": 1.0,
-      "_src": "p1_b04_local_postgresql_181_pass_real",
-      "_tgt": "phase1_hash_refresh_database_idempotency_open",
-      "source": "p1_b04_local_postgresql_181_pass_real",
-      "target": "phase1_hash_refresh_database_idempotency_open"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/project-memory.md",
-      "source_location": "line 98",
-      "weight": 1.0,
-      "_src": "p1_b04_local_postgresql_181_pass_real",
-      "_tgt": "p1_b04_unclassified_internal_error_risk",
-      "source": "p1_b04_local_postgresql_181_pass_real",
-      "target": "p1_b04_unclassified_internal_error_risk"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-B-04.md",
-      "source_location": "line 13",
-      "weight": 1.0,
-      "_src": "p1_b04_regression_verified_gate",
-      "_tgt": "phase1_global_coverage_gate_open",
-      "source": "p1_b04_regression_verified_gate",
-      "target": "phase1_global_coverage_gate_open"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-B-04.md",
-      "source_location": "lines 18, 21",
-      "weight": 1.0,
-      "_src": "p1_b04_regression_verified_gate",
-      "_tgt": "income_expense_routes_bypass_coordinator",
-      "source": "p1_b04_regression_verified_gate",
-      "target": "income_expense_routes_bypass_coordinator"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-B-04.md",
-      "source_location": "lines 18, 21",
-      "weight": 1.0,
-      "_src": "p1_b04_regression_verified_gate",
-      "_tgt": "phase1_import_recurring_ai_adoption_open",
-      "source": "p1_b04_regression_verified_gate",
-      "target": "phase1_import_recurring_ai_adoption_open"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-B-04.md",
-      "source_location": "lines 18, 21",
-      "weight": 1.0,
-      "_src": "p1_b04_regression_verified_gate",
-      "_tgt": "phase1_upgrade_restore_open",
-      "source": "p1_b04_regression_verified_gate",
-      "target": "phase1_upgrade_restore_open"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-B-04.md",
-      "source_location": "lines 17-18, 21",
-      "weight": 1.0,
-      "_src": "p1_b04_regression_verified_gate",
-      "_tgt": "phase1_staging_release_open",
-      "source": "p1_b04_regression_verified_gate",
-      "target": "phase1_staging_release_open"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/project-memory.md",
-      "source_location": "lines 95, 98",
-      "weight": 1.0,
-      "_src": "p1_b04_regression_verified_gate",
-      "_tgt": "phase1_production_exactly_once_unverified",
-      "source": "p1_b04_regression_verified_gate",
-      "target": "phase1_production_exactly_once_unverified"
     },
     {
       "relation": "references",
@@ -14995,54 +14350,6 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "docs/project-memory.md",
-      "source_location": "lines 95, 104",
-      "weight": 1.0,
-      "_src": "income_expense_routes_bypass_coordinator",
-      "_tgt": "phase1_production_exactly_once_unverified",
-      "source": "income_expense_routes_bypass_coordinator",
-      "target": "phase1_production_exactly_once_unverified"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-B-04.md",
-      "source_location": "line 21",
-      "weight": 1.0,
-      "_src": "phase1_import_recurring_ai_adoption_open",
-      "_tgt": "phase1_production_exactly_once_unverified",
-      "source": "phase1_import_recurring_ai_adoption_open",
-      "target": "phase1_production_exactly_once_unverified"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-B-04.md",
-      "source_location": "lines 18, 21",
-      "weight": 1.0,
-      "_src": "phase1_upgrade_restore_open",
-      "_tgt": "phase1_production_exactly_once_unverified",
-      "source": "phase1_upgrade_restore_open",
-      "target": "phase1_production_exactly_once_unverified"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-B-04.md",
-      "source_location": "lines 17-18, 21",
-      "weight": 1.0,
-      "_src": "phase1_staging_release_open",
-      "_tgt": "phase1_production_exactly_once_unverified",
-      "source": "phase1_staging_release_open",
-      "target": "phase1_production_exactly_once_unverified"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
       "source_file": "docs/delivery/phase-1/evidence/P1-B-02.md",
       "source_location": "lines 13, 15",
       "weight": 1.0,
@@ -15050,18 +14357,6 @@
       "_tgt": "p1_b02_pass_mock_contract",
       "source": "p1_b02_focused_14_of_14",
       "target": "p1_b02_pass_mock_contract"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-B-02.md",
-      "source_location": "line 13",
-      "weight": 1.0,
-      "_src": "p1_b02_focused_14_of_14",
-      "_tgt": "phase1_b02_refactored_at_risk",
-      "source": "p1_b02_focused_14_of_14",
-      "target": "phase1_b02_refactored_at_risk"
     },
     {
       "relation": "references",
@@ -15074,78 +14369,6 @@
       "_tgt": "p1_g01_postgresql_migration_pass_real",
       "source": "p1_b01_schema_pass_real",
       "target": "p1_g01_postgresql_migration_pass_real"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-B-01.md",
-      "source_location": "lines 15, 18",
-      "weight": 1.0,
-      "_src": "p1_b01_schema_pass_real",
-      "_tgt": "phase1_b01_schema_backlog",
-      "source": "p1_b01_schema_pass_real",
-      "target": "phase1_b01_schema_backlog"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/project-memory.md",
-      "source_location": "line 96",
-      "weight": 1.0,
-      "_src": "phase1_tracker_baseline_31_suites_265_tests",
-      "_tgt": "phase1_hash_refresh_default_suite",
-      "source": "phase1_tracker_baseline_31_suites_265_tests",
-      "target": "phase1_hash_refresh_default_suite"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-A-03.md",
-      "source_location": "Evidence status and Observed result",
-      "weight": 1.0,
-      "_src": "p1_a_03_task",
-      "_tgt": "p1_a_03_pass_mock_evidence",
-      "source": "p1_a_03_task",
-      "target": "p1_a_03_pass_mock_evidence"
-    },
-    {
-      "relation": "blocks",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-A-03.md",
-      "source_location": "Remaining risks",
-      "weight": 1.0,
-      "_src": "p1_a_03_task",
-      "_tgt": "global_coverage_gate",
-      "source": "p1_a_03_task",
-      "target": "global_coverage_gate"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/project-memory.md",
-      "source_location": "line 105",
-      "weight": 1.0,
-      "_src": "p1_a_03_pass_mock_evidence",
-      "_tgt": "p1_a03_pre_audit_resourceid_validation",
-      "source": "p1_a_03_pass_mock_evidence",
-      "target": "p1_a03_pre_audit_resourceid_validation"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-B-04.md",
-      "source_location": "line 13",
-      "weight": 1.0,
-      "_src": "p1_b04_unclassified_internal_error_risk",
-      "_tgt": "p1_b04_raw_prisma_error_capture_required",
-      "source": "p1_b04_unclassified_internal_error_risk",
-      "target": "p1_b04_raw_prisma_error_capture_required"
     },
     {
       "relation": "references",
@@ -15182,258 +14405,6 @@
       "_tgt": "p1_b_04_diagnostic_classification",
       "source": "p1_b_04_prisma_raw_error_cause",
       "target": "p1_b_04_diagnostic_classification"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "L72",
-      "weight": 1.0,
-      "_src": "p1_b_04_prisma_raw_error_cause",
-      "_tgt": "p1_b_04_postgresql_arbitration_gate",
-      "source": "p1_b_04_prisma_raw_error_cause",
-      "target": "p1_b_04_postgresql_arbitration_gate"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/project-memory.md",
-      "source_location": "L98",
-      "weight": 1.0,
-      "_src": "p1_b_04_unclassified_real_failure_risk",
-      "_tgt": "project_memory_p1_b_04_at_risk_status",
-      "source": "p1_b_04_unclassified_real_failure_risk",
-      "target": "project_memory_p1_b_04_at_risk_status"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "L72",
-      "weight": 1.0,
-      "_src": "p1_b_04_unclassified_real_failure_risk",
-      "_tgt": "p1_b_04_postgresql_arbitration_gate",
-      "source": "p1_b_04_unclassified_real_failure_risk",
-      "target": "p1_b_04_postgresql_arbitration_gate"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L12",
-      "weight": 1.0,
-      "_src": "p1_g_06_coverage_quality_gate",
-      "_tgt": "p1_g_06_failed_coverage_baseline",
-      "source": "p1_g_06_coverage_quality_gate",
-      "target": "p1_g_06_failed_coverage_baseline"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L10, L17",
-      "weight": 1.0,
-      "_src": "p1_g_06_coverage_quality_gate",
-      "_tgt": "p1_g_06_behavior_focused_coverage_tests",
-      "source": "p1_g_06_coverage_quality_gate",
-      "target": "p1_g_06_behavior_focused_coverage_tests"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L17",
-      "weight": 1.0,
-      "_src": "p1_g_06_coverage_quality_gate",
-      "_tgt": "p1_g_06_threshold_reduction_not_remedy",
-      "source": "p1_g_06_coverage_quality_gate",
-      "target": "p1_g_06_threshold_reduction_not_remedy"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L10",
-      "weight": 1.0,
-      "_src": "p1_g_06_coverage_quality_gate",
-      "_tgt": "p1_g_06_prisma_adapter_contract_tests",
-      "source": "p1_g_06_coverage_quality_gate",
-      "target": "p1_g_06_prisma_adapter_contract_tests"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/project-memory.md",
-      "source_location": "L96",
-      "weight": 1.0,
-      "_src": "project_memory_phase1_adapter_facts",
-      "_tgt": "prisma_financial_mutation_adapter",
-      "source": "project_memory_phase1_adapter_facts",
-      "target": "prisma_financial_mutation_adapter"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "L100",
-      "weight": 1.0,
-      "_src": "tracker_p1_g_06_quality_gate",
-      "_tgt": "p1_g_06_gate_failed",
-      "source": "tracker_p1_g_06_quality_gate",
-      "target": "p1_g_06_gate_failed"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L6-L8",
-      "weight": 1.0,
-      "_src": "evidence_p1_g_06_json_boundary_slice",
-      "_tgt": "prisma_financial_mutation_adapter",
-      "source": "evidence_p1_g_06_json_boundary_slice",
-      "target": "prisma_financial_mutation_adapter"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L11",
-      "weight": 1.0,
-      "_src": "prisma_financial_mutation_adapter",
-      "_tgt": "tojson_finite_number_validation",
-      "source": "prisma_financial_mutation_adapter",
-      "target": "tojson_finite_number_validation"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L11",
-      "weight": 1.0,
-      "_src": "tojson_finite_number_validation",
-      "_tgt": "non_finite_json_numbers",
-      "source": "tojson_finite_number_validation",
-      "target": "non_finite_json_numbers"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L11",
-      "weight": 1.0,
-      "_src": "non_finite_json_numbers",
-      "_tgt": "pre_persistence_json_rejection",
-      "source": "non_finite_json_numbers",
-      "target": "pre_persistence_json_rejection"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L11",
-      "weight": 1.0,
-      "_src": "pre_persistence_json_rejection",
-      "_tgt": "prisma_financial_adapter_writes",
-      "source": "pre_persistence_json_rejection",
-      "target": "prisma_financial_adapter_writes"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L13-L14",
-      "weight": 1.0,
-      "_src": "pre_persistence_json_rejection",
-      "_tgt": "adapter_contract_tests",
-      "source": "pre_persistence_json_rejection",
-      "target": "adapter_contract_tests"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L14",
-      "weight": 1.0,
-      "_src": "pre_persistence_json_rejection",
-      "_tgt": "financial_json_boundary_inputs",
-      "source": "pre_persistence_json_rejection",
-      "target": "financial_json_boundary_inputs"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L9-L13",
-      "weight": 1.0,
-      "_src": "required_global_coverage_command",
-      "_tgt": "backend_test_suite_33_276",
-      "source": "required_global_coverage_command",
-      "target": "backend_test_suite_33_276"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L13",
-      "weight": 1.0,
-      "_src": "backend_test_suite_33_276",
-      "_tgt": "coverage_measurement_p1_g_06",
-      "source": "backend_test_suite_33_276",
-      "target": "coverage_measurement_p1_g_06"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L10-L13",
-      "weight": 1.0,
-      "_src": "coverage_measurement_p1_g_06",
-      "_tgt": "global_branch_threshold_60",
-      "source": "coverage_measurement_p1_g_06",
-      "target": "global_branch_threshold_60"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L13",
-      "weight": 1.0,
-      "_src": "coverage_measurement_p1_g_06",
-      "_tgt": "p1_g_06_gate_failed",
-      "source": "coverage_measurement_p1_g_06",
-      "target": "p1_g_06_gate_failed"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "L13",
-      "weight": 1.0,
-      "_src": "global_branch_threshold_60",
-      "_tgt": "p1_g_06_gate_failed",
-      "source": "global_branch_threshold_60",
-      "target": "p1_g_06_gate_failed"
     },
     {
       "relation": "imports_from",
@@ -15556,18 +14527,6 @@
       "target": "concept:non-plain-json-object-rejection"
     },
     {
-      "relation": "preserves",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/project-memory.md",
-      "source_location": "Phase 1 implementation facts",
-      "weight": 1.0,
-      "_src": "prismafinancialmutationstore_tojson",
-      "_tgt": "concept:ordinary-and-null-prototype-json-objects",
-      "source": "prismafinancialmutationstore_tojson",
-      "target": "concept:ordinary-and-null-prototype-json-objects"
-    },
-    {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "backend\\src\\services\\prismaFinancialMutationStore.test.ts",
@@ -15628,18 +14587,6 @@
       "target": "concept:map-set-regexp-json-inputs"
     },
     {
-      "relation": "verifies",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "Regression commands/results",
-      "weight": 1.0,
-      "_src": "concept:non-plain-json-object-rejection",
-      "_tgt": "evidence:p1-g-06-regression-results-2026-08-31",
-      "source": "concept:non-plain-json-object-rejection",
-      "target": "evidence:p1-g-06-regression-results-2026-08-31"
-    },
-    {
       "relation": "is_rejected_before",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -15650,42 +14597,6 @@
       "_tgt": "concept:pre-persistence-json-validation",
       "source": "concept:map-set-regexp-json-inputs",
       "target": "concept:pre-persistence-json-validation"
-    },
-    {
-      "relation": "reports",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "Regression commands/results",
-      "weight": 1.0,
-      "_src": "evidence:p1-g-06-regression-results-2026-08-31",
-      "_tgt": "evidence:backend-tests-33-suites-279-tests",
-      "source": "evidence:p1-g-06-regression-results-2026-08-31",
-      "target": "evidence:backend-tests-33-suites-279-tests"
-    },
-    {
-      "relation": "reports",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "Regression commands/results",
-      "weight": 1.0,
-      "_src": "evidence:p1-g-06-regression-results-2026-08-31",
-      "_tgt": "evidence:backend-coverage-62-21-45-38-62-18-62-63",
-      "source": "evidence:p1-g-06-regression-results-2026-08-31",
-      "target": "evidence:backend-coverage-62-21-45-38-62-18-62-63"
-    },
-    {
-      "relation": "leaves",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
-      "source_location": "Regression commands/results",
-      "weight": 1.0,
-      "_src": "evidence:backend-coverage-62-21-45-38-62-18-62-63",
-      "_tgt": "risk:global-branch-coverage-gate-failed",
-      "source": "evidence:backend-coverage-62-21-45-38-62-18-62-63",
-      "target": "risk:global-branch-coverage-gate-failed"
     },
     {
       "relation": "implements",
@@ -15748,16 +14659,274 @@
       "target": "p1-a-03-transactional-zero-persistence"
     },
     {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "backend\\src\\config\\minio.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "backend_src_config_minio_ts",
+      "target": "minio",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend\\src\\config\\minio.ts",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "backend_src_config_minio_ts",
+      "target": "minio_ensurebucket",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend\\src\\config\\minio.ts",
+      "source_location": "L37",
+      "weight": 1.0,
+      "source": "backend_src_config_minio_ts",
+      "target": "minio_uploadfile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend\\src\\config\\minio.ts",
+      "source_location": "L46",
+      "weight": 1.0,
+      "source": "backend_src_config_minio_ts",
+      "target": "minio_uploadfilebuffer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend\\src\\config\\minio.ts",
+      "source_location": "L56",
+      "weight": 1.0,
+      "source": "backend_src_config_minio_ts",
+      "target": "minio_getfileurl",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend\\src\\config\\minio.ts",
+      "source_location": "L60",
+      "weight": 1.0,
+      "source": "backend_src_config_minio_ts",
+      "target": "minio_deletefile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/config/minio.test.ts",
+      "source_location": "L74-L88",
+      "weight": 1.0,
+      "source": "minio_ensurebucket",
+      "target": "minio_bucket_failure_propagation_test"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/server.test.ts",
+      "source_location": "L7-L62",
+      "weight": 1.0,
+      "source": "minio_ensurebucket",
+      "target": "server_lifecycle_degraded_startup_test"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/config/minio.ts",
+      "source_location": "L29-L64",
+      "weight": 1.0,
+      "source": "minio_internal_client",
+      "target": "minio_object_lifecycle"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/config/minio.ts",
+      "source_location": "L15-L17",
+      "weight": 1.0,
+      "source": "minio_public_client",
+      "target": "minio_public_endpoint_rationale"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/config/minio.ts",
+      "source_location": "L56-L57",
+      "weight": 1.0,
+      "source": "minio_public_client",
+      "target": "minio_presigned_file_url"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/config/minio.test.ts",
+      "source_location": "L1-L72",
+      "weight": 1.0,
+      "source": "minio_public_client",
+      "target": "minio_public_endpoint_tests"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/config/minio.test.ts",
+      "source_location": "L1-L72",
+      "weight": 1.0,
+      "source": "minio_presigned_file_url",
+      "target": "minio_public_endpoint_tests"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L11-L18",
+      "weight": 1.0,
+      "source": "server_lifecycle_degraded_startup_test",
+      "target": "p1_g_06_minio_lifecycle_degradation"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L10-L14",
+      "weight": 1.0,
+      "source": "p1_g_06_coverage_quality_gate",
+      "target": "p1_g_06_prisma_adapter_contract_tests"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "p1_g_06_prisma_adapter_contract_tests",
+      "target": "tojson_finite_number_validation"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/project-memory.md",
+      "source_location": "L96",
+      "weight": 1.0,
+      "source": "p1_g_06_prisma_adapter_contract_tests",
+      "target": "project_memory_phase1_adapter_facts"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "tojson_finite_number_validation",
+      "target": "non_finite_json_numbers"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L11-L14",
+      "weight": 1.0,
+      "source": "non_finite_json_numbers",
+      "target": "pre_persistence_json_rejection"
+    },
+    {
+      "relation": "reports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "p1_g_06_regression_results_2026_08_31",
+      "target": "p1_g_06_backend_test_run_34_281"
+    },
+    {
+      "relation": "reports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "p1_g_06_regression_results_2026_08_31",
+      "target": "p1_g_06_backend_coverage_63_22_46_01_64_06_63_58"
+    },
+    {
+      "relation": "leaves",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/delivery/phase-1/evidence/P1-G-06.md",
+      "source_location": "L13-L18",
+      "weight": 1.0,
+      "source": "p1_g_06_backend_coverage_63_22_46_01_64_06_63_58",
+      "target": "p1_g_06_gate_failed"
+    },
+    {
       "relation": "reports",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
-      "source_location": "Current snapshot; P1-A-03 task row",
+      "source_location": "L9",
       "weight": 1.0,
-      "_src": "p1-a-03-pass-real-postgresql-evidence",
-      "_tgt": "p1-a-03-real-postgresql-failure-injection",
-      "source": "p1-a-03-real-postgresql-failure-injection",
-      "target": "p1-a-03-pass-real-postgresql-evidence"
+      "source": "p1_g_06_backend_coverage_63_22_46_01_64_06_63_58",
+      "target": "phase1_g06_current_snapshot"
+    },
+    {
+      "relation": "leaves",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/project-memory.md",
+      "source_location": "L96",
+      "weight": 1.0,
+      "source": "p1_g_06_backend_coverage_63_22_46_01_64_06_63_58",
+      "target": "phase1_global_coverage_gate_open"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
+      "source_location": "L100",
+      "weight": 1.0,
+      "source": "p1_g_06_gate_failed",
+      "target": "tracker_p1_g_06_quality_gate"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/delivery/phase-1/phase-1-tracker.md",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "p1_g_06_minio_lifecycle_degradation",
+      "target": "phase1_g06_current_snapshot"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/project-memory.md",
+      "source_location": "L96",
+      "weight": 1.0,
+      "source": "p1_g_06_minio_lifecycle_degradation",
+      "target": "project_memory_minio_lifecycle_fact"
     }
   ],
   "hyperedges": []
