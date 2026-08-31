@@ -99,14 +99,30 @@ describe('Phase 1 real PostgreSQL coordinator concurrency', () => {
     ])).resolves.toEqual(countsAfterCommit);
   });
 
-  test('rejects the same key with a different payload hash without a second income', async () => {
-    const beforeIncomeCount = await prisma.income.count({ where: { familyId } });
-
+  test('rejects a conflicting key reuse without adding facts or advancing the family revision', async () => {
     await expect(createIncome(command('different-key', 200), store)).resolves.toMatchObject({ deduplicated: false });
+    const afterCommit = await prisma.family.findUniqueOrThrow({
+      where: { id: familyId },
+      select: { cacheVersion: true },
+    });
+    const factCounts = await Promise.all([
+      prisma.income.count({ where: { familyId } }),
+      prisma.idempotencyRecord.count({ where: { familyId } }),
+      prisma.auditEvent.count({ where: { familyId } }),
+    ]);
+
     await expect(createIncome(command('different-key', 201), store)).rejects.toMatchObject({
       code: 'IDEMPOTENCY_KEY_REUSED', status: 409, retryable: false,
     });
-    await expect(prisma.income.count({ where: { familyId } })).resolves.toBe(beforeIncomeCount + 1);
+    await expect(prisma.family.findUniqueOrThrow({
+      where: { id: familyId },
+      select: { cacheVersion: true },
+    })).resolves.toEqual(afterCommit);
+    await expect(Promise.all([
+      prisma.income.count({ where: { familyId } }),
+      prisma.idempotencyRecord.count({ where: { familyId } }),
+      prisma.auditEvent.count({ where: { familyId } }),
+    ])).resolves.toEqual(factCounts);
   });
 
   test('replays a committed response after simulated response loss', async () => {

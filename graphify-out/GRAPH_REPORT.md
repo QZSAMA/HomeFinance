@@ -1,10 +1,10 @@
 # Graph Report - .  (2026-08-31)
 
 ## Corpus Check
-- Large corpus: 224 files �� ~113,496 words. Semantic extraction will be expensive (many Claude tokens). Consider running on a subfolder, or use --no-semantic to run AST-only.
+- Large corpus: 224 files �� ~113,933 words. Semantic extraction will be expensive (many Claude tokens). Consider running on a subfolder, or use --no-semantic to run AST-only.
 
 ## Summary
-- 687 nodes �� 671 edges �� 153 communities detected
+- 692 nodes �� 680 edges �� 152 communities detected
 - Extraction: 88% EXTRACTED �� 12% INFERRED �� 0% AMBIGUOUS �� INFERRED: 79 edges (avg confidence: 0.87)
 - Token cost: 0 input �� 0 output
 
@@ -12,20 +12,19 @@
 - [[_COMMUNITY_Current Family Data Scope|Current Family Data Scope]]
 - [[_COMMUNITY_Income Ledger|Income Ledger]]
 - [[_COMMUNITY_HomeFinance Graphify Knowledge Graph Report|HomeFinance Graphify Knowledge Graph Report]]
+- [[_COMMUNITY_prismaFinancialMutationStore.ts|prismaFinancialMutationStore.ts]]
 - [[_COMMUNITY_AIPage.tsx|AIPage.tsx]]
+- [[_COMMUNITY_HomeFinance System|HomeFinance System]]
 - [[_COMMUNITY_minio.ts|minio.ts]]
 - [[_COMMUNITY_Family Finance Route Map|Family Finance Route Map]]
 - [[_COMMUNITY_Frontend Quality and User Experience Analysis|Frontend Quality and User Experience Analysis]]
-- [[_COMMUNITY_prismaFinancialMutationStore.ts|prismaFinancialMutationStore.ts]]
-- [[_COMMUNITY_HomeFinance System|HomeFinance System]]
+- [[_COMMUNITY_P1-B-05 revision and idempotency consistency verification|P1-B-05 revision and idempotency consistency verification]]
 - [[_COMMUNITY_Financial Write Integrity Analysis|Financial Write Integrity Analysis]]
 - [[_COMMUNITY_Vision-based Receipt Extraction|Vision-based Receipt Extraction]]
 - [[_COMMUNITY_Reusable SVG Icon Symbol Sprite|Reusable SVG Icon Symbol Sprite]]
-- [[_COMMUNITY_P1-B-05 revision and idempotency consistency verification|P1-B-05 revision and idempotency consistency verification]]
 - [[_COMMUNITY_Offline-Capable AI Degradation Strategy|Offline-Capable AI Degradation Strategy]]
 - [[_COMMUNITY_financialMutationCoordinator.ts|financialMutationCoordinator.ts]]
 - [[_COMMUNITY_Ledger Application Service|Ledger Application Service]]
-- [[_COMMUNITY_ledgerApplicationService.ts|ledgerApplicationService.ts]]
 - [[_COMMUNITY_P1-B-04 local PostgreSQL 18.1 PASS-REAL|P1-B-04 local PostgreSQL 18.1 PASS-REAL]]
 - [[_COMMUNITY_Asset Allocation Donut Chart|Asset Allocation Donut Chart]]
 - [[_COMMUNITY_Architecture Performance and Operations Analysis|Architecture Performance and Operations Analysis]]
@@ -51,8 +50,8 @@
 - [[_COMMUNITY_export.ts|export.ts]]
 - [[_COMMUNITY_reportFormulas.ts|reportFormulas.ts]]
 - [[_COMMUNITY_Budget Progress Tracking|Budget Progress Tracking]]
-- [[_COMMUNITY_Unified Write Authorization Epic|Unified Write Authorization Epic]]
 - [[_COMMUNITY_Baseline Cache-Before-Authorization Bypass|Baseline Cache-Before-Authorization Bypass]]
+- [[_COMMUNITY_Unified Write Authorization Epic|Unified Write Authorization Epic]]
 - [[_COMMUNITY_Trust Before Scale and Intelligence Strategy|Trust Before Scale and Intelligence Strategy]]
 - [[_COMMUNITY_Phase 0 Cache Remediation|Phase 0 Cache Remediation]]
 - [[_COMMUNITY_Focused Ledger Run Passes 2 Suites and 12 Tests|Focused Ledger Run Passes 2 Suites and 12 Tests]]
@@ -106,8 +105,8 @@
 - [[_COMMUNITY_jestConfig.test.ts|jestConfig.test.ts]]
 - [[_COMMUNITY_ReportsPage.test.tsx|ReportsPage.test.tsx]]
 - [[_COMMUNITY_Executable Source-of-Truth Hierarchy|Executable Source-of-Truth Hierarchy]]
-- [[_COMMUNITY_Sustainable Project Memory Loop|Sustainable Project Memory Loop]]
 - [[_COMMUNITY_Evidence-Backed Deep Review Framework|Evidence-Backed Deep Review Framework]]
+- [[_COMMUNITY_Sustainable Project Memory Loop|Sustainable Project Memory Loop]]
 - [[_COMMUNITY_Focused RED-GREEN-REFACTOR Workflow|Focused RED-GREEN-REFACTOR Workflow]]
 - [[_COMMUNITY_Auditability Precedes More Generative AI Rationale|Auditability Precedes More Generative AI Rationale]]
 - [[_COMMUNITY_P1-A-02 Evidence Is PASS-MOCK|P1-A-02 Evidence Is PASS-MOCK]]
@@ -194,52 +193,52 @@ Cohesion: 0.05
 Nodes (57): User Account Registration, Undo of AI-Created Finance Records, Lightweight AI Report Markdown Renderer, Family AI Financial Analysis Report, Family AI API Facade, Conversational Family Finance Assistant, Multimodal Chat and Action Response Contract, Client-Side Receipt Image Compression (+49 more)
 
 ### Community 1 - "Income Ledger"
-Cohesion: 0.06
-Nodes (40): Family Collaboration and Visualization, Intelligent Finance Features, Authentication Response, Authentication API Client, Transaction Category Suggestion, Frontend Resource Service Convention, Admin Member Viewer Permissions, Browser Blob Download (+32 more)
+Cohesion: 0.07
+Nodes (36): Family Collaboration and Visualization, Intelligent Finance Features, Authentication Response, Authentication API Client, Transaction Category Suggestion, Frontend Resource Service Convention, Admin Member Viewer Permissions, Browser Blob Download (+28 more)
 
 ### Community 2 - "HomeFinance Graphify Knowledge Graph Report"
 Cohesion: 0.09
 Nodes (29): Knowledge Graph Memory and Governance Analysis, Policy Ledger Exactly-Once and Production Dependency Chain, Generated Graphs Must Not Override Executable Evidence, Change Evidence Card Lifecycle, Graphify as Navigation Memory, Graphify Semantic Update Protocol, Inferred Edge Verification Review, Executable Source of Truth Hierarchy (+21 more)
 
-### Community 3 - "AIPage.tsx"
+### Community 3 - "prismaFinancialMutationStore.ts"
+Cohesion: 0.12
+Nodes (15): Map, Set, and RegExp JSON inputs, Non-plain JSON object rejection, Pre-persistence JSON validation, @prisma/client, createExpense(), createIncome(), normalizeCurrency(), optionalText() (+7 more)
+
+### Community 4 - "AIPage.tsx"
 Cohesion: 0.1
 Nodes (13): compressImage(), handleAnalysisRequest(), handleConfirmActions(), handleFileSelect(), handleSend(), Accessible Confirmation Feedback, P1-G-03 Evidence, P1-G-03 Frontend Mutation Contracts (+5 more)
 
-### Community 4 - "minio.ts"
+### Community 5 - "HomeFinance System"
+Cohesion: 0.1
+Nodes (21): Enterprise Finance Methods for Families, HomeFinance System, HomeFinance Technology Stack, Three Core Financial Statements, Contribution Development Workflow, Family Resource Access Enforcement, Backend API Test Matrix, Simplified Git Flow (+13 more)
+
+### Community 6 - "minio.ts"
 Cohesion: 0.11
 Nodes (14): minio package, ensureBucket failure propagation test, ensureBucket(), Backend coverage: statements 63.22%, branches 46.01%, functions 64.06%, lines 63.58%, Backend test run: 34 suites and 281 tests, P1-G-06 quality gate remains FAILED, MinIO lifecycle-owner degradation evidence, P1-G-06 regression results on 2026-08-31 (+6 more)
 
-### Community 5 - "Family Finance Route Map"
+### Community 7 - "Family Finance Route Map"
 Cohesion: 0.12
 Nodes (19): Authenticated Application Shell, Legacy Bookmark Compatibility, Legacy Report Route Redirects, Family Finance Route Map, Family Selector Component, Family List API Loading, Current Family Selection State, Frontend Authentication State (+11 more)
 
-### Community 6 - "Frontend Quality and User Experience Analysis"
+### Community 8 - "Frontend Quality and User Experience Analysis"
 Cohesion: 0.11
 Nodes (19): Budget Period Window Contract, Financial Correctness Analysis, Currency-Safe Financial Totals, Explicit Half-Open Date Interval and Family Timezone, Goal Allocation Isolation, Historical FX Requires Valuation Date Source Rounding and Replay, Recent Transaction Ordering Semantics, Financial Statement Reconciliation Invariants (+11 more)
 
-### Community 7 - "prismaFinancialMutationStore.ts"
-Cohesion: 0.13
-Nodes (7): Map, Set, and RegExp JSON inputs, Non-plain JSON object rejection, Pre-persistence JSON validation, @prisma/client, operation(), snapshot(), toJson()
+### Community 9 - "P1-B-05 revision and idempotency consistency verification"
+Cohesion: 0.18
+Nodes (17): AuditEvent, createIncome, createIncome command, Family.cacheVersion, IDEMPOTENCY_KEY_REUSED, IdempotencyRecord, Income, Dedicated local PostgreSQL 18.1 verification environment (+9 more)
 
-### Community 8 - "HomeFinance System"
-Cohesion: 0.12
-Nodes (17): Enterprise Finance Methods for Families, HomeFinance System, HomeFinance Technology Stack, Three Core Financial Statements, Contribution Development Workflow, Family Resource Access Enforcement, Backend API Test Matrix, Simplified Git Flow (+9 more)
-
-### Community 9 - "Financial Write Integrity Analysis"
+### Community 10 - "Financial Write Integrity Analysis"
 Cohesion: 0.22
 Nodes (14): AI Proposal Confirmation and Atomic Commit, Classified Retry and Conflict Semantics, Database Uniqueness Must Arbitrate Concurrent Replay, Commit-Time Family Finance Revision, Object Storage and Database Compensation Gap, Idempotency and Optimistic Concurrency Contract, Import Batch Atomic Confirmation, Financial Write Integrity Analysis (+6 more)
 
-### Community 10 - "Vision-based Receipt Extraction"
+### Community 11 - "Vision-based Receipt Extraction"
 Cohesion: 0.18
 Nodes (13): OCR Base64 Image Decoder, OCR UI Noise Cleaning, Extract Text From Image, Vision-based Receipt Extraction, Hybrid Tesseract and Vision OCR Strategy, Merge OCR Results, Merged OCR Contract, OCR Transaction Item Contract (+5 more)
 
-### Community 11 - "Reusable SVG Icon Symbol Sprite"
+### Community 12 - "Reusable SVG Icon Symbol Sprite"
 Cohesion: 0.24
 Nodes (12): Bluesky Brand Icon, Brand-versus-Utility Visual Role Separation, Community and Developer Navigation Surface, Dark Filled Brand Icon Style, Discord Brand Icon, Documentation and Code Icon, GitHub Brand Icon, ID-Addressable SVG Symbol Architecture (+4 more)
-
-### Community 12 - "P1-B-05 revision and idempotency consistency verification"
-Cohesion: 0.23
-Nodes (12): AuditEvent, createIncome command, Family.cacheVersion, IdempotencyRecord, Income, Dedicated local PostgreSQL 18.1 verification environment, No HTTP route adoption or route behavior change, No production behavior change (+4 more)
 
 ### Community 13 - "Offline-Capable AI Degradation Strategy"
 Cohesion: 0.27
@@ -253,556 +252,552 @@ Nodes (8): canonicalize(), coordinateFinancialMutation(), hashNormalizedPayload(
 Cohesion: 0.24
 Nodes (10): Atomic and Idempotent Transaction Generation, Domain and Application Service Boundary, Route-Heavy Modular Monolith Hypothesis, Route-Heavy Modular Monolith Finding, Fragmented Transaction-Generating Ingresses, Unified Policy Ledger and Report Services Recommendation, Atomic Idempotent Import Batch, Policy-Ledger-Exactly-Once Dependency Sequence (+2 more)
 
-### Community 16 - "ledgerApplicationService.ts"
-Cohesion: 0.58
-Nodes (8): createExpense(), createIncome(), normalizeCurrency(), optionalText(), requireAmount(), requireDate(), requireText(), validateCommandScope()
-
-### Community 17 - "P1-B-04 local PostgreSQL 18.1 PASS-REAL"
+### Community 16 - "P1-B-04 local PostgreSQL 18.1 PASS-REAL"
 Cohesion: 0.22
 Nodes (9): P1-B-04 local PostgreSQL 18.1 PASS-REAL, One committed mutation and 19 replays, Response-loss replay passes, Same key with different payload is rejected without second write, Single AuditEvent after concurrent replay, Single IdempotencyRecord after concurrent replay, Single Income record after concurrent replay, Stale-version competition passes (+1 more)
 
-### Community 18 - "Asset Allocation Donut Chart"
+### Community 17 - "Asset Allocation Donut Chart"
 Cohesion: 0.29
 Nodes (8): Asset Allocation Donut Chart, Asset Chart CNY Formatting, Asset Allocation Data Contract, Zero-value Asset Slice Filtering, Cash Flow Activity Bar Chart, Cash Flow Chart CNY Formatting, Cash Flow Segment Contract, Empty Cash Flow State
 
-### Community 19 - "Architecture Performance and Operations Analysis"
+### Community 18 - "Architecture Performance and Operations Analysis"
 Cohesion: 0.29
 Nodes (8): Express App and Server Startup Separation, Bounded Database Aggregation and Pagination, CI Coverage Integration and Frontend Behavior Gates, Measure Query Count Bundle Graph and Recovery Before Setting Targets, Modular Monolith Policy Ledger Report and Cache Boundaries, Microservices Would Amplify Transaction Retry and Operations Cost, Observability Degradation and Recovery Contracts, Architecture Performance and Operations Analysis
 
-### Community 20 - "Redis Fixed-Window Rate Limiter"
+### Community 19 - "Redis Fixed-Window Rate Limiter"
 Cohesion: 0.33
 Nodes (7): Authenticated Request Identity, Bearer JWT Authentication Middleware, Fail-Open Rate Limit Behavior, User-or-IP Rate Limit Identifier, Rate Limit Threshold and Isolation Tests, Redis Fixed-Window Rate Limiter, Shared Redis Client
 
-### Community 21 - "aiActions.ts"
+### Community 20 - "aiActions.ts"
 Cohesion: 0.48
 Nodes (6): executeAction(), executeActions(), matchCategory(), parseAmount(), parseLocalActions(), todayStr()
 
-### Community 22 - "Alipay Transaction Parser"
+### Community 21 - "Alipay Transaction Parser"
 Cohesion: 0.52
 Nodes (7): Imported Transaction Contract, Imported Date Normalization, Alipay Transaction Parser, Imported Amount Normalization, Format-dispatched CSV Import, CSV Row Parsing, WeChat Transaction Parser
 
-### Community 23 - "Parse Pagination Query"
+### Community 22 - "Parse Pagination Query"
 Cohesion: 0.43
 Nodes (7): Unpaginated Backward Compatibility, Bounded Pagination Page Size, Build Paginated Response, Paginated Response Contract, Pagination Parameters Contract, Parse Pagination Query, Pagination Utility Test Suite
 
-### Community 24 - "React SVG Logo Asset"
+### Community 23 - "React SVG Logo Asset"
 Cohesion: 0.38
 Nodes (7): Atom-like Orbital Mark, Cyan Brand Color #00D8FF, React Framework Brand, Accessibility Tree Exclusion, React SVG Logo Asset, Image Role Semantics, Centered Aspect-Ratio-preserving Scaling
 
-### Community 25 - "P1-G-00 Remains REFACTORED and AT_RISK"
+### Community 24 - "P1-G-00 Remains REFACTORED and AT_RISK"
 Cohesion: 0.29
 Nodes (7): App Import Isolation PASS-MOCK, Global Branch Coverage Is 43.17 Percent, Coverage Gate Fails the 60 Percent Branch Threshold, P1-G-00 Remains REFACTORED and AT_RISK, Real PostgreSQL Evidence Is Unavailable, Prisma Format Gate Remains Open, Real Startup Dependencies and Infrastructure Remain Unobserved
 
-### Community 26 - "mapPrismaError()"
+### Community 25 - "mapPrismaError()"
 Cohesion: 0.43
 Nodes (5): Raw Prisma Cause Preservation Test, DomainError, DomainError.cause, mapPrismaError(), prismaCode()
 
-### Community 27 - "ImportPage"
+### Community 26 - "ImportPage"
 Cohesion: 0.29
 Nodes (7): ImportPage Confirmation Contracts, ImportPage, Accessible CSV File Input, Import Confirmation Feedback, useFamilyStore, confirmImport, previewCSV
 
-### Community 28 - "Optional Vision AI Configuration"
+### Community 27 - "Optional Vision AI Configuration"
 Cohesion: 0.33
 Nodes (6): AI Credential Configuration Check, Tesseract-Only OCR Fallback, Text AI Service Configuration, Optional Vision AI Configuration, Vision Credential and Model Check, Low-Temperature Vision Determinism Rationale
 
-### Community 29 - "ReportsPage.tsx"
+### Community 28 - "ReportsPage.tsx"
 Cohesion: 0.33
 Nodes (0):
 
-### Community 30 - "reportService.ts"
+### Community 29 - "reportService.ts"
 Cohesion: 0.33
 Nodes (0):
 
-### Community 31 - "Purple Foundation Layer"
+### Community 30 - "Purple Foundation Layer"
 Cohesion: 0.67
 Nodes (6): Depth Through Layer Separation, Dashed Inter-Layer Guides, Layered System Architecture Metaphor, Layered Stack Hero Illustration, Purple Foundation Layer, Upper Rounded Layer
 
-### Community 32 - "Prisma Financial-Mutation Adapter Contract Tests"
+### Community 31 - "Prisma Financial-Mutation Adapter Contract Tests"
 Cohesion: 0.33
 Nodes (6): Non-finite JSON numbers: NaN, Infinity, and -Infinity, P1-G-06 Coverage Quality Gate, Prisma Financial-Mutation Adapter Contract Tests, JSON rejection before Prisma persistence, Phase 1 Prisma financial-mutation adapter facts, toJson() finite-number validation
 
-### Community 33 - "familyAccess.ts"
+### Community 32 - "familyAccess.ts"
 Cohesion: 0.6
 Nodes (3): attachFamilyContext(), loadFamilyMembership(), requireFamilyAccess()
 
-### Community 34 - "Report Runtime and Reconciliation Epic"
+### Community 33 - "Report Runtime and Reconciliation Epic"
 Cohesion: 0.4
 Nodes (5): Derived Statement Reconciliation Invariant, Baseline Other Cash Flow Omission, Baseline Income Statement Authentication Break, UI Smoke Evidence Citation, Report Runtime and Reconciliation Epic
 
-### Community 35 - "Gradient Lightning-Bolt Favicon"
+### Community 34 - "Gradient Lightning-Bolt Favicon"
 Cohesion: 0.5
 Nodes (5): Compact Browser Identity Mark, Gradient Lightning-Bolt Favicon, Lightning-Bolt Silhouette, Mask-Clipped Blurred Ellipse Shading, Purple-Cyan Glow Palette
 
-### Community 36 - "Lightning Bolt Symbol"
+### Community 35 - "Lightning Bolt Symbol"
 Cohesion: 0.4
 Nodes (5): Lightning Bolt Symbol, Parenthesis Frame, Purple-Blue Gradient, Theme-Adaptive Contrast, Vite Brand Mark
 
-### Community 37 - "VALIDATION_FAILED for an empty or whitespace-only resourceId"
+### Community 36 - "VALIDATION_FAILED for an empty or whitespace-only resourceId"
 Cohesion: 0.5
 Nodes (5): Coordinator pre-audit resourceId result guard, Real PostgreSQL failure-injection rollback test, P1-A-03 service-boundary hardening, Invalid-result rollback leaves Income, IdempotencyRecord, and AuditEvent unchanged, VALIDATION_FAILED for an empty or whitespace-only resourceId
 
-### Community 38 - "JWT Secret Strength Validation"
+### Community 37 - "JWT Secret Strength Validation"
 Cohesion: 0.83
 Nodes (4): Fail-Fast Security Configuration, JWT Secret Strength Validation, Test-Environment Secret Validation Bypass, Security Configuration Contract Tests
 
-### Community 39 - "export.ts"
+### Community 38 - "export.ts"
 Cohesion: 0.5
 Nodes (0):
 
-### Community 40 - "reportFormulas.ts"
+### Community 39 - "reportFormulas.ts"
 Cohesion: 0.67
 Nodes (2): classifyCashFlowCategory(), includesAny()
 
-### Community 41 - "Budget Progress Tracking"
+### Community 40 - "Budget Progress Tracking"
 Cohesion: 0.5
 Nodes (4): Family Budget Management, Budget Progress Tracking, Family Financial Goals, Financial Goal Progress
+
+### Community 41 - "Baseline Cache-Before-Authorization Bypass"
+Cohesion: 0.5
+Nodes (4): Cache Is Not an Authorization Boundary, Baseline Cache-Before-Authorization Bypass, Redis Security and Cache Key Best Practices Citation, Authorization-First Tenant-Safe Cache Epic
 
 ### Community 42 - "Unified Write Authorization Epic"
 Cohesion: 0.5
 Nodes (4): Centralized Family Authorization Policy Boundary, Viewer Read-Only Invariant, Baseline Viewer Write Authorization Bypass, Unified Write Authorization Epic
 
-### Community 43 - "Baseline Cache-Before-Authorization Bypass"
-Cohesion: 0.5
-Nodes (4): Cache Is Not an Authorization Boundary, Baseline Cache-Before-Authorization Bypass, Redis Security and Cache Key Best Practices Citation, Authorization-First Tenant-Safe Cache Epic
-
-### Community 44 - "Trust Before Scale and Intelligence Strategy"
+### Community 43 - "Trust Before Scale and Intelligence Strategy"
 Cohesion: 0.5
 Nodes (4): Trust Before Scale and Intelligence Strategy, Delay New Write Features Until Stabilization Rationale, Risk-First Modular Monolith Evolution, Behavior Tests Make Incremental Strategy Safer Rationale
 
-### Community 45 - "Phase 0 Cache Remediation"
+### Community 44 - "Phase 0 Cache Remediation"
 Cohesion: 0.5
 Nodes (4): Remediation Evidence State Machine, P0-B Authorization and Versioned Cache Plan, Phase 0 Cache Remediation, Phase 0 Not Released or Observed
 
-### Community 46 - "Focused Ledger Run Passes 2 Suites and 12 Tests"
+### Community 45 - "Focused Ledger Run Passes 2 Suites and 12 Tests"
 Cohesion: 0.5
 Nodes (4): effectiveDate Validated Before Authorization or Mutation, Focused Ledger Run Passes 2 Suites and 12 Tests, Top-Level effectiveDate Command Boundary, Viewer Denial Has Zero Financial Side Effects in Mock Tests
 
-### Community 47 - "Browser-Facing MinIO Client"
+### Community 46 - "Browser-Facing MinIO Client"
 Cohesion: 0.67
 Nodes (4): Presigned Browser File URL, Browser-Facing MinIO Client, Separate Public Endpoint Rationale, MinIO Public Endpoint Contract Tests
 
-### Community 48 - "ImportPage.tsx"
+### Community 47 - "ImportPage.tsx"
 Cohesion: 0.5
 Nodes (0):
 
-### Community 49 - "ai.test.ts"
+### Community 48 - "ai.test.ts"
 Cohesion: 0.67
 Nodes (0):
 
-### Community 50 - "ai.ts"
+### Community 49 - "ai.ts"
 Cohesion: 0.67
 Nodes (0):
 
-### Community 51 - "files.ts"
+### Community 50 - "files.ts"
 Cohesion: 0.67
 Nodes (0):
 
-### Community 52 - "fileStorageService.ts"
+### Community 51 - "fileStorageService.ts"
 Cohesion: 1.0
 Nodes (2): base64ToBuffer(), storeOcrImage()
 
-### Community 53 - "financialMutationCoordinator.test.ts"
+### Community 52 - "financialMutationCoordinator.test.ts"
 Cohesion: 0.67
 Nodes (0):
 
-### Community 54 - "family-permissions.test.ts"
+### Community 53 - "family-permissions.test.ts"
 Cohesion: 0.67
 Nodes (0):
 
-### Community 55 - "phase1SchemaContract.test.ts"
+### Community 54 - "phase1SchemaContract.test.ts"
 Cohesion: 0.67
 Nodes (0):
 
-### Community 56 - "Perceptual Hash Hamming Distance"
+### Community 55 - "Perceptual Hash Hamming Distance"
 Cohesion: 0.67
 Nodes (3): Perceptual Image Hash Computation, Perceptual Hash Hamming Distance, Similar Image Threshold Check
 
-### Community 57 - "ui_smoke.py"
+### Community 56 - "ui_smoke.py"
 Cohesion: 0.67
 Nodes (0):
 
-### Community 58 - "Single Declared Base Currency Totals"
+### Community 57 - "Single Declared Base Currency Totals"
 Cohesion: 0.67
 Nodes (3): Single Declared Base Currency Totals, Multi-Currency Calculation Semantics Gap, Do Not Fake Multi-Currency Aggregation Rationale
 
-### Community 59 - "React Compiler Disabled"
+### Community 58 - "React Compiler Disabled"
 Cohesion: 0.67
 Nodes (3): Development and Build Performance Rationale, React Compiler Disabled, Vite React TypeScript Template
 
-### Community 60 - "Only Exact RUN_INTEGRATION=1 Enables Database Tests"
+### Community 59 - "Only Exact RUN_INTEGRATION=1 Enables Database Tests"
 Cohesion: 0.67
 Nodes (3): Only Exact RUN_INTEGRATION=1 Enables Database Tests, RUN_INTEGRATION Values 0 and false Stay Opted Out, Cross-Platform Jest Integration Isolation
 
-### Community 61 - "P1-B-04 Raw Prisma Error Cause"
+### Community 60 - "P1-B-04 Raw Prisma Error Cause"
 Cohesion: 0.67
 Nodes (3): Future Failure Diagnostic Classification, P1-B-04 Raw Prisma Error Cause, Stable Client Error Contract
 
-### Community 62 - "AIPage.test.tsx"
+### Community 61 - "AIPage.test.tsx"
 Cohesion: 0.67
 Nodes (0):
 
-### Community 63 - "createApp()"
+### Community 62 - "createApp()"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 64 - "cache.authorization.test.ts"
+### Community 63 - "cache.authorization.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 65 - "cache.invalidation.test.ts"
+### Community 64 - "cache.invalidation.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 66 - "cache.ts"
+### Community 65 - "cache.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 67 - "familyAccess.test.ts"
+### Community 66 - "familyAccess.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 68 - "familyCache.ts"
+### Community 67 - "familyCache.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 69 - "checkFamilyAccess()"
+### Community 68 - "checkFamilyAccess()"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 70 - "budgets.test.ts"
+### Community 69 - "budgets.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 71 - "budgets.ts"
+### Community 70 - "budgets.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 72 - "category.test.ts"
+### Community 71 - "category.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 73 - "category.ts"
+### Community 72 - "category.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 74 - "compare.test.ts"
+### Community 73 - "compare.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 75 - "compare.ts"
+### Community 74 - "compare.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 76 - "expenses.ts"
+### Community 75 - "expenses.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 77 - "export.test.ts"
+### Community 76 - "export.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 78 - "families.test.ts"
+### Community 77 - "families.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 79 - "files.test.ts"
+### Community 78 - "files.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 80 - "goals.test.ts"
+### Community 79 - "goals.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 81 - "goals.ts"
+### Community 80 - "goals.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 82 - "import.test.ts"
+### Community 81 - "import.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 83 - "import.ts"
+### Community 82 - "import.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 84 - "incomes.ts"
+### Community 83 - "incomes.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 85 - "liabilities.ts"
+### Community 84 - "liabilities.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 86 - "recurring.test.ts"
+### Community 85 - "recurring.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 87 - "recurring.ts"
+### Community 86 - "recurring.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 88 - "reports.test.ts"
+### Community 87 - "reports.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 89 - "categoryService.ts"
+### Community 88 - "categoryService.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 90 - "ledgerApplicationService.test.ts"
+### Community 89 - "ledgerApplicationService.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 91 - "ledgerTransactionOrchestration.test.ts"
+### Community 90 - "ledgerTransactionOrchestration.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 92 - "database.integration.test.ts"
+### Community 91 - "database.integration.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 93 - "Family-scoped Fixture Contracts"
+### Community 92 - "Family-scoped Fixture Contracts"
 Cohesion: 1.0
 Nodes (2): Family-scoped Fixture Contracts, Finance Domain Test Data Factories
 
-### Community 94 - "jestConfig.test.ts"
+### Community 93 - "jestConfig.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 95 - "ReportsPage.test.tsx"
+### Community 94 - "ReportsPage.test.tsx"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 96 - "Executable Source-of-Truth Hierarchy"
+### Community 95 - "Executable Source-of-Truth Hierarchy"
 Cohesion: 1.0
 Nodes (2): Executable Source-of-Truth Hierarchy, Code-Level Regression Verified Status
+
+### Community 96 - "Evidence-Backed Deep Review Framework"
+Cohesion: 1.0
+Nodes (2): Evidence-Backed Deep Review Framework, HomeFinance Source Baseline Citation
 
 ### Community 97 - "Sustainable Project Memory Loop"
 Cohesion: 1.0
 Nodes (2): Sustainable Project Memory Loop, Graphify Knowledge Graph Evidence Citation
 
-### Community 98 - "Evidence-Backed Deep Review Framework"
-Cohesion: 1.0
-Nodes (2): Evidence-Backed Deep Review Framework, HomeFinance Source Baseline Citation
-
-### Community 99 - "Focused RED-GREEN-REFACTOR Workflow"
+### Community 98 - "Focused RED-GREEN-REFACTOR Workflow"
 Cohesion: 1.0
 Nodes (2): Focused RED-GREEN-REFACTOR Workflow, Executable CI Quality Gates
 
-### Community 100 - "Auditability Precedes More Generative AI Rationale"
+### Community 99 - "Auditability Precedes More Generative AI Rationale"
 Cohesion: 1.0
 Nodes (2): Auditability Precedes More Generative AI Rationale, Immutable Audit Trail and Reconciliation
 
-### Community 101 - "P1-A-02 Evidence Is PASS-MOCK"
+### Community 100 - "P1-A-02 Evidence Is PASS-MOCK"
 Cohesion: 1.0
 Nodes (2): P1-A-02 Evidence Is PASS-MOCK, ADR-0001 and ADR-0002 Remain Proposed References
 
-### Community 102 - "P1-B-02 coordinator focused tests PASS 14/14"
+### Community 101 - "P1-B-02 coordinator focused tests PASS 14/14"
 Cohesion: 1.0
 Nodes (2): P1-B-02 coordinator focused tests PASS 14/14, P1-B-02 pure coordinator contract remains PASS-MOCK
 
-### Community 103 - "P1-B-01 schema and migration PASS-REAL"
+### Community 102 - "P1-B-01 schema and migration PASS-REAL"
 Cohesion: 1.0
 Nodes (2): P1-B-01 schema and migration PASS-REAL, P1-G-01 PostgreSQL migration and rollback primitives PASS-REAL
 
-### Community 104 - "Internal MinIO Client"
+### Community 103 - "Internal MinIO Client"
 Cohesion: 1.0
 Nodes (2): Internal MinIO Client, MinIO Object Storage Lifecycle
 
-### Community 105 - "ImportPage.test.tsx"
+### Community 104 - "ImportPage.test.tsx"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 106 - "jest.config.js"
+### Community 105 - "jest.config.js"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 107 - "app.test.ts"
+### Community 106 - "app.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 108 - "prisma.ts"
+### Community 107 - "prisma.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 109 - "cache.test.ts"
+### Community 108 - "cache.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 110 - "familyCache.persistence.test.ts"
+### Community 109 - "familyCache.persistence.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 111 - "auth.test.ts"
+### Community 110 - "auth.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 112 - "auth.ts"
+### Community 111 - "auth.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 113 - "families.ts"
+### Community 112 - "families.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 114 - "reports.ts"
+### Community 113 - "reports.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 115 - "aiService.test.ts"
+### Community 114 - "aiService.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 116 - "categoryService.test.ts"
+### Community 115 - "categoryService.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 117 - "fileStorageService.test.ts"
+### Community 116 - "fileStorageService.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 118 - "Recurring Transaction Next-date Calculation"
+### Community 117 - "Recurring Transaction Next-date Calculation"
 Cohesion: 1.0
 Nodes (1): Recurring Transaction Next-date Calculation
 
-### Community 119 - "database.phase1.integration.test.ts"
+### Community 118 - "database.phase1.integration.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 120 - "Backend Test Environment Setup"
+### Community 119 - "Backend Test Environment Setup"
 Cohesion: 1.0
 Nodes (1): Backend Test Environment Setup
 
-### Community 121 - "Decimal-to-Number Conversion"
+### Community 120 - "Decimal-to-Number Conversion"
 Cohesion: 1.0
 Nodes (1): Decimal-to-Number Conversion
 
-### Community 122 - "vitest.config.ts"
+### Community 121 - "vitest.config.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 123 - "Multi-Family Financial Comparison"
+### Community 122 - "Multi-Family Financial Comparison"
 Cohesion: 1.0
 Nodes (1): Multi-Family Financial Comparison
 
-### Community 124 - "Liability Registry"
+### Community 123 - "Liability Registry"
 Cohesion: 1.0
 Nodes (1): Liability Registry
 
-### Community 125 - "setup.ts"
+### Community 124 - "setup.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 126 - "Family ID Tenant Boundary"
+### Community 125 - "Family ID Tenant Boundary"
 Cohesion: 1.0
 Nodes (1): Family ID Tenant Boundary
 
-### Community 127 - "Explicit Confirmation for AI Mutations"
+### Community 126 - "Explicit Confirmation for AI Mutations"
 Cohesion: 1.0
 Nodes (1): Explicit Confirmation for AI Mutations
 
-### Community 128 - "Configured Frontend API Client Boundary"
+### Community 127 - "Configured Frontend API Client Boundary"
 Cohesion: 1.0
 Nodes (1): Configured Frontend API Client Boundary
 
-### Community 129 - "Zustand Global State Convention"
+### Community 128 - "Zustand Global State Convention"
 Cohesion: 1.0
 Nodes (1): Zustand Global State Convention
 
-### Community 130 - "Evidence-to-Observed Risk Status Workflow"
+### Community 129 - "Evidence-to-Observed Risk Status Workflow"
 Cohesion: 1.0
 Nodes (1): Evidence-to-Observed Risk Status Workflow
 
-### Community 131 - "Cache Rollback Must Preserve Authorization"
+### Community 130 - "Cache Rollback Must Preserve Authorization"
 Cohesion: 1.0
 Nodes (1): Cache Rollback Must Preserve Authorization
 
-### Community 132 - "PostgreSQL Revision Survives Redis Outage and Restart"
+### Community 131 - "PostgreSQL Revision Survives Redis Outage and Restart"
 Cohesion: 1.0
 Nodes (1): PostgreSQL Revision Survives Redis Outage and Restart
 
-### Community 133 - "Dynamic Family Financial Reporting"
+### Community 132 - "Dynamic Family Financial Reporting"
 Cohesion: 1.0
 Nodes (1): Dynamic Family Financial Reporting
 
-### Community 134 - "Desktop Login Screenshot"
+### Community 133 - "Desktop Login Screenshot"
 Cohesion: 1.0
 Nodes (1): Desktop Login Screenshot
 
-### Community 135 - "Labeled Login Form"
+### Community 134 - "Labeled Login Form"
 Cohesion: 1.0
 Nodes (1): Labeled Login Form
 
-### Community 136 - "Desktop Reports Screenshot"
+### Community 135 - "Desktop Reports Screenshot"
 Cohesion: 1.0
 Nodes (1): Desktop Reports Screenshot
 
-### Community 137 - "Financial Reports Dashboard UI"
+### Community 136 - "Financial Reports Dashboard UI"
 Cohesion: 1.0
 Nodes (1): Financial Reports Dashboard UI
 
-### Community 138 - "Server Owns Process Lifecycle"
+### Community 137 - "Server Owns Process Lifecycle"
 Cohesion: 1.0
 Nodes (1): Server Owns Process Lifecycle
 
-### Community 139 - "Database-First Idempotency and Concurrency Plan"
+### Community 138 - "Database-First Idempotency and Concurrency Plan"
 Cohesion: 1.0
 Nodes (1): Database-First Idempotency and Concurrency Plan
 
-### Community 140 - "Server Owns Startup, Shutdown, and External Initialization"
+### Community 139 - "Server Owns Startup, Shutdown, and External Initialization"
 Cohesion: 1.0
 Nodes (1): Server Owns Startup, Shutdown, and External Initialization
 
-### Community 141 - "Import/recurring/AI mutation adoption remains open"
+### Community 140 - "Import/recurring/AI mutation adoption remains open"
 Cohesion: 1.0
 Nodes (1): Import/recurring/AI mutation adoption remains open
 
-### Community 142 - "Populated upgrade/restore remains unverified"
+### Community 141 - "Populated upgrade/restore remains unverified"
 Cohesion: 1.0
 Nodes (1): Populated upgrade/restore remains unverified
 
-### Community 143 - "Staging/release observation remains open"
+### Community 142 - "Staging/release observation remains open"
 Cohesion: 1.0
 Nodes (1): Staging/release observation remains open
 
-### Community 144 - "P1-0-05 ADR-0001/0002 contract accepted (decision evidence)"
+### Community 143 - "P1-0-05 ADR-0001/0002 contract accepted (decision evidence)"
 Cohesion: 1.0
 Nodes (1): P1-0-05 ADR-0001/0002 contract accepted (decision evidence)
 
-### Community 145 - "Income or Expense Ledger Fact"
+### Community 144 - "Income or Expense Ledger Fact"
 Cohesion: 1.0
 Nodes (1): Income or Expense Ledger Fact
 
-### Community 146 - "P1-A-03 PASS-MOCK Evidence"
+### Community 145 - "P1-A-03 PASS-MOCK Evidence"
 Cohesion: 1.0
 Nodes (1): P1-A-03 PASS-MOCK Evidence
 
-### Community 147 - "Global Branch and Function Coverage Gate"
+### Community 146 - "Global Branch and Function Coverage Gate"
 Cohesion: 1.0
 Nodes (1): Global Branch and Function Coverage Gate
 
-### Community 148 - "P1-B-04 raw Prisma error capture required"
+### Community 147 - "P1-B-04 raw Prisma error capture required"
 Cohesion: 1.0
 Nodes (1): P1-B-04 raw Prisma error capture required
 
-### Community 149 - "Unclassified Real-Failure Risk"
+### Community 148 - "Unclassified Real-Failure Risk"
 Cohesion: 1.0
 Nodes (1): Unclassified Real-Failure Risk
 
-### Community 150 - "minio.test.ts"
+### Community 149 - "minio.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 151 - "server.test.ts"
+### Community 150 - "server.test.ts"
 Cohesion: 1.0
 Nodes (0):
 
-### Community 152 - "MinIO startup failure propagation"
+### Community 151 - "MinIO startup failure propagation"
 Cohesion: 1.0
 Nodes (1): MinIO startup failure propagation
 
 ## Knowledge Gaps
-- **222 isolated node(s):** `AI Credential Configuration Check`, `Vision Credential and Model Check`, `Tesseract-Only OCR Fallback`, `Low-Temperature Vision Determinism Rationale`, `Shared Redis Client` (+217 more)
+- **224 isolated node(s):** `AI Credential Configuration Check`, `Vision Credential and Model Check`, `Tesseract-Only OCR Fallback`, `Low-Temperature Vision Determinism Rationale`, `Shared Redis Client` (+219 more)
   These have ��1 connection - possible missing edges or undocumented components.
 - **Thin community `createApp()`** (2 nodes): `createApp()`, `app.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
@@ -872,9 +867,9 @@ Nodes (1): MinIO startup failure propagation
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `Executable Source-of-Truth Hierarchy`** (2 nodes): `Executable Source-of-Truth Hierarchy`, `Code-Level Regression Verified Status`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Sustainable Project Memory Loop`** (2 nodes): `Sustainable Project Memory Loop`, `Graphify Knowledge Graph Evidence Citation`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `Evidence-Backed Deep Review Framework`** (2 nodes): `Evidence-Backed Deep Review Framework`, `HomeFinance Source Baseline Citation`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Sustainable Project Memory Loop`** (2 nodes): `Sustainable Project Memory Loop`, `Graphify Knowledge Graph Evidence Citation`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `Focused RED-GREEN-REFACTOR Workflow`** (2 nodes): `Focused RED-GREEN-REFACTOR Workflow`, `Executable CI Quality Gates`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
@@ -988,17 +983,17 @@ Nodes (1): MinIO startup failure propagation
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `HomeFinance Graphify Knowledge Graph Report` connect `HomeFinance Graphify Knowledge Graph Report` to `Financial Write Integrity Analysis`, `Frontend Quality and User Experience Analysis`?**
+- **Why does `HomeFinance Graphify Knowledge Graph Report` connect `HomeFinance Graphify Knowledge Graph Report` to `Frontend Quality and User Experience Analysis`, `Financial Write Integrity Analysis`?**
   _High betweenness centrality (0.006) - this node is a cross-community bridge._
+- **Why does `Core Family Finance Data Model` connect `Income Ledger` to `HomeFinance System`?**
+  _High betweenness centrality (0.004) - this node is a cross-community bridge._
 - **Why does `Low-Cohesion Frontend Finance Domain` connect `Frontend Quality and User Experience Analysis` to `HomeFinance Graphify Knowledge Graph Report`?**
   _High betweenness centrality (0.003) - this node is a cross-community bridge._
 - **Are the 6 inferred relationships involving `Dual-Mode Family Income and Expense Ledger` (e.g. with `Category Budget Progress Tracking` and `Family Cash Flow Statement`) actually correct?**
   _`Dual-Mode Family Income and Expense Ledger` has 6 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `AI Credential Configuration Check`, `Vision Credential and Model Check`, `Tesseract-Only OCR Fallback` to the rest of the system?**
-  _222 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _224 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Current Family Data Scope` be split into smaller, more focused modules?**
   _Cohesion score 0.05 - nodes in this community are weakly interconnected._
 - **Should `Income Ledger` be split into smaller, more focused modules?**
-  _Cohesion score 0.06 - nodes in this community are weakly interconnected._
-- **Should `HomeFinance Graphify Knowledge Graph Report` be split into smaller, more focused modules?**
-  _Cohesion score 0.09 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07 - nodes in this community are weakly interconnected._
