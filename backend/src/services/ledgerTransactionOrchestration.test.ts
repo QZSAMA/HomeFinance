@@ -39,8 +39,18 @@ const createStore = () => {
         responseJson: data.responseJson,
       })),
     },
-    income: { create: jest.fn(async () => ({ id: 'income-1', version: 1 })) },
-    expense: { create: jest.fn() },
+    income: {
+      create: jest.fn(async () => ({ id: 'income-1', version: 1 })),
+      findFirst: jest.fn(),
+      updateMany: jest.fn(),
+      deleteMany: jest.fn(),
+    },
+    expense: {
+      create: jest.fn(),
+      findFirst: jest.fn(),
+      updateMany: jest.fn(),
+      deleteMany: jest.fn(),
+    },
     auditEvent: { create: jest.fn(async () => ({ id: 'audit-1' })) },
   };
 

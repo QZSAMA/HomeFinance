@@ -32,7 +32,8 @@ export const createApp = (): Express => {
     origin: CORS_ORIGIN,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Idempotency-Key', 'If-Match']
+    allowedHeaders: ['Content-Type', 'Authorization', 'Idempotency-Key', 'If-Match'],
+    exposedHeaders: ['Idempotency-Replayed'],
   }));
 
 // OCR 接口需要上传 base64 图片，默认 100kb 不够，提升到 10MB

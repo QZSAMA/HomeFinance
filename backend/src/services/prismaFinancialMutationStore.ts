@@ -93,8 +93,22 @@ const adapt = (tx: Prisma.TransactionClient): LedgerTransactionClient => ({
       },
     }).then((value) => snapshot(value)!),
   },
-  income: { create: ({ data }) => tx.income.create({ data }).then(toLedgerRecord) },
-  expense: { create: ({ data }) => tx.expense.create({ data }).then(toLedgerRecord) },
+  income: {
+    create: ({ data }) => tx.income.create({ data }).then(toLedgerRecord),
+    findFirst: ({ where }) => tx.income.findFirst({ where }).then((value) => (
+      value === null ? null : toLedgerRecord(value)
+    )),
+    updateMany: ({ where, data }) => tx.income.updateMany({ where, data }),
+    deleteMany: ({ where }) => tx.income.deleteMany({ where }),
+  },
+  expense: {
+    create: ({ data }) => tx.expense.create({ data }).then(toLedgerRecord),
+    findFirst: ({ where }) => tx.expense.findFirst({ where }).then((value) => (
+      value === null ? null : toLedgerRecord(value)
+    )),
+    updateMany: ({ where, data }) => tx.expense.updateMany({ where, data }),
+    deleteMany: ({ where }) => tx.expense.deleteMany({ where }),
+  },
   auditEvent: {
     create: ({ data }) => tx.auditEvent.create({
       data: {

@@ -3,11 +3,15 @@ import { DomainError } from './ledgerErrors';
 import {
   CreateExpenseCommand,
   CreateIncomeCommand,
+  DeleteExpenseCommand,
+  DeleteIncomeCommand,
   FinancialMutationStore,
   LedgerRecord,
   MUTATION_SOURCES,
   MutationResult,
   MutationSource,
+  UpdateExpenseCommand,
+  UpdateIncomeCommand,
 } from './ledgerTypes';
 
 const requireText = (value: unknown, field: string): string => {
@@ -76,6 +80,52 @@ const validateCommandScope = (command: {
       400,
     );
   }
+};
+
+const requireVersion = (value: unknown): number => {
+  if (!Number.isSafeInteger(value) || (value as number) < 1) {
+    throw new DomainError(
+      'VALIDATION_FAILED',
+      'expectedVersion must be a positive integer.',
+      400,
+    );
+  }
+  return value as number;
+};
+
+const storedVersion = (record: LedgerRecord): number => {
+  if (!Number.isSafeInteger(record.version) || (record.version as number) < 1) {
+    throw new DomainError(
+      'INTERNAL_ERROR',
+      'The stored ledger record has no valid version.',
+      500,
+    );
+  }
+  return record.version as number;
+};
+
+const resourceNotFound = (): never => {
+  throw new DomainError(
+    'RESOURCE_NOT_FOUND',
+    'The requested family resource was not found.',
+    404,
+  );
+};
+
+const versionConflict = (): never => {
+  throw new DomainError(
+    'VERSION_CONFLICT',
+    'The ledger record was changed by another request.',
+    409,
+  );
+};
+
+const updatedRecordMissing = (): never => {
+  throw new DomainError(
+    'INTERNAL_ERROR',
+    'The updated ledger record could not be loaded.',
+    500,
+  );
 };
 
 export async function createIncome(
@@ -161,6 +211,206 @@ export async function createExpense(
         resourceId: record.id,
         record,
         version: record.version,
+      };
+    },
+  );
+}
+
+export async function updateIncome(
+  command: UpdateIncomeCommand,
+  store: FinancialMutationStore,
+): Promise<MutationResult<LedgerRecord>> {
+  validateCommandScope(command);
+  const incomeId = requireText(command.incomeId, 'incomeId');
+  if (command.expectedVersion !== undefined) requireVersion(command.expectedVersion);
+  const payload = {
+    amount: requireAmount(command.payload.amount),
+    category: requireText(command.payload.category, 'category'),
+    description: optionalText(command.payload.description),
+    source: optionalText(command.payload.source),
+    date: requireDate(command.effectiveDate),
+    currency: normalizeCurrency(command.payload.currency),
+  };
+
+  return coordinateFinancialMutation(
+    {
+      familyId: command.familyId,
+      actorId: command.actorId,
+      source: command.source,
+      idempotencyKey: command.idempotencyKey,
+      operation: 'UPDATE_INCOME',
+      requestPayload: {
+        incomeId,
+        expectedVersion: command.expectedVersion ?? null,
+        source: command.source,
+        payload,
+      },
+      audit: { action: 'UPDATE', entity: 'Income' },
+    },
+    store,
+    async (transaction) => {
+      const before = await transaction.income.findFirst({
+        where: { id: incomeId, familyId: command.familyId },
+      });
+      if (!before) return resourceNotFound();
+      const expectedVersion = command.expectedVersion ?? storedVersion(before);
+      const outcome = await transaction.income.updateMany({
+        where: { id: incomeId, familyId: command.familyId, version: expectedVersion },
+        data: { ...payload, version: { increment: 1 } },
+      });
+      if (outcome.count !== 1) return versionConflict();
+      const record = await transaction.income.findFirst({
+        where: { id: incomeId, familyId: command.familyId },
+      });
+      if (!record) return updatedRecordMissing();
+      return {
+        resourceId: incomeId,
+        record,
+        version: storedVersion(record),
+        before,
+      };
+    },
+  );
+}
+
+export async function updateExpense(
+  command: UpdateExpenseCommand,
+  store: FinancialMutationStore,
+): Promise<MutationResult<LedgerRecord>> {
+  validateCommandScope(command);
+  const expenseId = requireText(command.expenseId, 'expenseId');
+  if (command.expectedVersion !== undefined) requireVersion(command.expectedVersion);
+  const payload = {
+    amount: requireAmount(command.payload.amount),
+    category: requireText(command.payload.category, 'category'),
+    description: optionalText(command.payload.description),
+    paymentMethod: optionalText(command.payload.paymentMethod),
+    date: requireDate(command.effectiveDate),
+    currency: normalizeCurrency(command.payload.currency),
+  };
+
+  return coordinateFinancialMutation(
+    {
+      familyId: command.familyId,
+      actorId: command.actorId,
+      source: command.source,
+      idempotencyKey: command.idempotencyKey,
+      operation: 'UPDATE_EXPENSE',
+      requestPayload: {
+        expenseId,
+        expectedVersion: command.expectedVersion ?? null,
+        source: command.source,
+        payload,
+      },
+      audit: { action: 'UPDATE', entity: 'Expense' },
+    },
+    store,
+    async (transaction) => {
+      const before = await transaction.expense.findFirst({
+        where: { id: expenseId, familyId: command.familyId },
+      });
+      if (!before) return resourceNotFound();
+      const expectedVersion = command.expectedVersion ?? storedVersion(before);
+      const outcome = await transaction.expense.updateMany({
+        where: { id: expenseId, familyId: command.familyId, version: expectedVersion },
+        data: { ...payload, version: { increment: 1 } },
+      });
+      if (outcome.count !== 1) return versionConflict();
+      const record = await transaction.expense.findFirst({
+        where: { id: expenseId, familyId: command.familyId },
+      });
+      if (!record) return updatedRecordMissing();
+      return {
+        resourceId: expenseId,
+        record,
+        version: storedVersion(record),
+        before,
+      };
+    },
+  );
+}
+
+export async function deleteIncome(
+  command: DeleteIncomeCommand,
+  store: FinancialMutationStore,
+): Promise<MutationResult<LedgerRecord>> {
+  validateCommandScope(command);
+  const incomeId = requireText(command.incomeId, 'incomeId');
+  if (command.expectedVersion !== undefined) requireVersion(command.expectedVersion);
+  requireDate(command.effectiveDate);
+
+  return coordinateFinancialMutation(
+    {
+      familyId: command.familyId,
+      actorId: command.actorId,
+      source: command.source,
+      idempotencyKey: command.idempotencyKey,
+      operation: 'DELETE_INCOME',
+      requestPayload: {
+        incomeId,
+        expectedVersion: command.expectedVersion ?? null,
+        source: command.source,
+      },
+      audit: { action: 'DELETE', entity: 'Income' },
+    },
+    store,
+    async (transaction) => {
+      const before = await transaction.income.findFirst({
+        where: { id: incomeId, familyId: command.familyId },
+      });
+      if (!before) return resourceNotFound();
+      const expectedVersion = command.expectedVersion ?? storedVersion(before);
+      const outcome = await transaction.income.deleteMany({
+        where: { id: incomeId, familyId: command.familyId, version: expectedVersion },
+      });
+      if (outcome.count !== 1) return versionConflict();
+      return {
+        resourceId: incomeId,
+        version: expectedVersion,
+        before,
+      };
+    },
+  );
+}
+
+export async function deleteExpense(
+  command: DeleteExpenseCommand,
+  store: FinancialMutationStore,
+): Promise<MutationResult<LedgerRecord>> {
+  validateCommandScope(command);
+  const expenseId = requireText(command.expenseId, 'expenseId');
+  if (command.expectedVersion !== undefined) requireVersion(command.expectedVersion);
+  requireDate(command.effectiveDate);
+
+  return coordinateFinancialMutation(
+    {
+      familyId: command.familyId,
+      actorId: command.actorId,
+      source: command.source,
+      idempotencyKey: command.idempotencyKey,
+      operation: 'DELETE_EXPENSE',
+      requestPayload: {
+        expenseId,
+        expectedVersion: command.expectedVersion ?? null,
+        source: command.source,
+      },
+      audit: { action: 'DELETE', entity: 'Expense' },
+    },
+    store,
+    async (transaction) => {
+      const before = await transaction.expense.findFirst({
+        where: { id: expenseId, familyId: command.familyId },
+      });
+      if (!before) return resourceNotFound();
+      const expectedVersion = command.expectedVersion ?? storedVersion(before);
+      const outcome = await transaction.expense.deleteMany({
+        where: { id: expenseId, familyId: command.familyId, version: expectedVersion },
+      });
+      if (outcome.count !== 1) return versionConflict();
+      return {
+        resourceId: expenseId,
+        version: expectedVersion,
+        before,
       };
     },
   );

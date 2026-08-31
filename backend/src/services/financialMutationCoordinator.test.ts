@@ -50,8 +50,18 @@ const createCoordinatorStore = () => {
         return record;
       }),
     },
-    income: { create: jest.fn() },
-    expense: { create: jest.fn() },
+    income: {
+      create: jest.fn(),
+      findFirst: jest.fn(),
+      updateMany: jest.fn(),
+      deleteMany: jest.fn(),
+    },
+    expense: {
+      create: jest.fn(),
+      findFirst: jest.fn(),
+      updateMany: jest.fn(),
+      deleteMany: jest.fn(),
+    },
     auditEvent: {
       create: jest.fn(async ({ data }) => ({ id: 'audit-1', ...data })),
     },

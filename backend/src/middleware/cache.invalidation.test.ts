@@ -33,13 +33,19 @@ jest.mock('../config/redis', () => ({
   },
 }));
 
+jest.mock('../services/ledgerApplicationService', () => ({
+  createExpense: jest.fn(),
+}));
+
 import { prisma } from '../db/prisma';
 import { redisClient } from '../config/redis';
+import * as ledgerApplicationService from '../services/ledgerApplicationService';
 import expenseRoutes from '../routes/expenses';
 import reportRoutes from '../routes/reports';
 
 const mockedPrisma = prisma as any;
 const mockedRedis = redisClient as any;
+const mockedLedger = ledgerApplicationService as unknown as { createExpense: jest.Mock };
 
 function createToken(userId: string) {
   return jwt.sign(
@@ -110,23 +116,29 @@ describe('report cache invalidation', () => {
         && expense.date.getTime() < upperBound
       ));
     });
-    mockedPrisma.expense.create.mockImplementation(async ({ data }: any) => {
+    mockedLedger.createExpense.mockImplementation(async (command: any) => {
       const now = new Date();
       const expense = {
         id: `expense-${expenses.length + 1}`,
-        familyId: data.familyId,
-        createdBy: data.createdBy,
-        category: data.category,
-        amount: data.amount,
-        description: data.description ?? null,
-        paymentMethod: data.paymentMethod ?? null,
-        date: data.date,
+        familyId: command.familyId,
+        createdBy: command.actorId,
+        category: command.payload.category,
+        amount: command.payload.amount,
+        description: command.payload.description ?? null,
+        paymentMethod: command.payload.paymentMethod ?? null,
+        date: command.effectiveDate,
         createdAt: now,
         updatedAt: now,
       };
       expenses.push(expense);
       cacheVersion += 1;
-      return expense;
+      return {
+        operationId: `operation-${expense.id}`,
+        resourceId: expense.id,
+        record: { ...expense, version: 1 },
+        version: 1,
+        deduplicated: false,
+      };
     });
 
     const app = express();
@@ -162,6 +174,7 @@ describe('report cache invalidation', () => {
 
     expect(createResponse.status).toBe(201);
     expect(expenses).toHaveLength(1);
+    expect(mockedLedger.createExpense).toHaveBeenCalledTimes(1);
 
     const refreshedResponse = await request(app)
       .get(summaryUrl)

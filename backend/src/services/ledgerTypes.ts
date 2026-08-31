@@ -40,12 +40,12 @@ export interface CreateExpenseCommand {
 
 export type UpdateIncomeCommand = CreateIncomeCommand & {
   incomeId: string;
-  expectedVersion: number;
+  expectedVersion?: number;
 };
 
 export type UpdateExpenseCommand = CreateExpenseCommand & {
   expenseId: string;
-  expectedVersion: number;
+  expectedVersion?: number;
 };
 
 export type DeleteIncomeCommand = Pick<
@@ -53,7 +53,7 @@ export type DeleteIncomeCommand = Pick<
   'familyId' | 'actorId' | 'source' | 'idempotencyKey' | 'effectiveDate'
 > & {
   incomeId: string;
-  expectedVersion: number;
+  expectedVersion?: number;
 };
 
 export type DeleteExpenseCommand = Pick<
@@ -61,7 +61,7 @@ export type DeleteExpenseCommand = Pick<
   'familyId' | 'actorId' | 'source' | 'idempotencyKey' | 'effectiveDate'
 > & {
   expenseId: string;
-  expectedVersion: number;
+  expectedVersion?: number;
 };
 
 export interface MutationResult<TRecord = unknown> {
@@ -172,6 +172,24 @@ export interface LedgerTransactionClient {
         originType: MutationSource;
       };
     }): Promise<LedgerRecord>;
+    findFirst(args: {
+      where: { id: string; familyId: string };
+    }): Promise<LedgerRecord | null>;
+    updateMany(args: {
+      where: { id: string; familyId: string; version: number };
+      data: {
+        amount: number;
+        category: string;
+        description?: string | null;
+        source?: string | null;
+        date: Date;
+        currency: string;
+        version: { increment: number };
+      };
+    }): Promise<{ count: number }>;
+    deleteMany(args: {
+      where: { id: string; familyId: string; version: number };
+    }): Promise<{ count: number }>;
   };
   expense: {
     create(args: {
@@ -187,6 +205,24 @@ export interface LedgerTransactionClient {
         originType: MutationSource;
       };
     }): Promise<LedgerRecord>;
+    findFirst(args: {
+      where: { id: string; familyId: string };
+    }): Promise<LedgerRecord | null>;
+    updateMany(args: {
+      where: { id: string; familyId: string; version: number };
+      data: {
+        amount: number;
+        category: string;
+        description?: string | null;
+        paymentMethod?: string | null;
+        date: Date;
+        currency: string;
+        version: { increment: number };
+      };
+    }): Promise<{ count: number }>;
+    deleteMany(args: {
+      where: { id: string; familyId: string; version: number };
+    }): Promise<{ count: number }>;
   };
   auditEvent: {
     create(args: {
