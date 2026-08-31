@@ -6,7 +6,7 @@
 - 设计规格：docs/superpowers/specs/2026-08-28-homefinance-phase1-design.md
 - 开发基线：codex/phase0-remediation@081084a
 - 实施分支：codex/phase1-ledger-trust
-- 当前快照：2026-08-28；设计已批准，P1-B-04 已在 PostgreSQL 18.1 localhost:5433 完成真实并发/重放回归；全局 branch coverage 仍未达 60%，Income/Expense route adoption、upgrade/restore、staging/release 仍未完成
+- 当前快照：2026-08-31；设计已批准，P1-B-04 已在 PostgreSQL 18.1 localhost:5433 完成真实并发/重放回归；P1-A-03 已补 service-boundary 的事务结果完整性 RED/GREEN（PASS-MOCK）；全局 branch coverage 仍未达 60%，Income/Expense route adoption、upgrade/restore、staging/release 仍未完成
 
 ## 1. 状态和字段规则
 
@@ -61,7 +61,7 @@
 | P1-G-00 | TASK | P1-G | 分离 app/server/db 启动边界 | P0 | REFACTORED | AT_RISK | Delivery DRI | Technical Approver | hard:P1-0-03@DONE | app import 无 listener/Redis/MinIO 副作用 | evidence/P1-G-00.md | ADR-0001 | build、focused 和 256 个默认单元测试通过；补足全局 branch coverage 后再推进 `REGRESSION_VERIFIED` | 2026-08-28 |
 | P1-A-01 | TASK | P1-A | 固化 Income/Expense CRUD 特征测试 | P0 | BACKLOG | ON_TRACK | Ledger Agent | Technical Approver | hard:P1-0-04@READY | 响应兼容、family 隔离、viewer 拒绝 | evidence/P1-A-01.md | ADR-0001 | 先不迁 route；写 focused RED | 2026-08-28 |
 | P1-A-02 | TASK | P1-A | 定义 Ledger command/result/error | P0 | REFACTORED | AT_RISK | Ledger Agent | Technical Approver | hard:P1-0-05@ACCEPTED | service 不依赖 Express，错误稳定 | evidence/P1-A-02.md | ADR-0001, ADR-0002 | top-level effectiveDate 合同已通过 12 个 focused tests；待 route/schema 和全局 coverage 门禁 | 2026-08-28 |
-| P1-A-03 | TASK | P1-A | 建立 Ledger 事务编排骨架 | P0 | BACKLOG | ON_TRACK | Ledger Agent | Technical Approver | hard:P1-A-02@REGRESSION_VERIFIED; hard:P1-G-00@REGRESSION_VERIFIED | policy、idempotency、write、audit 同 transaction | evidence/P1-A-03.md | ADR-0001, ADR-0002 | 入口 flag；写事务 RED | 2026-08-28 |
+| P1-A-03 | TASK | P1-A | 建立 Ledger 事务编排骨架 | P0 | REFACTORED | AT_RISK | Ledger Agent | Technical Approver | hard:P1-A-02@REGRESSION_VERIFIED; hard:P1-G-00@REGRESSION_VERIFIED | policy、idempotency、write、audit 同 transaction | evidence/P1-A-03.md | ADR-0001, ADR-0002 | service-result RED/GREEN 已通过；coverage 依赖未满足，先补 real rollback 注入后再 route adoption | 2026-08-31 |
 | P1-A-04 | TASK | P1-A | 迁移 Income create/update/delete | P0 | BACKLOG | ON_TRACK | API Agent | Technical Approver | hard:P1-A-03@REGRESSION_VERIFIED | route 无直接 Income mutation，响应兼容 | evidence/P1-A-04.md | ADR-0001 | 入口回退，不双写 | 2026-08-28 |
 | P1-A-05 | TASK | P1-A | 迁移 Expense create/update/delete | P0 | BACKLOG | ON_TRACK | API Agent | Technical Approver | hard:P1-A-03@REGRESSION_VERIFIED | route 无直接 Expense mutation，响应兼容 | evidence/P1-A-05.md | ADR-0001 | 入口回退，不双写 | 2026-08-28 |
 | P1-A-06 | TASK | P1-A | 增加乐观版本并发合同 | P1 | REFACTORED | AT_RISK | Database Agent | Technical Approver | hard:P1-A-04@REGRESSION_VERIFIED; hard:P1-A-05@REGRESSION_VERIFIED | 相同 version 竞争一个成功、一个 409 | evidence/P1-A-06.md | ADR-0002 | PostgreSQL predicate PASS-REAL；待 route/service 接入和 409 映射 | 2026-08-28 |
@@ -69,7 +69,7 @@
 | P1-B-01 | TASK | P1-B | 新增 IdempotencyRecord schema/migration | P0 | REFACTORED | AT_RISK | Database Agent | Technical Approver | hard:P1-0-05@DONE; decision:ADR-0002@ACCEPTED | family/actor/operation/key 唯一 | evidence/P1-B-01.md | ADR-0002 | `17c2644` fresh PG migration/unique/default/version PASS-REAL；待并发 replay/upgrade/restore 后评审 | 2026-08-28 |
 | P1-B-02 | TASK | P1-B | 实现 payload hash/coordinator | P0 | REFACTORED | AT_RISK | Ledger Agent | Technical Approver | hard:P1-B-01@REGRESSION_VERIFIED; hard:P1-A-02@REGRESSION_VERIFIED | 相同 key/hash 重放一份结果 | evidence/P1-B-02.md | ADR-0002 | 纯合同为 PASS-MOCK；P1-B-04 已补真实 adapter/replay 证据；route adoption 仍未完成 | 2026-08-28 |
 | P1-B-03 | TASK | P1-B | 固化 key 冲突错误 | P0 | BACKLOG | ON_TRACK | Ledger Agent | Security Reviewer | hard:P1-B-02@REGRESSION_VERIFIED | 同 key/不同 hash 409 且零写入 | evidence/P1-B-03.md | ADR-0002 | 不复用不同 payload | 2026-08-28 |
-| P1-B-04 | GATE | P1-B | 真实 PostgreSQL 并发仲裁 | P0 | REGRESSION_VERIFIED | ON_TRACK | Database Agent | QA/Evidence Owner | hard:P1-B-02@REGRESSION_VERIFIED; external:POSTGRES_TEST_ENV@AVAILABLE | 20 并发一条账且可 replay | evidence/P1-B-04.md | ADR-0002 | localhost:5433 PostgreSQL 真实通过 3 suites / 24 tests；route adoption 与全局 coverage 仍是后续门禁 | 2026-08-28 |
+| P1-B-04 | GATE | P1-B | 真实 PostgreSQL 并发仲裁 | P0 | REGRESSION_VERIFIED | AT_RISK | Database Agent | QA/Evidence Owner | hard:P1-B-02@REGRESSION_VERIFIED; external:POSTGRES_TEST_ENV@AVAILABLE | 20 并发一条账且可 replay | evidence/P1-B-04.md | ADR-0002 | localhost:5433 随后重跑及 5 次并发压力均通过；本轮首次 aggregate run 出现一次未分类 INTERNAL_ERROR，须保留原始 Prisma 码并复现后再解除风险；route adoption 与全局 coverage 仍是后续门禁 | 2026-08-31 |
 | P1-B-05 | GATE | P1-B | 验证 revision/幂等一致 | P0 | BACKLOG | ON_TRACK | Database Agent | Technical Approver | hard:P1-B-04@REGRESSION_VERIFIED | replay 不重复事实且读到最新 | evidence/P1-B-05.md | ADR-0001, ADR-0002 | 不手工 bump trigger | 2026-08-28 |
 | P1-C-01 | TASK | P1-C | 固化 import 资源限制 | P1 | BACKLOG | ON_TRACK | Import Agent | Security Reviewer | hard:P1-0-06@ACCEPTED | byte/row/field limit 边界返回 413 | evidence/P1-C-01.md | ADR-0003 | limit-1/limit/limit+1 | 2026-08-28 |
 | P1-C-02 | TASK | P1-C | 新增 ImportBatch/ImportRow schema | P0 | BACKLOG | ON_TRACK | Database Agent | Technical Approver | hard:P1-B-01@REGRESSION_VERIFIED | hash/version/status 可追踪 | evidence/P1-C-02.md | ADR-0003 | additive migration；写 RED | 2026-08-28 |

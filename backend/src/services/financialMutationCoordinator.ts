@@ -210,6 +210,16 @@ const validateScope = (input: CoordinateFinancialMutationInput) => {
   }
 };
 
+const validateMutationResult = (mutation: { resourceId: unknown }) => {
+  if (typeof mutation.resourceId !== 'string' || !mutation.resourceId.trim()) {
+    throw new DomainError(
+      'VALIDATION_FAILED',
+      'A mutation must return a resource identifier.',
+      400,
+    );
+  }
+};
+
 export async function coordinateFinancialMutation<TRecord>(
   input: CoordinateFinancialMutationInput,
   store: FinancialMutationStore,
@@ -254,6 +264,7 @@ export async function coordinateFinancialMutation<TRecord>(
         },
       });
       const mutation = await execute(transaction, operation.id);
+      validateMutationResult(mutation);
       const result: MutationResult<TRecord> = {
         operationId: operation.id,
         resourceId: mutation.resourceId,

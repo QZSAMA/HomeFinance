@@ -18,6 +18,19 @@
       "input_tokens": 0,
       "output_tokens": 0,
       "files": 146
+    },
+    {
+      "date": "2026-08-31T03:29:47.181504+00:00",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "files": 5
+    },
+    {
+      "date": "2026-08-31T03:52:50.651139+00:00",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "files": 4,
+      "scope": "narrow semantic refresh; 3 source-backed EXTRACTED edges"
     }
   ],
   "total_input_tokens": 0,
