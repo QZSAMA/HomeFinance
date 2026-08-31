@@ -141,6 +141,50 @@ describe('FinancialMutationCoordinator', () => {
   });
 
   test.each([
+    ['a non-finite number', { amount: Number.NaN }],
+    ['an invalid date', { date: new Date('not-a-date') }],
+    ['a non-plain object', { metadata: new Map([['source', 'manual']]) }],
+    ['an unsupported value', { metadata: Symbol('untrusted') }],
+  ])('rejects %s before opening a financial transaction', async (_case, requestPayload) => {
+    const { store } = createCoordinatorStore();
+
+    await expect(coordinateFinancialMutation(createInput(requestPayload), store, jest.fn()))
+      .rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 400 });
+    expect(store.$transaction).not.toHaveBeenCalled();
+  });
+
+  test.each([
+    ['another family', { familyId: 'family-2', userId: 'user-1', role: 'member' }],
+    ['another user', { familyId: 'family-1', userId: 'user-2', role: 'member' }],
+  ])('rejects a membership belonging to %s before an idempotency lookup', async (_case, membership) => {
+    const { store, transaction } = createCoordinatorStore();
+    (transaction.familyMember.findUnique as jest.Mock).mockResolvedValue(membership);
+
+    await expect(coordinateFinancialMutation(createInput({ amount: 100 }), store, jest.fn()))
+      .rejects.toMatchObject({ code: 'FAMILY_WRITE_FORBIDDEN', status: 403 });
+    expect(transaction.idempotencyRecord.findUnique).not.toHaveBeenCalled();
+  });
+
+  test('rejects an existing operation whose stored response cannot be replayed', async () => {
+    const { store, transaction } = createCoordinatorStore();
+    (transaction.idempotencyRecord.findUnique as jest.Mock).mockResolvedValue({
+      id: 'operation-1',
+      familyId: 'family-1',
+      actorScope: 'USER:user-1',
+      operation: 'CREATE_INCOME',
+      key: 'request-1',
+      payloadHash: hashNormalizedPayload({ source: 'MANUAL', payload: { amount: 100 } }),
+      httpStatus: 201,
+      responseJson: { operationId: 42, resourceId: 'income-1' },
+    });
+    const mutate = jest.fn();
+
+    await expect(coordinateFinancialMutation(createInput({ amount: 100 }), store, mutate))
+      .rejects.toMatchObject({ code: 'IDEMPOTENCY_IN_PROGRESS', status: 409, retryable: true });
+    expect(mutate).not.toHaveBeenCalled();
+  });
+
+  test.each([
     ['P2002', 'CONCURRENT_MUTATION_CONFLICT', 409, true],
     ['P2025', 'RESOURCE_NOT_FOUND', 404, false],
     ['P2034', 'TRANSIENT_DATABASE_FAILURE', 503, true],
@@ -276,6 +320,34 @@ describe('FinancialMutationCoordinator', () => {
     await expect(coordinateFinancialMutation(createInput({ amount: 100 }), store, jest.fn()))
       .rejects.toMatchObject({ code: 'CONCURRENT_MUTATION_CONFLICT', status: 409, retryable: true });
     expect(winnerLookup).not.toHaveBeenCalled();
+  });
+
+  test('does not treat a P2002 for another Prisma model as an idempotency arbitration', async () => {
+    const winnerLookup = jest.fn(async () => null);
+    const store: FinancialMutationStore = {
+      $transaction: jest.fn(async () => {
+        throw { code: 'P2002', meta: { modelName: 'Income' } };
+      }),
+      familyMember: {
+        findUnique: jest.fn(async () => ({ familyId: 'family-1', userId: 'user-1', role: 'member' })),
+      },
+      idempotencyRecord: { findUnique: winnerLookup },
+    };
+
+    await expect(coordinateFinancialMutation(createInput({ amount: 100 }), store, jest.fn()))
+      .rejects.toMatchObject({ code: 'CONCURRENT_MUTATION_CONFLICT', status: 409, retryable: true });
+    expect(winnerLookup).not.toHaveBeenCalled();
+  });
+
+  test('preserves the stable conflict error if an arbitration winner cannot be read', async () => {
+    const store = {
+      $transaction: jest.fn(async () => {
+        throw { code: 'P2002', meta: { target: ['IdempotencyRecord_scope_key'] } };
+      }),
+    } as FinancialMutationStore;
+
+    await expect(coordinateFinancialMutation(createInput({ amount: 100 }), store, jest.fn()))
+      .rejects.toMatchObject({ code: 'CONCURRENT_MUTATION_CONFLICT', status: 409, retryable: true });
   });
 
   test('returns stable key-reused semantics when the arbitration winner hash differs', async () => {

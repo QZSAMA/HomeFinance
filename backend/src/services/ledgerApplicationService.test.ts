@@ -151,6 +151,42 @@ describe('LedgerApplicationService.createIncome', () => {
     expect(transaction.familyMember.findUnique).not.toHaveBeenCalled();
   });
 
+  test.each([
+    ['a non-positive amount', { ...command, payload: { ...command.payload, amount: 0 } }],
+    ['a blank category', { ...command, payload: { ...command.payload, category: '  ' } }],
+    ['an invalid currency', { ...command, payload: { ...command.payload, currency: 'CN' } }],
+    ['an unsupported source', { ...command, source: 'UNTRUSTED' as CreateIncomeCommand['source'] }],
+  ])('rejects %s before checking family membership', async (_case, invalidCommand) => {
+    const { store, transaction } = createStore('member');
+
+    await expect(createIncome(invalidCommand, store)).rejects.toMatchObject({
+      code: 'VALIDATION_FAILED',
+      status: 400,
+    });
+    expect(transaction.familyMember.findUnique).not.toHaveBeenCalled();
+  });
+
+  test('defaults currency and preserves absent optional income fields as undefined', async () => {
+    const { store, transaction } = createStore('member');
+    const commandWithoutOptionals: CreateIncomeCommand = {
+      ...command,
+      payload: {
+        amount: 1250.5,
+        category: '工资',
+      },
+    };
+
+    await createIncome(commandWithoutOptionals, store);
+
+    expect(transaction.income.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        description: undefined,
+        source: undefined,
+        currency: 'CNY',
+      }),
+    });
+  });
+
   test('authorizes a member before committing one normalized income and audit result', async () => {
     const { events, incomeRecord, store, transaction } = createStore('member');
 

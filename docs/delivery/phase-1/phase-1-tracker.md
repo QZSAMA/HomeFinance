@@ -6,7 +6,7 @@
 - 设计规格：docs/superpowers/specs/2026-08-28-homefinance-phase1-design.md
 - 开发基线：codex/phase0-remediation@081084a
 - 实施分支：codex/phase1-ledger-trust
-- 当前快照：2026-08-31；设计已批准，P1-B-03/04/05 已在 PostgreSQL 18.1 localhost:5433 完成真实的 key 冲突零写入、并发/重放和 revision 一致性回归：不同 payload 重用同 key 返回 409 且不新增事实/不推进 revision，20 路相同命令只使 `Family.cacheVersion` 前进一次，已完成的回放不新增事实也不前进 revision（PASS-REAL）；P1-B-04 在 `DomainError.cause` 保留未分类 Prisma 原始错误；P1-G-06 的 Prisma 适配器测试使默认 function coverage 达到 64.06%，branch coverage 从 45.38% 提升至 46.01%，补上 `Map`/`Set`/`RegExp` 非普通对象拒绝契约，并使 MinIO 初始化失败可交给 `server.ts` 统一降级、验证重复 shutdown 仅释放一次；P1-G-03 已为 ImportPage 建立 3 条 PASS-MOCK 交互合同：可访问文件选择、失败/成功状态和悬挂确认的本地防重复；P1-A-03 已以真实 PostgreSQL failure injection 证明空 resourceId 会回滚 Income、IdempotencyRecord 和 AuditEvent（PASS-REAL）；Income/Expense route adoption、upgrade/restore、staging/release 仍未完成
+- 当前快照：2026-08-31；设计已批准，P1-B-03/04/05 已在 PostgreSQL 18.1 localhost:5433 完成真实的 key 冲突零写入、并发/重放和 revision 一致性回归：不同 payload 重用同 key 返回 409 且不新增事实/不推进 revision，20 路相同命令只使 `Family.cacheVersion` 前进一次，已完成的回放不新增事实也不前进 revision（PASS-REAL）；P1-B-04 在 `DomainError.cause` 保留未分类 Prisma 原始错误；P1-G-06 的安全关键 coordinator/ledger tests 将默认 backend coverage 提升到 34 suites / 295 tests、statements 63.71%、branches 47.10%、functions 64.06%、lines 64.00%，并锁定 malformed payload、成员记录错配、损坏回放和命令校验的零事务/零查询边界；早前的 Prisma adapter `Map`/`Set`/`RegExp` 契约和 MinIO controlled-degradation/shutdown 回归仍有效；P1-G-03 已为 ImportPage 建立 3 条 PASS-MOCK 交互合同：可访问文件选择、失败/成功状态和悬挂确认的本地防重复；P1-A-03 已以真实 PostgreSQL failure injection 证明空 resourceId 会回滚 Income、IdempotencyRecord 和 AuditEvent（PASS-REAL）；Income/Expense route adoption、upgrade/restore、staging/release 仍未完成
 
 ## 1. 状态和字段规则
 
@@ -26,7 +26,7 @@
 |---|---|---|
 | Phase 0 后端 26 suites / 241 tests | PASS-MOCK | 历史证据，081084a，本轮未重跑 |
 | Phase 0 前端 5 tests | PASS-MOCK | 历史证据，081084a |
-| backend coverage | FAILED | 34 suites / 281 tests 通过；本轮 coverage 为 statements 63.22%、branches 46.01%、functions 64.06%、lines 63.58%，全局 branch threshold 60% 未达标；OCR/MinIO fixtures 有既有 console.warn |
+| backend coverage | FAILED | 34 suites / 295 tests 通过；本轮 coverage 为 statements 63.71%、branches 47.10%、functions 64.06%、lines 64.00%，全局 branch threshold 60% 未达标；OCR/MinIO fixtures 有既有 console.warn |
 | PostgreSQL migration/业务并发 | PASS-REAL | localhost:5433 `homefinance_phase1_test`；fresh migration、schema/rollback、P1-B-04 20 路 coordinator replay 与 P1-B-05 revision/replay 一致性已通过 |
 | Redis 故障恢复 | NOT_RUN | 现有主要为 mock |
 | MinIO 生命周期 | NOT_RUN | 现有主要为 mock |
@@ -97,7 +97,7 @@
 | P1-G-03 | TASK | P1-G | 补齐前端 mutation 行为测试 | P1 | GREEN_MINIMAL | AT_RISK | Frontend Agent | QA/Evidence Owner | hard:P1-0-03@IN_REVIEW | error/loading/confirm/replay 可测 | evidence/P1-G-03.md | — | ImportPage 3 条与 AIPage 2 条 PASS-MOCK 合同已覆盖可访问文件选择、确认 alert/status 与悬挂确认本地防重复；继续覆盖其他 mutation entry，且不把 UI 禁用当成服务端幂等 | 2026-08-31 |
 | P1-G-04 | GATE | P1-G | 建立 Playwright 关键旅程 | P1 | BACKLOG | ON_TRACK | Integration Agent | QA/Evidence Owner | hard:P1-G-00@REGRESSION_VERIFIED | login/switch/CRUD/report/viewer/import/AI | evidence/P1-G-04.md | — | 只 mock 外部 AI；选 E2E 栈 | 2026-08-28 |
 | P1-G-05 | GATE | P1-G | Redis/MinIO/Compose 故障恢复 | P0 | BLOCKED | AT_RISK | Integration Agent | Release Owner | external:COMPOSE_ENV@AVAILABLE | down/up、授权、生命周期、降级 PASS-REAL | evidence/P1-G-05.md | — | 不隐藏依赖故障；准备 Compose | 2026-08-28 |
-| P1-G-06 | GATE | P1-G | coverage/lint/advisory 门禁 | P1 | RED_REPRODUCED | AT_RISK | QA/Evidence Owner | Repository Owner | hard:P1-0-07@REGRESSION_VERIFIED | coverage 真执行、warning 不增、high 有处置 | evidence/P1-G-06.md | — | Prisma 适配器现拒绝 NaN/±Infinity 和非普通对象；MinIO 初始化错误由 `server.ts` 统一降级并有幂等 shutdown 回归。34 suites/281 tests 通过；branch 46.01% 仍低于 60%，继续安全关键分支测试且不降低阈值 | 2026-08-31 |
+| P1-G-06 | GATE | P1-G | coverage/lint/advisory 门禁 | P1 | RED_REPRODUCED | AT_RISK | QA/Evidence Owner | Repository Owner | hard:P1-0-07@REGRESSION_VERIFIED | coverage 真执行、warning 不增、high 有处置 | evidence/P1-G-06.md | — | 账本协调器新增 malformed payload、成员错配、损坏回放与非幂等冲突分支；Ledger command 在未查询 membership 前拒绝无效 amount/category/currency/source。34 suites/295 tests 通过；branch 47.10% 仍低于 60%。安装的 Graphify 仅 AST 增量且会覆盖审阅过的语义图，已恢复生成物；语义增量运行器待补。继续安全关键分支测试且不降低阈值 | 2026-08-31 |
 | P1-H-01 | TASK | P1-H | 同步 API、ADR、memory、风险 | P0 | BACKLOG | ON_TRACK | Delivery DRI | Repository Owner | hard:P1-A-07@REGRESSION_VERIFIED | 长期事实和证据一致 | evidence/P1-H-01.md | ADR-0001~0005 | 文档随代码同提交；按变更更新 | 2026-08-28 |
 | P1-H-02 | TASK | P1-H | 增量更新和复核 Graphify | P1 | BACKLOG | ON_TRACK | Delivery DRI | Technical Approver | hard:P1-H-01@REGRESSION_VERIFIED | EXTRACTED/INFERRED 边有结论 | evidence/P1-H-02.md | — | 不手改生成图；运行 semantic update | 2026-08-28 |
 | P1-H-03 | GATE | P1-H | migration/发布/回滚演练 | P0 | BLOCKED | AT_RISK | Release Owner | Repository Owner | hard:P1-G-01@PASS-REAL; hard:P1-G-05@PASS-REAL | staging RELEASED 后 OBSERVED | evidence/P1-H-03.md | — | 前向修复/恢复；安排 staging | 2026-08-28 |
