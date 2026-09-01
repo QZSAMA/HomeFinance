@@ -8,7 +8,7 @@ import {
   MutationResult,
 } from './ledgerTypes';
 
-const canonicalize = (value: unknown): unknown => {
+export const canonicalizePayload = (value: unknown): unknown => {
   if (value === null || typeof value === 'string' || typeof value === 'boolean') {
     return value;
   }
@@ -36,7 +36,7 @@ const canonicalize = (value: unknown): unknown => {
   }
 
   if (Array.isArray(value)) {
-    return value.map((item) => canonicalize(item));
+    return value.map((item) => canonicalizePayload(item));
   }
 
   if (typeof value === 'object' && value !== null) {
@@ -52,8 +52,8 @@ const canonicalize = (value: unknown): unknown => {
     return Object.fromEntries(
       Object.entries(value)
         .filter(([, item]) => item !== undefined)
-        .sort(([left], [right]) => left.localeCompare(right))
-        .map(([key, item]) => [key, canonicalize(item)]),
+        .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
+        .map(([key, item]) => [key, canonicalizePayload(item)]),
     );
   }
 
@@ -65,7 +65,7 @@ const canonicalize = (value: unknown): unknown => {
 };
 
 export const hashNormalizedPayload = (payload: unknown): string => {
-  const canonicalPayload = JSON.stringify(canonicalize(payload));
+  const canonicalPayload = JSON.stringify(canonicalizePayload(payload));
   return createHash('sha256').update(canonicalPayload).digest('hex');
 };
 

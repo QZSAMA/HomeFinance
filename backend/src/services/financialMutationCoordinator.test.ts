@@ -1,4 +1,5 @@
 import {
+  canonicalizePayload,
   coordinateFinancialMutation,
   hashNormalizedPayload,
 } from './financialMutationCoordinator';
@@ -148,6 +149,11 @@ describe('FinancialMutationCoordinator', () => {
     expect(hashNormalizedPayload({ b: 2, date, a: 1 })).toBe(
       hashNormalizedPayload({ a: 1, b: 2, date }),
     );
+  });
+
+  test('canonicalizes object keys by stable code-unit order instead of host locale', () => {
+    expect(Object.keys(canonicalizePayload({ a: 1, Z: 2 }) as Record<string, unknown>))
+      .toEqual(['Z', 'a']);
   });
 
   test.each([

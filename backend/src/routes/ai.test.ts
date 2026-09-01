@@ -10,7 +10,14 @@ jest.mock('../db/prisma', () => ({
     },
     aiConversation: {
       findMany: jest.fn(),
+      findUnique: jest.fn(),
       create: jest.fn(),
+    },
+    aiProposal: {
+      create: jest.fn(),
+    },
+    file: {
+      findUnique: jest.fn(),
     },
     asset: {
       findMany: jest.fn(),
@@ -102,6 +109,17 @@ describe('AI Routes', () => {
     mockedPrisma.income.findMany.mockResolvedValue([]);
     mockedPrisma.expense.findMany.mockResolvedValue([]);
     mockedPrisma.aiConversation.findMany.mockResolvedValue([]);
+    mockedPrisma.aiConversation.findUnique.mockImplementation(async ({ where }: any) => ({
+      id: where.id,
+      familyId: 'family_1',
+      userId: 'user_1',
+      type: /image|mixed|ocr/.test(where.id) ? 'ocr' : 'chat',
+    }));
+    mockedPrisma.file.findUnique.mockImplementation(async ({ where }: any) => ({
+      id: where.id,
+      familyId: 'family_1',
+      userId: 'user_1',
+    }));
     mockedExecuteActions.mockResolvedValue([]);
     // OCR 存储默认返回 null（不阻塞 OCR 主流程）
     mockedStoreOcrImage.mockResolvedValue(null);
@@ -130,7 +148,13 @@ describe('AI Routes', () => {
         reply: '已记录支出',
         actions: [{ type: 'create_expense', data: { amount: 50, category: '餐饮' } }],
       });
-      mockedPrisma.aiConversation.create.mockResolvedValue({});
+      mockedPrisma.aiConversation.create.mockResolvedValue({ id: 'conversation_text_1' });
+      mockedPrisma.aiProposal.create.mockResolvedValue({
+        id: 'proposal_text_1',
+        version: 1,
+        originalHash: 'a'.repeat(64),
+        expiresAt: new Date('2026-09-01T12:15:00.000Z'),
+      });
 
       const res = await request(app)
         .post('/api/families/family_1/ai/chat')
@@ -144,6 +168,75 @@ describe('AI Routes', () => {
         { type: 'create_expense', data: { amount: 50, category: '餐饮' } },
       ]);
       expect(res.body.duplicateFlags).toEqual([false]);
+      expect(res.body).toMatchObject({
+        proposalId: 'proposal_text_1',
+        proposalVersion: 1,
+        proposalHash: 'a'.repeat(64),
+        proposalExpiresAt: '2026-09-01T12:15:00.000Z',
+      });
+      expect(mockedPrisma.aiProposal.create).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({
+          familyId: 'family_1',
+          actorUserId: 'user_1',
+          sourceType: 'TEXT',
+          sourceConversationId: 'conversation_text_1',
+          originalPayload: expect.objectContaining({
+            reply: '已记录支出',
+            actions: [{ type: 'create_expense', data: { amount: 50, category: '餐饮' } }],
+          }),
+          originalHash: expect.stringMatching(/^[0-9a-f]{64}$/),
+          items: {
+            create: [{
+              ordinal: 0,
+              typedAction: 'create_expense',
+              canonicalData: { amount: 50, category: '餐饮' },
+            }],
+          },
+        }),
+      }));
+      expect(mockedExecuteActions).not.toHaveBeenCalled();
+    });
+
+    test('returns a stable validation error when the AI proposes a malformed action', async () => {
+      mockedChatWithActions.mockResolvedValue({
+        reply: '建议记录支出',
+        actions: [{ type: 'create_expense', data: { amount: 0, category: '餐饮' } }],
+      });
+      mockedPrisma.aiConversation.create.mockResolvedValue({ id: 'conversation_invalid_1' });
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/chat')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ content: '记录一笔金额为零的支出' });
+
+      expect(res.status).toBe(400);
+      expect(res.body).toMatchObject({
+        code: 'VALIDATION_FAILED',
+        retryable: false,
+      });
+      expect(mockedPrisma.aiProposal.create).not.toHaveBeenCalled();
+      expect(mockedExecuteActions).not.toHaveBeenCalled();
+    });
+
+    test('does not return success when proposal persistence fails', async () => {
+      mockedChatWithActions.mockResolvedValue({
+        reply: '建议记录支出',
+        actions: [{ type: 'create_expense', data: { amount: 50, category: '餐饮' } }],
+      });
+      mockedPrisma.aiConversation.create.mockResolvedValue({ id: 'conversation_persistence_failure' });
+      mockedPrisma.aiProposal.create.mockRejectedValue(new Error('database unavailable'));
+
+      const res = await request(app)
+        .post('/api/families/family_1/ai/chat')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ content: '记录午饭支出' });
+
+      expect(res.status).toBe(500);
+      expect(res.body).toMatchObject({
+        code: 'INTERNAL_ERROR',
+        retryable: false,
+      });
+      expect(res.body.error).not.toContain('database unavailable');
       expect(mockedExecuteActions).not.toHaveBeenCalled();
     });
 
@@ -240,7 +333,13 @@ describe('AI Routes', () => {
         { type: 'create_expense', data: { amount: 50, category: '餐饮', date: '2026-07-27', description: '午餐' } },
       ]);
       mockedStoreOcrImage.mockResolvedValue({ fileId: 'file_img1', path: 'some/path.jpg' });
-      mockedPrisma.aiConversation.create.mockResolvedValue({});
+      mockedPrisma.aiConversation.create.mockResolvedValue({ id: 'conversation_image_1' });
+      mockedPrisma.aiProposal.create.mockResolvedValue({
+        id: 'proposal_image_1',
+        version: 1,
+        originalHash: 'c'.repeat(64),
+        expiresAt: new Date('2026-09-01T12:15:00.000Z'),
+      });
 
       const res = await request(app)
         .post('/api/families/family_1/ai/chat')
@@ -252,6 +351,19 @@ describe('AI Routes', () => {
       expect(res.body.proposedActions[0].type).toBe('create_expense');
       expect(res.body.fileIds).toEqual(['file_img1']);
       expect(res.body.duplicateFlags).toHaveLength(1);
+      expect(res.body).toMatchObject({
+        proposalId: 'proposal_image_1',
+        proposalVersion: 1,
+        proposalHash: 'c'.repeat(64),
+        proposalExpiresAt: '2026-09-01T12:15:00.000Z',
+      });
+      expect(mockedPrisma.aiProposal.create).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({
+          sourceType: 'OCR',
+          sourceConversationId: 'conversation_image_1',
+          sourceFileId: 'file_img1',
+        }),
+      }));
       // chatWithActions 不应被调用（纯 OCR 场景）
       expect(mockedChatWithActions).not.toHaveBeenCalled();
       // parseReceiptOCR 应被调用 1 次
@@ -275,7 +387,13 @@ describe('AI Routes', () => {
         actions: [{ type: 'create_expense', data: { amount: 100, category: '餐饮', date: '2026-07-27' } }],
       });
       mockedStoreOcrImage.mockResolvedValue({ fileId: 'file_img1', path: 'some/path.jpg' });
-      mockedPrisma.aiConversation.create.mockResolvedValue({});
+      mockedPrisma.aiConversation.create.mockResolvedValue({ id: 'conversation_mixed_1' });
+      mockedPrisma.aiProposal.create.mockResolvedValue({
+        id: 'proposal_mixed_1',
+        version: 1,
+        originalHash: 'd'.repeat(64),
+        expiresAt: new Date('2026-09-01T12:15:00.000Z'),
+      });
 
       const res = await request(app)
         .post('/api/families/family_1/ai/chat')
@@ -285,6 +403,19 @@ describe('AI Routes', () => {
       expect(res.status).toBe(200);
       expect(mockedParseReceiptOCR).toHaveBeenCalledTimes(1);
       expect(mockedChatWithActions).toHaveBeenCalledTimes(1);
+      expect(res.body).toMatchObject({
+        proposalId: 'proposal_mixed_1',
+        proposalVersion: 1,
+        proposalHash: 'd'.repeat(64),
+        proposalExpiresAt: '2026-09-01T12:15:00.000Z',
+      });
+      expect(mockedPrisma.aiProposal.create).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({
+          sourceType: 'OCR',
+          sourceConversationId: 'conversation_mixed_1',
+          sourceFileId: 'file_img1',
+        }),
+      }));
       // chatWithActions 第 1 个参数应包含用户文本 + OCR 上下文
       const chatArg = mockedChatWithActions.mock.calls[0][0] as string;
       expect(chatArg).toContain('这是昨天的午餐');
@@ -485,7 +616,13 @@ describe('AI Routes', () => {
       mockedOcrToActions.mockReturnValue([
         { type: 'create_expense', data: { amount: 35, category: '餐饮', description: '麦当劳' } },
       ]);
-      mockedPrisma.aiConversation.create.mockResolvedValue({});
+      mockedPrisma.aiConversation.create.mockResolvedValue({ id: 'conversation_ocr_1' });
+      mockedPrisma.aiProposal.create.mockResolvedValue({
+        id: 'proposal_ocr_1',
+        version: 1,
+        originalHash: 'b'.repeat(64),
+        expiresAt: new Date('2026-09-01T12:15:00.000Z'),
+      });
 
       const res = await request(app)
         .post('/api/families/family_1/ai/ocr')
@@ -496,6 +633,25 @@ describe('AI Routes', () => {
       expect(res.body.proposedActions).toHaveLength(1);
       expect(res.body.proposedActions[0].type).toBe('create_expense');
       expect(res.body.proposedActions[0].data.amount).toBe(35);
+      expect(res.body).toMatchObject({
+        proposalId: 'proposal_ocr_1',
+        proposalVersion: 1,
+        proposalHash: 'b'.repeat(64),
+        proposalExpiresAt: '2026-09-01T12:15:00.000Z',
+      });
+      expect(mockedPrisma.aiProposal.create).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({
+          familyId: 'family_1',
+          actorUserId: 'user_1',
+          sourceType: 'OCR',
+          sourceConversationId: 'conversation_ocr_1',
+          sourceFileId: null,
+          originalPayload: expect.objectContaining({
+            data: expect.objectContaining({ amount: 35 }),
+            actions: [{ type: 'create_expense', data: { amount: 35, category: '餐饮', description: '麦当劳' } }],
+          }),
+        }),
+      }));
       // 关键：/ocr 端点不执行动作，只返回提议
       expect(mockedExecuteActions).not.toHaveBeenCalled();
       // ocrToActions 被调用，收到 parseReceiptOCR 的结果

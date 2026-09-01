@@ -9,6 +9,8 @@ import { executeActions, type AIAction } from '../services/aiActions';
 import { toNumber } from '../utils/decimal';
 import { isAIConfigured, isVisionConfigured } from '../config/ai';
 import { storeOcrImage } from '../services/fileStorageService';
+import { persistAiProposal } from '../services/aiProposalService';
+import { DomainError } from '../services/ledgerErrors';
 
 const router = Router({ mergeParams: true });
 
@@ -172,7 +174,7 @@ router.post('/chat', authMiddleware, requireFamilyWriteAccess, rateLimitMiddlewa
 
       const duplicateFlags = await checkDuplicateActions(familyId, parsed.actions);
 
-      await prisma.aiConversation.create({
+      const conversation = await prisma.aiConversation.create({
         data: {
           familyId,
           userId: req.userId!,
@@ -182,11 +184,33 @@ router.post('/chat', authMiddleware, requireFamilyWriteAccess, rateLimitMiddlewa
         }
       });
 
+      const proposal = parsed.actions.length > 0
+        ? await persistAiProposal({
+            familyId,
+            actorUserId: req.userId!,
+            actorRole: membership.role,
+            sourceType: 'TEXT',
+            sourceConversationId: conversation.id,
+            originalPayload: {
+              reply: parsed.reply,
+              actions: parsed.actions,
+              duplicateFlags,
+            },
+            actions: parsed.actions,
+          }, prisma)
+        : null;
+
       return res.json({
         response: parsed.reply,
         actions: [],
         proposedActions: parsed.actions,
         duplicateFlags,
+        ...(proposal ? {
+          proposalId: proposal.id,
+          proposalVersion: proposal.version,
+          proposalHash: proposal.originalHash,
+          proposalExpiresAt: proposal.expiresAt.toISOString(),
+        } : {}),
         aiConfigured: isAIConfigured(),
       });
     }
@@ -238,7 +262,7 @@ router.post('/chat', authMiddleware, requireFamilyWriteAccess, rateLimitMiddlewa
     if (!hasText) {
       const duplicateFlags = await checkDuplicateActions(familyId, allProposedActions);
 
-      await prisma.aiConversation.create({
+      const conversation = await prisma.aiConversation.create({
         data: {
           familyId,
           userId: req.userId!,
@@ -248,12 +272,35 @@ router.post('/chat', authMiddleware, requireFamilyWriteAccess, rateLimitMiddlewa
         }
       });
 
+      const proposal = allProposedActions.length > 0
+        ? await persistAiProposal({
+            familyId,
+            actorUserId: req.userId!,
+            actorRole: membership.role,
+            sourceType: 'OCR',
+            sourceConversationId: conversation.id,
+            sourceFileId: fileIds.length === 1 ? fileIds[0] : null,
+            originalPayload: {
+              actions: allProposedActions,
+              duplicateFlags,
+              fileIds,
+            },
+            actions: allProposedActions,
+          }, prisma)
+        : null;
+
       return res.json({
         response: `识别到 ${allProposedActions.length} 笔交易（成功 ${successCount} 张，失败 ${failedCount} 张）`,
         actions: [],
         proposedActions: allProposedActions,
         duplicateFlags,
         fileIds,
+        ...(proposal ? {
+          proposalId: proposal.id,
+          proposalVersion: proposal.version,
+          proposalHash: proposal.originalHash,
+          proposalExpiresAt: proposal.expiresAt.toISOString(),
+        } : {}),
         aiConfigured: isAIConfigured(),
       });
     }
@@ -296,7 +343,7 @@ router.post('/chat', authMiddleware, requireFamilyWriteAccess, rateLimitMiddlewa
     // 图片场景默认不自动执行（proposedActions 需用户确认），除非 AI 明确返回且用户文本含"记账/确认"等指令
     // 这里保持提议模式：返回 proposedActions 让前端确认
 
-    await prisma.aiConversation.create({
+    const conversation = await prisma.aiConversation.create({
       data: {
         familyId,
         userId: req.userId!,
@@ -306,12 +353,36 @@ router.post('/chat', authMiddleware, requireFamilyWriteAccess, rateLimitMiddlewa
       }
     });
 
+    const proposal = finalActions.length > 0
+      ? await persistAiProposal({
+          familyId,
+          actorUserId: req.userId!,
+          actorRole: membership.role,
+          sourceType: 'OCR',
+          sourceConversationId: conversation.id,
+          sourceFileId: fileIds.length === 1 ? fileIds[0] : null,
+          originalPayload: {
+            reply: parsed.reply,
+            actions: finalActions,
+            duplicateFlags,
+            fileIds,
+          },
+          actions: finalActions,
+        }, prisma)
+      : null;
+
     return res.json({
       response: parsed.reply,
       actions: actionResults,
       proposedActions: finalActions,
       duplicateFlags,
       fileIds,
+      ...(proposal ? {
+        proposalId: proposal.id,
+        proposalVersion: proposal.version,
+        proposalHash: proposal.originalHash,
+        proposalExpiresAt: proposal.expiresAt.toISOString(),
+      } : {}),
       aiConfigured: isAIConfigured(),
     });
   } catch (error) {
@@ -322,8 +393,15 @@ router.post('/chat', authMiddleware, requireFamilyWriteAccess, rateLimitMiddlewa
       console.error('AI 对话错误:', error.message);
       return res.status(error.statusCode).json({ error: error.message });
     }
+    if (error instanceof DomainError) {
+      return res.status(error.status).json({
+        error: error.message,
+        code: error.code,
+        retryable: error.retryable,
+      });
+    }
     console.error('AI 对话未知错误:', error);
-    res.status(500).json({ error: '服务器内部错误，请稍后重试' });
+    res.status(500).json({ error: '服务器内部错误，请稍后重试', code: 'INTERNAL_ERROR', retryable: false });
   }
 });
 
@@ -415,7 +493,7 @@ router.post('/ocr', authMiddleware, requireFamilyWriteAccess, rateLimitMiddlewar
     const duplicateFlags = await checkDuplicateActions(familyId, proposedActions);
 
     // 4. 落库对话记录（关联 fileId）
-    await prisma.aiConversation.create({
+    const conversation = await prisma.aiConversation.create({
       data: {
         familyId,
         userId,
@@ -426,6 +504,23 @@ router.post('/ocr', authMiddleware, requireFamilyWriteAccess, rateLimitMiddlewar
       }
     });
 
+    const proposal = proposedActions.length > 0
+      ? await persistAiProposal({
+          familyId,
+          actorUserId: userId,
+          actorRole: membership.role,
+          sourceType: 'OCR',
+          sourceConversationId: conversation.id,
+          sourceFileId: stored?.fileId ?? null,
+          originalPayload: {
+            data,
+            actions: proposedActions,
+            duplicateFlags,
+          },
+          actions: proposedActions,
+        }, prisma)
+      : null;
+
     res.json({
       data,
       aiConfigured: isAIConfigured(),
@@ -433,6 +528,12 @@ router.post('/ocr', authMiddleware, requireFamilyWriteAccess, rateLimitMiddlewar
       fileId: stored?.fileId ?? null,
       proposedActions,
       duplicateFlags,
+      ...(proposal ? {
+        proposalId: proposal.id,
+        proposalVersion: proposal.version,
+        proposalHash: proposal.originalHash,
+        proposalExpiresAt: proposal.expiresAt.toISOString(),
+      } : {}),
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -442,8 +543,15 @@ router.post('/ocr', authMiddleware, requireFamilyWriteAccess, rateLimitMiddlewar
       console.error('OCR 识别错误:', error.message);
       return res.status(error.statusCode).json({ error: error.message });
     }
+    if (error instanceof DomainError) {
+      return res.status(error.status).json({
+        error: error.message,
+        code: error.code,
+        retryable: error.retryable,
+      });
+    }
     console.error('OCR 识别未知错误:', error);
-    res.status(500).json({ error: '服务器内部错误，请稍后重试' });
+    res.status(500).json({ error: '服务器内部错误，请稍后重试', code: 'INTERNAL_ERROR', retryable: false });
   }
 });
 
