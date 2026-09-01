@@ -30,9 +30,9 @@ AI 资产/负债确认与 Income/Expense 具有一致的显式确认、事务、
 ## Verification
 
 - `balanceMutationService.test.ts` 的 focused unit regression 为 18/18，包含规范化、非法输入不写 transaction 和 action dispatch 合同。
-- 本地 PostgreSQL 18.1 的 AI confirmation/route integration 为 25/25；完整 integration 为 11 suites / 76 tests。
+- 本地 PostgreSQL 18.1 的 AI confirmation/route integration 为 25/25；当前完整 integration 为 12 suites / 80 tests，新增的 Asset HTTP route adoption 也在同一数据库回归中通过。
 - 真实测试证明 Asset/Liability 与 proposal、item result、审计、幂等在同一事务中提交，same-key replay 不重复，事务故障不留下 Balance 或 proposal metadata。
-- 全量 backend 50 suites / 411 tests 通过；coverage statements 75.61%、branches 60.14%、functions 71.42%、lines 76.40%，已通过未降低的 60% 全局门槛。Docker/E2E、Redis/MinIO、populated restore、release observation 和 semantic Graphify refresh 仍未验证。
+- 全量 backend 50 suites / 417 tests 通过；coverage statements 75.81%、branches 60.04%、functions 70.85%、lines 76.67%，已通过未降低的 60% 全局门槛。Docker/E2E、Redis/MinIO、populated restore、release observation 和 semantic Graphify refresh 仍未验证。
 
 ## Rollback and revisit
 
