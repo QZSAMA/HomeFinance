@@ -170,10 +170,7 @@ router.post('/chat', authMiddleware, requireFamilyWriteAccess, rateLimitMiddlewa
         liabilities: liabilities.map(l => ({ name: l.name, type: l.type, amount: toNumber(l.amount) })),
       }, historyMessages);
 
-      let actionResults: any[] = [];
-      if (parsed.actions.length > 0) {
-        actionResults = await executeActions(familyId, req.userId!, parsed.actions);
-      }
+      const duplicateFlags = await checkDuplicateActions(familyId, parsed.actions);
 
       await prisma.aiConversation.create({
         data: {
@@ -187,7 +184,9 @@ router.post('/chat', authMiddleware, requireFamilyWriteAccess, rateLimitMiddlewa
 
       return res.json({
         response: parsed.reply,
-        actions: actionResults,
+        actions: [],
+        proposedActions: parsed.actions,
+        duplicateFlags,
         aiConfigured: isAIConfigured(),
       });
     }

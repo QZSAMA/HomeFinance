@@ -125,14 +125,11 @@ describe('AI Routes', () => {
       expect(mockedPrisma.aiConversation.create).toHaveBeenCalledTimes(1);
     });
 
-    test('executes actions and returns results', async () => {
+    test('returns text actions as proposals without executing them', async () => {
       mockedChatWithActions.mockResolvedValue({
         reply: '已记录支出',
         actions: [{ type: 'create_expense', data: { amount: 50, category: '餐饮' } }],
       });
-      mockedExecuteActions.mockResolvedValue([
-        { type: 'create_expense', status: 'success', message: '已创建支出：餐饮 ¥50.00' },
-      ]);
       mockedPrisma.aiConversation.create.mockResolvedValue({});
 
       const res = await request(app)
@@ -142,9 +139,12 @@ describe('AI Routes', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.response).toBe('已记录支出');
-      expect(res.body.actions).toHaveLength(1);
-      expect(res.body.actions[0].status).toBe('success');
-      expect(mockedExecuteActions).toHaveBeenCalled();
+      expect(res.body.actions).toEqual([]);
+      expect(res.body.proposedActions).toEqual([
+        { type: 'create_expense', data: { amount: 50, category: '餐饮' } },
+      ]);
+      expect(res.body.duplicateFlags).toEqual([false]);
+      expect(mockedExecuteActions).not.toHaveBeenCalled();
     });
 
     test('rejects empty content', async () => {
