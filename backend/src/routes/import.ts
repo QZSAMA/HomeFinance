@@ -1,13 +1,30 @@
-import { Router } from 'express';
+import { NextFunction, Request, Response, Router } from 'express';
 import multer from 'multer';
 import { z } from 'zod';
 import { prisma } from '../db/prisma';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { requireFamilyWriteAccess } from '../middleware/familyAccess';
 import { parseCSV } from '../services/importService';
+import {
+  assertImportRowsWithinLimit,
+  IMPORT_LIMITS,
+  ImportLimitError,
+} from '../services/importLimits';
 
 const router = Router({ mergeParams: true });
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: IMPORT_LIMITS.maxBytes },
+});
+
+const uploadCsv = (req: Request, res: Response, next: NextFunction) => {
+  upload.single('file')(req, res, (error: unknown) => {
+    if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({ error: 'IMPORT_LIMIT_EXCEEDED', limit: 'bytes' });
+    }
+    return next(error);
+  });
+};
 
 const VALID_FORMATS = ['alipay', 'wechat'];
 
@@ -27,7 +44,7 @@ const itemSchema = z.object({
 });
 
 // POST /csv — 上传 CSV 返回预览
-router.post('/csv', authMiddleware, requireFamilyWriteAccess, upload.single('file'), async (req: AuthRequest, res) => {
+router.post('/csv', authMiddleware, requireFamilyWriteAccess, uploadCsv, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const format = req.body.format as string;
@@ -45,8 +62,12 @@ router.post('/csv', authMiddleware, requireFamilyWriteAccess, upload.single('fil
     }
 
     const items = await parseCSV(req.file.buffer, format);
+    assertImportRowsWithinLimit(items);
     res.json(items);
   } catch (error) {
+    if (error instanceof ImportLimitError) {
+      return res.status(413).json({ error: error.code, limit: error.limit });
+    }
     console.error('解析 CSV 错误:', error);
     res.status(500).json({ error: 'CSV 解析失败' });
   }

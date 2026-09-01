@@ -1,4 +1,8 @@
 import { parse } from 'csv-parse';
+import {
+  assertImportBufferWithinLimit,
+  assertImportRowsWithinLimit,
+} from './importLimits';
 
 export interface ImportedTransaction {
   date: string;
@@ -77,9 +81,12 @@ export async function parseCSV(
   buffer: Buffer,
   format: string
 ): Promise<ImportedTransaction[]> {
+  assertImportBufferWithinLimit(buffer);
   const parser = parsers[format];
   if (!parser) {
     throw new Error(`不支持的格式: ${format}`);
   }
-  return parser(buffer);
+  const rows = await parser(buffer);
+  assertImportRowsWithinLimit(rows);
+  return rows;
 }
