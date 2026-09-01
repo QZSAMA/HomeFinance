@@ -209,6 +209,71 @@ describe('asset routes characterization', () => {
     });
   });
 
+  test('passes optional asset dates through when purchaseDate is omitted', async () => {
+    const create = await request(app)
+      .post('/api/families/family-1/assets')
+      .set('Authorization', `Bearer ${tokenFor()}`)
+      .set('Idempotency-Key', 'asset-without-date-create')
+      .send({ ...assetBody, purchaseDate: undefined });
+    const update = await request(app)
+      .put('/api/families/family-1/assets/asset-1')
+      .set('Authorization', `Bearer ${tokenFor()}`)
+      .set('Idempotency-Key', 'asset-without-date-update')
+      .set('If-Match', '1')
+      .send({ ...assetBody, purchaseDate: undefined });
+
+    expect(create.status).toBe(201);
+    expect(update.status).toBe(200);
+    expect(mockedBalance.createAsset).toHaveBeenCalledWith(expect.objectContaining({
+      payload: expect.objectContaining({ purchaseDate: undefined }),
+    }), expect.any(Object));
+    expect(mockedBalance.updateAsset).toHaveBeenCalledWith(expect.objectContaining({
+      payload: expect.objectContaining({ purchaseDate: undefined }),
+    }), expect.any(Object));
+  });
+
+  test('omits version fields when the mutation adapter returns a legacy result', async () => {
+    mockedBalance.createAsset.mockResolvedValueOnce({
+      operationId: 'operation-legacy-create',
+      resourceId: 'asset-legacy-create',
+      record: { id: 'asset-legacy-create', ...assetBody },
+      deduplicated: false,
+    });
+    mockedBalance.updateAsset.mockResolvedValueOnce({
+      operationId: 'operation-legacy-update',
+      resourceId: 'asset-legacy-update',
+      record: { id: 'asset-legacy-update', ...assetBody },
+      deduplicated: false,
+    });
+    mockedBalance.deleteAsset.mockResolvedValueOnce({
+      operationId: 'operation-legacy-delete',
+      resourceId: 'asset-legacy-delete',
+      deduplicated: false,
+    });
+
+    const create = await request(app)
+      .post('/api/families/family-1/assets')
+      .set('Authorization', `Bearer ${tokenFor()}`)
+      .set('Idempotency-Key', 'asset-legacy-create')
+      .send(assetBody);
+    const update = await request(app)
+      .put('/api/families/family-1/assets/asset-legacy-update')
+      .set('Authorization', `Bearer ${tokenFor()}`)
+      .set('Idempotency-Key', 'asset-legacy-update')
+      .send(assetBody);
+    const remove = await request(app)
+      .delete('/api/families/family-1/assets/asset-legacy-delete')
+      .set('Authorization', `Bearer ${tokenFor()}`)
+      .set('Idempotency-Key', 'asset-legacy-delete');
+
+    expect(create.status).toBe(201);
+    expect(update.status).toBe(200);
+    expect(remove.status).toBe(200);
+    expect(create.body).not.toHaveProperty('version');
+    expect(update.body).not.toHaveProperty('version');
+    expect(remove.body).not.toHaveProperty('version');
+  });
+
   test('rejects malformed asset data before persistence', async () => {
     const response = await request(app)
       .post('/api/families/family-1/assets')
@@ -218,6 +283,19 @@ describe('asset routes characterization', () => {
     expect(response.status).toBe(400);
     expect(response.body.error).toBe('资产名称不能为空');
     expect(mockedPrisma.asset.create).not.toHaveBeenCalled();
+  });
+
+  test('rejects an invalid If-Match version before invoking the mutation service', async () => {
+    const response = await request(app)
+      .put('/api/families/family-1/assets/asset-1')
+      .set('Authorization', `Bearer ${tokenFor()}`)
+      .set('Idempotency-Key', 'asset-invalid-version')
+      .set('If-Match', 'not-a-version')
+      .send(assetBody);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toMatchObject({ code: 'VALIDATION_FAILED', retryable: false });
+    expect(mockedBalance.updateAsset).not.toHaveBeenCalled();
   });
 
   test('rejects viewer and non-member writes before persistence', async () => {
