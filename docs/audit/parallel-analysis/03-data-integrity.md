@@ -24,7 +24,7 @@
 
 本文件原先以 `main` 基线描述风险。Phase 1 当前分支已对 DATA-001、DATA-002、DATA-003、DATA-004 的部分入口完成回归验证：Income/Expense、Import、Recurring，以及支持的 AI Income/Expense proposal confirmation 已接入事务化 Ledger/幂等路径；AI text/OCR proposal-producing paths 在确认前不写入账本。AI confirmation 的真实 PostgreSQL 证据覆盖 proposal 抢占、结果持久化、同 key replay、不同 key 冲突、过期/篡改/角色负向和并发矩阵。
 
-以下基线段落仍保留为问题发现记录；凡涉及 AI 确认“尚未实现”的描述，均只表示基线，不能解释为当前分支状态。当前仍开放：legacy raw `/execute-actions` 兼容入口收口、Balance mutation、外部 Redis/MinIO/Compose、production-like upgrade/restore、浏览器 E2E、staging/release observation，以及 semantic Graphify refresh。
+以下基线段落仍保留为问题发现记录；凡涉及 AI 确认“尚未实现”的描述，均只表示基线，不能解释为当前分支状态。当前仍开放：legacy raw `/execute-actions` 兼容入口收口、普通 Balance HTTP CRUD/估值与币种换算、外部 Redis/MinIO/Compose、production-like upgrade/restore、浏览器 E2E、staging/release observation，以及 semantic Graphify refresh。
 
 ## 2. 当前写入拓扑与边界判断
 
@@ -244,7 +244,7 @@ flowchart LR
 
 **基线事实**：`POST /chat` 的文本分支在 `backend/src/routes/ai.ts:144-175` 调用 `chatWithActions` 后，如果 `parsed.actions.length > 0`，立即调用 `executeActions(familyId, req.userId!, parsed.actions)`。该分支没有 confirmation token、用户二次确认字段或 proposed-only 响应。现有 AI 测试明确把它定义为“executes actions”，见 `backend/src/routes/ai.test.ts:128-148`。
 
-**当前实现状态**：提交 `5a564c9` 已将 text mutation 改为 proposal-only；提交 `732eafd`、`7f6c366`、`cdfcb67`、`d945e65`、`c769a78` 已分别提供 server-owned proposal/item 持久化、来源/哈希/版本/过期合同、支持的 Income/Expense 原子确认、结果/刷新恢复。当前 route/integration 测试和本地 PostgreSQL 证据表明，支持的确认路径不会绕过 Ledger；legacy `/execute-actions` 仍作为严格 proposal confirmation adapter 保留，Balance actions 和真实外部依赖仍未验证。
+**当前实现状态**：提交 `5a564c9` 已将 text mutation 改为 proposal-only；提交 `732eafd`、`7f6c366`、`cdfcb67`、`d945e65`、`c769a78` 已分别提供 server-owned proposal/item 持久化、来源/哈希/版本/过期合同、支持的 Income/Expense 原子确认、结果/刷新恢复；提交 `fc50633`、`d204201`、`bdabe7b` 又将 `create_asset`/`create_liability` 通过 transaction-scoped Balance service 接入同一 proposal confirmation transaction。当前 route/integration 测试和本地 PostgreSQL 证据表明，支持的确认路径不会绕过 Ledger/Balance；legacy `/execute-actions` 仍作为严格 proposal confirmation adapter 保留，普通 Balance CRUD/估值、币种换算和真实外部依赖仍未验证。
 
 OCR 路径则在 `backend/src/routes/ai.ts:405-415` 生成 `proposedActions`，在 `:429-435` 返回给前端；`/execute-actions` 在 `:466-480` 接收客户端动作后执行并记录对话。这证明项目已有“人审后写入”的产品意图，但该意图没有覆盖文本 chat。
 
@@ -296,7 +296,7 @@ OCR 路径则在 `backend/src/routes/ai.ts:405-415` 生成 `proposedActions`，�
 
 **REFACTOR 目标**：把 AI parser/provider 与 financial mutation 完全分离；提案服务只产生不可信输入，Ledger service 是唯一写入口；action result 类型化并持久化每个 action 的状态。
 
-**当前退出门禁**：支持的 Income/Expense confirmation 已有 unauthenticated、non-member、viewer、跨 family、proposal 篡改、过期、重复/未知 item、缺 key、同 key 改 payload、executed 二次确认、DB rollback 和批量并发的测试与本地 PostgreSQL 证据。完整 Phase 1 仍不能关闭：legacy raw `/execute-actions` 收口、Balance confirmation、provider timeout/外部依赖、浏览器 E2E、staging/release observation 和 semantic Graphify refresh 仍开放。
+**当前退出门禁**：支持的 Income/Expense/Asset/Liability confirmation 已有 proposal 篡改、过期、类型/字段校验、同 key replay、并发 claim、DB rollback 和主要角色/家庭边界的 focused 或本地 PostgreSQL 证据；完整 Phase 1 仍不能关闭：legacy raw `/execute-actions` 收口、普通 Balance CRUD/估值与币种换算、provider timeout/外部依赖、浏览器 E2E、staging/release observation、global branch coverage 和 semantic Graphify refresh 仍开放。
 
 ## 7. 问题 DATA-005：写后 cache invalidation 缺失与派生版本不一致
 
@@ -477,7 +477,7 @@ Phase 1 退出门禁：普通 CRUD/import/recurring/AI 所有财务写入都经�
 | DATA-001 | P1 / 已验证架构缺口 | 五类入口分别直接写账本 | 同 key 两次只有一条 entry | Ledger application service + idempotency | Policy、错误合同 | 全写入口走 service，真实 DB 唯一/事务通过 |
 | DATA-002 | P1 / 已验证控制流缺口；并发为待验证 | execute 未复核 due/active，写账与推进规则分离 | 同 due rule 并发仅一条 entry | RecurringExecution unique + transaction | DATA-001 | due/active/endDate/并发/失败恢复全绿 |
 | DATA-003 | P1 / 已验证 | memoryStorage 无 limits；confirm 逐行 create | 第 N 行失败整批 0；同 batch replay 不重入 | Preview batch + atomic confirmation | DATA-001、DATA-006 | bounds、rollback、tamper、replay 真实 DB 通过 |
-| DATA-004 | P1 / 基线已验证；支持路径已回归验证 | 基线为文本 chat 直接 execute、action executor 逐条吞错；当前支持路径已迁移至 server-owned proposal + Ledger confirmation | chat/OCR mutation 只 proposal；viewer/篡改/过期/重放/并发无副作用 | Proposal→confirmation→Ledger atomic commit | Policy、DATA-001、DATA-006 | 支持 Income/Expense 路径通过；legacy adapter、Balance、provider timeout、E2E/release 仍开放 |
+| DATA-004 | P1 / 基线已验证；支持路径已回归验证 | 基线为文本 chat 直接 execute、action executor 逐条吞错；当前支持路径已迁移至 server-owned proposal + Ledger/Balance confirmation | chat/OCR mutation 只 proposal；viewer/篡改/过期/重放/并发无副作用 | Proposal→confirmation→Ledger/Balance atomic commit | Policy、DATA-001、DATA-006 | Income/Expense/Asset/Liability confirmation 已有本地 PostgreSQL 证据；legacy adapter、普通 Balance CRUD、provider timeout、E2E/release 仍开放 |
 | DATA-005 | P1 / 已验证写后失效缺口 | 只有 TTL cache middleware，无 commit invalidation/version | 写后立即 report 新值 | DB finance revision + versioned cache | DATA-001 | 每类 mutation freshness、Redis 降级合同通过 |
 | DATA-006 | P1 / 已验证合同缺口；并发为待验证 | 无 Idempotency-Key、版本条件、分类错误 | response 丢失后 replay 不重复；更新冲突 409 | 幂等记录 + optimistic version + error taxonomy | Policy、DATA-001 | retry/concurrency/conflict/rollback 可重放 |
 
@@ -507,9 +507,9 @@ Phase 1 退出门禁：普通 CRUD/import/recurring/AI 所有财务写入都经�
 
 ## 14. 最终判断
 
-HomeFinance 已有足够的领域模型和测试基础来渐进修复，不需要以微服务重写作为前提。基线的“路由直接写表”结构曾是财务一致性的系统性风险；当前普通收入/支出、Import、Recurring 和支持的 AI Income/Expense confirmation 已围绕事务化 Ledger、幂等与审计事实逐步收口。legacy AI adapter、Balance、外部依赖与发布观察仍需完成，不能据此宣称所有财务写入口已经统一。
+HomeFinance 已有足够的领域模型和测试基础来渐进修复，不需要以微服务重写作为前提。基线的“路由直接写表”结构曾是财务一致性的系统性风险；当前普通收入/支出、Import、Recurring 和支持的 AI Income/Expense/Asset/Liability confirmation 已围绕事务化 Ledger/Balance、幂等与审计事实逐步收口。legacy AI adapter、普通 Balance CRUD/估值、外部依赖与发布观察仍需完成，不能据此宣称所有财务写入口已经统一。
 
-当前的后续顺序是：先收口 legacy `/execute-actions` 并决定 Balance action 的 Ledger/Balance service 边界，再完成 Redis/MinIO/Compose、生产样本升级恢复、浏览器 E2E、staging/release observation 和 Graphify semantic refresh；同时保持同一提交路径更新 family finance revision，报告缓存只做派生优化。失败、重试和并发必须返回可解释状态，而不是让调用方从通用 500 猜测是否安全重试。
+当前的后续顺序是：先收口 legacy `/execute-actions`，再迁移普通 Asset/Liability CRUD 到统一 policy/Balance service 并冻结估值/币种语义，随后完成 Redis/MinIO/Compose、生产样本升级恢复、浏览器 E2E、staging/release observation 和 Graphify semantic refresh；同时保持同一提交路径更新 family finance revision，报告缓存只做派生优化。失败、重试和并发必须返回可解释状态，而不是让调用方从通用 500 猜测是否安全重试。
 
 本专项没有生产数据、人日、成本或 p95 的虚构数字。完成上述 RED→GREEN→REFACTOR 与真实数据库门禁后，才可以把“事务安全、幂等、写后新鲜、AI 需确认”写入项目记忆并关闭对应风险。
 

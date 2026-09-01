@@ -104,16 +104,20 @@ describe('BalanceMutationService', () => {
     expect(result).toMatchObject({ resourceId: 'liability-1', record: { id: 'liability-1', amount: 4567.89 } });
   });
 
-  test.each([
-    ['negative asset value', () => createAssetInTransaction({
+  test('rejects invalid balances before invoking either transaction writer', async () => {
+    const assetTransaction = createTransaction();
+    const liabilityTransaction = createTransaction();
+
+    await expect(createAssetInTransaction({
       ...assetCommand,
       payload: { ...assetCommand.payload, value: -1 },
-    }, createTransaction())],
-    ['invalid liability currency', () => createLiabilityInTransaction({
+    }, assetTransaction)).rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 400 });
+    await expect(createLiabilityInTransaction({
       ...liabilityCommand,
       payload: { ...liabilityCommand.payload, currency: 'CN' },
-    }, createTransaction())],
-  ])('rejects %s before writing a balance record', async (_label, attempt) => {
-    await expect(attempt()).rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 400 });
+    }, liabilityTransaction)).rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 400 });
+
+    expect(assetTransaction.asset?.create).not.toHaveBeenCalled();
+    expect(liabilityTransaction.liability?.create).not.toHaveBeenCalled();
   });
 });

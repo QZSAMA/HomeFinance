@@ -1,5 +1,6 @@
 import {
   AiProposalPersistenceStore,
+  normalizeAction,
   persistAiProposal,
 } from './aiProposalService';
 import { hashNormalizedPayload } from './financialMutationCoordinator';
@@ -354,5 +355,150 @@ describe('AiProposalService', () => {
       status: 400,
     });
     expect(create).not.toHaveBeenCalled();
+  });
+
+  test('normalizes all supported balance fields and preserves the proposal item identity', () => {
+    expect(normalizeAction({
+      type: 'create_asset',
+      proposalItemId: 'item-asset',
+      data: {
+        value: '-0',
+        name: '  Emergency fund ',
+        type: ' CASH ',
+        category: ' LIQUID ',
+        costBasis: '0',
+        purchaseDate: '2026-09-01',
+        currency: ' cny ',
+        description: '  reserve ',
+      },
+    })).toEqual({
+      type: 'create_asset',
+      proposalItemId: 'item-asset',
+      data: {
+        value: 0,
+        name: 'Emergency fund',
+        type: 'CASH',
+        category: 'LIQUID',
+        costBasis: 0,
+        purchaseDate: '2026-09-01',
+        currency: 'cny',
+        description: 'reserve',
+      },
+    });
+
+    expect(normalizeAction({
+      type: 'create_liability',
+      data: {
+        amount: '0',
+        name: '  Mortgage ',
+        type: ' HOME ',
+        interestRate: '0.0325',
+        startDate: '2026-01-01',
+        endDate: '2026-12-31',
+        currency: ' cny ',
+        description: '  loan ',
+      },
+    })).toEqual({
+      type: 'create_liability',
+      data: {
+        amount: 0,
+        name: 'Mortgage',
+        type: 'HOME',
+        interestRate: 0.0325,
+        startDate: '2026-01-01',
+        endDate: '2026-12-31',
+        currency: 'cny',
+        description: 'loan',
+      },
+    });
+
+    expect(normalizeAction({
+      type: 'create_income',
+      data: {
+        amount: 100,
+        category: ' 工资 ',
+        description: '  salary ',
+        date: '2026-09-01',
+        source: '  employer ',
+        paymentMethod: '  bank ',
+        currency: ' cny ',
+      },
+    })).toEqual({
+      type: 'create_income',
+      data: {
+        amount: 100,
+        category: '工资',
+        description: 'salary',
+        date: '2026-09-01',
+        source: 'employer',
+        paymentMethod: 'bank',
+        currency: 'CNY',
+      },
+    });
+  });
+
+  test('rejects malformed action data before it can become a confirmable proposal', () => {
+    expect(() => normalizeAction({
+      type: 'create_expense',
+      data: { amount: '   ' },
+    })).toThrow('amount must be a finite number.');
+
+    expect(() => normalizeAction({
+      type: 'create_expense',
+      data: Object.create(new Date()),
+    })).toThrow('AI action data must contain plain data only.');
+
+    expect(() => normalizeAction({
+      type: 'create_expense',
+      data: { amount: 10, date: '2026-02-30' },
+    })).toThrow('date must be a real calendar date.');
+
+    expect(() => normalizeAction({
+      type: 'create_expense',
+      data: { amount: 10, currency: 'CN' },
+    })).toThrow('currency must be a three-letter code.');
+  });
+
+  test('persists an OCR proposal only when both sources belong to the actor family', async () => {
+    const { create, store } = createStore();
+    create.mockResolvedValue({
+      id: 'proposal-ocr-1',
+      version: 1,
+      originalHash: 'b'.repeat(64),
+      expiresAt: new Date('2026-09-01T12:15:00.000Z'),
+      items: [],
+    });
+    const conversationFindUnique = store.aiConversation.findUnique as jest.Mock;
+    conversationFindUnique.mockResolvedValue({
+      id: 'conversation-ocr-1',
+      familyId: 'family-1',
+      userId: 'member-1',
+      type: 'ocr',
+    });
+
+    await persistAiProposal({
+      familyId: 'family-1',
+      actorUserId: 'member-1',
+      actorRole: 'member',
+      sourceType: 'OCR',
+      sourceConversationId: 'conversation-ocr-1',
+      sourceFileId: 'file-1',
+      originalPayload: {
+        reply: '识别到一笔负债',
+        actions: [{ type: 'create_liability', data: { amount: 100 } }],
+      },
+      actions: [{ type: 'create_liability', data: { amount: 100 } }],
+      now: new Date('2026-09-01T12:00:00.000Z'),
+    }, store);
+
+    expect(store.aiConversation.findUnique).toHaveBeenCalledWith({
+      where: { id: 'conversation-ocr-1' },
+      select: { id: true, familyId: true, userId: true, type: true },
+    });
+    expect(store.file.findUnique).toHaveBeenCalledWith({
+      where: { id: 'file-1' },
+      select: { id: true, familyId: true, userId: true },
+    });
+    expect(create).toHaveBeenCalledTimes(1);
   });
 });

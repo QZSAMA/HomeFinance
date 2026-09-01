@@ -15,6 +15,33 @@ const action = {
   data: { amount: 125, category: '工资', description: 'AI confirm', date: '2026-09-01' },
 };
 
+const balanceActions = [
+  {
+    type: 'create_asset' as const,
+    data: {
+      name: 'Index fund',
+      type: 'FUND',
+      value: 1234.56,
+      costBasis: 1000,
+      currency: 'CNY',
+      purchaseDate: '2026-08-01',
+      description: 'AI asset',
+    },
+  },
+  {
+    type: 'create_liability' as const,
+    data: {
+      name: 'Mortgage',
+      type: 'MORTGAGE',
+      amount: 4567.89,
+      interestRate: 0.0325,
+      currency: 'CNY',
+      startDate: '2026-08-01',
+      description: 'AI liability',
+    },
+  },
+];
+
 const createProposal = async (familyId: string, expiresAt = new Date('2026-09-02T00:00:00.000Z')) => {
   const originalPayload = { reply: '请确认', actions: [action] };
   return prisma.aiProposal.create({
@@ -38,6 +65,32 @@ const createProposal = async (familyId: string, expiresAt = new Date('2026-09-02
   });
 };
 
+const createBalanceProposal = async (
+  familyId: string,
+  expiresAt = new Date('2026-09-02T00:00:00.000Z'),
+) => {
+  const originalPayload = { reply: '请确认资产和负债', actions: balanceActions };
+  return prisma.aiProposal.create({
+    data: {
+      familyId,
+      actorUserId: memberId,
+      actorSnapshot: { version: 1, userId: memberId, role: 'member' },
+      sourceType: 'TEXT',
+      originalPayload,
+      originalHash: hashNormalizedPayload(originalPayload),
+      expiresAt,
+      items: {
+        create: balanceActions.map((balanceAction, ordinal) => ({
+          ordinal,
+          typedAction: balanceAction.type,
+          canonicalData: balanceAction.data,
+        })),
+      },
+    },
+    include: { items: true },
+  });
+};
+
 const confirmationFor = (familyId: string, proposal: { id: string; originalHash: string }, actorUserId = memberId, idempotencyKey = 'confirm-1') => ({
   familyId,
   actorUserId,
@@ -46,6 +99,21 @@ const confirmationFor = (familyId: string, proposal: { id: string; originalHash:
   expectedHash: proposal.originalHash,
   idempotencyKey,
   actions: [action],
+  now: new Date('2026-09-01T12:00:00.000Z'),
+});
+
+const balanceConfirmationFor = (
+  familyId: string,
+  proposal: { id: string; originalHash: string },
+  idempotencyKey = 'balance-confirm-1',
+) => ({
+  familyId,
+  actorUserId: memberId,
+  proposalId: proposal.id,
+  expectedVersion: 1,
+  expectedHash: proposal.originalHash,
+  idempotencyKey,
+  actions: balanceActions,
   now: new Date('2026-09-01T12:00:00.000Z'),
 });
 
@@ -125,6 +193,55 @@ describe('Phase 1 real PostgreSQL AI proposal confirmation', () => {
     await expect(prisma.income.count({ where: { familyId } })).resolves.toBe(1);
     await expect(prisma.idempotencyRecord.count({ where: { familyId } })).resolves.toBe(1);
     await expect(prisma.auditEvent.count({ where: { familyId } })).resolves.toBe(1);
+  });
+
+  test('commits Asset and Liability confirmation facts with proposal, audit and idempotency atomically', async () => {
+    const proposal = await createBalanceProposal(familyId);
+    const store = createPrismaFinancialMutationStore(prisma);
+
+    const result = await confirmAiProposal(balanceConfirmationFor(familyId, proposal), store);
+
+    expect(result.record).toMatchObject({
+      proposalId: proposal.id,
+      status: 'EXECUTED',
+      version: 3,
+      actions: [
+        { type: 'create_asset', resourceId: expect.any(String) },
+        { type: 'create_liability', resourceId: expect.any(String) },
+      ],
+    });
+    await expect(prisma.asset.count({ where: { familyId } })).resolves.toBe(1);
+    await expect(prisma.liability.count({ where: { familyId } })).resolves.toBe(1);
+    await expect(prisma.auditEvent.count({ where: { familyId } })).resolves.toBe(1);
+    await expect(prisma.idempotencyRecord.count({ where: { familyId } })).resolves.toBe(1);
+    const persistedProposal = await prisma.aiProposal.findUnique({ where: { id: proposal.id }, include: { items: true } });
+    expect(persistedProposal).toMatchObject({ status: 'EXECUTED', version: 3 });
+    expect(persistedProposal?.items).toEqual(expect.arrayContaining([
+      expect.objectContaining({ resultJson: expect.objectContaining({ type: 'create_asset' }) }),
+      expect.objectContaining({ resultJson: expect.objectContaining({ type: 'create_liability' }) }),
+    ]));
+  });
+
+  test('rolls back balance facts and confirmation metadata when the transaction callback fails', async () => {
+    const proposal = await createBalanceProposal(familyId);
+    const failingClient = {
+      $transaction: (work: (transaction: Parameters<Parameters<PrismaClient['$transaction']>[0]>[0]) => Promise<unknown>) => (
+        prisma.$transaction(async (transaction) => {
+          await work(transaction);
+          throw new Error('injected balance confirmation failure');
+        })
+      ),
+    } as unknown as PrismaClient;
+    const store = createPrismaFinancialMutationStore(failingClient);
+
+    await expect(confirmAiProposal(balanceConfirmationFor(familyId, proposal), store))
+      .rejects.toMatchObject({ code: 'INTERNAL_ERROR' });
+    await expect(prisma.asset.count({ where: { familyId } })).resolves.toBe(0);
+    await expect(prisma.liability.count({ where: { familyId } })).resolves.toBe(0);
+    await expect(prisma.auditEvent.count({ where: { familyId } })).resolves.toBe(0);
+    await expect(prisma.idempotencyRecord.count({ where: { familyId } })).resolves.toBe(0);
+    await expect(prisma.aiProposal.findUnique({ where: { id: proposal.id } }))
+      .resolves.toMatchObject({ status: 'PROPOSED', version: 1 });
   });
 
   test('allows only one of two different keys to claim one proposal occurrence', async () => {

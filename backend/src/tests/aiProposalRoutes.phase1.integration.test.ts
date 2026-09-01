@@ -390,7 +390,7 @@ describe('Phase 1 real PostgreSQL AI proposal routes', () => {
     await expect(prisma.auditEvent.count({ where: { familyId } })).resolves.toBe(0);
   });
 
-  test('rejects an AI asset proposal because Balance mutation is not yet transactionally adopted', async () => {
+  test('confirms an AI asset proposal through the transaction-scoped Balance mutation path', async () => {
     const actions = [{
       type: 'create_asset' as const,
       data: { name: '基金', type: 'FUND', value: 1000 },
@@ -411,11 +411,31 @@ describe('Phase 1 real PostgreSQL AI proposal routes', () => {
         actions,
       });
 
-    expect(response.status).toBe(409);
-    expect(response.body).toMatchObject({ code: 'AI_BALANCE_MUTATION_UNAVAILABLE' });
-    await expect(prisma.asset.count({ where: { familyId } })).resolves.toBe(0);
-    await expect(prisma.idempotencyRecord.count({ where: { familyId } })).resolves.toBe(0);
-    await expect(prisma.auditEvent.count({ where: { familyId } })).resolves.toBe(0);
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      record: {
+        status: 'EXECUTED',
+        actions: [{ type: 'create_asset', resourceId: expect.any(String) }],
+      },
+      deduplicated: false,
+    });
+    await expect(prisma.asset.count({ where: { familyId } })).resolves.toBe(1);
+    await expect(prisma.idempotencyRecord.count({ where: { familyId } })).resolves.toBe(1);
+    await expect(prisma.auditEvent.count({ where: { familyId } })).resolves.toBe(1);
+
+    const replay = await request(app)
+      .post(`/api/families/${familyId}/ai/proposals/${proposalResponse.body.proposalId}/confirm`)
+      .set('Authorization', `Bearer ${memberToken}`)
+      .set('Idempotency-Key', 'ai-confirm-asset')
+      .send({
+        expectedVersion: proposalResponse.body.proposalVersion,
+        expectedHash: proposalResponse.body.proposalHash,
+        actions,
+      });
+
+    expect(replay.status).toBe(200);
+    expect(replay.headers['idempotency-replayed']).toBe('true');
+    await expect(prisma.asset.count({ where: { familyId } })).resolves.toBe(1);
   });
 
   test.each<[string, { amount?: number; date?: string; type?: string }]>([
