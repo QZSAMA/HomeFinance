@@ -229,6 +229,151 @@ describe('Phase 1 real PostgreSQL role x method matrix', () => {
     await expect(familySnapshot()).resolves.toEqual(before);
   });
 
+  test('allows members and admins to mutate non-ledger resources within the family', async () => {
+    const assetCreated = await request(app)
+      .post(`/api/families/${familyId}/assets`)
+      .set('Authorization', `Bearer ${tokens.member}`)
+      .send({ name: 'Member asset', type: 'CASH', value: 10 });
+    expect(assetCreated.status).toBe(201);
+
+    const assetUpdated = await request(app)
+      .put(`/api/families/${familyId}/assets/${assetCreated.body.id}`)
+      .set('Authorization', `Bearer ${tokens.admin}`)
+      .send({ name: 'Admin updated asset', type: 'CASH', value: 11 });
+    expect(assetUpdated.status).toBe(200);
+
+    const assetDeleted = await request(app)
+      .delete(`/api/families/${familyId}/assets/${assetCreated.body.id}`)
+      .set('Authorization', `Bearer ${tokens.member}`);
+    expect(assetDeleted.status).toBe(200);
+
+    const liabilityCreated = await request(app)
+      .post(`/api/families/${familyId}/liabilities`)
+      .set('Authorization', `Bearer ${tokens.admin}`)
+      .send({ name: 'Admin liability', type: 'OTHER', amount: 20 });
+    expect(liabilityCreated.status).toBe(201);
+
+    const liabilityUpdated = await request(app)
+      .put(`/api/families/${familyId}/liabilities/${liabilityCreated.body.id}`)
+      .set('Authorization', `Bearer ${tokens.member}`)
+      .send({ name: 'Member updated liability', type: 'OTHER', amount: 21 });
+    expect(liabilityUpdated.status).toBe(200);
+
+    const liabilityDeleted = await request(app)
+      .delete(`/api/families/${familyId}/liabilities/${liabilityCreated.body.id}`)
+      .set('Authorization', `Bearer ${tokens.admin}`);
+    expect(liabilityDeleted.status).toBe(200);
+
+    const budgetCreated = await request(app)
+      .post(`/api/families/${familyId}/budgets`)
+      .set('Authorization', `Bearer ${tokens.member}`)
+      .send({ category: 'FOOD', amount: 100, period: 'MONTHLY', startDate: '2026-09-01' });
+    expect(budgetCreated.status).toBe(201);
+
+    const budgetUpdated = await request(app)
+      .put(`/api/families/${familyId}/budgets/${budgetCreated.body.id}`)
+      .set('Authorization', `Bearer ${tokens.admin}`)
+      .send({ category: 'FOOD', amount: 110, period: 'MONTHLY', startDate: '2026-09-01' });
+    expect(budgetUpdated.status).toBe(200);
+
+    const budgetDeleted = await request(app)
+      .delete(`/api/families/${familyId}/budgets/${budgetCreated.body.id}`)
+      .set('Authorization', `Bearer ${tokens.member}`);
+    expect(budgetDeleted.status).toBe(200);
+
+    const goalCreated = await request(app)
+      .post(`/api/families/${familyId}/goals`)
+      .set('Authorization', `Bearer ${tokens.admin}`)
+      .send({ title: 'Admin goal', type: 'SAVING', targetAmount: 500 });
+    expect(goalCreated.status).toBe(201);
+
+    const goalUpdated = await request(app)
+      .put(`/api/families/${familyId}/goals/${goalCreated.body.id}`)
+      .set('Authorization', `Bearer ${tokens.member}`)
+      .send({ title: 'Member updated goal' });
+    expect(goalUpdated.status).toBe(200);
+
+    const goalDeleted = await request(app)
+      .delete(`/api/families/${familyId}/goals/${goalCreated.body.id}`)
+      .set('Authorization', `Bearer ${tokens.admin}`);
+    expect(goalDeleted.status).toBe(200);
+
+    const recurringCreated = await request(app)
+      .post(`/api/families/${familyId}/recurring`)
+      .set('Authorization', `Bearer ${tokens.member}`)
+      .send({
+        type: 'EXPENSE',
+        category: 'FOOD',
+        amount: 30,
+        frequency: 'MONTHLY',
+        nextDate: '2026-09-01',
+      });
+    expect(recurringCreated.status).toBe(201);
+
+    const recurringUpdated = await request(app)
+      .put(`/api/families/${familyId}/recurring/${recurringCreated.body.id}`)
+      .set('Authorization', `Bearer ${tokens.admin}`)
+      .send({ description: 'Admin updated recurring rule' });
+    expect(recurringUpdated.status).toBe(200);
+
+    const recurringExecuted = await request(app)
+      .post(`/api/families/${familyId}/recurring/${recurringCreated.body.id}/execute`)
+      .set('Authorization', `Bearer ${tokens.admin}`);
+    expect(recurringExecuted.status).toBe(200);
+
+    const recurringDeleted = await request(app)
+      .delete(`/api/families/${familyId}/recurring/${recurringCreated.body.id}`)
+      .set('Authorization', `Bearer ${tokens.member}`);
+    expect(recurringDeleted.status).toBe(200);
+
+    const csvPreview = await request(app)
+      .post(`/api/families/${familyId}/import/csv`)
+      .set('Authorization', `Bearer ${tokens.member}`)
+      .field('format', 'alipay')
+      .attach(
+        'file',
+        Buffer.from('交易时间,商品名称,金额,收/支,交易分类\n2026-09-01 10:00:00,Role matrix CSV,50,收入,OTHER\n'),
+        'role-matrix.csv',
+      );
+    expect(csvPreview.status).toBe(200);
+    expect(csvPreview.body).toEqual([expect.objectContaining({
+      description: 'Role matrix CSV',
+      amount: 50,
+      type: 'INCOME',
+    })]);
+
+    const imported = await request(app)
+      .post(`/api/families/${familyId}/import/confirm`)
+      .set('Authorization', `Bearer ${tokens.admin}`)
+      .send({
+        items: [{
+          date: '2026-09-01',
+          description: 'Role matrix import',
+          amount: 40,
+          type: 'INCOME',
+          category: 'OTHER',
+        }],
+      });
+    expect(imported.status).toBe(200);
+    expect(imported.body.successCount).toBe(1);
+
+    const file = await prisma.file.create({
+      data: {
+        familyId,
+        userId: memberId,
+        name: 'role-matrix.txt',
+        path: `${familyId}/role-matrix.txt`,
+        type: 'text/plain',
+        size: 4,
+        mimeType: 'text/plain',
+      },
+    });
+    const fileDeleted = await request(app)
+      .delete(`/api/families/${familyId}/files/${file.id}`)
+      .set('Authorization', `Bearer ${tokens.admin}`);
+    expect(fileDeleted.status).toBe(200);
+  });
+
   test('restricts family administration to admins and preserves the final administrator', async () => {
     const deniedFamilyMutation = async (
       method: 'put' | 'post' | 'delete',
