@@ -23,6 +23,7 @@ model User {
   recurringTransactions RecurringTransaction[]
   goals                 Goal[]
   auditEvents           AuditEvent[]
+  importBatches         ImportBatch[]
 }
 
 model Family {
@@ -45,6 +46,7 @@ model Family {
   goals                 Goal[]
   idempotencyRecords    IdempotencyRecord[]
   auditEvents           AuditEvent[]
+  importBatches         ImportBatch[]
 }
 
 model FamilyMember {
@@ -279,4 +281,44 @@ model Goal {
   updatedAt    DateTime  @updatedAt
 
   @@index([familyId])
+}
+
+model ImportBatch {
+  id            String      @id @default(cuid())
+  familyId      String
+  actorUserId   String
+  format        String
+  fileHash      String      @db.Char(64)
+  parserVersion String
+  previewHash   String      @db.Char(64)
+  status        String      @default("PREVIEWED")
+  rowCount      Int         @default(0)
+  expiresAt     DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  family        Family      @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  actor         User        @relation(fields: [actorUserId], references: [id], onDelete: Cascade)
+  rows          ImportRow[]
+
+  @@index([familyId, createdAt])
+  @@index([familyId, status])
+  @@index([familyId, previewHash])
+  @@index([actorUserId])
+}
+
+model ImportRow {
+  id               String      @id @default(cuid())
+  batchId          String
+  rowNumber        Int
+  canonicalPayload Json
+  validationErrors Json?
+  status           String      @default("VALID")
+  resultEntityType String?
+  resultEntityId   String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  batch            ImportBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@unique([batchId, rowNumber])
+  @@index([batchId, status])
 }
