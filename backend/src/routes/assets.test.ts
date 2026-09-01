@@ -3,6 +3,12 @@ import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import assetsRoutes from './assets';
 
+jest.mock('../services/balanceMutationService', () => ({
+  createAsset: jest.fn(),
+  updateAsset: jest.fn(),
+  deleteAsset: jest.fn(),
+}));
+
 jest.mock('../db/prisma', () => {
   const model = () => ({
     findMany: jest.fn(),
@@ -22,8 +28,11 @@ jest.mock('../db/prisma', () => {
 });
 
 import { prisma } from '../db/prisma';
+import * as balanceMutationService from '../services/balanceMutationService';
+import { DomainError } from '../services/ledgerErrors';
 
 const mockedPrisma = prisma as any;
+const mockedBalance = balanceMutationService as jest.Mocked<typeof balanceMutationService>;
 const app = express();
 app.use(express.json());
 app.use('/api/families/:familyId/assets', assetsRoutes);
@@ -57,6 +66,26 @@ describe('asset routes characterization', () => {
     mockedPrisma.asset.create.mockResolvedValue({ id: 'asset-1', ...assetBody });
     mockedPrisma.asset.update.mockResolvedValue({ id: 'asset-1', ...assetBody, value: 13000 });
     mockedPrisma.asset.delete.mockResolvedValue({ id: 'asset-1' });
+    mockedBalance.createAsset.mockResolvedValue({
+      operationId: 'operation-asset-create',
+      resourceId: 'asset-1',
+      record: { id: 'asset-1', ...assetBody, currency: 'CNY', version: 1 },
+      version: 1,
+      deduplicated: false,
+    });
+    mockedBalance.updateAsset.mockResolvedValue({
+      operationId: 'operation-asset-update',
+      resourceId: 'asset-1',
+      record: { id: 'asset-1', ...assetBody, value: 13000, currency: 'CNY', version: 2 },
+      version: 2,
+      deduplicated: false,
+    });
+    mockedBalance.deleteAsset.mockResolvedValue({
+      operationId: 'operation-asset-delete',
+      resourceId: 'asset-1',
+      version: 2,
+      deduplicated: false,
+    });
   });
 
   test('lists all family assets and preserves descending value ordering', async () => {
@@ -147,22 +176,36 @@ describe('asset routes characterization', () => {
     expect(response.body.allocation.every((entry: { percentage: number }) => entry.percentage === 0)).toBe(true);
   });
 
-  test('creates an asset after write access and normalizes the date', async () => {
+  test('creates an asset through the transactional application service', async () => {
     const response = await request(app)
       .post('/api/families/family-1/assets')
       .set('Authorization', `Bearer ${tokenFor()}`)
+      .set('Idempotency-Key', 'asset-create-1')
       .send(assetBody);
 
     expect(response.status).toBe(201);
-    expect(mockedPrisma.asset.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        familyId: 'family-1',
-        name: '应急现金',
-        type: 'CASH',
-        value: 12500,
-        currency: 'cny',
+    expect(mockedBalance.createAsset).toHaveBeenCalledWith({
+      familyId: 'family-1',
+      actorId: 'member-1',
+      source: 'MANUAL',
+      idempotencyKey: 'asset-create-1',
+      payload: {
+        name: assetBody.name,
+        type: assetBody.type,
+        category: assetBody.category,
+        value: assetBody.value,
+        costBasis: assetBody.costBasis,
+        currency: assetBody.currency,
         purchaseDate: new Date(assetBody.purchaseDate),
-      }),
+        description: assetBody.description,
+      },
+    }, expect.any(Object));
+    expect(mockedPrisma.asset.create).not.toHaveBeenCalled();
+    expect(response.body).toMatchObject({
+      id: 'asset-1',
+      version: 1,
+      operationId: 'operation-asset-create',
+      deduplicated: false,
     });
   });
 
@@ -195,37 +238,57 @@ describe('asset routes characterization', () => {
     expect(mockedPrisma.asset.create).not.toHaveBeenCalled();
   });
 
-  test('updates an asset and returns 404 for a cross-family record', async () => {
-    mockedPrisma.asset.findUnique.mockResolvedValueOnce({ id: 'asset-1', familyId: 'family-1' });
+  test('updates an asset through the transactional application service and returns 404 for a cross-family record', async () => {
+    mockedBalance.updateAsset.mockResolvedValueOnce({
+      operationId: 'operation-asset-update',
+      resourceId: 'asset-1',
+      record: { id: 'asset-1', ...assetBody, value: 13000, currency: 'CNY', version: 2 },
+      version: 2,
+      deduplicated: false,
+    });
+    mockedBalance.updateAsset.mockRejectedValueOnce(new DomainError(
+      'RESOURCE_NOT_FOUND',
+      '记录不存在',
+      404,
+    ));
     const update = await request(app)
       .put('/api/families/family-1/assets/asset-1')
       .set('Authorization', `Bearer ${tokenFor()}`)
+      .set('Idempotency-Key', 'asset-update-1')
+      .set('If-Match', 'W/"1"')
       .send({ ...assetBody, value: 13000 });
 
-    mockedPrisma.asset.findUnique.mockResolvedValueOnce({ id: 'asset-2', familyId: 'family-2' });
     const missing = await request(app)
       .put('/api/families/family-1/assets/asset-2')
       .set('Authorization', `Bearer ${tokenFor()}`)
+      .set('Idempotency-Key', 'asset-update-2')
       .send(assetBody);
 
     expect(update.status).toBe(200);
-    expect(mockedPrisma.asset.update).toHaveBeenCalledWith({
-      where: { id: 'asset-1' },
-      data: expect.objectContaining({ value: 13000 }),
-    });
+    expect(mockedBalance.updateAsset).toHaveBeenNthCalledWith(1, expect.objectContaining({
+      assetId: 'asset-1',
+      expectedVersion: 1,
+      idempotencyKey: 'asset-update-1',
+    }), expect.any(Object));
+    expect(mockedPrisma.asset.update).not.toHaveBeenCalled();
+    expect(update.body).toMatchObject({ version: 2, operationId: 'operation-asset-update' });
     expect(missing.status).toBe(404);
   });
 
   test('returns the update and delete authorization/404 contracts', async () => {
     mockedPrisma.familyMember.findUnique
-      .mockResolvedValueOnce(member)
-      .mockResolvedValueOnce(null);
+      .mockResolvedValueOnce({ ...member, role: 'viewer' })
+      .mockResolvedValueOnce(member);
     const updateForbidden = await request(app)
       .put('/api/families/family-1/assets/asset-1')
       .set('Authorization', `Bearer ${tokenFor()}`)
       .send(assetBody);
 
-    mockedPrisma.asset.findUnique.mockResolvedValue(null);
+    mockedBalance.deleteAsset.mockRejectedValueOnce(new DomainError(
+      'RESOURCE_NOT_FOUND',
+      '记录不存在',
+      404,
+    ));
     const deleteMissing = await request(app)
       .delete('/api/families/family-1/assets/asset-1')
       .set('Authorization', `Bearer ${tokenFor()}`);
@@ -235,16 +298,29 @@ describe('asset routes characterization', () => {
     expect(mockedPrisma.asset.delete).not.toHaveBeenCalled();
   });
 
-  test('deletes an asset for a member', async () => {
-    mockedPrisma.asset.findUnique.mockResolvedValue({ id: 'asset-1', familyId: 'family-1' });
-
+  test('deletes an asset through the transactional application service', async () => {
     const response = await request(app)
       .delete('/api/families/family-1/assets/asset-1')
-      .set('Authorization', `Bearer ${tokenFor()}`);
+      .set('Authorization', `Bearer ${tokenFor()}`)
+      .set('Idempotency-Key', 'asset-delete-1')
+      .set('If-Match', '2');
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ message: '删除成功' });
-    expect(mockedPrisma.asset.delete).toHaveBeenCalledWith({ where: { id: 'asset-1' } });
+    expect(mockedBalance.deleteAsset).toHaveBeenCalledWith({
+      familyId: 'family-1',
+      actorId: 'member-1',
+      source: 'MANUAL',
+      idempotencyKey: 'asset-delete-1',
+      assetId: 'asset-1',
+      expectedVersion: 2,
+    }, expect.any(Object));
+    expect(mockedPrisma.asset.delete).not.toHaveBeenCalled();
+    expect(response.body).toMatchObject({
+      message: '删除成功',
+      version: 2,
+      operationId: 'operation-asset-delete',
+      deduplicated: false,
+    });
   });
 
   test('converts database failures to 500 responses', async () => {
@@ -258,7 +334,7 @@ describe('asset routes characterization', () => {
       .get('/api/families/family-1/assets/allocation')
       .set('Authorization', `Bearer ${tokenFor()}`);
 
-    mockedPrisma.asset.create.mockRejectedValueOnce(new Error('database unavailable'));
+    mockedBalance.createAsset.mockRejectedValueOnce(new Error('database unavailable'));
     const create = await request(app)
       .post('/api/families/family-1/assets')
       .set('Authorization', `Bearer ${tokenFor()}`)
