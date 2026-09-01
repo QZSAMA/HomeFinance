@@ -9,7 +9,12 @@ jest.mock('../db/prisma', () => ({
 }));
 
 import { prisma } from '../db/prisma';
-import { requireFamilyAccess, requireFamilyWriteAccess } from './familyAccess';
+import {
+  requireFamilyAccess,
+  requireFamilyAdminAccess,
+  requireFamilyMemberRemovalAccess,
+  requireFamilyWriteAccess,
+} from './familyAccess';
 
 const mockedMembership = prisma.familyMember.findUnique as jest.Mock;
 
@@ -17,6 +22,10 @@ function createResponse() {
   const originalJson = jest.fn();
   const response = {
     statusCode: 200,
+    status: jest.fn((statusCode: number) => {
+      response.statusCode = statusCode;
+      return response;
+    }),
     json: originalJson,
   } as unknown as Response;
   return { response, originalJson };
@@ -65,6 +74,40 @@ describe('family write access response handling', () => {
       response,
       next,
     );
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+
+  test('rejects a viewer before an administrator-only family mutation', async () => {
+    mockedMembership.mockResolvedValue({
+      familyId: 'fam_1',
+      userId: 'viewer_1',
+      role: 'viewer',
+      family: { cacheVersion: 7 },
+    });
+    const { response, originalJson } = createResponse();
+    const next = jest.fn();
+
+    await requireFamilyAdminAccess(
+      { params: { id: 'fam_1' }, userId: 'viewer_1' } as any,
+      response,
+      next,
+    );
+
+    expect(response.statusCode).toBe(403);
+    expect(originalJson).toHaveBeenCalledWith({ error: '无权修改该家庭' });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  test('allows a member to remove only their own membership while still rejecting viewers', async () => {
+    const { response } = createResponse();
+    const next = jest.fn();
+
+    await requireFamilyMemberRemovalAccess(
+      { params: { id: 'fam_1', memberId: 'member_1' }, userId: 'member_1' } as any,
+      response,
+      next,
+    );
+
     expect(next).toHaveBeenCalledTimes(1);
   });
 });

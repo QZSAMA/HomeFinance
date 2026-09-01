@@ -120,10 +120,11 @@ describe('Family Routes', () => {
 
   describe('POST /api/families/:id/invite', () => {
     test('invites a user to family', async () => {
-      mockedPrisma.familyMember.findUnique.mockResolvedValue({ familyId: 'fam_1', userId: 'user_1', role: 'admin' });
+      mockedPrisma.familyMember.findUnique
+        .mockResolvedValueOnce({ familyId: 'fam_1', userId: 'user_1', role: 'admin' })
+        .mockResolvedValueOnce({ familyId: 'fam_1', userId: 'user_1', role: 'admin' })
+        .mockResolvedValueOnce(null);
       mockedPrisma.user.findUnique.mockResolvedValue({ id: 'user_2', email: 'new@example.com', name: 'New' });
-      mockedPrisma.familyMember.findUnique.mockResolvedValueOnce({ familyId: 'fam_1', userId: 'user_1', role: 'admin' });
-      mockedPrisma.familyMember.findUnique.mockResolvedValueOnce(null);
       mockedPrisma.familyMember.create.mockResolvedValue({});
       mockedPrisma.family.findUnique.mockResolvedValue({ id: 'fam_1', name: 'Family 1', members: [] });
 
@@ -144,6 +145,46 @@ describe('Family Routes', () => {
         .send({ email: 'new@example.com', role: 'member' });
 
       expect(res.status).toBe(403);
+    });
+  });
+
+  describe('DELETE /api/families/:id/members/:memberId', () => {
+    test('rejects a viewer removing their own membership without deleting it', async () => {
+      mockedPrisma.familyMember.findUnique.mockResolvedValue({
+        familyId: 'fam_1',
+        userId: 'user_1',
+        role: 'viewer',
+      });
+
+      const res = await request(app)
+        .delete('/api/families/fam_1/members/user_1')
+        .set('Authorization', `Bearer ${createToken()}`);
+
+      expect(res.status).toBe(403);
+      expect(mockedPrisma.familyMember.delete).not.toHaveBeenCalled();
+      expect(mockedPrisma.familyMember.count).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('PUT /api/families/:id/members/:memberId/role', () => {
+    test('rejects demoting the final administrator without changing the role', async () => {
+      mockedPrisma.familyMember.findUnique
+        .mockResolvedValueOnce({ familyId: 'fam_1', userId: 'user_1', role: 'admin' })
+        .mockResolvedValueOnce({ familyId: 'fam_1', userId: 'user_1', role: 'admin' })
+        .mockResolvedValueOnce({ familyId: 'fam_1', userId: 'user_1', role: 'admin' });
+      mockedPrisma.familyMember.count.mockResolvedValue(1);
+
+      const res = await request(app)
+        .put('/api/families/fam_1/members/user_1/role')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ role: 'viewer' });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toContain('管理员');
+      expect(mockedPrisma.familyMember.count).toHaveBeenCalledWith({
+        where: { familyId: 'fam_1', role: 'admin' },
+      });
+      expect(mockedPrisma.familyMember.update).not.toHaveBeenCalled();
     });
   });
 });
