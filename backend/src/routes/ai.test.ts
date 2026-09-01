@@ -680,26 +680,16 @@ describe('AI Routes', () => {
   });
 
   describe('POST /api/families/:familyId/ai/execute-actions', () => {
-    test('合法 actions → 调用 executeActions，返回 ActionResult[]', async () => {
-      const actionResult = { type: 'create_expense' as const, status: 'success' as const, message: '已创建支出：餐饮 ¥35.00', record: { id: 'exp_1' } };
-      mockedExecuteActions.mockResolvedValue([actionResult]);
-      mockedPrisma.aiConversation.create.mockResolvedValue({});
-
+    test('rejects raw client-owned actions instead of calling executeActions', async () => {
       const res = await request(app)
         .post('/api/families/family_1/ai/execute-actions')
         .set('Authorization', `Bearer ${createToken()}`)
         .send({ actions: [{ type: 'create_expense', data: { amount: 35, category: '餐饮' } }] });
 
-      expect(res.status).toBe(200);
-      expect(res.body.actions).toHaveLength(1);
-      expect(res.body.actions[0].status).toBe('success');
-      expect(res.body.actions[0].record.id).toBe('exp_1');
-      expect(mockedExecuteActions).toHaveBeenCalledTimes(1);
-      // 落库对话记录
-      expect(mockedPrisma.aiConversation.create).toHaveBeenCalledTimes(1);
-      const createArgs = mockedPrisma.aiConversation.create.mock.calls[0][0];
-      expect(createArgs.data.content).toContain('[确认记账]');
-      expect(createArgs.data.type).toBe('chat');
+      expect(res.status).toBe(400);
+      expect(res.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+      expect(mockedExecuteActions).not.toHaveBeenCalled();
+      expect(mockedPrisma.aiConversation.create).not.toHaveBeenCalled();
     });
 
     test('空 actions 数组 → 400', async () => {
@@ -745,6 +735,56 @@ describe('AI Routes', () => {
       expect(res.status).toBe(200);
       expect(Array.isArray(res.body)).toBe(true);
       expect(res.body.length).toBe(1);
+    });
+
+    test('returns server-owned proposal metadata needed to resume confirmation after refresh', async () => {
+      mockedPrisma.aiConversation.findMany.mockResolvedValue([
+        {
+          id: 'conversation-1',
+          familyId: 'family_1',
+          userId: 'user-1',
+          content: '午餐 30 元',
+          response: '请确认这笔支出',
+          type: 'chat',
+          fileId: null,
+          createdAt: new Date(),
+          aiProposals: [{
+            id: 'proposal-1',
+            version: 1,
+            originalHash: 'a'.repeat(64),
+            expiresAt: new Date('2026-09-01T12:00:00.000Z'),
+            status: 'PROPOSED',
+            items: [{
+              id: 'proposal-item-1',
+              ordinal: 0,
+              typedAction: 'create_expense',
+              canonicalData: { amount: 30, category: '餐饮', date: '2026-09-01' },
+              resultJson: null,
+            }],
+          }],
+        },
+      ] as any);
+
+      const res = await request(app)
+        .get('/api/families/family_1/ai/history')
+        .set('Authorization', `Bearer ${createToken()}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body[0]).toMatchObject({
+        id: 'conversation-1',
+        proposal: {
+          id: 'proposal-1',
+          version: 1,
+          originalHash: 'a'.repeat(64),
+          status: 'PROPOSED',
+          items: [{
+            proposalItemId: 'proposal-item-1',
+            type: 'create_expense',
+            data: { amount: 30, category: '餐饮', date: '2026-09-01' },
+          }],
+        },
+      });
+      expect(res.body[0].proposal.aiProposals).toBeUndefined();
     });
 
     test('returns 401 without token', async () => {

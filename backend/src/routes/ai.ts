@@ -5,7 +5,7 @@ import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { requireFamilyWriteAccess } from '../middleware/familyAccess';
 import { rateLimitMiddleware } from '../middleware/rateLimit';
 import { chatWithActions, analyzeFinance, parseReceiptOCR, ocrToActions, AIError } from '../services/aiService';
-import { executeActions, type AIAction } from '../services/aiActions';
+import type { AIAction } from '../services/aiActions';
 import { toNumber } from '../utils/decimal';
 import { isAIConfigured, isVisionConfigured } from '../config/ai';
 import { storeOcrImage } from '../services/fileStorageService';
@@ -134,6 +134,16 @@ const confirmAiProposalSchema = z.object({
   }).strict()).min(1).max(50),
 }).strict();
 
+const proposalItemsResponse = (proposal: {
+  items?: Array<{ id: string; typedAction: string; canonicalData: unknown }>;
+}) => (proposal.items && proposal.items.length > 0
+  ? proposal.items.map((item) => ({
+    proposalItemId: item.id,
+    type: item.typedAction,
+    data: item.canonicalData,
+  }))
+  : undefined);
+
 router.get('/status', authMiddleware, (_req, res) => {
   res.json({
     configured: isAIConfigured(),
@@ -221,6 +231,7 @@ router.post('/chat', authMiddleware, requireFamilyWriteAccess, rateLimitMiddlewa
           proposalVersion: proposal.version,
           proposalHash: proposal.originalHash,
           proposalExpiresAt: proposal.expiresAt.toISOString(),
+          ...(proposalItemsResponse(proposal) ? { proposalItems: proposalItemsResponse(proposal) } : {}),
         } : {}),
         aiConfigured: isAIConfigured(),
       });
@@ -311,6 +322,7 @@ router.post('/chat', authMiddleware, requireFamilyWriteAccess, rateLimitMiddlewa
           proposalVersion: proposal.version,
           proposalHash: proposal.originalHash,
           proposalExpiresAt: proposal.expiresAt.toISOString(),
+          ...(proposalItemsResponse(proposal) ? { proposalItems: proposalItemsResponse(proposal) } : {}),
         } : {}),
         aiConfigured: isAIConfigured(),
       });
@@ -393,6 +405,7 @@ router.post('/chat', authMiddleware, requireFamilyWriteAccess, rateLimitMiddlewa
         proposalVersion: proposal.version,
         proposalHash: proposal.originalHash,
         proposalExpiresAt: proposal.expiresAt.toISOString(),
+        ...(proposalItemsResponse(proposal) ? { proposalItems: proposalItemsResponse(proposal) } : {}),
       } : {}),
       aiConfigured: isAIConfigured(),
     });
@@ -497,7 +510,7 @@ router.post('/ocr', authMiddleware, requireFamilyWriteAccess, rateLimitMiddlewar
     // 2. 并行 OCR + 合并（Tesseract 本地 + 视觉多模态 LLM）
     const data = await parseReceiptOCR(image);
 
-    // 3. 转换为提议动作（不执行，由前端用户确认后调用 /execute-actions）
+    // 3. 转换为提议动作（不执行，由前端用户确认后调用 proposal confirmation API）
     const proposedActions = ocrToActions(data);
 
     // 3.5 重复检测：检查每条 action 是否与近 7 天已有记录重复（相同金额 + 类型 + 日期）
@@ -544,6 +557,7 @@ router.post('/ocr', authMiddleware, requireFamilyWriteAccess, rateLimitMiddlewar
         proposalVersion: proposal.version,
         proposalHash: proposal.originalHash,
         proposalExpiresAt: proposal.expiresAt.toISOString(),
+        ...(proposalItemsResponse(proposal) ? { proposalItems: proposalItemsResponse(proposal) } : {}),
       } : {}),
     });
   } catch (error) {
@@ -601,52 +615,67 @@ router.post('/proposals/:proposalId/confirm', authMiddleware, requireFamilyWrite
   }
 });
 
-const executeActionsSchema = z.object({
+const legacyConfirmAiProposalSchema = z.object({
+  proposalId: z.string().min(1),
+  expectedVersion: z.number().int().positive(),
+  expectedHash: z.string().regex(/^[0-9a-f]{64}$/, 'expectedHash must be a SHA-256 hash.'),
   actions: z.array(z.object({
     type: z.string(),
-    data: z.record(z.any()),
-  })).min(1, '动作不能为空'),
-});
+    data: z.record(z.unknown()),
+  }).strict()).min(1).max(50),
+}).strict();
+
+const respondWithConfirmationError = (error: unknown, res: import('express').Response) => {
+  if (error instanceof z.ZodError) {
+    return res.status(400).json({ error: error.errors[0].message, code: 'VALIDATION_FAILED', retryable: false });
+  }
+  if (error instanceof DomainError) {
+    return res.status(error.status).json({
+      error: error.message,
+      code: error.code,
+      retryable: error.retryable,
+    });
+  }
+  console.error('确认 AI proposal 错误:', error);
+  return res.status(500).json({ error: '服务器内部错误，请稍后重试', code: 'INTERNAL_ERROR', retryable: false });
+};
+
+const sendAiProposalConfirmation = async (
+  familyId: string,
+  userId: string,
+  proposalId: string,
+  parsed: { expectedVersion: number; expectedHash: string; actions: AIAction[] },
+  idempotencyKey: string,
+  res: import('express').Response,
+) => {
+  const result = await confirmAiProposal({
+    familyId,
+    actorUserId: userId,
+    proposalId,
+    expectedVersion: parsed.expectedVersion,
+    expectedHash: parsed.expectedHash,
+    idempotencyKey,
+    actions: parsed.actions,
+  }, createPrismaFinancialMutationStore(prisma));
+  if (result.deduplicated) res.set('Idempotency-Replayed', 'true');
+  return res.status(200).json(result);
+};
 
 router.post('/execute-actions', authMiddleware, requireFamilyWriteAccess, rateLimitMiddleware(20, 60), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const userId = req.userId!;
-    const membership = await checkFamilyAccess(familyId, userId);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
-
-    const { actions } = executeActionsSchema.parse(req.body);
-
-    const actionResults = await executeActions(familyId, userId, actions as AIAction[]);
-
-    // 落库对话记录（便于历史追溯）
-    const summary = actionResults.map(r => r.message).join('; ');
-    await prisma.aiConversation.create({
-      data: {
-        familyId,
-        userId,
-        content: `[确认记账] ${actions.map(a => a.type).join(', ')}`,
-        response: summary,
-        type: 'chat',
-      }
-    });
-
-    res.json({
-      actions: actionResults,
-      aiConfigured: isAIConfigured(),
-    });
+    const parsed = legacyConfirmAiProposalSchema.parse(req.body);
+    return sendAiProposalConfirmation(
+      familyId,
+      userId,
+      parsed.proposalId,
+      { ...parsed, actions: parsed.actions as AIAction[] },
+      req.get('Idempotency-Key') ?? '',
+      res,
+    );
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: error.errors[0].message });
-    }
-    if (error instanceof AIError) {
-      console.error('执行动作错误:', error.message);
-      return res.status(error.statusCode).json({ error: error.message });
-    }
-    console.error('执行动作未知错误:', error);
-    res.status(500).json({ error: '服务器内部错误，请稍后重试' });
+    return respondWithConfirmationError(error, res);
   }
 });
 
@@ -662,9 +691,46 @@ router.get('/history', authMiddleware, async (req: AuthRequest, res) => {
       where: { familyId },
       orderBy: { createdAt: 'desc' },
       take: 50,
+      include: {
+        aiProposals: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: {
+            id: true,
+            version: true,
+            originalHash: true,
+            expiresAt: true,
+            status: true,
+            items: {
+              orderBy: { ordinal: 'asc' },
+              select: {
+                id: true,
+                typedAction: true,
+                canonicalData: true,
+              },
+            },
+          },
+        },
+      },
     });
 
-    res.json(history);
+    res.json(history.map(({ aiProposals = [], ...conversation }) => ({
+      ...conversation,
+      ...(aiProposals[0] ? {
+        proposal: {
+          id: aiProposals[0].id,
+          version: aiProposals[0].version,
+          originalHash: aiProposals[0].originalHash,
+          expiresAt: aiProposals[0].expiresAt.toISOString(),
+          status: aiProposals[0].status,
+          items: aiProposals[0].items.map((item) => ({
+            proposalItemId: item.id,
+            type: item.typedAction,
+            data: item.canonicalData,
+          })),
+        },
+      } : {}),
+    })));
   } catch (error) {
     console.error('获取对话历史错误:', error);
     res.status(500).json({ error: '服务器内部错误，请稍后重试' });
