@@ -2,6 +2,7 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import {
   FinancialMutationOperation,
   FinancialMutationStore,
+  AiProposalSnapshot,
   IdempotencyRecordSnapshot,
   LedgerRecord,
   LedgerTransactionClient,
@@ -117,6 +118,47 @@ export const createPrismaLedgerTransactionClient = (tx: Prisma.TransactionClient
         before: data.before === null ? Prisma.DbNull : toJson(data.before) as Prisma.InputJsonValue,
         after: toJson(data.after) as Prisma.InputJsonValue,
       },
+    }),
+  },
+  aiProposal: {
+    findFirst: ({ where }) => tx.aiProposal.findFirst({
+      where,
+      include: { items: { orderBy: { ordinal: 'asc' } } },
+    }).then((value) => value === null ? null : ({
+      id: value.id,
+      familyId: value.familyId,
+      actorUserId: value.actorUserId,
+      actorSnapshot: value.actorSnapshot,
+      originalHash: value.originalHash,
+      status: value.status,
+      version: value.version,
+      expiresAt: value.expiresAt,
+      items: value.items.map((item) => ({
+        id: item.id,
+        ordinal: item.ordinal,
+        typedAction: item.typedAction,
+        canonicalData: item.canonicalData,
+      })),
+    } satisfies AiProposalSnapshot)),
+    updateMany: ({ where, data }) => tx.aiProposal.updateMany({
+      where,
+      data: {
+        ...(data.status === undefined ? {} : { status: data.status }),
+        ...(data.version === undefined ? {} : { version: data.version }),
+        ...(data.confirmedPayload === undefined ? {} : {
+          confirmedPayload: toJson(data.confirmedPayload) as Prisma.InputJsonValue,
+        }),
+        ...(data.confirmedHash === undefined ? {} : { confirmedHash: data.confirmedHash }),
+        ...(data.resultJson === undefined ? {} : {
+          resultJson: toJson(data.resultJson) as Prisma.InputJsonValue,
+        }),
+      },
+    }),
+  },
+  aiProposalItem: {
+    update: ({ where, data }) => tx.aiProposalItem.update({
+      where,
+      data: { resultJson: toJson(data.resultJson) as Prisma.InputJsonValue },
     }),
   },
 });

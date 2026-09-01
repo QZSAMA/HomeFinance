@@ -8,6 +8,7 @@ import {
   FinancialMutationStore,
   LedgerRecord,
   MUTATION_SOURCES,
+  MutationExecutionResult,
   MutationResult,
   MutationSource,
   UpdateExpenseCommand,
@@ -128,19 +129,72 @@ const updatedRecordMissing = (): never => {
   );
 };
 
+const incomeMutationData = (command: CreateIncomeCommand) => ({
+  amount: requireAmount(command.payload.amount),
+  category: requireText(command.payload.category, 'category'),
+  description: optionalText(command.payload.description),
+  source: optionalText(command.payload.source),
+  date: requireDate(command.effectiveDate),
+  currency: normalizeCurrency(command.payload.currency),
+});
+
+const expenseMutationData = (command: CreateExpenseCommand) => ({
+  amount: requireAmount(command.payload.amount),
+  category: requireText(command.payload.category, 'category'),
+  description: optionalText(command.payload.description),
+  paymentMethod: optionalText(command.payload.paymentMethod),
+  date: requireDate(command.effectiveDate),
+  currency: normalizeCurrency(command.payload.currency),
+});
+
+export async function createIncomeInTransaction(
+  command: CreateIncomeCommand,
+  transaction: import('./ledgerTypes').LedgerTransactionClient,
+): Promise<MutationExecutionResult<LedgerRecord>> {
+  validateCommandScope(command);
+  const payload = incomeMutationData(command);
+  const record = await transaction.income.create({
+    data: {
+      familyId: command.familyId,
+      createdBy: command.actorId,
+      ...payload,
+      originType: command.source,
+    },
+  });
+  return {
+    resourceId: record.id,
+    record,
+    version: record.version,
+  };
+}
+
+export async function createExpenseInTransaction(
+  command: CreateExpenseCommand,
+  transaction: import('./ledgerTypes').LedgerTransactionClient,
+): Promise<MutationExecutionResult<LedgerRecord>> {
+  validateCommandScope(command);
+  const payload = expenseMutationData(command);
+  const record = await transaction.expense.create({
+    data: {
+      familyId: command.familyId,
+      createdBy: command.actorId,
+      ...payload,
+      originType: command.source,
+    },
+  });
+  return {
+    resourceId: record.id,
+    record,
+    version: record.version,
+  };
+}
+
 export async function createIncome(
   command: CreateIncomeCommand,
   store: FinancialMutationStore,
 ): Promise<MutationResult<LedgerRecord>> {
   validateCommandScope(command);
-  const payload = {
-    amount: requireAmount(command.payload.amount),
-    category: requireText(command.payload.category, 'category'),
-    description: optionalText(command.payload.description),
-    source: optionalText(command.payload.source),
-    date: requireDate(command.effectiveDate),
-    currency: normalizeCurrency(command.payload.currency),
-  };
+  const payload = incomeMutationData(command);
 
   return coordinateFinancialMutation(
     {
@@ -154,21 +208,7 @@ export async function createIncome(
       audit: { action: 'CREATE', entity: 'Income' },
     },
     store,
-    async (transaction) => {
-      const record = await transaction.income.create({
-        data: {
-          familyId: command.familyId,
-          createdBy: command.actorId,
-          ...payload,
-          originType: command.source,
-        },
-      });
-      return {
-        resourceId: record.id,
-        record,
-        version: record.version,
-      };
-    },
+    async (transaction) => createIncomeInTransaction(command, transaction),
   );
 }
 
@@ -177,14 +217,7 @@ export async function createExpense(
   store: FinancialMutationStore,
 ): Promise<MutationResult<LedgerRecord>> {
   validateCommandScope(command);
-  const payload = {
-    amount: requireAmount(command.payload.amount),
-    category: requireText(command.payload.category, 'category'),
-    description: optionalText(command.payload.description),
-    paymentMethod: optionalText(command.payload.paymentMethod),
-    date: requireDate(command.effectiveDate),
-    currency: normalizeCurrency(command.payload.currency),
-  };
+  const payload = expenseMutationData(command);
 
   return coordinateFinancialMutation(
     {
@@ -198,21 +231,7 @@ export async function createExpense(
       audit: { action: 'CREATE', entity: 'Expense' },
     },
     store,
-    async (transaction) => {
-      const record = await transaction.expense.create({
-        data: {
-          familyId: command.familyId,
-          createdBy: command.actorId,
-          ...payload,
-          originType: command.source,
-        },
-      });
-      return {
-        resourceId: record.id,
-        record,
-        version: record.version,
-      };
-    },
+    async (transaction) => createExpenseInTransaction(command, transaction),
   );
 }
 

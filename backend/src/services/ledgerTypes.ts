@@ -103,6 +103,25 @@ export interface LedgerRecord {
   [key: string]: unknown;
 }
 
+export interface AiProposalItemSnapshot {
+  id: string;
+  ordinal: number;
+  typedAction: string;
+  canonicalData: unknown;
+}
+
+export interface AiProposalSnapshot {
+  id: string;
+  familyId: string;
+  actorUserId: string | null;
+  actorSnapshot: unknown;
+  originalHash: string;
+  status: string;
+  version: number;
+  expiresAt: Date;
+  items: AiProposalItemSnapshot[];
+}
+
 export interface MutationExecutionResult<TRecord = LedgerRecord> {
   resourceId: string;
   record?: TRecord;
@@ -239,6 +258,28 @@ export interface LedgerTransactionClient {
         before: unknown;
         after: unknown;
       };
+    }): Promise<unknown>;
+  };
+  /** Optional until the AI confirmation adapter is mounted; required by the confirmation service at runtime. */
+  aiProposal?: {
+    findFirst(args: {
+      where: { id: string; familyId: string };
+    }): Promise<AiProposalSnapshot | null>;
+    updateMany(args: {
+      where: { id: string; familyId: string; status: string; version: number };
+      data: {
+        status?: string;
+        version?: { increment: number };
+        confirmedPayload?: unknown;
+        confirmedHash?: string;
+        resultJson?: unknown;
+      };
+    }): Promise<{ count: number }>;
+  };
+  aiProposalItem?: {
+    update(args: {
+      where: { id: string };
+      data: { resultJson: unknown };
     }): Promise<unknown>;
   };
 }

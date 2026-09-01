@@ -79,6 +79,8 @@ describe('Phase 1 real PostgreSQL AI proposal routes', () => {
   afterEach(async () => {
     await prisma.aiProposal.deleteMany({ where: { familyId } });
     await prisma.aiConversation.deleteMany({ where: { familyId } });
+    await prisma.auditEvent.deleteMany({ where: { familyId } });
+    await prisma.idempotencyRecord.deleteMany({ where: { familyId } });
     await prisma.income.deleteMany({ where: { familyId } });
     await prisma.expense.deleteMany({ where: { familyId } });
     await prisma.asset.deleteMany({ where: { familyId } });
@@ -181,6 +183,106 @@ describe('Phase 1 real PostgreSQL AI proposal routes', () => {
       sourceConversation: { familyId, userId: memberId, type: 'ocr' },
     });
     expect(proposal.items).toHaveLength(1);
+  });
+
+  test('confirms a server-owned text proposal through HTTP and replays without a duplicate Income', async () => {
+    const actions = [{
+      type: 'create_income' as const,
+      data: { amount: 125, category: '工资', description: 'AI confirm', date: '2026-09-01' },
+    }];
+    (chatWithActions as jest.Mock).mockResolvedValue({ reply: '请确认', actions });
+
+    const proposalResponse = await request(app)
+      .post(`/api/families/${familyId}/ai/chat`)
+      .set('Authorization', `Bearer ${memberToken}`)
+      .send({ content: '记录工资125元' });
+    const confirmationBody = {
+      expectedVersion: proposalResponse.body.proposalVersion,
+      expectedHash: proposalResponse.body.proposalHash,
+      actions,
+    };
+
+    const first = await request(app)
+      .post(`/api/families/${familyId}/ai/proposals/${proposalResponse.body.proposalId}/confirm`)
+      .set('Authorization', `Bearer ${memberToken}`)
+      .set('Idempotency-Key', 'ai-confirm-http-1')
+      .send(confirmationBody);
+
+    expect(first.status).toBe(200);
+    expect(first.body).toMatchObject({
+      resourceId: proposalResponse.body.proposalId,
+      record: { status: 'EXECUTED', version: 3 },
+      deduplicated: false,
+    });
+    await expect(prisma.income.count({ where: { familyId } })).resolves.toBe(1);
+
+    const replay = await request(app)
+      .post(`/api/families/${familyId}/ai/proposals/${proposalResponse.body.proposalId}/confirm`)
+      .set('Authorization', `Bearer ${memberToken}`)
+      .set('Idempotency-Key', 'ai-confirm-http-1')
+      .send(confirmationBody);
+
+    expect(replay.status).toBe(200);
+    expect(replay.headers['idempotency-replayed']).toBe('true');
+    await expect(prisma.income.count({ where: { familyId } })).resolves.toBe(1);
+    await expect(prisma.auditEvent.count({ where: { familyId } })).resolves.toBe(1);
+    await expect(prisma.idempotencyRecord.count({ where: { familyId } })).resolves.toBe(1);
+  });
+
+  test('rejects viewer confirmation before proposal lookup and ledger mutation', async () => {
+    const actions = [{
+      type: 'create_expense' as const,
+      data: { amount: 25, category: '餐饮', date: '2026-09-01' },
+    }];
+    (chatWithActions as jest.Mock).mockResolvedValue({ reply: '请确认', actions });
+    const proposalResponse = await request(app)
+      .post(`/api/families/${familyId}/ai/chat`)
+      .set('Authorization', `Bearer ${memberToken}`)
+      .send({ content: '午餐25元' });
+
+    const response = await request(app)
+      .post(`/api/families/${familyId}/ai/proposals/${proposalResponse.body.proposalId}/confirm`)
+      .set('Authorization', `Bearer ${viewerToken}`)
+      .set('Idempotency-Key', 'ai-confirm-viewer')
+      .send({
+        expectedVersion: proposalResponse.body.proposalVersion,
+        expectedHash: proposalResponse.body.proposalHash,
+        actions,
+      });
+
+    expect(response.status).toBe(403);
+    expect(response.body).toMatchObject({ error: '无权修改该家庭数据' });
+    await expect(prisma.expense.count({ where: { familyId } })).resolves.toBe(0);
+    await expect(prisma.idempotencyRecord.count({ where: { familyId } })).resolves.toBe(0);
+    await expect(prisma.auditEvent.count({ where: { familyId } })).resolves.toBe(0);
+  });
+
+  test('rejects an AI asset proposal because Balance mutation is not yet transactionally adopted', async () => {
+    const actions = [{
+      type: 'create_asset' as const,
+      data: { name: '基金', type: 'FUND', value: 1000 },
+    }];
+    (chatWithActions as jest.Mock).mockResolvedValue({ reply: '请确认资产', actions });
+    const proposalResponse = await request(app)
+      .post(`/api/families/${familyId}/ai/chat`)
+      .set('Authorization', `Bearer ${memberToken}`)
+      .send({ content: '我有1000元基金' });
+
+    const response = await request(app)
+      .post(`/api/families/${familyId}/ai/proposals/${proposalResponse.body.proposalId}/confirm`)
+      .set('Authorization', `Bearer ${memberToken}`)
+      .set('Idempotency-Key', 'ai-confirm-asset')
+      .send({
+        expectedVersion: proposalResponse.body.proposalVersion,
+        expectedHash: proposalResponse.body.proposalHash,
+        actions,
+      });
+
+    expect(response.status).toBe(409);
+    expect(response.body).toMatchObject({ code: 'AI_BALANCE_MUTATION_UNAVAILABLE' });
+    await expect(prisma.asset.count({ where: { familyId } })).resolves.toBe(0);
+    await expect(prisma.idempotencyRecord.count({ where: { familyId } })).resolves.toBe(0);
+    await expect(prisma.auditEvent.count({ where: { familyId } })).resolves.toBe(0);
   });
 
   test.each([

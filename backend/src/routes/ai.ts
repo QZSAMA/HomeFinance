@@ -10,6 +10,8 @@ import { toNumber } from '../utils/decimal';
 import { isAIConfigured, isVisionConfigured } from '../config/ai';
 import { storeOcrImage } from '../services/fileStorageService';
 import { persistAiProposal } from '../services/aiProposalService';
+import { confirmAiProposal } from '../services/aiProposalConfirmationService';
+import { createPrismaFinancialMutationStore } from '../services/prismaFinancialMutationStore';
 import { DomainError } from '../services/ledgerErrors';
 
 const router = Router({ mergeParams: true });
@@ -122,6 +124,15 @@ const chatSchema = z.object({
 const ocrSchema = z.object({
   image: z.string().min(1, '图片数据不能为空'),
 });
+
+const confirmAiProposalSchema = z.object({
+  expectedVersion: z.number().int().positive(),
+  expectedHash: z.string().regex(/^[0-9a-f]{64}$/, 'expectedHash must be a SHA-256 hash.'),
+  actions: z.array(z.object({
+    type: z.string(),
+    data: z.record(z.unknown()),
+  }).strict()).min(1).max(50),
+}).strict();
 
 router.get('/status', authMiddleware, (_req, res) => {
   res.json({
@@ -552,6 +563,41 @@ router.post('/ocr', authMiddleware, requireFamilyWriteAccess, rateLimitMiddlewar
     }
     console.error('OCR 识别未知错误:', error);
     res.status(500).json({ error: '服务器内部错误，请稍后重试', code: 'INTERNAL_ERROR', retryable: false });
+  }
+});
+
+router.post('/proposals/:proposalId/confirm', authMiddleware, requireFamilyWriteAccess, async (req: AuthRequest, res) => {
+  try {
+    const familyId = req.params.familyId as string;
+    const proposalId = req.params.proposalId as string;
+    const userId = req.userId!;
+    const parsed = confirmAiProposalSchema.parse(req.body);
+    const idempotencyKey = req.get('Idempotency-Key') ?? '';
+    const result = await confirmAiProposal({
+      familyId,
+      actorUserId: userId,
+      proposalId,
+      expectedVersion: parsed.expectedVersion,
+      expectedHash: parsed.expectedHash,
+      idempotencyKey,
+      actions: parsed.actions as AIAction[],
+    }, createPrismaFinancialMutationStore(prisma));
+
+    if (result.deduplicated) res.set('Idempotency-Replayed', 'true');
+    return res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors[0].message, code: 'VALIDATION_FAILED', retryable: false });
+    }
+    if (error instanceof DomainError) {
+      return res.status(error.status).json({
+        error: error.message,
+        code: error.code,
+        retryable: error.retryable,
+      });
+    }
+    console.error('确认 AI proposal 错误:', error);
+    return res.status(500).json({ error: '服务器内部错误，请稍后重试', code: 'INTERNAL_ERROR', retryable: false });
   }
 });
 

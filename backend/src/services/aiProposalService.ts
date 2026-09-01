@@ -57,7 +57,7 @@ const parseText = (value: unknown, field: string): string => {
   return value.trim();
 };
 
-const normalizeAction = (action: AIAction): AIAction => {
+export const normalizeAction = (action: AIAction): AIAction => {
   if (!action || typeof action !== 'object' || !PROPOSABLE_ACTION_TYPES.has(action.type)) {
     return invalidProposal('AI proposals may contain create actions only.');
   }
@@ -83,6 +83,11 @@ const normalizeAction = (action: AIAction): AIAction => {
       if (data.source !== undefined && data.source !== null) normalized.source = parseText(data.source, 'source');
       if (data.paymentMethod !== undefined && data.paymentMethod !== null) {
         normalized.paymentMethod = parseText(data.paymentMethod, 'paymentMethod');
+      }
+      if (data.currency !== undefined && data.currency !== null) {
+        const currency = parseText(data.currency, 'currency').toUpperCase();
+        if (!/^[A-Z]{3}$/.test(currency)) return invalidProposal('currency must be a three-letter code.');
+        normalized.currency = currency;
       }
       break;
     case 'create_asset':

@@ -124,6 +124,25 @@ describe('Phase 1 real PostgreSQL AI proposal persistence contracts', () => {
     })).rejects.toThrow();
   });
 
+  test('allows the explicit executed lifecycle state used by the confirmation transaction', async () => {
+    const proposal = await prisma.aiProposal.create({
+      data: {
+        familyId,
+        actorUserId: userId,
+        actorSnapshot: { userId, role: 'admin' },
+        sourceType: 'TEXT',
+        originalPayload: { actions: [] },
+        originalHash: 'd'.repeat(64),
+        expiresAt: new Date('2026-09-02T00:00:00.000Z'),
+      },
+    });
+
+    await expect(prisma.aiProposal.update({
+      where: { id: proposal.id },
+      data: { status: 'EXECUTED' },
+    })).resolves.toMatchObject({ id: proposal.id, status: 'EXECUTED' });
+  });
+
   test('cascades proposal items when the owning family is deleted', async () => {
     const disposableFamilyId = `p1-ai-cascade-family-${runId}`;
     await prisma.family.create({
