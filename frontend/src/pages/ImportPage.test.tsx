@@ -31,15 +31,17 @@ function deferred<T>() {
 describe('ImportPage confirmation', () => {
   beforeEach(() => {
     useFamilyStore.setState({ currentFamily: family, families: [family] });
-    previewCSVMock.mockResolvedValue([
-      {
+    previewCSVMock.mockResolvedValue({
+      items: [{
         date: '2026-08-31',
         description: '午餐',
         amount: 30,
         type: 'EXPENSE',
         category: '餐饮',
-      },
-    ]);
+      }],
+      batchId: 'batch-before-each',
+      previewHash: 'b'.repeat(64),
+    });
   });
 
   it('associates the CSV file control with its visible label', () => {
@@ -86,5 +88,36 @@ describe('ImportPage confirmation', () => {
     });
 
     expect(await screen.findByRole('status')).toHaveTextContent('成功导入 1 条记录');
+  });
+
+  it('confirms from the server-owned batch instead of sending financial items', async () => {
+    previewCSVMock.mockResolvedValueOnce({
+      items: [{
+        date: '2026-08-31',
+        description: '午餐',
+        amount: 30,
+        type: 'EXPENSE',
+        category: '餐饮',
+      }],
+      batchId: 'batch-server-owned',
+      previewHash: 'a'.repeat(64),
+    });
+    confirmImportMock.mockResolvedValue(1);
+
+    render(<ImportPage />);
+    fireEvent.change(screen.getByLabelText('CSV 文件'), {
+      target: { files: [new File(['date,amount'], 'transactions.csv', { type: 'text/csv' })] },
+    });
+    fireEvent.click(screen.getByRole('button', { name: '解析预览' }));
+
+    fireEvent.click(await screen.findByRole('button', { name: '确认导入' }));
+
+    expect(confirmImportMock).toHaveBeenCalledWith(
+      'family-1',
+      'batch-server-owned',
+      'a'.repeat(64),
+      { '1': '餐饮' },
+      expect.any(String),
+    );
   });
 });
