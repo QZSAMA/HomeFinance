@@ -9,8 +9,8 @@ import {
 } from './ledgerTypes';
 
 const OPERATIONS: readonly FinancialMutationOperation[] = [
-  'CREATE_INCOME', 'CREATE_EXPENSE', 'UPDATE_INCOME', 'UPDATE_EXPENSE',
-  'DELETE_INCOME', 'DELETE_EXPENSE', 'EXECUTE_RECURRING', 'CONFIRM_IMPORT_BATCH',
+  'CREATE_INCOME', 'CREATE_EXPENSE', 'CREATE_ASSET', 'UPDATE_INCOME', 'UPDATE_EXPENSE', 'UPDATE_ASSET',
+  'DELETE_INCOME', 'DELETE_EXPENSE', 'DELETE_ASSET', 'EXECUTE_RECURRING', 'CONFIRM_IMPORT_BATCH',
   'CONFIRM_AI_PROPOSAL',
 ];
 
@@ -124,6 +124,11 @@ export const createPrismaLedgerTransactionClient = (tx: Prisma.TransactionClient
   },
   asset: {
     create: ({ data }) => tx.asset.create({ data }).then(toAssetRecord),
+    findFirst: ({ where }) => tx.asset.findFirst({ where }).then((value) => (
+      value === null ? null : toAssetRecord(value)
+    )),
+    updateMany: ({ where, data }) => tx.asset.updateMany({ where, data }),
+    deleteMany: ({ where }) => tx.asset.deleteMany({ where }),
   },
   liability: {
     create: ({ data }) => tx.liability.create({ data }).then(toLiabilityRecord),

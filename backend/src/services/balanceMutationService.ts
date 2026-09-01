@@ -1,11 +1,16 @@
+import { coordinateFinancialMutation } from './financialMutationCoordinator';
 import { DomainError } from './ledgerErrors';
 import {
   CreateAssetCommand,
   CreateLiabilityCommand,
+  DeleteAssetCommand,
+  FinancialMutationStore,
   LedgerRecord,
   LedgerTransactionClient,
   MutationExecutionResult,
+  MutationResult,
   MUTATION_SOURCES,
+  UpdateAssetCommand,
 } from './ledgerTypes';
 
 const invalid = (message: string): never => {
@@ -62,6 +67,48 @@ const validateCommandScope = (command: {
   }
 };
 
+const requireVersion = (value: unknown): number => {
+  if (!Number.isSafeInteger(value) || (value as number) < 1) {
+    return invalid('expectedVersion must be a positive integer.');
+  }
+  return value as number;
+};
+
+const storedVersion = (record: LedgerRecord): number => {
+  if (!Number.isSafeInteger(record.version) || (record.version as number) < 1) {
+    throw new DomainError(
+      'INTERNAL_ERROR',
+      'The stored Asset record has no valid version.',
+      500,
+    );
+  }
+  return record.version as number;
+};
+
+const resourceNotFound = (): never => {
+  throw new DomainError(
+    'RESOURCE_NOT_FOUND',
+    'The requested family resource was not found.',
+    404,
+  );
+};
+
+const versionConflict = (): never => {
+  throw new DomainError(
+    'VERSION_CONFLICT',
+    'The Asset was changed by another request.',
+    409,
+  );
+};
+
+const updatedRecordMissing = (): never => {
+  throw new DomainError(
+    'INTERNAL_ERROR',
+    'The updated Asset record could not be loaded.',
+    500,
+  );
+};
+
 const requireAssetStore = (transaction: LedgerTransactionClient) => {
   if (!transaction.asset) {
     throw new DomainError(
@@ -84,28 +131,146 @@ const requireLiabilityStore = (transaction: LedgerTransactionClient) => {
   return transaction.liability;
 };
 
+const assetMutationData = (command: CreateAssetCommand) => ({
+  familyId: command.familyId,
+  name: requireText(command.payload.name, 'name'),
+  type: requireText(command.payload.type, 'type'),
+  category: optionalText(command.payload.category, 'category'),
+  value: requireNonNegativeAmount(command.payload.value, 'value'),
+  costBasis: optionalNonNegativeAmount(command.payload.costBasis, 'costBasis'),
+  currency: normalizeCurrency(command.payload.currency),
+  purchaseDate: optionalDate(command.payload.purchaseDate, 'purchaseDate'),
+  description: optionalText(command.payload.description, 'description'),
+});
+
 export async function createAssetInTransaction(
   command: CreateAssetCommand,
   transaction: LedgerTransactionClient,
 ): Promise<MutationExecutionResult<LedgerRecord>> {
   validateCommandScope(command);
-  const payload = {
-    familyId: command.familyId,
-    name: requireText(command.payload.name, 'name'),
-    type: requireText(command.payload.type, 'type'),
-    category: optionalText(command.payload.category, 'category'),
-    value: requireNonNegativeAmount(command.payload.value, 'value'),
-    costBasis: optionalNonNegativeAmount(command.payload.costBasis, 'costBasis'),
-    currency: normalizeCurrency(command.payload.currency),
-    purchaseDate: optionalDate(command.payload.purchaseDate, 'purchaseDate'),
-    description: optionalText(command.payload.description, 'description'),
-  };
+  const payload = assetMutationData(command);
   const record = await requireAssetStore(transaction).create({ data: payload });
   return {
     resourceId: record.id,
     record,
     version: record.version,
   };
+}
+
+export async function createAsset(
+  command: CreateAssetCommand,
+  store: FinancialMutationStore,
+): Promise<MutationResult<LedgerRecord>> {
+  validateCommandScope(command);
+  const payload = assetMutationData(command);
+
+  return coordinateFinancialMutation(
+    {
+      familyId: command.familyId,
+      actorId: command.actorId,
+      source: command.source,
+      idempotencyKey: command.idempotencyKey,
+      operation: 'CREATE_ASSET',
+      requestPayload: { source: command.source, payload },
+      httpStatus: 201,
+      audit: { action: 'CREATE', entity: 'Asset' },
+    },
+    store,
+    async (transaction) => createAssetInTransaction(command, transaction),
+  );
+}
+
+export async function updateAsset(
+  command: UpdateAssetCommand,
+  store: FinancialMutationStore,
+): Promise<MutationResult<LedgerRecord>> {
+  validateCommandScope(command);
+  const assetId = requireText(command.assetId, 'assetId');
+  if (command.expectedVersion !== undefined) requireVersion(command.expectedVersion);
+  const payload = assetMutationData(command);
+
+  return coordinateFinancialMutation(
+    {
+      familyId: command.familyId,
+      actorId: command.actorId,
+      source: command.source,
+      idempotencyKey: command.idempotencyKey,
+      operation: 'UPDATE_ASSET',
+      requestPayload: {
+        assetId,
+        expectedVersion: command.expectedVersion ?? null,
+        source: command.source,
+        payload,
+      },
+      audit: { action: 'UPDATE', entity: 'Asset' },
+    },
+    store,
+    async (transaction) => {
+      const before = await requireAssetStore(transaction).findFirst({
+        where: { id: assetId, familyId: command.familyId },
+      });
+      if (!before) return resourceNotFound();
+      const expectedVersion = command.expectedVersion ?? storedVersion(before);
+      const outcome = await requireAssetStore(transaction).updateMany({
+        where: { id: assetId, familyId: command.familyId, version: expectedVersion },
+        data: { ...payload, version: { increment: 1 } },
+      });
+      if (outcome.count !== 1) return versionConflict();
+      const record = await requireAssetStore(transaction).findFirst({
+        where: { id: assetId, familyId: command.familyId },
+      });
+      if (!record) return updatedRecordMissing();
+      return {
+        resourceId: assetId,
+        record,
+        version: storedVersion(record),
+        before,
+      };
+    },
+  );
+}
+
+export async function deleteAsset(
+  command: DeleteAssetCommand,
+  store: FinancialMutationStore,
+): Promise<MutationResult<LedgerRecord>> {
+  validateCommandScope(command);
+  const assetId = requireText(command.assetId, 'assetId');
+  if (command.expectedVersion !== undefined) requireVersion(command.expectedVersion);
+
+  return coordinateFinancialMutation(
+    {
+      familyId: command.familyId,
+      actorId: command.actorId,
+      source: command.source,
+      idempotencyKey: command.idempotencyKey,
+      operation: 'DELETE_ASSET',
+      requestPayload: {
+        assetId,
+        expectedVersion: command.expectedVersion ?? null,
+        source: command.source,
+      },
+      audit: { action: 'DELETE', entity: 'Asset' },
+    },
+    store,
+    async (transaction) => {
+      const assetStore = requireAssetStore(transaction);
+      const before = await assetStore.findFirst({
+        where: { id: assetId, familyId: command.familyId },
+      });
+      if (!before) return resourceNotFound();
+      const expectedVersion = command.expectedVersion ?? storedVersion(before);
+      const outcome = await assetStore.deleteMany({
+        where: { id: assetId, familyId: command.familyId, version: expectedVersion },
+      });
+      if (outcome.count !== 1) return versionConflict();
+      return {
+        resourceId: assetId,
+        version: expectedVersion,
+        before,
+      };
+    },
+  );
 }
 
 export async function createLiabilityInTransaction(

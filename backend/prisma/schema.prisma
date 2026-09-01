@@ -122,10 +122,11 @@ model Asset {
   category     String?
   value        Decimal   @db.Decimal(15, 2)
   costBasis    Decimal?  @db.Decimal(15, 2)
-  currency     String    @default("CNY")
-  purchaseDate DateTime?
-  description  String?
-  createdAt    DateTime  @default(now())
+    currency     String    @default("CNY")
+    purchaseDate DateTime?
+    description  String?
+    version      Int       @default(1)
+    createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   family       Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
 
