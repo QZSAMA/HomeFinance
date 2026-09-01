@@ -24,3 +24,4 @@ AI 写入变得可审查和可取消，前端多一步确认；需要 proposal �
 
 由 P1-E、P1-B、P1-G 和 Playwright 旅程提供 proposal-only、编辑、重放、篡改、角色和故障证据。
 
+2026-09-01 implementation note：提交 `5a564c9` 已先关闭 text chat 的自动执行路径；text 与 OCR 都会在确认前返回 `proposedActions`，该边界有 PASS-MOCK route/component 证据。服务端 AIProposal/Item、原始/确认 payload、hash/version/expiry 和原子 confirmation 尚未实现，因此本 ADR 仍未完成全部验证。

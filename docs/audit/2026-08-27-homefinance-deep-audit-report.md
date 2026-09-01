@@ -152,7 +152,7 @@ Playwright 冒烟确认：未登录访问 `/` 会正确跳转 `/login`；登录�
 | HF-FIN-003 | P1 | 多币种字段存在，但汇总直接相加并按 CNY 展示 | 净值、对比、目标数学无效 | `schema.prisma:107,127`；`reports.ts:29-34`；多处 CNY formatter |
 | HF-SEC-003 | P1 | Compose 暴露数据库/Redis/MinIO 默认端口与弱凭据 | 一键部署默认攻击面过大 | `docker-compose.yml:6-10,19-23,33-42,59-70` |
 | HF-AUTH-001 | P1 | 登录/注册无限流、密码最短 6 位、7 天 JWT、无服务端撤销 | 暴力破解与 token 窃取影响扩大 | `auth.ts:10-21,46-49,62-100`；`useAuthStore.ts:16-33` |
-| HF-AI-001 | P1 | 文本 AI 动作立即执行，viewer 也可触发 | 模型误判直接改变财务数据 | `ai.ts:132-175,457-468` |
+| HF-AI-001 | P1 | 基线文本 AI 动作立即执行且 viewer 可触发；当前 PARTIALLY_REMEDIATED / PASS-MOCK | text chat 已停止自动执行，viewer 由统一 middleware 拒绝；legacy raw-actions confirm 仍缺 proposal 所有权、原子性和真实并发证据 | 基线 `ai.ts:132-175,457-468`；当前 `5a564c9`、`ai.test.ts`、ADR-0004 |
 | HF-QUAL-001 | P1 | CI 不执行 coverage，前端无自动化测试 | 已配置门槛实际不阻断回归 | `ci.yml:31-33` 对比 `jest.config.js:17-23` |
 | HF-PERF-001 | P1 | 报表全表聚合、预算 N+1、compare 每家庭 4 查询 | 数据量与家庭数增长时延迟线性/乘法增长 | `reports.ts:29-44,220-267`；`budgets.ts:49-66`；`compare.ts:26-42` |
 | HF-SUPPLY-001 | P1 | 前后端均有高危依赖链，Multer 1.x 已弃用 | DoS、host confusion、供应链暴露 | `npm audit` 基线；router 7.18.1、multer 1.4.5-lts.1 |
@@ -205,6 +205,8 @@ sequenceDiagram
 2026-09-01 remediation status：HF-DATA-001 已在 `codex/phase1-ledger-trust@370b2d9` 达到 LOCALLY_REMEDIATED / PASS-REAL。`RecurringExecution` 用 `(recurringTransactionId, scheduledFor)` 唯一约束仲裁业务发生项；执行、Ledger entry、规则条件推进、幂等结果和 `RecurringExecution` 审计在一个 PostgreSQL transaction 内提交。真实集成测试证明 20 个不同 key 对同一发生项只产生一条账目和一次规则推进，inactive/future/endDate 为零写入，规则推进失败回滚账目与 execution，墓碑删除保留执行历史。该风险尚未标记 DONE：浏览器 E2E、populated upgrade/restore、staging/release 与运行观察仍未完成，全球 branch coverage 门禁也仍为失败。
 
 导入 confirm 接收任意长度 items，并在 for 循环逐行 await create。数据库错误会留下之前已写入的记录并返回通用 500，调用方难以判断安全重试；CSV upload 使用 `multer.memoryStorage()` 且没有 limit。需要先定义产品语义：推荐“整批原子 + 可预览行级校验”，所有行通过后单事务 createMany，并用 import batch id/行指纹防重。若业务坚持部分成功，也必须将 batch、row status 和可重放结果持久化，而不是用异常中断的不透明部分写入。
+
+2026-09-01 remediation status：HF-AI-001 已部分修复。`codex/phase1-ledger-trust@5a564c9` 通过 failing-then-passing route contract 证明 text chat 返回 `proposedActions` 且确认前 `executeActions` 零调用；OCR 原有提议模式和统一 viewer 写拒绝继续有效。该风险尚未关闭：`/execute-actions` 仍接受客户端 raw actions，尚无 server-owned AIProposal、hash/version/expiry、原始与确认 payload 分离、单事务 Ledger/Balance、幂等并发或真实 PostgreSQL/E2E 证据。
 
 ## 5. 工程质量、测试与供应链
 

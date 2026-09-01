@@ -285,6 +285,8 @@ export class DomainError extends Error { constructor(public readonly code: strin
 - Modify: `frontend/src/services/aiService.ts`, `frontend/src/pages/AIPage.tsx`
 - Create: `frontend/src/pages/AIPage.phase1.test.tsx`
 
+Progress note (2026-09-01): P1-E-01 is implemented at `5a564c9`; text chat now returns proposals and does not execute before confirmation. The Task 9 checkboxes remain open until server-owned AIProposal persistence, atomic confirmation, the full negative matrix, and frontend proposal-state migration are complete.
+
 - [ ] **Step 1: 写 RED**：text chat/OCR 产生 create action 时，proposal 持久化但确认前 Income/Expense/Asset/Liability 计数不变；viewer、跨 family、过期、hash/version mismatch、双击确认全部零副作用；编辑后 original/confirmed payload 分离。
 - [ ] **Step 2: 运行 RED**：`npm test -- --runInBand src/services/aiProposalService.test.ts src/routes/ai.phase1.test.ts`；预期现有 `executeActions` 直接逐条写账，断言失败。
 - [ ] **Step 3: GREEN**：保存 AI 原始输出和规范化 `AIProposalItem`；确认请求只信 batch-owned proposalId/version/hash，重新验证 final actions，事务内抢占 proposal、调用 Ledger/Balance coordinator、写 audit、保存 result；原 `execute-actions` 兼容 adapter 不可绕过 coordinator。
