@@ -21,6 +21,9 @@ export interface ConversationRecord {
     expiresAt: string;
     status: string;
     items: AIAction[];
+    result?: {
+      actions?: ConfirmedAiAction[];
+    } | null;
   };
 }
 

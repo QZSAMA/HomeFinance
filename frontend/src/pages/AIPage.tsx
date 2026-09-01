@@ -137,11 +137,26 @@ export default function AIPage() {
         .reverse()
         .flatMap((h: ConversationRecord) => {
           const proposal = h.proposal?.status === 'PROPOSED' ? h.proposal : undefined;
+          const executedActions: ActionResult[] = h.proposal?.status === 'EXECUTED'
+            ? (h.proposal.result?.actions ?? []).map((action) => ({
+              type: action.type,
+              status: 'success' as const,
+              message: '已记账',
+              record: { id: action.resourceId, version: action.version },
+            }))
+            : [];
+          const confirmationStatus = h.proposal && h.proposal.status !== 'PROPOSED'
+            ? h.proposal.status === 'EXECUTED'
+              ? `已完成 ${executedActions.length} 笔记账`
+              : `提案状态：${h.proposal.status}`
+            : undefined;
           return [
             { role: 'user' as const, content: h.content },
             {
               role: 'assistant' as const,
               content: h.response || h.content,
+              ...(executedActions.length > 0 ? { actions: executedActions } : {}),
+              ...(confirmationStatus ? { confirmationStatus } : {}),
               ...(proposal ? {
                 proposalId: proposal.id,
                 proposalVersion: proposal.version,

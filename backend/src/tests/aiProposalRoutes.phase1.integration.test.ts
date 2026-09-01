@@ -220,6 +220,59 @@ describe('Phase 1 real PostgreSQL AI proposal routes', () => {
     ]));
   });
 
+  test('returns an executed proposal result from history without making it confirmable again', async () => {
+    const action = { type: 'create_income' as const, data: { amount: 425, category: '工资' } };
+    const proposal = await createStoredProposal(familyId, [action]);
+    const conversation = await prisma.aiConversation.create({
+      data: {
+        familyId,
+        userId: memberId,
+        content: '工资425元',
+        response: '请确认',
+        type: 'chat',
+      },
+    });
+    await prisma.aiProposal.update({
+      where: { id: proposal.id },
+      data: { sourceConversationId: conversation.id },
+    });
+    await request(app)
+      .post(`/api/families/${familyId}/ai/proposals/${proposal.id}/confirm`)
+      .set('Authorization', `Bearer ${memberToken}`)
+      .set('Idempotency-Key', 'ai-history-executed')
+      .send({ expectedVersion: proposal.version, expectedHash: proposal.originalHash, actions: [action] })
+      .expect(200);
+
+    const response = await request(app)
+      .get(`/api/families/${familyId}/ai/history`)
+      .set('Authorization', `Bearer ${memberToken}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        proposal: expect.objectContaining({
+          id: proposal.id,
+          status: 'EXECUTED',
+          result: expect.objectContaining({
+            proposalId: proposal.id,
+            status: 'EXECUTED',
+            actions: expect.arrayContaining([expect.objectContaining({ resourceId: expect.any(String) })]),
+          }),
+        }),
+      }),
+    ]));
+
+    const secondConfirmation = await request(app)
+      .post(`/api/families/${familyId}/ai/proposals/${proposal.id}/confirm`)
+      .set('Authorization', `Bearer ${memberToken}`)
+      .set('Idempotency-Key', 'ai-history-executed-second')
+      .send({ expectedVersion: proposal.version, expectedHash: proposal.originalHash, actions: [action] });
+
+    expect(secondConfirmation.status).toBe(409);
+    expect(secondConfirmation.body).toMatchObject({ code: 'AI_PROPOSAL_NOT_CONFIRMABLE' });
+    await expect(prisma.income.count({ where: { familyId } })).resolves.toBe(1);
+  });
+
   test('persists an OCR proposal with its conversation and leaves financial facts unchanged', async () => {
     (parseReceiptOCR as jest.Mock).mockResolvedValue({
       amount: 35,

@@ -253,4 +253,40 @@ describe('AIPage proposed-action confirmation', () => {
       }],
     }), 'ai-confirm-proposal-ocr-1');
   });
+
+  it('restores the executed status of a confirmed proposal from history', async () => {
+    getHistoryMock.mockResolvedValueOnce([{
+      id: 'conversation-executed-1',
+      familyId: 'family-1',
+      userId: 'user-1',
+      content: '工资 100 元',
+      response: '请确认',
+      type: 'chat',
+      fileId: null,
+      createdAt: '2026-09-01T00:00:00.000Z',
+      proposal: {
+        id: 'proposal-executed-1',
+        version: 3,
+        originalHash: 'd'.repeat(64),
+        expiresAt: '2026-09-01T12:00:00.000Z',
+        status: 'EXECUTED',
+        items: [{
+          proposalItemId: 'proposal-item-executed-1',
+          type: 'create_income',
+          data: { amount: 100, category: '工资', date: '2026-09-01' },
+        }],
+        result: {
+          proposalId: 'proposal-executed-1',
+          status: 'EXECUTED',
+          version: 3,
+          actions: [{ ordinal: 0, type: 'create_income', resourceId: 'income-executed-1', version: 1 }],
+        },
+      },
+    } as any]);
+
+    render(<AIPage />);
+
+    expect(await screen.findByRole('status')).toHaveTextContent('已完成 1 笔记账');
+    expect(screen.queryByRole('button', { name: /确认全部记账/ })).toBeNull();
+  });
 });

@@ -753,7 +753,8 @@ describe('AI Routes', () => {
             version: 1,
             originalHash: 'a'.repeat(64),
             expiresAt: new Date('2026-09-01T12:00:00.000Z'),
-            status: 'PROPOSED',
+          status: 'PROPOSED',
+          resultJson: null,
             items: [{
               id: 'proposal-item-1',
               ordinal: 0,

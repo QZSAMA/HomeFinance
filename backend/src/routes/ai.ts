@@ -703,6 +703,7 @@ router.get('/history', authMiddleware, async (req: AuthRequest, res) => {
             originalHash: true,
             expiresAt: true,
             status: true,
+            resultJson: true,
             items: {
               orderBy: { ordinal: 'asc' },
               select: {
@@ -725,6 +726,7 @@ router.get('/history', authMiddleware, async (req: AuthRequest, res) => {
           originalHash: aiProposals[0].originalHash,
           expiresAt: aiProposals[0].expiresAt.toISOString(),
           status: aiProposals[0].status,
+          ...(aiProposals[0].resultJson !== null ? { result: aiProposals[0].resultJson } : {}),
           items: aiProposals[0].items.map((item) => ({
             proposalItemId: item.id,
             type: item.typedAction,
