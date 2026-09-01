@@ -20,6 +20,12 @@
 
 遵循仓库的 TDD 约束：每个整改项都先定义一个可复现的 RED 测试，确认失败原因是目标缺陷，再做最小 GREEN，最后才抽取公共边界。依据 `C:\Users\kotei\.codex\skills\test-driven-development\SKILL.md`，不能用“测试以后补”替代 RED 证据。
 
+### 1.1 2026-09-01 实施状态同步
+
+本文件原先以 `main` 基线描述风险。Phase 1 当前分支已对 DATA-001、DATA-002、DATA-003、DATA-004 的部分入口完成回归验证：Income/Expense、Import、Recurring，以及支持的 AI Income/Expense proposal confirmation 已接入事务化 Ledger/幂等路径；AI text/OCR proposal-producing paths 在确认前不写入账本。AI confirmation 的真实 PostgreSQL 证据覆盖 proposal 抢占、结果持久化、同 key replay、不同 key 冲突、过期/篡改/角色负向和并发矩阵。
+
+以下基线段落仍保留为问题发现记录；凡涉及 AI 确认“尚未实现”的描述，均只表示基线，不能解释为当前分支状态。当前仍开放：legacy raw `/execute-actions` 兼容入口收口、Balance mutation、外部 Redis/MinIO/Compose、production-like upgrade/restore、浏览器 E2E、staging/release observation，以及 semantic Graphify refresh。
+
 ## 2. 当前写入拓扑与边界判断
 
 ### 2.1 实际入口清单
@@ -236,13 +242,15 @@ flowchart LR
 
 ### 6.1 已验证事实与根因
 
-`POST /chat` 的文本分支在 `backend/src/routes/ai.ts:144-175` 调用 `chatWithActions` 后，如果 `parsed.actions.length > 0`，立即调用 `executeActions(familyId, req.userId!, parsed.actions)`。该分支没有 confirmation token、用户二次确认字段或 proposed-only 响应。现有 AI 测试明确把它定义为“executes actions”，见 `backend/src/routes/ai.test.ts:128-148`。
+**基线事实**：`POST /chat` 的文本分支在 `backend/src/routes/ai.ts:144-175` 调用 `chatWithActions` 后，如果 `parsed.actions.length > 0`，立即调用 `executeActions(familyId, req.userId!, parsed.actions)`。该分支没有 confirmation token、用户二次确认字段或 proposed-only 响应。现有 AI 测试明确把它定义为“executes actions”，见 `backend/src/routes/ai.test.ts:128-148`。
+
+**当前实现状态**：提交 `5a564c9` 已将 text mutation 改为 proposal-only；提交 `732eafd`、`7f6c366`、`cdfcb67`、`d945e65`、`c769a78` 已分别提供 server-owned proposal/item 持久化、来源/哈希/版本/过期合同、支持的 Income/Expense 原子确认、结果/刷新恢复。当前 route/integration 测试和本地 PostgreSQL 证据表明，支持的确认路径不会绕过 Ledger；legacy `/execute-actions` 仍作为严格 proposal confirmation adapter 保留，Balance actions 和真实外部依赖仍未验证。
 
 OCR 路径则在 `backend/src/routes/ai.ts:405-415` 生成 `proposedActions`，在 `:429-435` 返回给前端；`/execute-actions` 在 `:466-480` 接收客户端动作后执行并记录对话。这证明项目已有“人审后写入”的产品意图，但该意图没有覆盖文本 chat。
 
 `executeActions` 在 `backend/src/services/aiActions.ts:34-55` 循环调用 `executeAction`，每条错误被转为 `status: 'error'` 并继续下一条。创建/删除动作分支直接 Prisma 写入，见 `:66-207`。因此一个动作数组可以返回混合 success/error，且没有整体事务或 idempotency key。
 
-**根因**：文本 chat 将模型输出直接连接到 mutation executor；提议、确认、动作 schema 校验和最终账本提交没有分层。
+**基线根因**：文本 chat 将模型输出直接连接到 mutation executor；提议、确认、动作 schema 校验和最终账本提交没有分层。当前支持的 AI proposal path 已完成分层，但旧兼容入口仍是收口与删除前的残余风险。
 
 ### 6.2 影响与可复现场景
 
@@ -254,7 +262,7 @@ OCR 路径则在 `backend/src/routes/ai.ts:405-415` 生成 `proposedActions`，�
 
 场景 D：`/execute-actions` 的 schema 允许 `type: z.string()`、`data: z.record(z.any())`，见 `backend/src/routes/ai.ts:450-455`；真正的 action 类型和业务字段由后续执行器判定。来自客户端或被篡改的 proposed action 因而拥有比理想 typed command 更宽的输入面。
 
-**风险**：AI 误判、viewer 越权、proposal 篡改和批量部分成功均可改变财务事实，而调用方无法安全重试。
+**基线风险**：AI 误判、viewer 越权、proposal 篡改和批量部分成功均可改变财务事实，而调用方无法安全重试。当前已验证的支持路径已通过相应负向、原子性、replay 和 concurrency 检查；残余风险集中在 legacy adapter、Balance mutation、外部依赖和发布环境观察。
 
 ### 6.3 方案比较
 
@@ -288,7 +296,7 @@ OCR 路径则在 `backend/src/routes/ai.ts:405-415` 生成 `proposedActions`，�
 
 **REFACTOR 目标**：把 AI parser/provider 与 financial mutation 完全分离；提案服务只产生不可信输入，Ledger service 是唯一写入口；action result 类型化并持久化每个 action 的状态。
 
-**退出门禁**：unauthenticated、non-member、viewer、proposal 篡改、过期 proposal、重复 confirm、跨 family proposal、invalid amount/date/type、provider timeout、DB rollback、批量并发 confirm 全部有负面测试；真实 PostgreSQL 验证 proposal/entry 唯一性和事务；AI provider 不可用时只产生明确失败/手工录入，不直接写账。
+**当前退出门禁**：支持的 Income/Expense confirmation 已有 unauthenticated、non-member、viewer、跨 family、proposal 篡改、过期、重复/未知 item、缺 key、同 key 改 payload、executed 二次确认、DB rollback 和批量并发的测试与本地 PostgreSQL 证据。完整 Phase 1 仍不能关闭：legacy raw `/execute-actions` 收口、Balance confirmation、provider timeout/外部依赖、浏览器 E2E、staging/release observation 和 semantic Graphify refresh 仍开放。
 
 ## 7. 问题 DATA-005：写后 cache invalidation 缺失与派生版本不一致
 
@@ -469,7 +477,7 @@ Phase 1 退出门禁：普通 CRUD/import/recurring/AI 所有财务写入都经�
 | DATA-001 | P1 / 已验证架构缺口 | 五类入口分别直接写账本 | 同 key 两次只有一条 entry | Ledger application service + idempotency | Policy、错误合同 | 全写入口走 service，真实 DB 唯一/事务通过 |
 | DATA-002 | P1 / 已验证控制流缺口；并发为待验证 | execute 未复核 due/active，写账与推进规则分离 | 同 due rule 并发仅一条 entry | RecurringExecution unique + transaction | DATA-001 | due/active/endDate/并发/失败恢复全绿 |
 | DATA-003 | P1 / 已验证 | memoryStorage 无 limits；confirm 逐行 create | 第 N 行失败整批 0；同 batch replay 不重入 | Preview batch + atomic confirmation | DATA-001、DATA-006 | bounds、rollback、tamper、replay 真实 DB 通过 |
-| DATA-004 | P1 / 已验证 | 文本 chat 直接 execute；action executor 逐条吞错 | chat mutation 只 proposal；viewer 无副作用 | Proposal→confirmation→Ledger atomic commit | Policy、DATA-001、DATA-006 | confirmation、typed action、过期/篡改/并发全绿 |
+| DATA-004 | P1 / 基线已验证；支持路径已回归验证 | 基线为文本 chat 直接 execute、action executor 逐条吞错；当前支持路径已迁移至 server-owned proposal + Ledger confirmation | chat/OCR mutation 只 proposal；viewer/篡改/过期/重放/并发无副作用 | Proposal→confirmation→Ledger atomic commit | Policy、DATA-001、DATA-006 | 支持 Income/Expense 路径通过；legacy adapter、Balance、provider timeout、E2E/release 仍开放 |
 | DATA-005 | P1 / 已验证写后失效缺口 | 只有 TTL cache middleware，无 commit invalidation/version | 写后立即 report 新值 | DB finance revision + versioned cache | DATA-001 | 每类 mutation freshness、Redis 降级合同通过 |
 | DATA-006 | P1 / 已验证合同缺口；并发为待验证 | 无 Idempotency-Key、版本条件、分类错误 | response 丢失后 replay 不重复；更新冲突 409 | 幂等记录 + optimistic version + error taxonomy | Policy、DATA-001 | retry/concurrency/conflict/rollback 可重放 |
 
@@ -499,9 +507,9 @@ Phase 1 退出门禁：普通 CRUD/import/recurring/AI 所有财务写入都经�
 
 ## 14. 最终判断
 
-HomeFinance 已有足够的领域模型和测试基础来渐进修复，不需要以微服务重写作为前提。但当前“路由直接写表”的结构已经成为财务一致性的系统性风险：手工记账、导入、定期和 AI 都是事实入口，却没有共同的提交协议。Recurring 的 due/active 复核、import 的资源和批次边界、AI 的显式确认与批量原子性、cache 的写后版本，必须围绕一个事实源入口建设。
+HomeFinance 已有足够的领域模型和测试基础来渐进修复，不需要以微服务重写作为前提。基线的“路由直接写表”结构曾是财务一致性的系统性风险；当前普通收入/支出、Import、Recurring 和支持的 AI Income/Expense confirmation 已围绕事务化 Ledger、幂等与审计事实逐步收口。legacy AI adapter、Balance、外部依赖与发布观察仍需完成，不能据此宣称所有财务写入口已经统一。
 
-推荐的可行顺序是：先冻结并测试产品语义，再以最小 Ledger application service 承接普通收入/支出，随后以真实 PostgreSQL 约束完成 recurring exactly-once、import batch 和 AI proposal confirmation；同一提交路径更新 family finance revision，报告缓存只做派生优化。失败、重试和并发必须返回可解释状态，而不是让调用方从通用 500 猜测是否安全重试。
+当前的后续顺序是：先收口 legacy `/execute-actions` 并决定 Balance action 的 Ledger/Balance service 边界，再完成 Redis/MinIO/Compose、生产样本升级恢复、浏览器 E2E、staging/release observation 和 Graphify semantic refresh；同时保持同一提交路径更新 family finance revision，报告缓存只做派生优化。失败、重试和并发必须返回可解释状态，而不是让调用方从通用 500 猜测是否安全重试。
 
 本专项没有生产数据、人日、成本或 p95 的虚构数字。完成上述 RED→GREEN→REFACTOR 与真实数据库门禁后，才可以把“事务安全、幂等、写后新鲜、AI 需确认”写入项目记忆并关闭对应风险。
 

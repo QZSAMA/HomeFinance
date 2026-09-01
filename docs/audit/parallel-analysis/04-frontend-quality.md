@@ -2,7 +2,7 @@
 
 ## 1. 结论
 
-前端已经有统一 Axios client，但并非所有页面都使用它；报表页面的裸 `fetch` 导致请求缺少 bearer，并将失败结果转成看似正常的零值。当前前端没有自动化测试，18 个 Hook dependency warnings 未清零，所有路由页面在 `App.tsx` 顶部 eager import，主包达到 854.60 kB minified。PWA 只证明静态 shell 可安装，不能证明受保护财务数据可离线使用。
+基线审查发现前端已有统一 Axios client，但并非所有页面都使用它；报表页面的裸 `fetch` 导致请求缺少 bearer，并将失败结果转成看似正常的零值。Phase 1 当前切片已为 Import、Recurring 和 AI proposal confirmation 增加行为合同；AI 页面能够发送 proposalId/proposalItemId、刷新后恢复 PROPOSED/EXECUTED 状态，并对确认失败提供可重试状态。全局仍有 18 个 Hook dependency warnings，路由页面仍在 `App.tsx` 顶部 eager import，当前构建主包约 856.71 kB minified。PWA 只证明静态 shell 可安装，不能证明受保护财务数据可离线使用。
 
 本领域已按 `web-design-guidelines` 的核心标准审查：可访问名称、键盘跳转、focus-visible、表单 autocomplete、错误可见性和异步状态；按 React 性能实践审查：路由级 lazy loading、稳定依赖、避免无意义 effect、按需加载重模块。技能标准影响了建议，但事实仍以本仓库代码和运行证据为准。
 
@@ -16,6 +16,12 @@
 | 路由 eager import | `frontend/src/App.tsx:1-18` 静态导入大量页面；构建主包 854.60 kB minified/237.44 kB gzip。 | 首屏加载与缓存成本高，Reports/Recharts/AI 进入主图。 |
 | 可访问性 | 既有 `ui-smoke-result.json` 指出 family select 和四个 date input 缺 accessible name，无 skip link，登录字段缺 autocomplete。 | 键盘、读屏和表单自动填充体验不完整。 |
 | PWA 语义 | `frontend/vite.config.ts:9-15` 仅配置静态 precache。 | 不能安全宣称动态财务数据离线可用。 |
+
+### 2.1 2026-09-01 实施状态同步
+
+当前 frontend AI slice 的证据包括：`AIPage` 从 `/ai/history` 恢复 server-owned proposal metadata；确认请求保留 `proposalId`、`expectedVersion`、`expectedHash` 和每个 `proposalItemId`；确认失败呈现 `alert` 并允许 retry；pending 状态阻止重复点击；EXECUTED proposal 刷新后展示已完成状态且不再显示确认按钮。对应组件/服务 focused tests 当前为 6/6；Import/Recurring mutation 状态也有独立稳定 key/状态测试。
+
+这些是 PASS-MOCK/组件与服务合同，不等价于浏览器真实旅程。401/403 报表错误态、a11y、全局 lint warning、route splitting、bundle 预算、Playwright、多标签竞争、外部依赖和发布观察仍是开放项；不得把当前 focused tests 描述为完整 E2E 或生产验证。
 
 ## 3. 目标前端契约
 
@@ -41,6 +47,15 @@
 短期方案是修正文案为“可安装，静态 shell 可离线打开”；长期方案才做安全数据缓存和 outbox/conflict model。推荐分开立项，避免静态 precache 被误解为离线记账。
 
 ## 5. TDD 实施合同
+
+本节原有 FE-001～FE-003 是基于基线审查形成的后续合同。当前 AI proposal UI 的已完成证据不替代 FE-001～FE-003；它补充了 AI confirmation 的 identity、retry、pending guard 和 refresh recovery 覆盖。
+
+### FE-004：AI proposal identity and refresh recovery
+
+- 已验证文件：`frontend/src/pages/AIPage.test.tsx`、`frontend/src/services/aiService.test.ts`
+- 已验证行为：proposal response 的 server-owned `proposalId`/version/hash/item IDs 被保留；确认优先使用 item IDs；请求失败可重试；确认 pending 时按钮禁用；history 恢复 PROPOSED 和 EXECUTED 状态。
+- 当前证据：focused component/service tests 6/6；真实浏览器、多标签和 API server integration 仍未运行。
+- 后续门禁：Playwright 覆盖登录、切换家庭、proposal 生成、编辑、确认、刷新恢复和 viewer 禁止确认；多标签竞争必须保持服务端幂等结果。
 
 ### FE-001：authenticated report request
 
