@@ -1,7 +1,7 @@
 
 # ADR-0003: 导入确认采用服务端批次和整批原子
 
-- 状态：Proposed
+- 状态：Accepted
 - 日期：2026-08-28
 
 ## Context
@@ -24,3 +24,4 @@ preview 解析并规范化文件，在服务端持久化 ImportBatch 和 ImportR
 
 由 P1-C 和 P1-G 提供边界、篡改、原子回滚、并发和浏览器证据。现有 partial-success 测试作为历史行为先记录，再以首个新 RED 证明合同变化。
 
+2026-09-01 implementation note：P1-C 已完成 server-owned preview、严格 batch/hash/category-patch confirm、单事务 Ledger 写入、同 key replay、不同 key duplicate rejection、并发抢占和前端 batch 合同迁移；真实 PostgreSQL 证据通过。过期清理、production-like restore、浏览器 E2E 和 release observation 仍是交付门禁，不改变本 ADR 的 Accepted 决策。

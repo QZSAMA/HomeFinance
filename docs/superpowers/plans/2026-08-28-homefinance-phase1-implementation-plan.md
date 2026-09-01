@@ -285,7 +285,7 @@ export class DomainError extends Error { constructor(public readonly code: strin
 - Modify: `frontend/src/services/aiService.ts`, `frontend/src/pages/AIPage.tsx`
 - Create: `frontend/src/pages/AIPage.phase1.test.tsx`
 
-Progress note (2026-09-01): P1-E-01 is implemented at `5a564c9`; text chat now returns proposals and does not execute before confirmation. The Task 9 checkboxes remain open until server-owned AIProposal persistence, atomic confirmation, the full negative matrix, and frontend proposal-state migration are complete.
+Progress note (2026-09-01): P1-E-01 is implemented at `5a564c9`; text chat now returns proposals and does not execute before confirmation. P1-E-02 is implemented at `732eafd`; additive AiProposal/AiProposalItem persistence, hash/version/status/expiry/source constraints and existing/fresh PostgreSQL migration evidence are complete. The Task 9 checkboxes remain open until chat/OCR persist proposals, atomic confirmation, the full negative matrix, and frontend proposal-state migration are complete.
 
 - [ ] **Step 1: 写 RED**：text chat/OCR 产生 create action 时，proposal 持久化但确认前 Income/Expense/Asset/Liability 计数不变；viewer、跨 family、过期、hash/version mismatch、双击确认全部零副作用；编辑后 original/confirmed payload 分离。
 - [ ] **Step 2: 运行 RED**：`npm test -- --runInBand src/services/aiProposalService.test.ts src/routes/ai.phase1.test.ts`；预期现有 `executeActions` 直接逐条写账，断言失败。
