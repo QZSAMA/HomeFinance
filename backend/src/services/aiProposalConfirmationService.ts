@@ -1,12 +1,15 @@
 import { createIncomeInTransaction, createExpenseInTransaction } from './ledgerApplicationService';
+import { createAssetInTransaction, createLiabilityInTransaction } from './balanceMutationService';
 import { coordinateFinancialMutation, hashNormalizedPayload } from './financialMutationCoordinator';
 import { DomainError } from './ledgerErrors';
 import { normalizeAction } from './aiProposalService';
 import type { AIAction } from './aiActions';
 import {
   AiProposalSnapshot,
+  CreateAssetCommand,
   CreateExpenseCommand,
   CreateIncomeCommand,
+  CreateLiabilityCommand,
   FinancialMutationStore,
   LedgerTransactionClient,
   MutationResult,
@@ -25,7 +28,7 @@ export interface ConfirmAiProposalInput {
 
 export interface ConfirmedAiActionResult {
   ordinal: number;
-  type: 'create_income' | 'create_expense';
+  type: 'create_income' | 'create_expense' | 'create_asset' | 'create_liability';
   resourceId: string;
   version?: number;
 }
@@ -40,6 +43,29 @@ export interface AiProposalConfirmationResponse {
 const isCreateLedgerAction = (action: AIAction): action is AIAction & {
   type: 'create_income' | 'create_expense';
 } => action.type === 'create_income' || action.type === 'create_expense';
+
+type CreateBalanceAction = AIAction & {
+  type: 'create_asset' | 'create_liability';
+};
+
+type SupportedCreateAction = AIAction & {
+  type: 'create_income' | 'create_expense' | 'create_asset' | 'create_liability';
+};
+
+const isCreateBalanceAction = (action: AIAction): action is CreateBalanceAction => (
+  action.type === 'create_asset' || action.type === 'create_liability'
+);
+
+const isSupportedCreateActionType = (value: string): value is SupportedCreateAction['type'] => (
+  value === 'create_income'
+  || value === 'create_expense'
+  || value === 'create_asset'
+  || value === 'create_liability'
+);
+
+const isSupportedCreateAction = (action: AIAction): action is SupportedCreateAction => (
+  isCreateLedgerAction(action) || isCreateBalanceAction(action)
+);
 
 const requireValidDate = (value: Date | undefined): Date => {
   const now = value ?? new Date();
@@ -128,13 +154,14 @@ const validateFinalActions = (proposal: AiProposalSnapshot, actions: AIAction[])
       );
     }
     if (
-      !isCreateLedgerAction(action)
-      || !['create_income', 'create_expense'].includes(item.typedAction)
+      !isSupportedCreateAction(action)
+      || !isSupportedCreateActionType(item.typedAction)
+      || item.typedAction !== action.type
     ) {
       throw new DomainError(
-        'AI_BALANCE_MUTATION_UNAVAILABLE',
-        'Asset and liability AI confirmation requires the balance mutation service.',
-        409,
+        'VALIDATION_FAILED',
+        'Each confirmed action type must match its proposal item type.',
+        400,
       );
     }
   });
@@ -202,6 +229,82 @@ const runLedgerAction = async (
     version: result.version,
   };
 };
+
+const optionalActionDate = (value: unknown, field: string): Date | undefined => {
+  if (value === undefined) return undefined;
+  if (typeof value !== 'string') {
+    throw new DomainError('VALIDATION_FAILED', `${field} must use YYYY-MM-DD.`, 400);
+  }
+  const date = new Date(`${value}T00:00:00.000Z`);
+  if (Number.isNaN(date.getTime())) {
+    throw new DomainError('VALIDATION_FAILED', `${field} must be valid.`, 400);
+  }
+  return date;
+};
+
+const runBalanceAction = async (
+  action: CreateBalanceAction,
+  ordinal: number,
+  input: ConfirmAiProposalInput,
+  transaction: LedgerTransactionClient,
+): Promise<ConfirmedAiActionResult> => {
+  const data = action.data;
+  const common = {
+    familyId: input.familyId,
+    actorId: input.actorUserId,
+    source: 'AI_CONFIRMATION' as const,
+    idempotencyKey: `${input.idempotencyKey}:item:${ordinal}`,
+  };
+
+  const result = action.type === 'create_asset'
+    ? await createAssetInTransaction({
+      ...common,
+      payload: {
+        name: typeof data.name === 'string' ? data.name : '',
+        type: typeof data.type === 'string' ? data.type : '',
+        category: actionDescription(data.category),
+        value: Number(data.value),
+        costBasis: data.costBasis === undefined ? undefined : Number(data.costBasis),
+        currency: typeof data.currency === 'string' ? data.currency : 'CNY',
+        purchaseDate: optionalActionDate(data.purchaseDate, 'purchaseDate'),
+        description: actionDescription(data.description),
+      },
+    } satisfies CreateAssetCommand, transaction)
+    : await createLiabilityInTransaction({
+      ...common,
+      payload: {
+        name: typeof data.name === 'string' ? data.name : '',
+        type: typeof data.type === 'string' ? data.type : '',
+        amount: Number(data.amount),
+        interestRate: data.interestRate === undefined ? undefined : Number(data.interestRate),
+        startDate: optionalActionDate(data.startDate, 'startDate'),
+        endDate: optionalActionDate(data.endDate, 'endDate'),
+        currency: typeof data.currency === 'string' ? data.currency : 'CNY',
+        description: actionDescription(data.description),
+      },
+    } satisfies CreateLiabilityCommand, transaction);
+
+  return {
+    ordinal,
+    type: action.type,
+    resourceId: result.resourceId,
+    version: result.version,
+  };
+};
+
+const runConfirmedAction = async (
+  action: SupportedCreateAction,
+  ordinal: number,
+  input: ConfirmAiProposalInput,
+  now: Date,
+  transaction: LedgerTransactionClient,
+): Promise<ConfirmedAiActionResult> => (
+  isCreateLedgerAction(action)
+    ? runLedgerAction(action, ordinal, input, now, transaction)
+    : isCreateBalanceAction(action)
+      ? runBalanceAction(action, ordinal, input, transaction)
+      : Promise.reject(new DomainError('VALIDATION_FAILED', 'Unsupported AI confirmation action.', 400))
+);
 
 const resultRecord = (
   proposal: AiProposalSnapshot,
@@ -286,7 +389,10 @@ export async function confirmAiProposal(
 
       const actionResults: ConfirmedAiActionResult[] = [];
       for (const [ordinal, action] of normalizedActions.entries()) {
-        actionResults.push(await runLedgerAction(action as AIAction & { type: 'create_income' | 'create_expense' }, ordinal, input, now, transaction));
+        if (!isSupportedCreateAction(action)) {
+          throw new DomainError('VALIDATION_FAILED', 'Unsupported AI confirmation action.', 400);
+        }
+        actionResults.push(await runConfirmedAction(action, ordinal, input, now, transaction));
       }
 
       const confirmedVersion = input.expectedVersion + 2;

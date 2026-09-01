@@ -22,6 +22,8 @@ type MemoryState = {
   proposal: ProposalState;
   incomes: LedgerRecord[];
   expenses: LedgerRecord[];
+  assets: LedgerRecord[];
+  liabilities: LedgerRecord[];
   idempotency: Array<{
     id: string;
     familyId: string;
@@ -35,9 +37,16 @@ type MemoryState = {
   audits: unknown[];
 };
 
-const cloneState = (state: MemoryState): MemoryState => structuredClone(state);
+type InitialMemoryState = Omit<MemoryState, 'assets' | 'liabilities'>
+  & Partial<Pick<MemoryState, 'assets' | 'liabilities'>>;
 
-const createStore = (initial: MemoryState, options: { failAfterLedger?: boolean; role?: string } = {}) => {
+const cloneState = (state: InitialMemoryState): MemoryState => structuredClone({
+  assets: [],
+  liabilities: [],
+  ...state,
+});
+
+const createStore = (initial: InitialMemoryState, options: { failAfterLedger?: boolean; role?: string } = {}) => {
   let state = cloneState(initial);
 
   const buildTransaction = (transactionState: MemoryState): any => ({
@@ -118,6 +127,20 @@ const createStore = (initial: MemoryState, options: { failAfterLedger?: boolean;
       updateMany: async () => ({ count: 0 }),
       deleteMany: async () => ({ count: 0 }),
     },
+    asset: {
+      create: async ({ data }: any) => {
+        const record = { id: `asset-${transactionState.assets.length + 1}`, ...data };
+        transactionState.assets.push(record);
+        return record;
+      },
+    },
+    liability: {
+      create: async ({ data }: any) => {
+        const record = { id: `liability-${transactionState.liabilities.length + 1}`, ...data };
+        transactionState.liabilities.push(record);
+        return record;
+      },
+    },
     auditEvent: {
       create: async ({ data }: any) => {
         transactionState.audits.push(data);
@@ -129,7 +152,13 @@ const createStore = (initial: MemoryState, options: { failAfterLedger?: boolean;
     $transaction: async (work: any) => {
       const transactionState = cloneState(state);
       const result = await work(buildTransaction(transactionState));
-      if (options.failAfterLedger && transactionState.incomes.length + transactionState.expenses.length > 0) {
+      if (
+        options.failAfterLedger
+        && transactionState.incomes.length
+          + transactionState.expenses.length
+          + transactionState.assets.length
+          + transactionState.liabilities.length > 0
+      ) {
         throw new Error('injected transaction failure');
       }
       state = transactionState;
@@ -337,16 +366,16 @@ describe('AiProposalConfirmationService', () => {
     const result = await confirmAiProposal(confirmation({
           actions: [{
             proposalItemId: 'item-2',
-            type: 'create_income' as const,
-            data: { amount: 60, category: '奖金', date: '2029-12-31' },
+            type: 'create_expense' as const,
+            data: { amount: 60, category: '餐饮', date: '2029-12-31' },
           }],
     }), store);
 
-    expect(result.record?.actions).toEqual([expect.objectContaining({ type: 'create_income' })]);
-    expect(store.getState().incomes).toHaveLength(1);
-    expect(store.getState().expenses).toHaveLength(0);
+    expect(result.record?.actions).toEqual([expect.objectContaining({ type: 'create_expense' })]);
+    expect(store.getState().incomes).toHaveLength(0);
+    expect(store.getState().expenses).toHaveLength(1);
     expect(store.getState().proposal.items[0]).toMatchObject({ resultJson: { status: 'SKIPPED' } });
-    expect(store.getState().proposal.items[1]).toMatchObject({ resultJson: { type: 'create_income' } });
+    expect(store.getState().proposal.items[1]).toMatchObject({ resultJson: { type: 'create_expense' } });
   });
 
   test('rolls back proposal claim, ledger, idempotency and audit when the transaction fails', async () => {
@@ -363,22 +392,56 @@ describe('AiProposalConfirmationService', () => {
     expect(store.getState().audits).toHaveLength(0);
   });
 
-  test('rejects asset and liability actions until a balance mutation service exists', async () => {
+  test('confirms asset and liability actions exactly once and replays the same result', async () => {
     const store = createStore({
       proposal: proposal({
-        items: [{
-          id: 'item-asset', ordinal: 0, typedAction: 'create_asset',
-          canonicalData: { name: '基金', type: 'FUND', value: 1000 },
-        }],
+        items: [
+          {
+            id: 'item-asset', ordinal: 0, typedAction: 'create_asset',
+            canonicalData: { name: '基金', type: 'FUND', value: 1000, currency: 'CNY' },
+          },
+          {
+            id: 'item-liability', ordinal: 1, typedAction: 'create_liability',
+            canonicalData: { name: '房贷', type: 'MORTGAGE', amount: 500000, currency: 'CNY' },
+          },
+        ],
       }),
       incomes: [], expenses: [], idempotency: [], audits: [],
     });
 
-    await expect(confirmAiProposal(confirmation({
-      actions: [{ type: 'create_asset' as const, data: { name: '基金', type: 'FUND', value: 1000 } }],
-    }), store)).rejects.toMatchObject({ code: 'AI_BALANCE_MUTATION_UNAVAILABLE' });
-    expect(store.getState().incomes).toHaveLength(0);
-    expect(store.getState().idempotency).toHaveLength(0);
+    const input = confirmation({
+      actions: [
+        {
+          proposalItemId: 'item-asset',
+          type: 'create_asset' as const,
+          data: { name: '基金', type: 'FUND', value: 1000, currency: 'cny' },
+        },
+        {
+          proposalItemId: 'item-liability',
+          type: 'create_liability' as const,
+          data: { name: '房贷', type: 'MORTGAGE', amount: 500000, currency: 'cny' },
+        },
+      ],
+    });
+
+    const first = await confirmAiProposal(input, store);
+    const replay = await confirmAiProposal(input, store);
+
+    expect(first).toMatchObject({ resourceId: 'proposal-1', deduplicated: false });
+    expect(replay).toEqual({ ...first, deduplicated: true });
+    expect(store.getState().assets).toHaveLength(1);
+    expect(store.getState().liabilities).toHaveLength(1);
+    expect(store.getState().assets[0]).toMatchObject({
+      name: '基金', type: 'FUND', value: 1000, currency: 'CNY',
+    });
+    expect(store.getState().liabilities[0]).toMatchObject({
+      name: '房贷', type: 'MORTGAGE', amount: 500000, currency: 'CNY',
+    });
+    expect(store.getState().assets[0]).not.toHaveProperty('originType');
+    expect(store.getState().liabilities[0]).not.toHaveProperty('originType');
+    expect(store.getState().idempotency).toHaveLength(1);
+    expect(store.getState().audits).toHaveLength(1);
+    expect(store.getState().proposal.status).toBe('EXECUTED');
   });
 
   test('does not let an unsupported asset item become a ledger action during editing', async () => {
@@ -394,8 +457,9 @@ describe('AiProposalConfirmationService', () => {
 
     await expect(confirmAiProposal(confirmation({
       actions: [{ type: 'create_income' as const, data: { amount: 1000, category: '其他收入' } }],
-    }), store)).rejects.toMatchObject({ code: 'AI_BALANCE_MUTATION_UNAVAILABLE' });
+    }), store)).rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 400 });
     expect(store.getState().incomes).toHaveLength(0);
+    expect(store.getState().assets).toHaveLength(0);
     expect(store.getState().idempotency).toHaveLength(0);
   });
 });
