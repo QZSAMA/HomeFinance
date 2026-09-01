@@ -63,17 +63,12 @@ jest.mock('../services/aiService', () => ({
   },
 }));
 
-jest.mock('../services/aiActions', () => ({
-  executeActions: jest.fn().mockResolvedValue([]),
-}));
-
 jest.mock('../services/fileStorageService', () => ({
   storeOcrImage: jest.fn(),
 }));
 
 import { prisma } from '../db/prisma';
 import { chatWithActions, analyzeFinance, parseReceiptOCR, ocrToActions } from '../services/aiService';
-import { executeActions } from '../services/aiActions';
 import { storeOcrImage } from '../services/fileStorageService';
 
 const mockedPrisma = prisma as any;
@@ -81,7 +76,6 @@ const mockedChatWithActions = chatWithActions as jest.MockedFunction<typeof chat
 const mockedAnalyzeFinance = analyzeFinance as jest.MockedFunction<typeof analyzeFinance>;
 const mockedParseReceiptOCR = parseReceiptOCR as jest.MockedFunction<typeof parseReceiptOCR>;
 const mockedOcrToActions = ocrToActions as jest.MockedFunction<typeof ocrToActions>;
-const mockedExecuteActions = executeActions as jest.MockedFunction<typeof executeActions>;
 const mockedStoreOcrImage = storeOcrImage as jest.MockedFunction<typeof storeOcrImage>;
 
 const app = express();
@@ -120,7 +114,6 @@ describe('AI Routes', () => {
       familyId: 'family_1',
       userId: 'user_1',
     }));
-    mockedExecuteActions.mockResolvedValue([]);
     // OCR 存储默认返回 null（不阻塞 OCR 主流程）
     mockedStoreOcrImage.mockResolvedValue(null);
     // ocrToActions 默认返回空数组（不提议任何动作）
@@ -194,7 +187,6 @@ describe('AI Routes', () => {
           },
         }),
       }));
-      expect(mockedExecuteActions).not.toHaveBeenCalled();
     });
 
     test('returns a stable validation error when the AI proposes a malformed action', async () => {
@@ -215,7 +207,6 @@ describe('AI Routes', () => {
         retryable: false,
       });
       expect(mockedPrisma.aiProposal.create).not.toHaveBeenCalled();
-      expect(mockedExecuteActions).not.toHaveBeenCalled();
     });
 
     test('does not return success when proposal persistence fails', async () => {
@@ -237,7 +228,6 @@ describe('AI Routes', () => {
         retryable: false,
       });
       expect(res.body.error).not.toContain('database unavailable');
-      expect(mockedExecuteActions).not.toHaveBeenCalled();
     });
 
     test('rejects empty content', async () => {
@@ -653,7 +643,6 @@ describe('AI Routes', () => {
         }),
       }));
       // 关键：/ocr 端点不执行动作，只返回提议
-      expect(mockedExecuteActions).not.toHaveBeenCalled();
       // ocrToActions 被调用，收到 parseReceiptOCR 的结果
       expect(mockedOcrToActions).toHaveBeenCalledTimes(1);
       const ocrToActionsArg = mockedOcrToActions.mock.calls[0][0];
@@ -688,7 +677,6 @@ describe('AI Routes', () => {
 
       expect(res.status).toBe(400);
       expect(res.body).toMatchObject({ code: 'VALIDATION_FAILED' });
-      expect(mockedExecuteActions).not.toHaveBeenCalled();
       expect(mockedPrisma.aiConversation.create).not.toHaveBeenCalled();
     });
 

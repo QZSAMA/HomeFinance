@@ -56,10 +56,6 @@ jest.mock('../services/aiService', () => ({
   ocrToActions: jest.fn(),
 }));
 
-jest.mock('../services/aiActions', () => ({
-  executeActions: jest.fn().mockResolvedValue([{ status: 'success', message: 'created' }]),
-}));
-
 jest.mock('../services/fileStorageService', () => ({
   storeOcrImage: jest.fn().mockResolvedValue(null),
 }));
@@ -71,12 +67,10 @@ jest.mock('../config/ai', () => ({
 
 import { prisma } from '../db/prisma';
 import { uploadFileBuffer } from '../config/minio';
-import { executeActions } from '../services/aiActions';
 import { analyzeFinance, chatWithActions } from '../services/aiService';
 
 const mockedPrisma = prisma as any;
 const mockedUploadFileBuffer = uploadFileBuffer as jest.Mock;
-const mockedExecuteActions = executeActions as jest.Mock;
 const mockedChatWithActions = chatWithActions as jest.Mock;
 const mockedAnalyzeFinance = analyzeFinance as jest.Mock;
 
@@ -166,7 +160,7 @@ const mutationCases: MutationCase[] = [
     name: 'confirmed AI action execution',
     path: '/api/families/fam_1/ai/execute-actions',
     body: { actions: [{ type: 'create_income', data: { amount: 100, category: '工资' } }] },
-    sideEffect: () => mockedExecuteActions,
+    sideEffect: () => mockedPrisma.income.create,
   },
 ];
 
@@ -227,7 +221,7 @@ describe('family viewer mutation policy', () => {
       .send({ content: '记录工资 100 元' });
 
     expect(response.status).toBe(403);
-    expect(mockedExecuteActions).not.toHaveBeenCalled();
+    expect(mockedPrisma.income.create).not.toHaveBeenCalled();
   });
 
   test('rejects viewer financial analysis before AI or conversation writes', async () => {
