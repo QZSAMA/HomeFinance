@@ -33,7 +33,11 @@ export const createApp = (): Express => {
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Idempotency-Key', 'If-Match'],
-    exposedHeaders: ['Idempotency-Replayed'],
+    exposedHeaders: [
+      'Idempotency-Replayed',
+      'X-Import-Batch-Id',
+      'X-Import-Preview-Hash',
+    ],
   }));
 
 // OCR 接口需要上传 base64 图片，默认 100kb 不够，提升到 10MB

@@ -1,4 +1,15 @@
-import { parseCSV } from './importService';
+import { createHash } from 'crypto';
+
+jest.mock('../db/prisma', () => ({
+  prisma: {
+    importBatch: { create: jest.fn() },
+  },
+}));
+
+import { prisma } from '../db/prisma';
+import { parseCSV, persistImportPreview } from './importService';
+
+const mockedPrisma = prisma as any;
 
 const MAX_IMPORT_BYTES = 10 * 1024 * 1024;
 const MAX_IMPORT_ROWS = 10_000;
@@ -27,5 +38,88 @@ describe('Import parser resource limits', () => {
 
     await expect(parseCSV(Buffer.from(csv), 'alipay'))
       .rejects.toMatchObject({ code: 'IMPORT_LIMIT_EXCEEDED', limit: 'field' });
+  });
+});
+
+describe('Import server-owned preview persistence', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockedPrisma.importBatch.create.mockResolvedValue({
+      id: 'batch-1',
+      status: 'PREVIEWED',
+      previewHash: 'c'.repeat(64),
+      rowCount: 2,
+    });
+  });
+
+  test('persists canonical parsed rows with source and preview hashes', async () => {
+    const buffer = Buffer.from('source csv');
+    const items = [
+      {
+        date: '2026-09-01',
+        description: 'salary',
+        amount: 100,
+        type: 'INCOME' as const,
+      },
+      {
+        date: '2026-09-02',
+        description: 'meal',
+        amount: 20,
+        type: 'EXPENSE' as const,
+        category: 'food',
+      },
+    ];
+
+    const result = await persistImportPreview({
+      familyId: 'family-1',
+      actorUserId: 'user-1',
+      format: 'alipay',
+      buffer,
+      items,
+    });
+
+    expect(result).toEqual({
+      batchId: 'batch-1',
+      previewHash: 'c'.repeat(64),
+      status: 'PREVIEWED',
+      rowCount: 2,
+    });
+    expect(mockedPrisma.importBatch.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        familyId: 'family-1',
+        actorUserId: 'user-1',
+        format: 'alipay',
+        fileHash: createHash('sha256').update(buffer).digest('hex'),
+        parserVersion: 'csv-v1',
+        previewHash: expect.stringMatching(/^[0-9a-f]{64}$/),
+        status: 'PREVIEWED',
+        rowCount: 2,
+        rows: {
+          create: [
+            {
+              rowNumber: 1,
+              canonicalPayload: {
+                date: '2026-09-01',
+                description: 'salary',
+                amount: 100,
+                type: 'INCOME',
+              },
+              status: 'VALID',
+            },
+            {
+              rowNumber: 2,
+              canonicalPayload: {
+                date: '2026-09-02',
+                description: 'meal',
+                amount: 20,
+                type: 'EXPENSE',
+                category: 'food',
+              },
+              status: 'VALID',
+            },
+          ],
+        },
+      }),
+    });
   });
 });

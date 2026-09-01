@@ -336,11 +336,35 @@ describe('Phase 1 real PostgreSQL role x method matrix', () => {
         'role-matrix.csv',
       );
     expect(csvPreview.status).toBe(200);
+    expect(csvPreview.headers['x-import-batch-id']).toMatch(/^c[a-z0-9]+$/);
+    expect(csvPreview.headers['x-import-preview-hash']).toMatch(/^[0-9a-f]{64}$/);
     expect(csvPreview.body).toEqual([expect.objectContaining({
       description: 'Role matrix CSV',
       amount: 50,
       type: 'INCOME',
     })]);
+    const previewBatch = await prisma.importBatch.findUniqueOrThrow({
+      where: { id: csvPreview.headers['x-import-batch-id'] },
+      include: { rows: true },
+    });
+    expect(previewBatch).toMatchObject({
+      familyId,
+      actorUserId: memberId,
+      format: 'alipay',
+      parserVersion: 'csv-v1',
+      previewHash: csvPreview.headers['x-import-preview-hash'],
+      status: 'PREVIEWED',
+      rowCount: 1,
+      rows: [expect.objectContaining({
+        rowNumber: 1,
+        status: 'VALID',
+        canonicalPayload: expect.objectContaining({
+          description: 'Role matrix CSV',
+          amount: 50,
+          type: 'INCOME',
+        }),
+      })],
+    });
 
     const imported = await request(app)
       .post(`/api/families/${familyId}/import/confirm`)

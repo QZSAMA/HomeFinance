@@ -1,8 +1,14 @@
+import { createHash } from 'crypto';
+import { Prisma } from '@prisma/client';
 import { parse } from 'csv-parse';
+import { prisma } from '../db/prisma';
+import { hashNormalizedPayload } from './financialMutationCoordinator';
 import {
   assertImportBufferWithinLimit,
   assertImportRowsWithinLimit,
 } from './importLimits';
+
+export const IMPORT_PARSER_VERSION = 'csv-v1';
 
 export interface ImportedTransaction {
   date: string;
@@ -11,6 +17,28 @@ export interface ImportedTransaction {
   type: 'INCOME' | 'EXPENSE';
   category?: string;
 }
+
+export interface PersistImportPreviewInput {
+  familyId: string;
+  actorUserId: string;
+  format: string;
+  buffer: Buffer;
+  items: ImportedTransaction[];
+}
+
+export interface ImportPreviewMetadata {
+  batchId: string;
+  previewHash: string;
+  status: string;
+  rowCount: number;
+}
+
+const canonicalImportPayload = (item: ImportedTransaction): Prisma.InputJsonObject => {
+  const { category, ...requiredFields } = item;
+  return category === undefined
+    ? requiredFields
+    : { ...requiredFields, category };
+};
 
 const parseAmount = (raw: string): number => {
   if (!raw) return 0;
@@ -89,4 +117,40 @@ export async function parseCSV(
   const rows = await parser(buffer);
   assertImportRowsWithinLimit(rows);
   return rows;
+}
+
+export async function persistImportPreview(
+  input: PersistImportPreviewInput,
+): Promise<ImportPreviewMetadata> {
+  const fileHash = createHash('sha256').update(input.buffer).digest('hex');
+  const previewHash = hashNormalizedPayload({
+    format: input.format,
+    items: input.items,
+  });
+  const batch = await prisma.importBatch.create({
+    data: {
+      familyId: input.familyId,
+      actorUserId: input.actorUserId,
+      format: input.format,
+      fileHash,
+      parserVersion: IMPORT_PARSER_VERSION,
+      previewHash,
+      status: 'PREVIEWED',
+      rowCount: input.items.length,
+      rows: {
+        create: input.items.map((item, index) => ({
+          rowNumber: index + 1,
+          canonicalPayload: canonicalImportPayload(item),
+          status: 'VALID',
+        })),
+      },
+    },
+  });
+
+  return {
+    batchId: batch.id,
+    previewHash: batch.previewHash,
+    status: batch.status,
+    rowCount: batch.rowCount,
+  };
 }

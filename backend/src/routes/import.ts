@@ -3,8 +3,8 @@ import multer from 'multer';
 import { z } from 'zod';
 import { prisma } from '../db/prisma';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
-import { requireFamilyWriteAccess } from '../middleware/familyAccess';
-import { parseCSV } from '../services/importService';
+import { FamilyAccessRequest, requireFamilyWriteAccess } from '../middleware/familyAccess';
+import { parseCSV, persistImportPreview } from '../services/importService';
 import {
   assertImportRowsWithinLimit,
   IMPORT_LIMITS,
@@ -28,13 +28,6 @@ const uploadCsv = (req: Request, res: Response, next: NextFunction) => {
 
 const VALID_FORMATS = ['alipay', 'wechat'];
 
-const checkFamilyAccess = async (familyId: string, userId: string) => {
-  const membership = await prisma.familyMember.findUnique({
-    where: { familyId_userId: { familyId, userId } },
-  });
-  return membership;
-};
-
 const itemSchema = z.object({
   date: z.string().min(1),
   description: z.string(),
@@ -44,7 +37,7 @@ const itemSchema = z.object({
 });
 
 // POST /csv — 上传 CSV 返回预览
-router.post('/csv', authMiddleware, requireFamilyWriteAccess, uploadCsv, async (req: AuthRequest, res) => {
+router.post('/csv', authMiddleware, requireFamilyWriteAccess, uploadCsv, async (req: FamilyAccessRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const format = req.body.format as string;
@@ -56,13 +49,19 @@ router.post('/csv', authMiddleware, requireFamilyWriteAccess, uploadCsv, async (
       return res.status(400).json({ error: '请上传文件' });
     }
 
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
-
     const items = await parseCSV(req.file.buffer, format);
     assertImportRowsWithinLimit(items);
+    const preview = await persistImportPreview({
+      familyId,
+      actorUserId: req.familyMembership!.userId,
+      format,
+      buffer: req.file.buffer,
+      items,
+    });
+    res.set({
+      'X-Import-Batch-Id': preview.batchId,
+      'X-Import-Preview-Hash': preview.previewHash,
+    });
     res.json(items);
   } catch (error) {
     if (error instanceof ImportLimitError) {
@@ -74,14 +73,9 @@ router.post('/csv', authMiddleware, requireFamilyWriteAccess, uploadCsv, async (
 });
 
 // POST /confirm — 确认导入，批量创建 Income/Expense
-router.post('/confirm', authMiddleware, requireFamilyWriteAccess, async (req: AuthRequest, res) => {
+router.post('/confirm', authMiddleware, requireFamilyWriteAccess, async (req: FamilyAccessRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
-
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
 
     const { items } = req.body as { items: unknown[] };
     if (!Array.isArray(items) || items.length === 0) {

@@ -13,13 +13,16 @@ jest.mock('../db/prisma', () => ({
 
 jest.mock('../services/importService', () => ({
   parseCSV: jest.fn(),
+  persistImportPreview: jest.fn(),
 }));
 
 import { prisma } from '../db/prisma';
 import { parseCSV } from '../services/importService';
+import * as importService from '../services/importService';
 
 const mockedPrisma = prisma as any;
 const mockedParseCSV = parseCSV as jest.MockedFunction<typeof parseCSV>;
+const mockedPersistImportPreview = (importService as any).persistImportPreview as jest.Mock;
 
 const app = express();
 app.use(express.json());
@@ -43,6 +46,12 @@ describe('Import Routes', () => {
       familyId: 'fam_1',
       userId: 'user_1',
       role: 'admin',
+    });
+    mockedPersistImportPreview.mockResolvedValue({
+      batchId: 'batch_1',
+      previewHash: 'a'.repeat(64),
+      status: 'PREVIEWED',
+      rowCount: 0,
     });
   });
 

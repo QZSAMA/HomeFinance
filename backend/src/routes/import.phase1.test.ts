@@ -11,13 +11,16 @@ jest.mock('../db/prisma', () => ({
 
 jest.mock('../services/importService', () => ({
   parseCSV: jest.fn(),
+  persistImportPreview: jest.fn(),
 }));
 
 import { prisma } from '../db/prisma';
 import { parseCSV } from '../services/importService';
+import * as importService from '../services/importService';
 
 const mockedPrisma = prisma as any;
 const mockedParseCSV = parseCSV as jest.MockedFunction<typeof parseCSV>;
+const mockedPersistImportPreview = (importService as any).persistImportPreview as jest.Mock;
 
 const app = express();
 app.use(express.json());
@@ -44,6 +47,12 @@ describe('Import resource limits', () => {
       role: 'admin',
     });
     mockedParseCSV.mockResolvedValue([]);
+    mockedPersistImportPreview.mockResolvedValue({
+      batchId: 'batch_1',
+      previewHash: 'a'.repeat(64),
+      status: 'PREVIEWED',
+      rowCount: 0,
+    });
   });
 
   test('rejects a CSV whose byte size exceeds the import limit', async () => {
@@ -92,5 +101,52 @@ describe('Import resource limits', () => {
 
     expect(res.status).toBe(413);
     expect(res.body.error).toBe('IMPORT_LIMIT_EXCEEDED');
+  });
+
+  test('publishes server-owned batch identifiers for a parsed preview', async () => {
+    const items = [{
+      date: '2026-09-01',
+      description: 'server-owned preview',
+      amount: 1,
+      type: 'INCOME' as const,
+    }];
+    mockedParseCSV.mockResolvedValue(items);
+    mockedPersistImportPreview.mockResolvedValue({
+      batchId: 'batch_server_owned',
+      previewHash: 'b'.repeat(64),
+      status: 'PREVIEWED',
+      rowCount: 1,
+    });
+
+    const res = await request(app)
+      .post('/api/families/fam_1/import/csv')
+      .set('Authorization', `Bearer ${createToken()}`)
+      .field('format', 'alipay')
+      .attach('file', Buffer.from('row data'), 'preview.csv');
+
+    expect(res.status).toBe(200);
+    expect(res.headers['x-import-batch-id']).toBe('batch_server_owned');
+    expect(res.headers['x-import-preview-hash']).toBe('b'.repeat(64));
+    expect(res.body).toEqual(items);
+    expect(mockedPersistImportPreview).toHaveBeenCalledWith({
+      familyId: 'fam_1',
+      actorUserId: 'user_1',
+      format: 'alipay',
+      buffer: expect.any(Buffer),
+      items,
+    });
+  });
+
+  test('uses the write authorization membership without a second route-local lookup', async () => {
+    mockedParseCSV.mockResolvedValue([]);
+
+    const res = await request(app)
+      .post('/api/families/fam_1/import/csv')
+      .set('Authorization', `Bearer ${createToken()}`)
+      .field('format', 'alipay')
+      .attach('file', Buffer.from('row data'), 'preview.csv');
+
+    expect(res.status).toBe(200);
+    expect(mockedPrisma.familyMember.findUnique).toHaveBeenCalledTimes(1);
   });
 });

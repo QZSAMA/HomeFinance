@@ -11,4 +11,16 @@ describe('Phase 1 ledger CORS contract', () => {
     expect(response.headers['access-control-expose-headers'])
       .toContain('Idempotency-Replayed');
   });
+
+  test('exposes server-owned import preview headers to browser clients', async () => {
+    const response = await request(createApp())
+      .get('/api/health')
+      .set('Origin', 'http://localhost:3000');
+
+    expect(response.status).toBe(200);
+    expect(response.headers['access-control-expose-headers'])
+      .toContain('X-Import-Batch-Id');
+    expect(response.headers['access-control-expose-headers'])
+      .toContain('X-Import-Preview-Hash');
+  });
 });
