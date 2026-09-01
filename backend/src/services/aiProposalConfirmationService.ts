@@ -93,26 +93,44 @@ const proposalNotFound = (): never => {
   );
 };
 
-const validateFinalActions = (proposal: AiProposalSnapshot, actions: AIAction[]): AIAction[] => {
-  if (!Array.isArray(actions) || actions.length !== proposal.items.length || actions.length === 0) {
+const validateFinalActions = (proposal: AiProposalSnapshot, actions: AIAction[]) => {
+  if (!Array.isArray(actions) || actions.length > proposal.items.length || actions.length === 0) {
     throw new DomainError(
       'VALIDATION_FAILED',
-      'The confirmed actions must preserve the proposal item count.',
+      'The confirmed actions must be non-empty and cannot exceed the proposal item count.',
       400,
     );
   }
 
   const normalizedActions = actions.map((action) => normalizeAction(action));
-  normalizedActions.forEach((action, ordinal) => {
-    const item = proposal.items[ordinal];
-    if (!item || item.typedAction !== action.type) {
+  const usedItemIds = new Set<string>();
+  const resolvedItems = normalizedActions.map((action, ordinal) => {
+    const item = action.proposalItemId
+      ? proposal.items.find((candidate) => candidate.id === action.proposalItemId)
+      : proposal.items[ordinal];
+    if (!item || usedItemIds.has(item.id)) {
       throw new DomainError(
         'VALIDATION_FAILED',
-        'The confirmed actions must preserve the proposal action types and order.',
+        'Each confirmed action must reference a unique proposal item.',
         400,
       );
     }
-    if (!isCreateLedgerAction(action)) {
+    usedItemIds.add(item.id);
+    return item;
+  });
+  normalizedActions.forEach((action, ordinal) => {
+    const item = resolvedItems[ordinal];
+    if (!item) {
+      throw new DomainError(
+        'VALIDATION_FAILED',
+        'The confirmed actions cannot exceed the proposal item count.',
+        400,
+      );
+    }
+    if (
+      !isCreateLedgerAction(action)
+      || !['create_income', 'create_expense'].includes(item.typedAction)
+    ) {
       throw new DomainError(
         'AI_BALANCE_MUTATION_UNAVAILABLE',
         'Asset and liability AI confirmation requires the balance mutation service.',
@@ -120,7 +138,7 @@ const validateFinalActions = (proposal: AiProposalSnapshot, actions: AIAction[])
       );
     }
   });
-  return normalizedActions;
+  return { actions: normalizedActions, items: resolvedItems };
 };
 
 const actionDate = (value: unknown, now: Date): Date => {
@@ -252,7 +270,7 @@ export async function confirmAiProposal(
         );
       }
 
-      const normalizedActions = validateFinalActions(proposal, input.actions);
+      const { actions: normalizedActions, items: resolvedItems } = validateFinalActions(proposal, input.actions);
       const confirmedPayload = { actions: normalizedActions };
       const confirmedHash = hashNormalizedPayload(confirmedPayload);
       const claim = await proposalStore.proposal.updateMany({
@@ -274,9 +292,14 @@ export async function confirmAiProposal(
       const confirmedVersion = input.expectedVersion + 2;
       const result = resultRecord(proposal, confirmedVersion, actionResults);
       for (const [ordinal, item] of proposal.items.entries()) {
+        const resolvedOrdinal = resolvedItems.findIndex((candidate) => candidate.id === item.id);
         await proposalStore.item.update({
           where: { id: item.id },
-          data: { resultJson: actionResults[ordinal] },
+          data: {
+            resultJson: resolvedOrdinal >= 0
+              ? actionResults[resolvedOrdinal]
+              : { ordinal, status: 'SKIPPED' },
+          },
         });
       }
 

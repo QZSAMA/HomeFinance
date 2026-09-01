@@ -4,6 +4,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import aiRoutes from '../routes/ai';
+import { hashNormalizedPayload } from '../services/financialMutationCoordinator';
 
 jest.mock('../services/aiService', () => ({
   chatWithActions: jest.fn(),
@@ -27,6 +28,7 @@ import { storeOcrImage } from '../services/fileStorageService';
 const prisma = new PrismaClient();
 const runId = randomUUID();
 const familyId = `p1-ai-route-family-${runId}`;
+const foreignFamilyId = `p1-ai-route-foreign-family-${runId}`;
 const memberId = `p1-ai-route-member-${runId}`;
 const viewerId = `p1-ai-route-viewer-${runId}`;
 const outsiderId = `p1-ai-route-outsider-${runId}`;
@@ -52,6 +54,39 @@ const financialCounts = async () => Promise.all([
   prisma.liability.count({ where: { familyId } }),
 ]);
 
+const financialCountsFor = async (targetFamilyId: string) => Promise.all([
+  prisma.income.count({ where: { familyId: targetFamilyId } }),
+  prisma.expense.count({ where: { familyId: targetFamilyId } }),
+  prisma.asset.count({ where: { familyId: targetFamilyId } }),
+  prisma.liability.count({ where: { familyId: targetFamilyId } }),
+]);
+
+const createStoredProposal = async (
+  targetFamilyId: string,
+  actions: Array<{ type: string; data: Record<string, unknown> }>,
+): Promise<any> => {
+  const originalPayload = { reply: '请确认', actions };
+  return prisma.aiProposal.create({
+    data: {
+      familyId: targetFamilyId,
+      actorUserId: memberId,
+      actorSnapshot: { version: 1, userId: memberId, role: 'member' },
+      sourceType: 'TEXT',
+      originalPayload: originalPayload as any,
+      originalHash: hashNormalizedPayload(originalPayload),
+      expiresAt: new Date('2026-09-02T00:00:00.000Z'),
+      items: {
+        create: actions.map((action, ordinal) => ({
+          ordinal,
+          typedAction: action.type,
+          canonicalData: action.data as any,
+        })),
+      },
+    },
+    include: { items: true },
+  });
+};
+
 describe('Phase 1 real PostgreSQL AI proposal routes', () => {
   beforeAll(async () => {
     await prisma.$connect();
@@ -74,22 +109,31 @@ describe('Phase 1 real PostgreSQL AI proposal routes', () => {
         },
       },
     });
+    await prisma.family.create({
+      data: {
+        id: foreignFamilyId,
+        name: 'AI foreign family',
+        members: { create: [{ userId: memberId, role: 'member' }] },
+      },
+    });
   });
 
   afterEach(async () => {
-    await prisma.aiProposal.deleteMany({ where: { familyId } });
-    await prisma.aiConversation.deleteMany({ where: { familyId } });
-    await prisma.auditEvent.deleteMany({ where: { familyId } });
-    await prisma.idempotencyRecord.deleteMany({ where: { familyId } });
-    await prisma.income.deleteMany({ where: { familyId } });
-    await prisma.expense.deleteMany({ where: { familyId } });
-    await prisma.asset.deleteMany({ where: { familyId } });
-    await prisma.liability.deleteMany({ where: { familyId } });
+    const familyIds = { in: [familyId, foreignFamilyId] };
+    await prisma.aiProposal.deleteMany({ where: { familyId: familyIds } });
+    await prisma.aiConversation.deleteMany({ where: { familyId: familyIds } });
+    await prisma.auditEvent.deleteMany({ where: { familyId: familyIds } });
+    await prisma.idempotencyRecord.deleteMany({ where: { familyId: familyIds } });
+    await prisma.income.deleteMany({ where: { familyId: familyIds } });
+    await prisma.expense.deleteMany({ where: { familyId: familyIds } });
+    await prisma.asset.deleteMany({ where: { familyId: familyIds } });
+    await prisma.liability.deleteMany({ where: { familyId: familyIds } });
     jest.clearAllMocks();
   });
 
   afterAll(async () => {
     await prisma.family.deleteMany({ where: { id: familyId } });
+    await prisma.family.deleteMany({ where: { id: foreignFamilyId } });
     await prisma.user.deleteMany({ where: { id: { in: [memberId, viewerId, outsiderId] } } });
     await prisma.$disconnect();
   });
@@ -138,6 +182,42 @@ describe('Phase 1 real PostgreSQL AI proposal routes', () => {
       typedAction: 'create_expense',
       canonicalData: actions[0].data,
     })]);
+  });
+
+  test('returns pending proposal metadata from history for refresh recovery', async () => {
+    const actions = [{
+      type: 'create_expense' as const,
+      data: { amount: 25, category: '餐饮', date: '2026-09-01' },
+    }];
+    (chatWithActions as jest.Mock).mockResolvedValue({ reply: '请确认', actions });
+
+    const created = await request(app)
+      .post(`/api/families/${familyId}/ai/chat`)
+      .set('Authorization', `Bearer ${memberToken}`)
+      .send({ content: '午餐25元' });
+
+    const response = await request(app)
+      .get(`/api/families/${familyId}/ai/history`)
+      .set('Authorization', `Bearer ${memberToken}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        content: '午餐25元',
+        proposal: {
+          id: created.body.proposalId,
+          version: 1,
+          originalHash: created.body.proposalHash,
+          status: 'PROPOSED',
+          expiresAt: expect.any(String),
+          items: [{
+            proposalItemId: expect.any(String),
+            type: 'create_expense',
+            data: actions[0].data,
+          }],
+        },
+      }),
+    ]));
   });
 
   test('persists an OCR proposal with its conversation and leaves financial facts unchanged', async () => {
@@ -283,6 +363,182 @@ describe('Phase 1 real PostgreSQL AI proposal routes', () => {
     await expect(prisma.asset.count({ where: { familyId } })).resolves.toBe(0);
     await expect(prisma.idempotencyRecord.count({ where: { familyId } })).resolves.toBe(0);
     await expect(prisma.auditEvent.count({ where: { familyId } })).resolves.toBe(0);
+  });
+
+  test.each<[string, { amount?: number; date?: string; type?: string }]>([
+    ['zero amount', { amount: 0 }],
+    ['invalid date', { date: '2026-02-30' }],
+    ['unsupported action type', { type: 'transfer_money' }],
+  ])('rejects a malformed final action (%s) without claiming the proposal', async (_label, change) => {
+    const action = { type: 'create_expense', data: { amount: 35, category: '餐饮', date: '2026-09-01' } };
+    const proposal = await createStoredProposal(familyId, [action]);
+    const finalAction = {
+      ...action,
+      ...(change.type ? { type: change.type } : {}),
+      data: { ...action.data, ...(change.amount !== undefined ? { amount: change.amount } : {}), ...(change.date ? { date: change.date } : {}) },
+    };
+
+    const response = await request(app)
+      .post(`/api/families/${familyId}/ai/proposals/${proposal.id}/confirm`)
+      .set('Authorization', `Bearer ${memberToken}`)
+      .set('Idempotency-Key', `ai-malformed-${_label}`)
+      .send({ expectedVersion: proposal.version, expectedHash: proposal.originalHash, actions: [finalAction] });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+    await expect(financialCounts()).resolves.toEqual([0, 0, 0, 0]);
+    await expect(prisma.idempotencyRecord.count({ where: { familyId } })).resolves.toBe(0);
+    await expect(prisma.auditEvent.count({ where: { familyId } })).resolves.toBe(0);
+    await expect(prisma.aiProposal.findUnique({ where: { id: proposal.id } }))
+      .resolves.toMatchObject({ status: 'PROPOSED', version: 1 });
+  });
+
+  test('rejects duplicate and unknown proposal item ids without a ledger side effect', async () => {
+    const first = await createStoredProposal(familyId, [
+      { type: 'create_income', data: { amount: 100, category: '工资' } },
+      { type: 'create_income', data: { amount: 200, category: '奖金' } },
+    ]);
+    const duplicateItemActions = first.items.map((item: { id: string }, index: number) => ({
+      proposalItemId: index === 0 ? first.items[0].id : first.items[0].id,
+      type: 'create_income',
+      data: { amount: index === 0 ? 100 : 200, category: index === 0 ? '工资' : '奖金' },
+    }));
+
+    const duplicate = await request(app)
+      .post(`/api/families/${familyId}/ai/proposals/${first.id}/confirm`)
+      .set('Authorization', `Bearer ${memberToken}`)
+      .set('Idempotency-Key', 'ai-duplicate-item')
+      .send({ expectedVersion: first.version, expectedHash: first.originalHash, actions: duplicateItemActions });
+
+    expect(duplicate.status).toBe(400);
+    expect(duplicate.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+
+    const second = await createStoredProposal(familyId, [
+      { type: 'create_income', data: { amount: 300, category: '奖金' } },
+    ]);
+    const unknown = await request(app)
+      .post(`/api/families/${familyId}/ai/proposals/${second.id}/confirm`)
+      .set('Authorization', `Bearer ${memberToken}`)
+      .set('Idempotency-Key', 'ai-unknown-item')
+      .send({
+        expectedVersion: second.version,
+        expectedHash: second.originalHash,
+        actions: [{ proposalItemId: 'item-from-another-proposal', type: 'create_income', data: { amount: 300, category: '奖金' } }],
+      });
+
+    expect(unknown.status).toBe(400);
+    expect(unknown.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+    await expect(financialCounts()).resolves.toEqual([0, 0, 0, 0]);
+    await expect(prisma.idempotencyRecord.count({ where: { familyId } })).resolves.toBe(0);
+  });
+
+  test('rejects a cross-family proposal id before reading or mutating either family', async () => {
+    const foreignProposal = await createStoredProposal(foreignFamilyId, [
+      { type: 'create_income', data: { amount: 500, category: '跨家庭' } },
+    ]);
+    const beforePrimary = await financialCountsFor(familyId);
+    const beforeForeign = await financialCountsFor(foreignFamilyId);
+
+    const response = await request(app)
+      .post(`/api/families/${familyId}/ai/proposals/${foreignProposal.id}/confirm`)
+      .set('Authorization', `Bearer ${memberToken}`)
+      .set('Idempotency-Key', 'ai-cross-family')
+      .send({
+        expectedVersion: foreignProposal.version,
+        expectedHash: foreignProposal.originalHash,
+        actions: [{ type: 'create_income', data: { amount: 500, category: '跨家庭' } }],
+      });
+
+    expect(response.status).toBe(404);
+    expect(response.body).toMatchObject({ code: 'RESOURCE_NOT_FOUND' });
+    await expect(financialCountsFor(familyId)).resolves.toEqual(beforePrimary);
+    await expect(financialCountsFor(foreignFamilyId)).resolves.toEqual(beforeForeign);
+    await expect(prisma.idempotencyRecord.count({ where: { familyId } })).resolves.toBe(0);
+    await expect(prisma.idempotencyRecord.count({ where: { familyId: foreignFamilyId } })).resolves.toBe(0);
+  });
+
+  test('requires an idempotency key and leaves the proposal untouched when it is missing', async () => {
+    const proposal = await createStoredProposal(familyId, [
+      { type: 'create_income', data: { amount: 750, category: '工资' } },
+    ]);
+
+    const response = await request(app)
+      .post(`/api/families/${familyId}/ai/proposals/${proposal.id}/confirm`)
+      .set('Authorization', `Bearer ${memberToken}`)
+      .send({
+        expectedVersion: proposal.version,
+        expectedHash: proposal.originalHash,
+        actions: [{ type: 'create_income', data: { amount: 750, category: '工资' } }],
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+    await expect(financialCounts()).resolves.toEqual([0, 0, 0, 0]);
+    await expect(prisma.idempotencyRecord.count({ where: { familyId } })).resolves.toBe(0);
+    await expect(prisma.aiProposal.findUnique({ where: { id: proposal.id } }))
+      .resolves.toMatchObject({ status: 'PROPOSED', version: 1 });
+  });
+
+  test('rejects a different payload on the same confirmation key without a second ledger fact', async () => {
+    const proposal = await createStoredProposal(familyId, [
+      { type: 'create_income', data: { amount: 800, category: '工资' } },
+    ]);
+    const confirmationUrl = `/api/families/${familyId}/ai/proposals/${proposal.id}/confirm`;
+    const headers = { Authorization: `Bearer ${memberToken}`, 'Idempotency-Key': 'ai-replay-tamper' };
+
+    const first = await request(app)
+      .post(confirmationUrl)
+      .set(headers)
+      .send({
+        expectedVersion: proposal.version,
+        expectedHash: proposal.originalHash,
+        actions: [{ type: 'create_income', data: { amount: 800, category: '工资' } }],
+      });
+    expect(first.status).toBe(200);
+
+    const replayWithDifferentPayload = await request(app)
+      .post(confirmationUrl)
+      .set(headers)
+      .send({
+        expectedVersion: proposal.version,
+        expectedHash: proposal.originalHash,
+        actions: [{ type: 'create_income', data: { amount: 801, category: '篡改' } }],
+      });
+
+    expect(replayWithDifferentPayload.status).toBe(409);
+    expect(replayWithDifferentPayload.body).toMatchObject({ code: 'IDEMPOTENCY_KEY_REUSED' });
+    await expect(prisma.income.count({ where: { familyId } })).resolves.toBe(1);
+    await expect(prisma.auditEvent.count({ where: { familyId } })).resolves.toBe(1);
+    await expect(prisma.idempotencyRecord.count({ where: { familyId } })).resolves.toBe(1);
+  });
+
+  test('rejects a second key after the proposal is executed without adding another fact', async () => {
+    const proposal = await createStoredProposal(familyId, [
+      { type: 'create_income', data: { amount: 900, category: '奖金' } },
+    ]);
+    const body = {
+      expectedVersion: proposal.version,
+      expectedHash: proposal.originalHash,
+      actions: [{ type: 'create_income', data: { amount: 900, category: '奖金' } }],
+    };
+    await request(app)
+      .post(`/api/families/${familyId}/ai/proposals/${proposal.id}/confirm`)
+      .set('Authorization', `Bearer ${memberToken}`)
+      .set('Idempotency-Key', 'ai-executed-first')
+      .send(body)
+      .expect(200);
+
+    const response = await request(app)
+      .post(`/api/families/${familyId}/ai/proposals/${proposal.id}/confirm`)
+      .set('Authorization', `Bearer ${memberToken}`)
+      .set('Idempotency-Key', 'ai-executed-second')
+      .send(body);
+
+    expect(response.status).toBe(409);
+    expect(response.body).toMatchObject({ code: 'AI_PROPOSAL_NOT_CONFIRMABLE' });
+    await expect(prisma.income.count({ where: { familyId } })).resolves.toBe(1);
+    await expect(prisma.auditEvent.count({ where: { familyId } })).resolves.toBe(1);
+    await expect(prisma.idempotencyRecord.count({ where: { familyId } })).resolves.toBe(1);
   });
 
   test.each([

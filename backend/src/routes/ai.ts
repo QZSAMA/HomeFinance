@@ -129,6 +129,7 @@ const confirmAiProposalSchema = z.object({
   expectedVersion: z.number().int().positive(),
   expectedHash: z.string().regex(/^[0-9a-f]{64}$/, 'expectedHash must be a SHA-256 hash.'),
   actions: z.array(z.object({
+    proposalItemId: z.string().min(1).optional(),
     type: z.string(),
     data: z.record(z.unknown()),
   }).strict()).min(1).max(50),
@@ -620,6 +621,7 @@ const legacyConfirmAiProposalSchema = z.object({
   expectedVersion: z.number().int().positive(),
   expectedHash: z.string().regex(/^[0-9a-f]{64}$/, 'expectedHash must be a SHA-256 hash.'),
   actions: z.array(z.object({
+    proposalItemId: z.string().min(1).optional(),
     type: z.string(),
     data: z.record(z.unknown()),
   }).strict()).min(1).max(50),

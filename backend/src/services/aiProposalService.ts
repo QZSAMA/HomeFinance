@@ -132,7 +132,11 @@ export const normalizeAction = (action: AIAction): AIAction => {
       break;
   }
 
-  return { type: action.type, data: normalized } as AIAction;
+  return {
+    type: action.type,
+    data: normalized,
+    ...(action.proposalItemId === undefined ? {} : { proposalItemId: action.proposalItemId }),
+  } as AIAction;
 };
 
 export interface PersistAiProposalInput {
@@ -291,6 +295,10 @@ export async function persistAiProposal(
       version: true,
       originalHash: true,
       expiresAt: true,
+      items: {
+        orderBy: { ordinal: 'asc' },
+        select: { id: true, ordinal: true, typedAction: true, canonicalData: true },
+      },
     },
   });
 }

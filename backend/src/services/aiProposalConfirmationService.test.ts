@@ -233,6 +233,78 @@ describe('AiProposalConfirmationService', () => {
     expect(store.getState().idempotency).toHaveLength(0);
   });
 
+  test.each<[string, { amount?: number; date?: string; type?: string }]>([
+    ['zero amount', { amount: 0 }],
+    ['invalid calendar date', { date: '2029-02-30' }],
+    ['unsupported action type', { type: 'transfer_money' }],
+  ])('rejects a malformed final action (%s) before claiming the proposal', async (_label, change) => {
+    const store = createStore({ proposal: proposal(), incomes: [], expenses: [], idempotency: [], audits: [] });
+    const current = confirmation();
+    const malformedAction = {
+      ...current.actions[0],
+      ...(change.type ? { type: change.type } : {}),
+      data: { ...current.actions[0].data, ...(change.amount !== undefined ? { amount: change.amount } : {}), ...(change.date ? { date: change.date } : {}) },
+    };
+
+    await expect(confirmAiProposal({ ...current, actions: [malformedAction] as any }, store))
+      .rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 400 });
+    expect(store.getState().proposal.status).toBe('PROPOSED');
+    expect(store.getState().proposal.version).toBe(1);
+    expect(store.getState().incomes).toHaveLength(0);
+    expect(store.getState().idempotency).toHaveLength(0);
+    expect(store.getState().audits).toHaveLength(0);
+  });
+
+  test('rejects duplicate proposal item ids before claiming any item', async () => {
+    const store = createStore({
+      proposal: proposal({
+        items: [
+          { id: 'item-1', ordinal: 0, typedAction: 'create_income', canonicalData: { amount: 100 } },
+          { id: 'item-2', ordinal: 1, typedAction: 'create_income', canonicalData: { amount: 200 } },
+        ],
+      }),
+      incomes: [], expenses: [], idempotency: [], audits: [],
+    });
+
+    await expect(confirmAiProposal(confirmation({
+      actions: [
+        { proposalItemId: 'item-1', type: 'create_income', data: { amount: 100, category: '工资' } },
+        { proposalItemId: 'item-1', type: 'create_income', data: { amount: 200, category: '奖金' } },
+      ],
+    }), store)).rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 400 });
+
+    expect(store.getState().proposal.status).toBe('PROPOSED');
+    expect(store.getState().incomes).toHaveLength(0);
+    expect(store.getState().idempotency).toHaveLength(0);
+    expect(store.getState().audits).toHaveLength(0);
+  });
+
+  test('rejects a confirmation while the proposal is already claiming', async () => {
+    const store = createStore({
+      proposal: proposal({ status: 'CONFIRMING', version: 2 }),
+      incomes: [], expenses: [], idempotency: [], audits: [],
+    });
+
+    await expect(confirmAiProposal(confirmation(), store))
+      .rejects.toMatchObject({ code: 'AI_PROPOSAL_NOT_CONFIRMABLE', status: 409 });
+    expect(store.getState().incomes).toHaveLength(0);
+    expect(store.getState().idempotency).toHaveLength(0);
+    expect(store.getState().audits).toHaveLength(0);
+  });
+
+  test('rejects a replay with the same key and a different payload before any second write', async () => {
+    const store = createStore({ proposal: proposal(), incomes: [], expenses: [], idempotency: [], audits: [] });
+
+    await confirmAiProposal(confirmation(), store);
+    await expect(confirmAiProposal(confirmation({
+      actions: [{ type: 'create_income', data: { amount: 999, category: '篡改' } }],
+    }), store)).rejects.toMatchObject({ code: 'IDEMPOTENCY_KEY_REUSED', status: 409 });
+
+    expect(store.getState().incomes).toHaveLength(1);
+    expect(store.getState().idempotency).toHaveLength(1);
+    expect(store.getState().audits).toHaveLength(1);
+  });
+
   test('rejects a second confirmation with a different idempotency key after the proposal is confirmed', async () => {
     const store = createStore({ proposal: proposal(), incomes: [], expenses: [], idempotency: [], audits: [] });
 
@@ -243,6 +315,38 @@ describe('AiProposalConfirmationService', () => {
     expect(store.getState().incomes).toHaveLength(1);
     expect(store.getState().idempotency).toHaveLength(1);
     expect(store.getState().audits).toHaveLength(1);
+  });
+
+  test('confirms the edited final action list and marks deleted proposal items as skipped', async () => {
+    const store = createStore({
+      proposal: proposal({
+        items: [
+          {
+            id: 'item-1', ordinal: 0, typedAction: 'create_expense',
+            canonicalData: { amount: 100, category: '餐饮', date: '2029-12-31' },
+          },
+          {
+            id: 'item-2', ordinal: 1, typedAction: 'create_expense',
+            canonicalData: { amount: 50, category: '餐饮', date: '2029-12-31' },
+          },
+        ],
+      }),
+      incomes: [], expenses: [], idempotency: [], audits: [],
+    });
+
+    const result = await confirmAiProposal(confirmation({
+          actions: [{
+            proposalItemId: 'item-2',
+            type: 'create_income' as const,
+            data: { amount: 60, category: '奖金', date: '2029-12-31' },
+          }],
+    }), store);
+
+    expect(result.record?.actions).toEqual([expect.objectContaining({ type: 'create_income' })]);
+    expect(store.getState().incomes).toHaveLength(1);
+    expect(store.getState().expenses).toHaveLength(0);
+    expect(store.getState().proposal.items[0]).toMatchObject({ resultJson: { status: 'SKIPPED' } });
+    expect(store.getState().proposal.items[1]).toMatchObject({ resultJson: { type: 'create_income' } });
   });
 
   test('rolls back proposal claim, ledger, idempotency and audit when the transaction fails', async () => {
@@ -272,6 +376,24 @@ describe('AiProposalConfirmationService', () => {
 
     await expect(confirmAiProposal(confirmation({
       actions: [{ type: 'create_asset' as const, data: { name: '基金', type: 'FUND', value: 1000 } }],
+    }), store)).rejects.toMatchObject({ code: 'AI_BALANCE_MUTATION_UNAVAILABLE' });
+    expect(store.getState().incomes).toHaveLength(0);
+    expect(store.getState().idempotency).toHaveLength(0);
+  });
+
+  test('does not let an unsupported asset item become a ledger action during editing', async () => {
+    const store = createStore({
+      proposal: proposal({
+        items: [{
+          id: 'item-asset', ordinal: 0, typedAction: 'create_asset',
+          canonicalData: { name: '基金', type: 'FUND', value: 1000 },
+        }],
+      }),
+      incomes: [], expenses: [], idempotency: [], audits: [],
+    });
+
+    await expect(confirmAiProposal(confirmation({
+      actions: [{ type: 'create_income' as const, data: { amount: 1000, category: '其他收入' } }],
     }), store)).rejects.toMatchObject({ code: 'AI_BALANCE_MUTATION_UNAVAILABLE' });
     expect(store.getState().incomes).toHaveLength(0);
     expect(store.getState().idempotency).toHaveLength(0);

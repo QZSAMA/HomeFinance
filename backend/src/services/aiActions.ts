@@ -14,6 +14,7 @@ export type ActionType =
 export interface AIAction {
   type: ActionType;
   data: Record<string, any>;
+  proposalItemId?: string;
 }
 
 export interface ActionResult {
