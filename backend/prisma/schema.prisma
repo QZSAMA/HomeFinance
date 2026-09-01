@@ -24,6 +24,7 @@ model User {
   goals                 Goal[]
   auditEvents           AuditEvent[]
   importBatches         ImportBatch[]
+  aiProposals           AiProposal[]
 }
 
 model Family {
@@ -48,6 +49,7 @@ model Family {
   idempotencyRecords    IdempotencyRecord[]
   auditEvents           AuditEvent[]
   importBatches         ImportBatch[]
+  aiProposals           AiProposal[]
 }
 
 model FamilyMember {
@@ -164,23 +166,25 @@ model File {
   family          Family           @relation(fields: [familyId], references: [id], onDelete: Cascade)
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   aiConversations AiConversation[]
+  aiProposals     AiProposal[]
 
   @@index([familyId])
   @@index([userId])
 }
 
 model AiConversation {
-  id        String   @id @default(cuid())
-  familyId  String
-  userId    String
-  content   String
-  response  String
-  type      String
-  fileId    String?
-  createdAt DateTime @default(now())
-  family    Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  file      File?    @relation(fields: [fileId], references: [id], onDelete: SetNull)
+  id          String       @id @default(cuid())
+  familyId    String
+  userId      String
+  content     String
+  response    String
+  type        String
+  fileId      String?
+  createdAt   DateTime     @default(now())
+  family      Family       @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  file        File?        @relation(fields: [fileId], references: [id], onDelete: SetNull)
+  aiProposals AiProposal[]
 
   @@index([familyId])
   @@index([userId])
@@ -344,4 +348,52 @@ model ImportRow {
 
   @@unique([batchId, rowNumber])
   @@index([batchId, status])
+}
+
+model AiProposal {
+  id                   String           @id @default(cuid())
+  familyId             String
+  actorUserId          String?
+  actorSnapshot        Json
+  sourceType           String           @db.VarChar(32)
+  sourceConversationId String?
+  sourceFileId         String?
+  originalPayload      Json
+  originalHash         String           @db.Char(64)
+  confirmedPayload     Json?
+  confirmedHash        String?          @db.Char(64)
+  status               String           @default("PROPOSED") @db.VarChar(32)
+  version              Int              @default(1)
+  expiresAt            DateTime
+  resultJson           Json?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  family               Family           @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  actor                User?            @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  sourceConversation   AiConversation?  @relation(fields: [sourceConversationId], references: [id], onDelete: SetNull)
+  sourceFile           File?            @relation(fields: [sourceFileId], references: [id], onDelete: SetNull)
+  items                AiProposalItem[]
+
+  @@index([familyId, createdAt])
+  @@index([familyId, status, expiresAt])
+  @@index([actorUserId])
+  @@index([sourceConversationId])
+  @@index([sourceFileId])
+  @@map("AIProposal")
+}
+
+model AiProposalItem {
+  id            String     @id @default(cuid())
+  proposalId    String
+  ordinal       Int
+  typedAction   String     @db.VarChar(64)
+  canonicalData Json
+  resultJson    Json?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  proposal      AiProposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  @@unique([proposalId, ordinal])
+  @@index([proposalId, typedAction])
+  @@map("AIProposalItem")
 }
