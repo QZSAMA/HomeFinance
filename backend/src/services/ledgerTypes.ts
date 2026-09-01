@@ -108,6 +108,8 @@ export interface MutationExecutionResult<TRecord = LedgerRecord> {
   record?: TRecord;
   version?: number;
   before?: unknown;
+  responseFields?: Record<string, unknown>;
+  deduplicated?: boolean;
 }
 
 export interface FamilyMembershipSnapshot {

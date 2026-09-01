@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useFamilyStore } from '../store/useFamilyStore';
 import {
   getRecurring,
@@ -11,6 +11,11 @@ import {
   type RecurringInput,
 } from '../services/recurringService';
 
+const createRecurringRequestKey = () => (
+  globalThis.crypto?.randomUUID?.()
+  ?? `recurring-${Date.now()}-${Math.random().toString(36).slice(2)}`
+);
+
 const RecurringPage = () => {
   const { currentFamily } = useFamilyStore();
   const [list, setList] = useState<RecurringTransaction[]>([]);
@@ -20,6 +25,7 @@ const RecurringPage = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [executingId, setExecutingId] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const executionRequestKeys = useRef(new Map<string, string>());
 
   const [formData, setFormData] = useState({
     type: 'INCOME' as 'INCOME' | 'EXPENSE',
@@ -149,11 +155,21 @@ const RecurringPage = () => {
     }
   };
 
-  const handleExecute = async (id: string) => {
+  const handleExecute = async (item: RecurringTransaction) => {
     if (!currentFamily) return;
-    setExecutingId(id);
+    const occurrence = `${item.id}:${item.nextDate}`;
+    const requestKey = executionRequestKeys.current.get(occurrence)
+      ?? createRecurringRequestKey();
+    executionRequestKeys.current.set(occurrence, requestKey);
+    setExecutingId(item.id);
     try {
-      const result = await executeRecurring(currentFamily.id, id);
+      const result = await executeRecurring(
+        currentFamily.id,
+        item.id,
+        item.nextDate,
+        requestKey,
+      );
+      executionRequestKeys.current.delete(occurrence);
       alert(result.message);
       await loadData();
     } catch (err: any) {
@@ -210,7 +226,7 @@ const RecurringPage = () => {
                   </div>
                 </div>
                 <button
-                  onClick={() => handleExecute(item.id)}
+                  onClick={() => handleExecute(item)}
                   disabled={executingId === item.id}
                   className="bg-red-600 text-white px-3 py-1.5 rounded text-sm hover:bg-red-700 disabled:opacity-50"
                 >
@@ -282,7 +298,7 @@ const RecurringPage = () => {
                       </td>
                       <td className="px-6 py-4 text-right text-sm">
                         <button
-                          onClick={() => handleExecute(item.id)}
+                          onClick={() => handleExecute(item)}
                           disabled={executingId === item.id || !item.isActive}
                           className="text-green-600 hover:text-green-900 mr-3 disabled:opacity-30"
                         >

@@ -266,11 +266,12 @@ export async function coordinateFinancialMutation<TRecord>(
       const mutation = await execute(transaction, operation.id);
       validateMutationResult(mutation);
       const result: MutationResult<TRecord> = {
+        ...(mutation.responseFields ?? {}),
         operationId: operation.id,
         resourceId: mutation.resourceId,
         ...(mutation.record === undefined ? {} : { record: mutation.record }),
         ...(mutation.version === undefined ? {} : { version: mutation.version }),
-        deduplicated: false,
+        deduplicated: mutation.deduplicated ?? false,
       };
 
       await transaction.auditEvent.create({

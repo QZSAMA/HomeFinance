@@ -53,4 +53,29 @@ describe('Phase 1 additive ledger persistence contract', () => {
       /FOREIGN KEY \("mutationId"\) REFERENCES "IdempotencyRecord"\("id"\) ON DELETE NO ACTION/,
     );
   });
+
+  test('declares a unique recurring occurrence execution record and additive migration', () => {
+    const schema = readSchema();
+    const executionMigration = readMigration(
+      '20260828100200_phase1_add_recurring_execution',
+    );
+    const softDeleteMigration = readMigration(
+      '20260828100210_phase1_add_recurring_soft_delete',
+    );
+
+    expect(schema).toContain('model RecurringExecution');
+    expect(schema).toMatch(
+      /model RecurringExecution[\s\S]*recurringTransactionId\s+String[\s\S]*scheduledFor\s+DateTime/,
+    );
+    expect(schema).toContain('@@unique([recurringTransactionId, scheduledFor]');
+    expect(schema).toMatch(/model RecurringTransaction[\s\S]*deletedAt\s+DateTime\?/);
+    expect(executionMigration).toContain('CREATE TABLE "RecurringExecution"');
+    expect(executionMigration).toContain('RecurringExecution_occurrence_key');
+    expect(executionMigration).toContain(
+      'ON "RecurringExecution"("recurringTransactionId", "scheduledFor")',
+    );
+    expect(softDeleteMigration).toContain(
+      'ALTER TABLE "RecurringTransaction" ADD COLUMN "deletedAt" TIMESTAMP(3)',
+    );
+  });
 });

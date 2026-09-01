@@ -43,6 +43,7 @@ model Family {
   aiConversations       AiConversation[]
   budgets               Budget[]
   recurringTransactions RecurringTransaction[]
+  recurringExecutions   RecurringExecution[]
   goals                 Goal[]
   idempotencyRecords    IdempotencyRecord[]
   auditEvents           AuditEvent[]
@@ -204,27 +205,49 @@ model Budget {
 }
 
 model RecurringTransaction {
-  id             String    @id @default(cuid())
+  id             String               @id @default(cuid())
   familyId       String
-  family         Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  family         Family               @relation(fields: [familyId], references: [id], onDelete: Cascade)
   type           String
   category       String
-  amount         Decimal   @db.Decimal(15, 2)
+  amount         Decimal              @db.Decimal(15, 2)
   description    String?
   frequency      String
-  interval       Int       @default(1)
+  interval       Int                  @default(1)
   nextDate       DateTime
   endDate        DateTime?
-  isActive       Boolean   @default(true)
+  isActive       Boolean              @default(true)
   lastExecutedAt DateTime?
-  version        Int       @default(1)
+  version        Int                  @default(1)
   createdBy      String
-  user           User      @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  user           User                 @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  executions     RecurringExecution[]
+  deletedAt      DateTime?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
 
   @@index([familyId])
   @@index([nextDate])
+}
+
+model RecurringExecution {
+  id                     String               @id @default(cuid())
+  familyId               String
+  recurringTransactionId String
+  scheduledFor           DateTime
+  status                 String               @default("PROCESSING")
+  idempotencyKey         String               @db.VarChar(255)
+  entryType              String?
+  entryId                String?
+  mutationId             String?              @db.Uuid
+  resultJson             Json?
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+  family                 Family               @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  recurringTransaction   RecurringTransaction @relation(fields: [recurringTransactionId], references: [id], onDelete: NoAction)
+
+  @@unique([recurringTransactionId, scheduledFor], map: "RecurringExecution_occurrence_key")
+  @@index([familyId, scheduledFor])
 }
 
 model IdempotencyRecord {

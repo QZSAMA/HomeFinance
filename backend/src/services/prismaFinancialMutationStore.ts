@@ -34,7 +34,7 @@ const snapshot = (value: {
   operation: operation(value.operation),
 });
 
-const toJson = (value: unknown): Prisma.JsonValue => {
+export const toJson = (value: unknown): Prisma.JsonValue => {
   if (value === null) return null;
   if (value instanceof Date) {
     if (Number.isNaN(value.getTime())) throw new Error('Mutation JSON contains invalid date');
@@ -78,7 +78,7 @@ const toLedgerRecord = (value: {
   updatedAt: Date;
 }): LedgerRecord => ({ ...value, amount: Number(value.amount) });
 
-const adapt = (tx: Prisma.TransactionClient): LedgerTransactionClient => ({
+export const createPrismaLedgerTransactionClient = (tx: Prisma.TransactionClient): LedgerTransactionClient => ({
   familyMember: {
     findUnique: ({ where }) => tx.familyMember.findUnique({ where }),
   },
@@ -124,11 +124,11 @@ const adapt = (tx: Prisma.TransactionClient): LedgerTransactionClient => ({
 export const createPrismaFinancialMutationStoreFromTransaction = (
   transaction: Prisma.TransactionClient,
 ): FinancialMutationStore => ({
-  $transaction: (work) => work(adapt(transaction)),
+  $transaction: (work) => work(createPrismaLedgerTransactionClient(transaction)),
 });
 
 export const createPrismaFinancialMutationStore = (client: PrismaClient): FinancialMutationStore => ({
-  $transaction: (work) => client.$transaction((tx) => work(adapt(tx))),
+  $transaction: (work) => client.$transaction((tx) => work(createPrismaLedgerTransactionClient(tx))),
   familyMember: {
     findUnique: ({ where }) => client.familyMember.findUnique({ where }),
   },
