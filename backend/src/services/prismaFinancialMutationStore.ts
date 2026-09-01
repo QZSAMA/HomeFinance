@@ -79,6 +79,18 @@ const toLedgerRecord = (value: {
   updatedAt: Date;
 }): LedgerRecord => ({ ...value, amount: Number(value.amount) });
 
+const toAssetRecord = (value: Prisma.AssetGetPayload<{}>): LedgerRecord => ({
+  ...value,
+  value: Number(value.value),
+  costBasis: value.costBasis === null ? null : Number(value.costBasis),
+});
+
+const toLiabilityRecord = (value: Prisma.LiabilityGetPayload<{}>): LedgerRecord => ({
+  ...value,
+  amount: Number(value.amount),
+  interestRate: value.interestRate === null ? null : Number(value.interestRate),
+});
+
 export const createPrismaLedgerTransactionClient = (tx: Prisma.TransactionClient): LedgerTransactionClient => ({
   familyMember: {
     findUnique: ({ where }) => tx.familyMember.findUnique({ where }),
@@ -109,6 +121,12 @@ export const createPrismaLedgerTransactionClient = (tx: Prisma.TransactionClient
     )),
     updateMany: ({ where, data }) => tx.expense.updateMany({ where, data }),
     deleteMany: ({ where }) => tx.expense.deleteMany({ where }),
+  },
+  asset: {
+    create: ({ data }) => tx.asset.create({ data }).then(toAssetRecord),
+  },
+  liability: {
+    create: ({ data }) => tx.liability.create({ data }).then(toLiabilityRecord),
   },
   auditEvent: {
     create: ({ data }) => tx.auditEvent.create({

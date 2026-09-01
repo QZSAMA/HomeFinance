@@ -38,6 +38,40 @@ export interface CreateExpenseCommand {
   };
 }
 
+export interface CreateAssetCommand {
+  familyId: string;
+  actorId: string;
+  source: MutationSource;
+  idempotencyKey: string;
+  payload: {
+    name: string;
+    type: string;
+    category?: string | null;
+    value: number;
+    costBasis?: number | null;
+    currency?: string;
+    purchaseDate?: Date | null;
+    description?: string | null;
+  };
+}
+
+export interface CreateLiabilityCommand {
+  familyId: string;
+  actorId: string;
+  source: MutationSource;
+  idempotencyKey: string;
+  payload: {
+    name: string;
+    type: string;
+    amount: number;
+    interestRate?: number | null;
+    startDate?: Date | null;
+    endDate?: Date | null;
+    currency?: string;
+    description?: string | null;
+  };
+}
+
 export type UpdateIncomeCommand = CreateIncomeCommand & {
   incomeId: string;
   expectedVersion?: number;
@@ -244,6 +278,36 @@ export interface LedgerTransactionClient {
     deleteMany(args: {
       where: { id: string; familyId: string; version: number };
     }): Promise<{ count: number }>;
+  };
+  asset?: {
+    create(args: {
+      data: {
+        familyId: string;
+        name: string;
+        type: string;
+        category?: string | null;
+        value: number;
+        costBasis?: number | null;
+        currency: string;
+        purchaseDate?: Date | null;
+        description?: string | null;
+      };
+    }): Promise<LedgerRecord>;
+  };
+  liability?: {
+    create(args: {
+      data: {
+        familyId: string;
+        name: string;
+        type: string;
+        amount: number;
+        interestRate?: number | null;
+        startDate?: Date | null;
+        endDate?: Date | null;
+        currency: string;
+        description?: string | null;
+      };
+    }): Promise<LedgerRecord>;
   };
   auditEvent: {
     create(args: {

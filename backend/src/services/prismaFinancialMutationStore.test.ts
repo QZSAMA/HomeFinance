@@ -44,6 +44,31 @@ const createClient = () => {
     },
     income: { create: jest.fn(async () => ledgerRecord()) },
     expense: { create: jest.fn(async () => ledgerRecord({ id: 'expense-1', paymentMethod: 'CARD' })) },
+    asset: {
+      create: jest.fn(async ({ data }) => ({
+        id: 'asset-1',
+        ...data,
+        value: new Prisma.Decimal('1234.56'),
+        costBasis: new Prisma.Decimal('1000.00'),
+        purchaseDate: null,
+        description: null,
+        createdAt: new Date('2026-08-31T00:00:00.000Z'),
+        updatedAt: new Date('2026-08-31T00:00:00.000Z'),
+      })),
+    },
+    liability: {
+      create: jest.fn(async ({ data }) => ({
+        id: 'liability-1',
+        ...data,
+        amount: new Prisma.Decimal('4567.89'),
+        interestRate: new Prisma.Decimal('0.0325'),
+        startDate: null,
+        endDate: null,
+        description: null,
+        createdAt: new Date('2026-08-31T00:00:00.000Z'),
+        updatedAt: new Date('2026-08-31T00:00:00.000Z'),
+      })),
+    },
     auditEvent: { create: jest.fn(async ({ data }) => ({ id: 'audit-1', ...data })) },
   };
   const client = {
@@ -151,6 +176,63 @@ describe('Prisma financial mutation store', () => {
     });
     expect(result.income).toMatchObject({ id: 'ledger-1', amount: 123.45 });
     expect(result.expense).toMatchObject({ id: 'expense-1', amount: 123.45 });
+  });
+
+  test('creates balance records with family-scoped data and converts balance decimals to numbers', async () => {
+    const { client, transaction } = createClient();
+    const store = createPrismaFinancialMutationStore(client);
+    const purchaseDate = new Date('2026-08-01T00:00:00.000Z');
+
+    const result = await store.$transaction(async (tx) => {
+      const balanceTransaction = tx as any;
+      return {
+        asset: await balanceTransaction.asset.create({
+          data: {
+            familyId: 'family-1',
+            name: 'Index fund',
+            type: 'FUND',
+            category: 'INVESTMENT',
+            value: 1234.56,
+            costBasis: 1000,
+            currency: 'CNY',
+            purchaseDate,
+            description: 'Long-term holding',
+          },
+        }),
+        liability: await balanceTransaction.liability.create({
+          data: {
+            familyId: 'family-1',
+            name: 'Mortgage',
+            type: 'MORTGAGE',
+            amount: 4567.89,
+            interestRate: 0.0325,
+            currency: 'CNY',
+            startDate: purchaseDate,
+            endDate: null,
+            description: 'Home loan',
+          },
+        }),
+      };
+    });
+
+    expect(transaction.asset.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ familyId: 'family-1', name: 'Index fund', type: 'FUND' }),
+    });
+    expect(transaction.liability.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ familyId: 'family-1', name: 'Mortgage', type: 'MORTGAGE' }),
+    });
+    expect(result.asset).toMatchObject({
+      id: 'asset-1',
+      familyId: 'family-1',
+      value: 1234.56,
+      costBasis: 1000,
+    });
+    expect(result.liability).toMatchObject({
+      id: 'liability-1',
+      familyId: 'family-1',
+      amount: 4567.89,
+      interestRate: 0.0325,
+    });
   });
 
   test('rejects unsupported or invalid JSON before the persistence adapter writes it', async () => {
