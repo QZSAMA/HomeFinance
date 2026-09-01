@@ -6,7 +6,7 @@
 - 设计规格：docs/superpowers/specs/2026-08-28-homefinance-phase1-design.md
 - 开发基线：codex/phase0-remediation@081084a
 - 实施分支：codex/phase1-ledger-trust
-- 当前快照：2026-09-01；P1-A 已将 Income/Expense HTTP mutation 接入统一 Ledger，P1-B 已有数据库仲裁幂等与 20 路并发证据，P1-C 已完成服务端 Import batch/hash、原子 confirm 和前端迁移，P1-D 已完成 Recurring occurrence exactly-once。P1-E-01 提交 `5a564c9` 关闭 text chat 的预确认自动执行，P1-E-02 提交 `732eafd` 新增 server-owned AiProposal/AiProposalItem schema、hash/version/status/expiry/source/result 合同，并通过 existing/fresh PostgreSQL migration 与约束证据；chat/OCR 尚未持久化 proposal，原子 confirmation 仍未实现。后端 build/Prisma 通过；integration 9 suites / 50 tests；coverage 执行 43 suites / 345 tests 且行为断言全过，但 branch 47.63% 未达 60%；前端现有 AI confirmation 2 tests 通过。对象/外部基础设施、production-like populated restore、E2E、staging/release 仍未完成。
+- 当前快照：2026-09-01；P1-A 已将 Income/Expense HTTP mutation 接入统一 Ledger，P1-B 已有数据库仲裁幂等与 20 路并发证据，P1-C 已完成服务端 Import batch/hash、原子 confirm 和前端迁移，P1-D 已完成 Recurring occurrence exactly-once。P1-E-01 提交 `5a564c9` 关闭 text chat 的预确认自动执行，P1-E-02 提交 `732eafd` 新增 server-owned AiProposal/AiProposalItem schema、hash/version/status/expiry/source/result 合同，P1-E-03 提交 `7f6c366` 将 text/OCR 四个 proposal-producing paths 接入 persistence，并通过真实 PostgreSQL route 零账本证据；原子 confirmation 仍未实现。后端 build/Prisma 通过；integration 10 suites / 54 tests；coverage 执行 44 suites / 361 tests 且行为断言全过，但 branch 49.10% 未达 60%；前端现有 AI confirmation 2 tests 通过。对象/外部基础设施、production-like populated restore、E2E、staging/release 仍未完成。
 - P1-C-04/C-05 快照（2026-09-01）：`66970be` 已将 confirm 切换为严格 batch/hash/categoryPatch 合同，服务端重新校验所有 canonical rows，在单一 PostgreSQL transaction 内通过 Ledger adapter 写入并更新 ImportBatch/ImportRow；真实测试证明 invalid row、tamper、expiry、cross-family、重复确认和客户端 items 均零账本副作用，并验证同 key replay 与双路并发一个成功/一个 409。相关集成套件现为 7 suites / 41 tests，前端仍需完成 batch/hash 状态迁移。
 - P1-C-06 快照（2026-09-01）：`50530b5` 已将 ImportPage/service 接入 batch/hash 合同，读取 CORS 响应头、展示 batch、仅发送 categoryPatch 和稳定 `Idempotency-Key`；前端 4 files / 13 tests、lint、build 通过，保留既有 16 条 lint warnings 和主 chunk 警告，浏览器 E2E、刷新恢复和 release observation 仍未完成。
 
@@ -28,13 +28,13 @@
 |---|---|---|
 | Phase 0 后端 26 suites / 241 tests | PASS-MOCK | 历史证据，081084a，本轮未重跑 |
 | Phase 0 前端 5 tests | PASS-MOCK | 历史证据，081084a |
-| backend coverage | FAILED | 43 suites / 345 tests 行为断言通过；coverage 为 statements 67.47%、branches 47.63%、functions 64.16%、lines 68.01%，全局 branch threshold 60% 未达标；OCR/MinIO fixtures 有既有 console.warn |
-| PostgreSQL migration/业务并发 | PASS-REAL | PostgreSQL 18.1；10 migrations 的增量/fresh deploy、schema/约束/cascade、P1-B coordinator replay/revision、P1-A HTTP CRUD、P1-C atomic import、P1-D recurring exactly-once、P1-E-02 proposal persistence，以及 P1-G-02 角色矩阵均已通过（9 suites / 50 tests） |
+| backend coverage | FAILED | 44 suites / 361 tests 行为断言通过；coverage 为 statements 67.55%、branches 49.10%、functions 64.77%、lines 68.14%，全局 branch threshold 60% 未达标；OCR/MinIO fixtures 有既有 console.warn |
+| PostgreSQL migration/业务并发 | PASS-REAL | PostgreSQL 18.1；10 migrations 的增量/fresh deploy、schema/约束/cascade、P1-B coordinator replay/revision、P1-A HTTP CRUD、P1-C atomic import、P1-D recurring exactly-once、P1-E-02 proposal persistence、P1-E-03 AI proposal routes，以及 P1-G-02 角色矩阵均已通过（10 suites / 54 tests） |
 | Redis 故障恢复 | NOT_RUN | 现有主要为 mock |
 | MinIO 生命周期 | NOT_RUN | 现有主要为 mock |
 | Compose 全栈 | NOT_RUN | 当前未完成全栈验证 |
 | Playwright | DESIGNED | 当前尚无脚本 |
-| Phase 1 功能 | PASS-MOCK + PASS-REAL | app/server/db、Ledger/coordinator、Income/Expense、Import、Recurring 和 AI proposal schema 已验证；text AI 确认前零 executor 调用（PASS-MOCK），AiProposal/Item migration/constraints 为 PASS-REAL。chat/OCR 持久化、原子确认、upload 外部路径、对象隔离、Compose/E2E 和 release observation 仍未闭环 |
+| Phase 1 功能 | PASS-MOCK + PASS-REAL | app/server/db、Ledger/coordinator、Income/Expense、Import、Recurring 和 AI proposal schema/route persistence 已验证；text/OCR 确认前零 executor 调用、viewer/non-member 零副作用（PASS-MOCK + PASS-REAL），AiProposal/Item migration/constraints 为 PASS-REAL。原子确认、upload 外部路径、对象隔离、Compose/E2E 和 release observation 仍未闭环 |
 
 ## 3. 责任边界
 
@@ -85,7 +85,7 @@
 | P1-D-04 | GATE | P1-D | 覆盖 recurring 并发/失效/边界 | P0 | REGRESSION_VERIFIED | AT_RISK | QA/Evidence Owner | Technical Approver | hard:P1-D-03@REGRESSION_VERIFIED | 20 并发一条 entry；失效不写 | evidence/P1-D-04.md | ADR-0002, ADR-0006 | PostgreSQL 6 个 recurring integration cases PASS；外部 PG blocker 已解除，待 coverage、restore、E2E、staging/release | 2026-09-01 |
 | P1-E-01 | TASK | P1-E | 固化 text AI 自动写账 RED | P0 | REFACTORED | AT_RISK | AI Agent | Security Reviewer | hard:P1-0-04@READY; exception:RepositoryOwner@2026-09-01 | 确认前账目不变 | evidence/P1-E-01.md | ADR-0004 | `5a564c9` text actions → proposedActions、零 executeActions PASS-MOCK；推进 P1-E-02 server-owned proposal schema 和真实零账本证据 | 2026-09-01 |
 | P1-E-02 | TASK | P1-E | 新增 AIProposal/Item 合同 | P0 | REGRESSION_VERIFIED | AT_RISK | Database Agent | Technical Approver | hard:P1-B-01@REGRESSION_VERIFIED; hard:P1-0-06@DONE; exception:RepositoryOwner@2026-09-01 | 状态、version、hash、来源和过期可追踪 | evidence/P1-E-02.md | ADR-0004 | `732eafd` additive schema、10 migrations、约束/cascade、existing/fresh PG PASS-REAL；推进 P1-E-03，待 restore/release | 2026-09-01 |
-| P1-E-03 | TASK | P1-E | chat/OCR 统一 proposal-only | P0 | BACKLOG | ON_TRACK | AI Agent | Security Reviewer | hard:P1-E-01@REGRESSION_VERIFIED; hard:P1-E-02@REGRESSION_VERIFIED | AI provider 输出绝不直接写账 | evidence/P1-E-03.md | ADR-0004 | 暂停 auto adapter；迁移 text | 2026-08-28 |
+| P1-E-03 | TASK | P1-E | chat/OCR 统一 proposal-only | P0 | REGRESSION_VERIFIED | AT_RISK | AI Agent | Security Reviewer | hard:P1-E-01@REGRESSION_VERIFIED; hard:P1-E-02@REGRESSION_VERIFIED | AI provider 输出绝不直接写账 | evidence/P1-E-03.md | ADR-0004 | `7f6c366`：chat/OCR 四个 proposal-producing paths 写入 server-owned AiProposal/Item，current membership/source 校验、canonical hash/TTL、malformed/role negative tests、real PostgreSQL 10 suites/54 tests PASS；atomic confirmation、frontend proposal ID、legacy execute-actions bypass、Redis/MinIO、E2E/release remain open | 2026-09-01 |
 | P1-E-04 | TASK | P1-E | 实现 AI 显式确认事务 | P0 | BACKLOG | ON_TRACK | AI Agent | Technical Approver | hard:P1-E-03@REGRESSION_VERIFIED; hard:P1-A-03@REGRESSION_VERIFIED | proposal 抢占、mutation、audit 同事务 | evidence/P1-E-04.md | ADR-0001, ADR-0002, ADR-0004 | proposal 过期不删事实；写双击 RED | 2026-08-28 |
 | P1-E-05 | TASK | P1-E | 更新前端 proposal 编辑/确认 | P1 | BACKLOG | ON_TRACK | Frontend Agent | Repository Owner | hard:P1-E-04@REGRESSION_VERIFIED | 用户可编辑、确认、取消、查看状态 | evidence/P1-E-05.md | ADR-0004 | 保留旧展示字段；冻结 API | 2026-08-28 |
 | P1-E-06 | GATE | P1-E | 覆盖 viewer/篡改/重放/过期 | P0 | BACKLOG | ON_TRACK | Security Reviewer | Repository Owner | hard:P1-E-04@REGRESSION_VERIFIED | 恶意/越权路径零账本副作用 | evidence/P1-E-06.md | ADR-0004 | bypass 阻断发布；负向矩阵 | 2026-08-28 |
