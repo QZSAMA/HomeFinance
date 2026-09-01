@@ -147,7 +147,7 @@ Playwright 冒烟确认：未登录访问 `/` 会正确跳转 `/login`；登录�
 | HF-FE-001 | P1 | 利润表绕过 API client | 401 后静默显示 0，误导用户 | `ReportsPage.tsx:240-247` + 浏览器证据 |
 | HF-FIN-001 | P1 | 现金流净额遗漏 other income/expense | 报表分项与净额不相等 | `reports.ts:148-175` |
 | HF-FIN-002 | P1 | MONTHLY/QUARTERLY/YEARLY 不参与预算窗口 | 月度预算从起始日无限累计，进度失真 | `budgets.ts:43-80` |
-| HF-DATA-001 | P1 | recurring execute 无 due/active 防护、事务和幂等 | 重复/并发调用可生成重复账目 | `recurring.ts:135-191` |
+| HF-DATA-001 | P1 | 基线 recurring execute 无 due/active 防护、事务和幂等；当前 LOCALLY_REMEDIATED / PASS-REAL | 本地 PostgreSQL 已阻止重复/部分提交；仍待 E2E、populated restore 和 release observation | 基线 `recurring.ts:135-191`；当前 `370b2d9`、`recurring.phase1.integration.test.ts`、ADR-0006 |
 | HF-DATA-002 | P1 | import 使用无大小限制 memoryStorage，逐行非事务写入 | 内存耗尽、部分成功、重试重复 | `import.ts:9,55-110` |
 | HF-FIN-003 | P1 | 多币种字段存在，但汇总直接相加并按 CNY 展示 | 净值、对比、目标数学无效 | `schema.prisma:107,127`；`reports.ts:29-34`；多处 CNY formatter |
 | HF-SEC-003 | P1 | Compose 暴露数据库/Redis/MinIO 默认端口与弱凭据 | 一键部署默认攻击面过大 | `docker-compose.yml:6-10,19-23,33-42,59-70` |
@@ -201,6 +201,8 @@ sequenceDiagram
 ### 4.5 原子性、幂等与失败恢复
 
 定期执行先创建收入/支出，再单独更新规则；它不检查 `isActive`、`nextDate <= now` 或 endDate，且没有数据库事务、唯一执行键或乐观更新条件。并发两次请求可以都读到同一 nextDate 并各自创建记录；若创建成功后规则更新失败，下一次重试再次创建。首个 RED 测试应并发执行同一 due rule，断言只产生一条账目且 schedule 前进一次。
+
+2026-09-01 remediation status：HF-DATA-001 已在 `codex/phase1-ledger-trust@370b2d9` 达到 LOCALLY_REMEDIATED / PASS-REAL。`RecurringExecution` 用 `(recurringTransactionId, scheduledFor)` 唯一约束仲裁业务发生项；执行、Ledger entry、规则条件推进、幂等结果和 `RecurringExecution` 审计在一个 PostgreSQL transaction 内提交。真实集成测试证明 20 个不同 key 对同一发生项只产生一条账目和一次规则推进，inactive/future/endDate 为零写入，规则推进失败回滚账目与 execution，墓碑删除保留执行历史。该风险尚未标记 DONE：浏览器 E2E、populated upgrade/restore、staging/release 与运行观察仍未完成，全球 branch coverage 门禁也仍为失败。
 
 导入 confirm 接收任意长度 items，并在 for 循环逐行 await create。数据库错误会留下之前已写入的记录并返回通用 500，调用方难以判断安全重试；CSV upload 使用 `multer.memoryStorage()` 且没有 limit。需要先定义产品语义：推荐“整批原子 + 可预览行级校验”，所有行通过后单事务 createMany，并用 import batch id/行指纹防重。若业务坚持部分成功，也必须将 batch、row status 和可重放结果持久化，而不是用异常中断的不透明部分写入。
 

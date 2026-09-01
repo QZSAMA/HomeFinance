@@ -252,11 +252,11 @@ export class DomainError extends Error { constructor(public readonly code: strin
 - Create: `backend/prisma/migrations/20260828100200_phase1_add_recurring_execution/migration.sql`
 - Create: `backend/src/services/recurringService.phase1.test.ts`, `backend/src/routes/recurring.phase1.test.ts`
 
-- [ ] **Step 1: 写 RED**：覆盖 inactive、future、超过 endDate 均不创建 Income/Expense、不推进 `nextDate`；20 并发同 `scheduledFor` 只得到一条 entry 和一次 nextDate 推进。
-- [ ] **Step 2: 运行 RED**：`npm test -- --runInBand src/services/recurringService.phase1.test.ts src/routes/recurring.phase1.test.ts`；预期当前逐次 create/推进行为不能满足 exactly-once。
-- [ ] **Step 3: GREEN**：先以 `(recurringId, scheduledFor)` 唯一约束取得 execution，再在同一 transaction 调 Ledger command，条件推进 rule，保存 result；竞争者返回已提交结果/replay。
-- [ ] **Step 4: 验证**：focused + `npm run test:integration`；无 PG 只记录 BLOCKED。
-- [ ] **Step 5: REFACTOR/证据**：校验 `interval > 0`、actor/membership/error mapping；更新 P1-D-01~04 和 ADR-0002，提交 `feat: make recurring execution exactly once`。
+- [x] **Step 1: 写 RED**：覆盖 inactive、future、超过 endDate 均不创建 Income/Expense、不推进 `nextDate`；20 并发同 `scheduledFor` 只得到一条 entry 和一次 nextDate 推进。
+- [x] **Step 2: 运行 RED**：`npm test -- --runInBand src/services/recurringService.phase1.test.ts src/routes/recurring.phase1.test.ts`；已观察旧 route/service 无法满足 occurrence exactly-once、原子推进和稳定 replay 合同。
+- [x] **Step 3: GREEN**：以 `(recurringTransactionId, scheduledFor)` 唯一约束取得 execution，在同一 transaction 调 Ledger command、条件推进 rule、保存 result；竞争者在重新授权后返回已提交结果/replay。
+- [x] **Step 4: 验证**：focused、backend build、Prisma validate/format、`npm run test:integration`、frontend tests/lint/build 和 fresh migration rehearsal 已执行；PostgreSQL gate 为 PASS-REAL。
+- [x] **Step 5: REFACTOR/证据**：actor/membership/error mapping、审计归属、墓碑历史和前端 occurrence key 已校验；P1-D-01~04、ADR-0002/0006、tracker、memory 和 audit 已更新；实现提交为 `370b2d9`。
 
 ### Task 8: Server-side import preview 和 atomic confirm（P1-C-01~06）
 

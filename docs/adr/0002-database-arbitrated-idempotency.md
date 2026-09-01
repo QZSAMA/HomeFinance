@@ -23,4 +23,4 @@ Phase 0 的 Family.cacheVersion PostgreSQL trigger 是 revision 事实源。Phas
 
 ## Verification
 
-由 P1-B、P1-A、P1-D、P1-E、P1-G 提供 mock 契约和真实 PostgreSQL 并发/回滚证据。
+由 P1-B、P1-A、P1-D、P1-E、P1-G 提供 mock 契约和真实 PostgreSQL 并发/回滚证据。Recurring 的发生项身份、显式 scheduledFor、审计归属和墓碑删除由 ADR-0006 专门约束。
