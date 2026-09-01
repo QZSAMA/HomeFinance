@@ -6,12 +6,16 @@ import importRoutes from './import';
 jest.mock('../db/prisma', () => ({
   prisma: {
     familyMember: { findUnique: jest.fn() },
+    income: { create: jest.fn() },
+    expense: { create: jest.fn() },
   },
 }));
 
 jest.mock('../services/importService', () => ({
   parseCSV: jest.fn(),
   persistImportPreview: jest.fn(),
+  confirmImportBatch: jest.fn(),
+  ImportBatchValidationError: class ImportBatchValidationError extends Error {},
 }));
 
 import { prisma } from '../db/prisma';
@@ -148,5 +152,24 @@ describe('Import resource limits', () => {
 
     expect(res.status).toBe(200);
     expect(mockedPrisma.familyMember.findUnique).toHaveBeenCalledTimes(1);
+  });
+
+  test('rejects legacy client-owned items during batch-only confirmation', async () => {
+    const res = await request(app)
+      .post('/api/families/fam_1/import/confirm')
+      .set('Authorization', `Bearer ${createToken()}`)
+      .send({
+        items: [{
+          date: '2026-09-01',
+          description: 'tampered client item',
+          amount: 999999,
+          type: 'INCOME',
+        }],
+      });
+
+    expect(res.status).toBe(400);
+    expect(res.body.code).toBe('VALIDATION_FAILED');
+    expect(mockedPrisma.income.create).not.toHaveBeenCalled();
+    expect(mockedPrisma.expense.create).not.toHaveBeenCalled();
   });
 });

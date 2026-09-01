@@ -14,6 +14,8 @@ jest.mock('../db/prisma', () => ({
 jest.mock('../services/importService', () => ({
   parseCSV: jest.fn(),
   persistImportPreview: jest.fn(),
+  confirmImportBatch: jest.fn(),
+  ImportBatchValidationError: class ImportBatchValidationError extends Error {},
 }));
 
 import { prisma } from '../db/prisma';
@@ -23,6 +25,7 @@ import * as importService from '../services/importService';
 const mockedPrisma = prisma as any;
 const mockedParseCSV = parseCSV as jest.MockedFunction<typeof parseCSV>;
 const mockedPersistImportPreview = (importService as any).persistImportPreview as jest.Mock;
+const mockedConfirmImportBatch = (importService as any).confirmImportBatch as jest.Mock;
 
 const app = express();
 app.use(express.json());
@@ -52,6 +55,17 @@ describe('Import Routes', () => {
       previewHash: 'a'.repeat(64),
       status: 'PREVIEWED',
       rowCount: 0,
+    });
+    mockedConfirmImportBatch.mockResolvedValue({
+      operationId: 'operation-1',
+      resourceId: 'batch_1',
+      record: {
+        id: 'batch_1',
+        batchId: 'batch_1',
+        successCount: 2,
+        failedRows: [],
+      },
+      deduplicated: false,
     });
   });
 
@@ -136,83 +150,60 @@ describe('Import Routes', () => {
   });
 
   describe('POST /api/families/:familyId/import/confirm', () => {
-    test('creates income/expense records and returns success count', async () => {
-      mockedPrisma.income.create.mockResolvedValue({});
-      mockedPrisma.expense.create.mockResolvedValue({});
-
+    test('confirms a server-owned batch and returns the operation metadata', async () => {
       const res = await request(app)
         .post('/api/families/fam_1/import/confirm')
         .set('Authorization', `Bearer ${createToken()}`)
+        .set('Idempotency-Key', 'import-confirm-1')
         .send({
-          items: [
-            { date: '2026-07-01', description: '工资', amount: 15000, type: 'INCOME', category: '工资' },
-            { date: '2026-07-02', description: '餐饮', amount: 35, type: 'EXPENSE', category: '餐饮' },
-          ],
+          batchId: 'batch_1',
+          expectedPreviewHash: 'a'.repeat(64),
+          categoryPatch: { '2': '餐饮' },
         });
 
       expect(res.status).toBe(200);
+      expect(res.body.batchId).toBe('batch_1');
       expect(res.body.successCount).toBe(2);
       expect(res.body.failedRows).toEqual([]);
-      expect(mockedPrisma.income.create).toHaveBeenCalledTimes(1);
-      expect(mockedPrisma.expense.create).toHaveBeenCalledTimes(1);
+      expect(res.body.operationId).toBe('operation-1');
+      expect(mockedConfirmImportBatch).toHaveBeenCalledWith({
+        familyId: 'fam_1',
+        actorUserId: 'user_1',
+        batchId: 'batch_1',
+        expectedPreviewHash: 'a'.repeat(64),
+        idempotencyKey: 'import-confirm-1',
+        categoryPatch: { '2': '餐饮' },
+      });
     });
 
-    test('returns failedRows for invalid items', async () => {
-      mockedPrisma.expense.create.mockResolvedValue({});
-
+    test('rejects client-owned financial items', async () => {
       const res = await request(app)
         .post('/api/families/fam_1/import/confirm')
         .set('Authorization', `Bearer ${createToken()}`)
         .send({
-          items: [
-            { date: '2026-07-01', description: '餐饮', amount: 35, type: 'EXPENSE', category: '餐饮' },
-            { date: '2026-07-02', description: '缺金额', type: 'EXPENSE' },
-            { date: '2026-07-03', description: '类型错误', amount: 10, type: 'UNKNOWN' },
-          ],
+          items: [{ date: '2026-07-01', description: 'tampered', amount: 999, type: 'INCOME' }],
         });
-
-      expect(res.status).toBe(200);
-      expect(res.body.successCount).toBe(1);
-      expect(res.body.failedRows).toHaveLength(2);
-      expect(res.body.failedRows[0].row).toBe(2);
-      expect(res.body.failedRows[0].errors).toBeDefined();
-      expect(res.body.failedRows[1].row).toBe(3);
-      expect(mockedPrisma.expense.create).toHaveBeenCalledTimes(1);
-    });
-
-    test('returns empty failedRows when all valid', async () => {
-      mockedPrisma.income.create.mockResolvedValue({});
-      mockedPrisma.expense.create.mockResolvedValue({});
-
-      const res = await request(app)
-        .post('/api/families/fam_1/import/confirm')
-        .set('Authorization', `Bearer ${createToken()}`)
-        .send({
-          items: [
-            { date: '2026-07-01', description: '工资', amount: 5000, type: 'INCOME' },
-            { date: '2026-07-02', description: '交通', amount: 20, type: 'EXPENSE' },
-          ],
-        });
-
-      expect(res.status).toBe(200);
-      expect(res.body.successCount).toBe(2);
-      expect(res.body.failedRows).toEqual([]);
-    });
-
-    test('rejects empty items with 400', async () => {
-      const res = await request(app)
-        .post('/api/families/fam_1/import/confirm')
-        .set('Authorization', `Bearer ${createToken()}`)
-        .send({ items: [] });
 
       expect(res.status).toBe(400);
-      expect(mockedPrisma.income.create).not.toHaveBeenCalled();
+      expect(res.body.code).toBe('VALIDATION_FAILED');
+      expect(mockedConfirmImportBatch).not.toHaveBeenCalled();
+    });
+
+    test('rejects a missing batch contract', async () => {
+      const res = await request(app)
+        .post('/api/families/fam_1/import/confirm')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({});
+
+      expect(res.status).toBe(400);
+      expect(res.body.code).toBe('VALIDATION_FAILED');
+      expect(mockedConfirmImportBatch).not.toHaveBeenCalled();
     });
 
     test('returns 401 without token', async () => {
       const res = await request(app)
         .post('/api/families/fam_1/import/confirm')
-        .send({ items: [{ date: '2026-07-01', description: 'x', amount: 1, type: 'EXPENSE' }] });
+        .send({ batchId: 'batch_1', expectedPreviewHash: 'a'.repeat(64) });
 
       expect(res.status).toBe(401);
     });
@@ -223,7 +214,7 @@ describe('Import Routes', () => {
       const res = await request(app)
         .post('/api/families/fam_1/import/confirm')
         .set('Authorization', `Bearer ${createToken()}`)
-        .send({ items: [{ date: '2026-07-01', description: 'x', amount: 1, type: 'EXPENSE' }] });
+        .send({ batchId: 'batch_1', expectedPreviewHash: 'a'.repeat(64) });
 
       expect(res.status).toBe(403);
     });

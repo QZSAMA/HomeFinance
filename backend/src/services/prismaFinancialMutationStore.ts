@@ -121,6 +121,12 @@ const adapt = (tx: Prisma.TransactionClient): LedgerTransactionClient => ({
   },
 });
 
+export const createPrismaFinancialMutationStoreFromTransaction = (
+  transaction: Prisma.TransactionClient,
+): FinancialMutationStore => ({
+  $transaction: (work) => work(adapt(transaction)),
+});
+
 export const createPrismaFinancialMutationStore = (client: PrismaClient): FinancialMutationStore => ({
   $transaction: (work) => client.$transaction((tx) => work(adapt(tx))),
   familyMember: {

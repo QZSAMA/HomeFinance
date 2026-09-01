@@ -369,17 +369,14 @@ describe('Phase 1 real PostgreSQL role x method matrix', () => {
     const imported = await request(app)
       .post(`/api/families/${familyId}/import/confirm`)
       .set('Authorization', `Bearer ${tokens.admin}`)
+      .set('Idempotency-Key', 'role-matrix-import-confirm')
       .send({
-        items: [{
-          date: '2026-09-01',
-          description: 'Role matrix import',
-          amount: 40,
-          type: 'INCOME',
-          category: 'OTHER',
-        }],
+        batchId: csvPreview.headers['x-import-batch-id'],
+        expectedPreviewHash: csvPreview.headers['x-import-preview-hash'],
       });
     expect(imported.status).toBe(200);
     expect(imported.body.successCount).toBe(1);
+    expect(imported.body.batchId).toBe(csvPreview.headers['x-import-batch-id']);
 
     const file = await prisma.file.create({
       data: {
