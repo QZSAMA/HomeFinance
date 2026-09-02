@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useFamilyStore } from '../store/useFamilyStore';
 
 interface IncomeStatementData {
@@ -13,25 +13,20 @@ interface IncomeStatementData {
 
 const IncomeStatementPage = () => {
   const { currentFamily } = useFamilyStore();
+  const familyId = currentFamily?.id;
   const [data, setData] = useState<IncomeStatementData | null>(null);
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  useEffect(() => {
-    if (currentFamily) {
-      loadData();
-    }
-  }, [currentFamily]);
-
-  const loadData = async () => {
-    if (!currentFamily) return;
+  const loadData = useCallback(async (requestedStart = '', requestedEnd = '') => {
+    if (!familyId) return;
     setLoading(true);
     try {
-      let url = `/api/families/${currentFamily.id}/reports/income-statement`;
+      let url = `/api/families/${familyId}/reports/income-statement`;
       const params = new URLSearchParams();
-      if (startDate) params.append('startDate', startDate);
-      if (endDate) params.append('endDate', endDate);
+      if (requestedStart) params.append('startDate', requestedStart);
+      if (requestedEnd) params.append('endDate', requestedEnd);
       if (params.size > 0) url += `?${params.toString()}`;
 
       const response = await fetch(url);
@@ -44,16 +39,20 @@ const IncomeStatementPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [familyId]);
+
+  useEffect(() => {
+    void loadData();
+  }, [loadData]);
 
   const handleFilter = () => {
-    loadData();
+    void loadData(startDate, endDate);
   };
 
   const handleReset = () => {
     setStartDate('');
     setEndDate('');
-    loadData();
+    void loadData('', '');
   };
 
   const formatMoney = (amount: number) => {

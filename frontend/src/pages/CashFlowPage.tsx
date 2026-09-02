@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useFamilyStore } from '../store/useFamilyStore';
 import { getCashFlow } from '../services/reportService';
 import CashFlowChart from '../components/charts/CashFlowChart';
@@ -30,25 +30,20 @@ interface CashFlowData {
 
 const CashFlowPage = () => {
   const { currentFamily } = useFamilyStore();
+  const familyId = currentFamily?.id;
   const [data, setData] = useState<CashFlowData | null>(null);
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  useEffect(() => {
-    if (currentFamily) {
-      loadData();
-    }
-  }, [currentFamily]);
-
-  const loadData = async () => {
-    if (!currentFamily) return;
+  const loadData = useCallback(async (requestedStart = '', requestedEnd = '') => {
+    if (!familyId) return;
     setLoading(true);
     try {
       const result = await getCashFlow(
-        currentFamily.id,
-        startDate || undefined,
-        endDate || undefined
+        familyId,
+        requestedStart || undefined,
+        requestedEnd || undefined
       );
       setData(result);
     } catch (err) {
@@ -56,16 +51,20 @@ const CashFlowPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [familyId]);
+
+  useEffect(() => {
+    void loadData();
+  }, [loadData]);
 
   const handleFilter = () => {
-    loadData();
+    void loadData(startDate, endDate);
   };
 
   const handleReset = () => {
     setStartDate('');
     setEndDate('');
-    loadData();
+    void loadData('', '');
   };
 
   const formatMoney = (amount: number) => {
