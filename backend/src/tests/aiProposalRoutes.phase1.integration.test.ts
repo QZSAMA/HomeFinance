@@ -74,7 +74,7 @@ const createStoredProposal = async (
       sourceType: 'TEXT',
       originalPayload: originalPayload as any,
       originalHash: hashNormalizedPayload(originalPayload),
-      expiresAt: new Date('2026-09-02T00:00:00.000Z'),
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000),
       items: {
         create: actions.map((action, ordinal) => ({
           ordinal,
