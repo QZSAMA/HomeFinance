@@ -21,7 +21,7 @@ const cashFlowData = {
   operating: { income: 100, expense: 20, net: 80 },
   investing: { income: 0, expense: 0, net: 0 },
   financing: { income: 0, expense: 0, net: 0 },
-  other: { income: 0, expense: 0 },
+  other: { income: 0, expense: 0, net: 0 },
   netCashFlow: 80,
   startDate: null,
   endDate: null,
