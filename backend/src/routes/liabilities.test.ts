@@ -3,6 +3,12 @@ import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import liabilitiesRoutes from './liabilities';
 
+jest.mock('../services/balanceMutationService', () => ({
+  createLiability: jest.fn(),
+  updateLiability: jest.fn(),
+  deleteLiability: jest.fn(),
+}));
+
 jest.mock('../db/prisma', () => {
   const model = () => ({
     findMany: jest.fn(),
@@ -22,8 +28,10 @@ jest.mock('../db/prisma', () => {
 });
 
 import { prisma } from '../db/prisma';
+import * as balanceMutationService from '../services/balanceMutationService';
 
 const mockedPrisma = prisma as any;
+const mockedBalance = balanceMutationService as any;
 const app = express();
 app.use(express.json());
 app.use('/api/families/:familyId/liabilities', liabilitiesRoutes);
@@ -57,6 +65,26 @@ describe('liability routes characterization', () => {
     mockedPrisma.liability.create.mockResolvedValue({ id: 'liability-1', ...liabilityBody });
     mockedPrisma.liability.update.mockResolvedValue({ id: 'liability-1', ...liabilityBody, amount: 340000 });
     mockedPrisma.liability.delete.mockResolvedValue({ id: 'liability-1' });
+    mockedBalance.createLiability.mockResolvedValue({
+      operationId: 'operation-liability-create',
+      resourceId: 'liability-1',
+      record: { id: 'liability-1', ...liabilityBody, currency: 'CNY', version: 1 },
+      version: 1,
+      deduplicated: false,
+    });
+    mockedBalance.updateLiability.mockResolvedValue({
+      operationId: 'operation-liability-update',
+      resourceId: 'liability-1',
+      record: { id: 'liability-1', ...liabilityBody, amount: 340000, currency: 'CNY', version: 2 },
+      version: 2,
+      deduplicated: false,
+    });
+    mockedBalance.deleteLiability.mockResolvedValue({
+      operationId: 'operation-liability-delete',
+      resourceId: 'liability-1',
+      version: 2,
+      deduplicated: false,
+    });
   });
 
   test('lists all family liabilities and supports pagination', async () => {
@@ -104,6 +132,33 @@ describe('liability routes characterization', () => {
         endDate: new Date(liabilityBody.endDate),
       }),
     });
+  });
+
+  test('creates a liability through the transactional application service', async () => {
+    const response = await request(app)
+      .post('/api/families/family-1/liabilities')
+      .set('Authorization', `Bearer ${tokenFor()}`)
+      .set('Idempotency-Key', 'liability-create-1')
+      .send(liabilityBody);
+
+    expect(response.status).toBe(201);
+    expect(mockedBalance.createLiability).toHaveBeenCalledWith({
+      familyId: 'family-1',
+      actorId: 'member-1',
+      source: 'MANUAL',
+      idempotencyKey: 'liability-create-1',
+      payload: {
+        name: liabilityBody.name,
+        type: liabilityBody.type,
+        amount: liabilityBody.amount,
+        interestRate: liabilityBody.interestRate,
+        startDate: new Date(liabilityBody.startDate),
+        endDate: new Date(liabilityBody.endDate),
+        currency: liabilityBody.currency,
+        description: liabilityBody.description,
+      },
+    }, expect.any(Object));
+    expect(mockedPrisma.liability.create).not.toHaveBeenCalled();
   });
 
   test('rejects malformed and forbidden liability creates', async () => {
