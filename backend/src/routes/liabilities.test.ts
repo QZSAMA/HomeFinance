@@ -2,6 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import liabilitiesRoutes from './liabilities';
+import { DomainError } from '../services/ledgerErrors';
 
 jest.mock('../services/balanceMutationService', () => ({
   createLiability: jest.fn(),
@@ -181,37 +182,58 @@ describe('liability routes characterization', () => {
     expect(mockedPrisma.liability.create).toHaveBeenCalledTimes(0);
   });
 
-  test('updates a liability and refuses a cross-family record', async () => {
-    mockedPrisma.liability.findUnique.mockResolvedValueOnce({ id: 'liability-1', familyId: 'family-1' });
+  test('updates a liability through the transactional application service', async () => {
     const update = await request(app)
       .put('/api/families/family-1/liabilities/liability-1')
       .set('Authorization', `Bearer ${tokenFor()}`)
+      .set('If-Match', 'W/"1"')
       .send({ ...liabilityBody, amount: 340000 });
 
-    mockedPrisma.liability.findUnique.mockResolvedValueOnce({ id: 'liability-2', familyId: 'family-2' });
+    expect(update.status).toBe(200);
+    expect(mockedBalance.updateLiability).toHaveBeenCalledWith(expect.objectContaining({
+      familyId: 'family-1',
+      actorId: 'member-1',
+      source: 'MANUAL',
+      liabilityId: 'liability-1',
+      expectedVersion: 1,
+      payload: expect.objectContaining({
+        amount: 340000,
+        startDate: new Date(liabilityBody.startDate),
+        endDate: new Date(liabilityBody.endDate),
+      }),
+    }), expect.any(Object));
+    expect(mockedPrisma.liability.update).not.toHaveBeenCalled();
+  });
+
+  test('maps a transactional liability not-found result to 404', async () => {
+    mockedBalance.updateLiability.mockRejectedValueOnce(new DomainError(
+      'RESOURCE_NOT_FOUND',
+      'The requested family resource was not found.',
+      404,
+    ));
+
     const missing = await request(app)
       .put('/api/families/family-1/liabilities/liability-2')
       .set('Authorization', `Bearer ${tokenFor()}`)
       .send(liabilityBody);
 
-    expect(update.status).toBe(200);
-    expect(mockedPrisma.liability.update).toHaveBeenCalledWith({
-      where: { id: 'liability-1' },
-      data: expect.objectContaining({ amount: 340000 }),
-    });
     expect(missing.status).toBe(404);
+    expect(mockedPrisma.liability.update).not.toHaveBeenCalled();
   });
 
   test('returns the update/delete authorization and not-found contracts', async () => {
     mockedPrisma.familyMember.findUnique
-      .mockResolvedValueOnce(member)
-      .mockResolvedValueOnce(null);
+      .mockResolvedValueOnce({ ...member, role: 'viewer' });
     const updateForbidden = await request(app)
       .put('/api/families/family-1/liabilities/liability-1')
       .set('Authorization', `Bearer ${tokenFor()}`)
       .send(liabilityBody);
 
-    mockedPrisma.liability.findUnique.mockResolvedValue(null);
+    mockedBalance.deleteLiability.mockRejectedValueOnce(new DomainError(
+      'RESOURCE_NOT_FOUND',
+      'The requested family resource was not found.',
+      404,
+    ));
     const deleteMissing = await request(app)
       .delete('/api/families/family-1/liabilities/liability-1')
       .set('Authorization', `Bearer ${tokenFor()}`);
@@ -222,15 +244,38 @@ describe('liability routes characterization', () => {
   });
 
   test('deletes a liability for a member', async () => {
-    mockedPrisma.liability.findUnique.mockResolvedValue({ id: 'liability-1', familyId: 'family-1' });
-
     const response = await request(app)
       .delete('/api/families/family-1/liabilities/liability-1')
-      .set('Authorization', `Bearer ${tokenFor()}`);
+      .set('Authorization', `Bearer ${tokenFor()}`)
+      .set('If-Match', '"2"');
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ message: '删除成功' });
-    expect(mockedPrisma.liability.delete).toHaveBeenCalledWith({ where: { id: 'liability-1' } });
+    expect(response.body).toMatchObject({
+      message: '删除成功',
+      version: 2,
+      operationId: 'operation-liability-delete',
+      deduplicated: false,
+    });
+    expect(mockedBalance.deleteLiability).toHaveBeenCalledWith(expect.objectContaining({
+      familyId: 'family-1',
+      actorId: 'member-1',
+      source: 'MANUAL',
+      liabilityId: 'liability-1',
+      expectedVersion: 2,
+    }), expect.any(Object));
+    expect(mockedPrisma.liability.delete).not.toHaveBeenCalled();
+  });
+
+  test('rejects an invalid If-Match header before calling the liability service', async () => {
+    const response = await request(app)
+      .put('/api/families/family-1/liabilities/liability-1')
+      .set('Authorization', `Bearer ${tokenFor()}`)
+      .set('If-Match', 'not-a-version')
+      .send(liabilityBody);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toMatchObject({ code: 'VALIDATION_FAILED', retryable: false });
+    expect(mockedBalance.updateLiability).not.toHaveBeenCalled();
   });
 
   test('converts database failures to 500 responses', async () => {
