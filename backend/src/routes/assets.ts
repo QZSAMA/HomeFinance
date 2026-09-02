@@ -1,9 +1,24 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { requireFamilyAccess, requireFamilyWriteAccess } from '../middleware/familyAccess';
+import {
+  createAsset,
+  deleteAsset,
+  updateAsset,
+} from '../services/balanceMutationService';
+import { createPrismaFinancialMutationStore } from '../services/prismaFinancialMutationStore';
 import { toNumber } from '../utils/decimal';
 import { parsePagination, paginateResponse } from '../utils/pagination';
+import {
+  markIdempotencyReplay,
+  mutationDeleteResponse,
+  mutationResource,
+  readExpectedVersion,
+  readIdempotencyKey,
+  sendLedgerMutationError,
+} from './ledgerRouteSupport';
 
 const router = Router({ mergeParams: true });
 
@@ -18,26 +33,11 @@ const assetSchema = z.object({
   description: z.string().optional()
 });
 
-const checkFamilyAccess = async (familyId: string, userId: string) => {
-  const membership = await prisma.familyMember.findUnique({
-    where: {
-      familyId_userId: {
-        familyId,
-        userId
-      }
-    }
-  });
-  return membership;
-};
+const financialMutationStore = createPrismaFinancialMutationStore(prisma);
 
-router.get('/', authMiddleware, async (req: AuthRequest, res) => {
+router.get('/', authMiddleware, requireFamilyAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
-
     const pagination = parsePagination(req);
     if (pagination) {
       const [assets, total] = await Promise.all([
@@ -64,14 +64,9 @@ router.get('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-router.get('/allocation', authMiddleware, async (req: AuthRequest, res) => {
+router.get('/allocation', authMiddleware, requireFamilyAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
-
     const assets = await prisma.asset.findMany({
       where: { familyId },
       select: {
@@ -122,18 +117,16 @@ router.get('/allocation', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-router.post('/', authMiddleware, async (req: AuthRequest, res) => {
+router.post('/', authMiddleware, requireFamilyWriteAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const data = assetSchema.parse(req.body);
-
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
-
-    const asset = await prisma.asset.create({
-      data: {
+    const result = await createAsset({
+      familyId,
+      actorId: req.userId!,
+      source: 'MANUAL',
+      idempotencyKey: readIdempotencyKey(req),
+      payload: {
         name: data.name,
         type: data.type,
         category: data.category,
@@ -142,42 +135,29 @@ router.post('/', authMiddleware, async (req: AuthRequest, res) => {
         currency: data.currency,
         purchaseDate: data.purchaseDate ? new Date(data.purchaseDate) : undefined,
         description: data.description,
-        familyId
-      }
-    });
+      },
+    }, financialMutationStore);
 
-    res.status(201).json(asset);
+    markIdempotencyReplay(result, res);
+    return res.status(201).json(mutationResource(result));
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: error.errors[0].message });
-    }
-    console.error('创建资产错误:', error);
-    res.status(500).json({ error: '服务器内部错误' });
+    return sendLedgerMutationError(error, res, '创建资产');
   }
 });
 
-router.put('/:id', authMiddleware, async (req: AuthRequest, res) => {
+router.put('/:id', authMiddleware, requireFamilyWriteAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const id = req.params.id as string;
     const data = assetSchema.parse(req.body);
-
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership || membership.role === 'viewer') {
-      return res.status(403).json({ error: '无权修改该数据' });
-    }
-
-    const asset = await prisma.asset.findUnique({
-      where: { id }
-    });
-
-    if (!asset || asset.familyId !== familyId) {
-      return res.status(404).json({ error: '记录不存在' });
-    }
-
-    const updated = await prisma.asset.update({
-      where: { id },
-      data: {
+    const result = await updateAsset({
+      familyId,
+      actorId: req.userId!,
+      source: 'MANUAL',
+      idempotencyKey: readIdempotencyKey(req),
+      assetId: id,
+      expectedVersion: readExpectedVersion(req),
+      payload: {
         name: data.name,
         type: data.type,
         category: data.category,
@@ -185,44 +165,32 @@ router.put('/:id', authMiddleware, async (req: AuthRequest, res) => {
         costBasis: data.costBasis,
         currency: data.currency,
         purchaseDate: data.purchaseDate ? new Date(data.purchaseDate) : undefined,
-        description: data.description
-      }
-    });
+        description: data.description,
+      },
+    }, financialMutationStore);
 
-    res.json(updated);
+    markIdempotencyReplay(result, res);
+    return res.json(mutationResource(result));
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: error.errors[0].message });
-    }
-    console.error('更新资产错误:', error);
-    res.status(500).json({ error: '服务器内部错误' });
+    return sendLedgerMutationError(error, res, '更新资产');
   }
 });
 
-router.delete('/:id', authMiddleware, async (req: AuthRequest, res) => {
+router.delete('/:id', authMiddleware, requireFamilyWriteAccess, async (req: AuthRequest, res) => {
   try {
-    const familyId = req.params.familyId as string;
-    const id = req.params.id as string;
+    const result = await deleteAsset({
+      familyId: req.params.familyId as string,
+      actorId: req.userId!,
+      source: 'MANUAL',
+      idempotencyKey: readIdempotencyKey(req),
+      assetId: req.params.id as string,
+      expectedVersion: readExpectedVersion(req),
+    }, financialMutationStore);
 
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership || membership.role === 'viewer') {
-      return res.status(403).json({ error: '无权删除该数据' });
-    }
-
-    const asset = await prisma.asset.findUnique({
-      where: { id }
-    });
-
-    if (!asset || asset.familyId !== familyId) {
-      return res.status(404).json({ error: '记录不存在' });
-    }
-
-    await prisma.asset.delete({ where: { id } });
-
-    res.json({ message: '删除成功' });
+    markIdempotencyReplay(result, res);
+    return res.json(mutationDeleteResponse(result));
   } catch (error) {
-    console.error('删除资产错误:', error);
-    res.status(500).json({ error: '服务器内部错误' });
+    return sendLedgerMutationError(error, res, '删除资产');
   }
 });
 

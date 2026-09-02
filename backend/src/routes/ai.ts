@@ -1,13 +1,18 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { requireFamilyWriteAccess } from '../middleware/familyAccess';
 import { rateLimitMiddleware } from '../middleware/rateLimit';
 import { chatWithActions, analyzeFinance, parseReceiptOCR, ocrToActions, AIError } from '../services/aiService';
-import { executeActions, type AIAction } from '../services/aiActions';
+import type { AIAction } from '../services/aiActions';
 import { toNumber } from '../utils/decimal';
 import { isAIConfigured, isVisionConfigured } from '../config/ai';
 import { storeOcrImage } from '../services/fileStorageService';
+import { persistAiProposal } from '../services/aiProposalService';
+import { confirmAiProposal } from '../services/aiProposalConfirmationService';
+import { createPrismaFinancialMutationStore } from '../services/prismaFinancialMutationStore';
+import { DomainError } from '../services/ledgerErrors';
 
 const router = Router({ mergeParams: true });
 
@@ -120,6 +125,26 @@ const ocrSchema = z.object({
   image: z.string().min(1, '图片数据不能为空'),
 });
 
+const confirmAiProposalSchema = z.object({
+  expectedVersion: z.number().int().positive(),
+  expectedHash: z.string().regex(/^[0-9a-f]{64}$/, 'expectedHash must be a SHA-256 hash.'),
+  actions: z.array(z.object({
+    proposalItemId: z.string().min(1).optional(),
+    type: z.string(),
+    data: z.record(z.unknown()),
+  }).strict()).min(1).max(50),
+}).strict();
+
+const proposalItemsResponse = (proposal: {
+  items?: Array<{ id: string; typedAction: string; canonicalData: unknown }>;
+}) => (proposal.items && proposal.items.length > 0
+  ? proposal.items.map((item) => ({
+    proposalItemId: item.id,
+    type: item.typedAction,
+    data: item.canonicalData,
+  }))
+  : undefined);
+
 router.get('/status', authMiddleware, (_req, res) => {
   res.json({
     configured: isAIConfigured(),
@@ -129,7 +154,7 @@ router.get('/status', authMiddleware, (_req, res) => {
   });
 });
 
-router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: AuthRequest, res) => {
+router.post('/chat', authMiddleware, requireFamilyWriteAccess, rateLimitMiddleware(20, 60), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const membership = await checkFamilyAccess(familyId, req.userId!);
@@ -169,12 +194,9 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
         liabilities: liabilities.map(l => ({ name: l.name, type: l.type, amount: toNumber(l.amount) })),
       }, historyMessages);
 
-      let actionResults: any[] = [];
-      if (parsed.actions.length > 0) {
-        actionResults = await executeActions(familyId, req.userId!, parsed.actions);
-      }
+      const duplicateFlags = await checkDuplicateActions(familyId, parsed.actions);
 
-      await prisma.aiConversation.create({
+      const conversation = await prisma.aiConversation.create({
         data: {
           familyId,
           userId: req.userId!,
@@ -184,9 +206,34 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
         }
       });
 
+      const proposal = parsed.actions.length > 0
+        ? await persistAiProposal({
+            familyId,
+            actorUserId: req.userId!,
+            actorRole: membership.role,
+            sourceType: 'TEXT',
+            sourceConversationId: conversation.id,
+            originalPayload: {
+              reply: parsed.reply,
+              actions: parsed.actions,
+              duplicateFlags,
+            },
+            actions: parsed.actions,
+          }, prisma)
+        : null;
+
       return res.json({
         response: parsed.reply,
-        actions: actionResults,
+        actions: [],
+        proposedActions: parsed.actions,
+        duplicateFlags,
+        ...(proposal ? {
+          proposalId: proposal.id,
+          proposalVersion: proposal.version,
+          proposalHash: proposal.originalHash,
+          proposalExpiresAt: proposal.expiresAt.toISOString(),
+          ...(proposalItemsResponse(proposal) ? { proposalItems: proposalItemsResponse(proposal) } : {}),
+        } : {}),
         aiConfigured: isAIConfigured(),
       });
     }
@@ -238,7 +285,7 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
     if (!hasText) {
       const duplicateFlags = await checkDuplicateActions(familyId, allProposedActions);
 
-      await prisma.aiConversation.create({
+      const conversation = await prisma.aiConversation.create({
         data: {
           familyId,
           userId: req.userId!,
@@ -248,12 +295,36 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
         }
       });
 
+      const proposal = allProposedActions.length > 0
+        ? await persistAiProposal({
+            familyId,
+            actorUserId: req.userId!,
+            actorRole: membership.role,
+            sourceType: 'OCR',
+            sourceConversationId: conversation.id,
+            sourceFileId: fileIds.length === 1 ? fileIds[0] : null,
+            originalPayload: {
+              actions: allProposedActions,
+              duplicateFlags,
+              fileIds,
+            },
+            actions: allProposedActions,
+          }, prisma)
+        : null;
+
       return res.json({
         response: `识别到 ${allProposedActions.length} 笔交易（成功 ${successCount} 张，失败 ${failedCount} 张）`,
         actions: [],
         proposedActions: allProposedActions,
         duplicateFlags,
         fileIds,
+        ...(proposal ? {
+          proposalId: proposal.id,
+          proposalVersion: proposal.version,
+          proposalHash: proposal.originalHash,
+          proposalExpiresAt: proposal.expiresAt.toISOString(),
+          ...(proposalItemsResponse(proposal) ? { proposalItems: proposalItemsResponse(proposal) } : {}),
+        } : {}),
         aiConfigured: isAIConfigured(),
       });
     }
@@ -296,7 +367,7 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
     // 图片场景默认不自动执行（proposedActions 需用户确认），除非 AI 明确返回且用户文本含"记账/确认"等指令
     // 这里保持提议模式：返回 proposedActions 让前端确认
 
-    await prisma.aiConversation.create({
+    const conversation = await prisma.aiConversation.create({
       data: {
         familyId,
         userId: req.userId!,
@@ -306,12 +377,37 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
       }
     });
 
+    const proposal = finalActions.length > 0
+      ? await persistAiProposal({
+          familyId,
+          actorUserId: req.userId!,
+          actorRole: membership.role,
+          sourceType: 'OCR',
+          sourceConversationId: conversation.id,
+          sourceFileId: fileIds.length === 1 ? fileIds[0] : null,
+          originalPayload: {
+            reply: parsed.reply,
+            actions: finalActions,
+            duplicateFlags,
+            fileIds,
+          },
+          actions: finalActions,
+        }, prisma)
+      : null;
+
     return res.json({
       response: parsed.reply,
       actions: actionResults,
       proposedActions: finalActions,
       duplicateFlags,
       fileIds,
+      ...(proposal ? {
+        proposalId: proposal.id,
+        proposalVersion: proposal.version,
+        proposalHash: proposal.originalHash,
+        proposalExpiresAt: proposal.expiresAt.toISOString(),
+        ...(proposalItemsResponse(proposal) ? { proposalItems: proposalItemsResponse(proposal) } : {}),
+      } : {}),
       aiConfigured: isAIConfigured(),
     });
   } catch (error) {
@@ -322,12 +418,19 @@ router.post('/chat', authMiddleware, rateLimitMiddleware(20, 60), async (req: Au
       console.error('AI 对话错误:', error.message);
       return res.status(error.statusCode).json({ error: error.message });
     }
+    if (error instanceof DomainError) {
+      return res.status(error.status).json({
+        error: error.message,
+        code: error.code,
+        retryable: error.retryable,
+      });
+    }
     console.error('AI 对话未知错误:', error);
-    res.status(500).json({ error: '服务器内部错误，请稍后重试' });
+    res.status(500).json({ error: '服务器内部错误，请稍后重试', code: 'INTERNAL_ERROR', retryable: false });
   }
 });
 
-router.post('/analyze', authMiddleware, rateLimitMiddleware(10, 60), async (req: AuthRequest, res) => {
+router.post('/analyze', authMiddleware, requireFamilyWriteAccess, rateLimitMiddleware(10, 60), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const membership = await checkFamilyAccess(familyId, req.userId!);
@@ -391,7 +494,7 @@ router.post('/analyze', authMiddleware, rateLimitMiddleware(10, 60), async (req:
   }
 });
 
-router.post('/ocr', authMiddleware, rateLimitMiddleware(20, 60), async (req: AuthRequest, res) => {
+router.post('/ocr', authMiddleware, requireFamilyWriteAccess, rateLimitMiddleware(20, 60), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const userId = req.userId!;
@@ -408,14 +511,14 @@ router.post('/ocr', authMiddleware, rateLimitMiddleware(20, 60), async (req: Aut
     // 2. 并行 OCR + 合并（Tesseract 本地 + 视觉多模态 LLM）
     const data = await parseReceiptOCR(image);
 
-    // 3. 转换为提议动作（不执行，由前端用户确认后调用 /execute-actions）
+    // 3. 转换为提议动作（不执行，由前端用户确认后调用 proposal confirmation API）
     const proposedActions = ocrToActions(data);
 
     // 3.5 重复检测：检查每条 action 是否与近 7 天已有记录重复（相同金额 + 类型 + 日期）
     const duplicateFlags = await checkDuplicateActions(familyId, proposedActions);
 
     // 4. 落库对话记录（关联 fileId）
-    await prisma.aiConversation.create({
+    const conversation = await prisma.aiConversation.create({
       data: {
         familyId,
         userId,
@@ -426,6 +529,23 @@ router.post('/ocr', authMiddleware, rateLimitMiddleware(20, 60), async (req: Aut
       }
     });
 
+    const proposal = proposedActions.length > 0
+      ? await persistAiProposal({
+          familyId,
+          actorUserId: userId,
+          actorRole: membership.role,
+          sourceType: 'OCR',
+          sourceConversationId: conversation.id,
+          sourceFileId: stored?.fileId ?? null,
+          originalPayload: {
+            data,
+            actions: proposedActions,
+            duplicateFlags,
+          },
+          actions: proposedActions,
+        }, prisma)
+      : null;
+
     res.json({
       data,
       aiConfigured: isAIConfigured(),
@@ -433,6 +553,13 @@ router.post('/ocr', authMiddleware, rateLimitMiddleware(20, 60), async (req: Aut
       fileId: stored?.fileId ?? null,
       proposedActions,
       duplicateFlags,
+      ...(proposal ? {
+        proposalId: proposal.id,
+        proposalVersion: proposal.version,
+        proposalHash: proposal.originalHash,
+        proposalExpiresAt: proposal.expiresAt.toISOString(),
+        ...(proposalItemsResponse(proposal) ? { proposalItems: proposalItemsResponse(proposal) } : {}),
+      } : {}),
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -442,57 +569,115 @@ router.post('/ocr', authMiddleware, rateLimitMiddleware(20, 60), async (req: Aut
       console.error('OCR 识别错误:', error.message);
       return res.status(error.statusCode).json({ error: error.message });
     }
+    if (error instanceof DomainError) {
+      return res.status(error.status).json({
+        error: error.message,
+        code: error.code,
+        retryable: error.retryable,
+      });
+    }
     console.error('OCR 识别未知错误:', error);
-    res.status(500).json({ error: '服务器内部错误，请稍后重试' });
+    res.status(500).json({ error: '服务器内部错误，请稍后重试', code: 'INTERNAL_ERROR', retryable: false });
   }
 });
 
-const executeActionsSchema = z.object({
-  actions: z.array(z.object({
-    type: z.string(),
-    data: z.record(z.any()),
-  })).min(1, '动作不能为空'),
+router.post('/proposals/:proposalId/confirm', authMiddleware, requireFamilyWriteAccess, async (req: AuthRequest, res) => {
+  try {
+    const familyId = req.params.familyId as string;
+    const proposalId = req.params.proposalId as string;
+    const userId = req.userId!;
+    const parsed = confirmAiProposalSchema.parse(req.body);
+    const idempotencyKey = req.get('Idempotency-Key') ?? '';
+    const result = await confirmAiProposal({
+      familyId,
+      actorUserId: userId,
+      proposalId,
+      expectedVersion: parsed.expectedVersion,
+      expectedHash: parsed.expectedHash,
+      idempotencyKey,
+      actions: parsed.actions as AIAction[],
+    }, createPrismaFinancialMutationStore(prisma));
+
+    if (result.deduplicated) res.set('Idempotency-Replayed', 'true');
+    return res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors[0].message, code: 'VALIDATION_FAILED', retryable: false });
+    }
+    if (error instanceof DomainError) {
+      return res.status(error.status).json({
+        error: error.message,
+        code: error.code,
+        retryable: error.retryable,
+      });
+    }
+    console.error('确认 AI proposal 错误:', error);
+    return res.status(500).json({ error: '服务器内部错误，请稍后重试', code: 'INTERNAL_ERROR', retryable: false });
+  }
 });
 
-router.post('/execute-actions', authMiddleware, rateLimitMiddleware(20, 60), async (req: AuthRequest, res) => {
+const legacyConfirmAiProposalSchema = z.object({
+  proposalId: z.string().min(1),
+  expectedVersion: z.number().int().positive(),
+  expectedHash: z.string().regex(/^[0-9a-f]{64}$/, 'expectedHash must be a SHA-256 hash.'),
+  actions: z.array(z.object({
+    proposalItemId: z.string().min(1).optional(),
+    type: z.string(),
+    data: z.record(z.unknown()),
+  }).strict()).min(1).max(50),
+}).strict();
+
+const respondWithConfirmationError = (error: unknown, res: import('express').Response) => {
+  if (error instanceof z.ZodError) {
+    return res.status(400).json({ error: error.errors[0].message, code: 'VALIDATION_FAILED', retryable: false });
+  }
+  if (error instanceof DomainError) {
+    return res.status(error.status).json({
+      error: error.message,
+      code: error.code,
+      retryable: error.retryable,
+    });
+  }
+  console.error('确认 AI proposal 错误:', error);
+  return res.status(500).json({ error: '服务器内部错误，请稍后重试', code: 'INTERNAL_ERROR', retryable: false });
+};
+
+const sendAiProposalConfirmation = async (
+  familyId: string,
+  userId: string,
+  proposalId: string,
+  parsed: { expectedVersion: number; expectedHash: string; actions: AIAction[] },
+  idempotencyKey: string,
+  res: import('express').Response,
+) => {
+  const result = await confirmAiProposal({
+    familyId,
+    actorUserId: userId,
+    proposalId,
+    expectedVersion: parsed.expectedVersion,
+    expectedHash: parsed.expectedHash,
+    idempotencyKey,
+    actions: parsed.actions,
+  }, createPrismaFinancialMutationStore(prisma));
+  if (result.deduplicated) res.set('Idempotency-Replayed', 'true');
+  return res.status(200).json(result);
+};
+
+router.post('/execute-actions', authMiddleware, requireFamilyWriteAccess, rateLimitMiddleware(20, 60), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const userId = req.userId!;
-    const membership = await checkFamilyAccess(familyId, userId);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
-
-    const { actions } = executeActionsSchema.parse(req.body);
-
-    const actionResults = await executeActions(familyId, userId, actions as AIAction[]);
-
-    // 落库对话记录（便于历史追溯）
-    const summary = actionResults.map(r => r.message).join('; ');
-    await prisma.aiConversation.create({
-      data: {
-        familyId,
-        userId,
-        content: `[确认记账] ${actions.map(a => a.type).join(', ')}`,
-        response: summary,
-        type: 'chat',
-      }
-    });
-
-    res.json({
-      actions: actionResults,
-      aiConfigured: isAIConfigured(),
-    });
+    const parsed = legacyConfirmAiProposalSchema.parse(req.body);
+    return sendAiProposalConfirmation(
+      familyId,
+      userId,
+      parsed.proposalId,
+      { ...parsed, actions: parsed.actions as AIAction[] },
+      req.get('Idempotency-Key') ?? '',
+      res,
+    );
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: error.errors[0].message });
-    }
-    if (error instanceof AIError) {
-      console.error('执行动作错误:', error.message);
-      return res.status(error.statusCode).json({ error: error.message });
-    }
-    console.error('执行动作未知错误:', error);
-    res.status(500).json({ error: '服务器内部错误，请稍后重试' });
+    return respondWithConfirmationError(error, res);
   }
 });
 
@@ -508,9 +693,48 @@ router.get('/history', authMiddleware, async (req: AuthRequest, res) => {
       where: { familyId },
       orderBy: { createdAt: 'desc' },
       take: 50,
+      include: {
+        aiProposals: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: {
+            id: true,
+            version: true,
+            originalHash: true,
+            expiresAt: true,
+            status: true,
+            resultJson: true,
+            items: {
+              orderBy: { ordinal: 'asc' },
+              select: {
+                id: true,
+                typedAction: true,
+                canonicalData: true,
+              },
+            },
+          },
+        },
+      },
     });
 
-    res.json(history);
+    res.json(history.map(({ aiProposals = [], ...conversation }) => ({
+      ...conversation,
+      ...(aiProposals[0] ? {
+        proposal: {
+          id: aiProposals[0].id,
+          version: aiProposals[0].version,
+          originalHash: aiProposals[0].originalHash,
+          expiresAt: aiProposals[0].expiresAt.toISOString(),
+          status: aiProposals[0].status,
+          ...(aiProposals[0].resultJson !== null ? { result: aiProposals[0].resultJson } : {}),
+          items: aiProposals[0].items.map((item) => ({
+            proposalItemId: item.id,
+            type: item.typedAction,
+            data: item.canonicalData,
+          })),
+        },
+      } : {}),
+    })));
   } catch (error) {
     console.error('获取对话历史错误:', error);
     res.status(500).json({ error: '服务器内部错误，请稍后重试' });

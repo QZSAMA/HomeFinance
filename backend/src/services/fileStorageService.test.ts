@@ -2,7 +2,7 @@ jest.mock('../config/minio', () => ({
   uploadFileBuffer: jest.fn(),
 }));
 
-jest.mock('../app', () => ({
+jest.mock('../db/prisma', () => ({
   prisma: {
     file: {
       create: jest.fn(),
@@ -16,7 +16,7 @@ jest.mock('../utils/phash', () => ({
 
 import { storeOcrImage } from './fileStorageService';
 import { uploadFileBuffer } from '../config/minio';
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 import { computePHash } from '../utils/phash';
 
 const mockedUploadFileBuffer = uploadFileBuffer as jest.MockedFunction<typeof uploadFileBuffer>;

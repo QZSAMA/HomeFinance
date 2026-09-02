@@ -8,38 +8,48 @@ datasource db {
 }
 
 model User {
-  id             String    @id @default(cuid())
-  email          String    @unique
-  passwordHash   String
-  name           String
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  familyMembers  FamilyMember[]
-  incomes        Income[]
-  expenses       Expense[]
-  files          File[]
-  aiConversations AiConversation[]
-  budgets        Budget[]
+  id                    String                 @id @default(cuid())
+  email                 String                 @unique
+  passwordHash          String
+  name                  String
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  familyMembers         FamilyMember[]
+  incomes               Income[]
+  expenses              Expense[]
+  files                 File[]
+  aiConversations       AiConversation[]
+  budgets               Budget[]
   recurringTransactions RecurringTransaction[]
-  goals          Goal[]
+  goals                 Goal[]
+  auditEvents           AuditEvent[]
+  importBatches         ImportBatch[]
+  aiProposals           AiProposal[]
 }
 
 model Family {
-  id          String    @id @default(cuid())
-  name        String
-  description String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  members     FamilyMember[]
-  incomes     Income[]
-  expenses    Expense[]
-  assets      Asset[]
-  liabilities Liability[]
-  files       File[]
-  aiConversations AiConversation[]
-  budgets     Budget[]
+  id                    String                 @id @default(cuid())
+  name                  String
+  description           String?
+  cacheVersion          Int                    @default(0)
+  baseCurrency          String                 @default("CNY")
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  members               FamilyMember[]
+  incomes               Income[]
+  expenses              Expense[]
+  assets                Asset[]
+  liabilities           Liability[]
+  files                 File[]
+  aiConversations       AiConversation[]
+  budgets               Budget[]
   recurringTransactions RecurringTransaction[]
-  goals       Goal[]
+  recurringExecutions   RecurringExecution[]
+  goals                 Goal[]
+  idempotencyRecords    IdempotencyRecord[]
+  auditEvents           AuditEvent[]
+  importBatches         ImportBatch[]
+  aiProposals           AiProposal[]
 }
 
 model FamilyMember {
@@ -65,6 +75,10 @@ model Income {
   description String?
   source      String?
   date        DateTime
+  version     Int      @default(1)
+  currency    String   @default("CNY")
+  originType  String?
+  originRef   String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   family      Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
@@ -85,6 +99,10 @@ model Expense {
   description   String?
   paymentMethod String?
   date          DateTime
+  version       Int      @default(1)
+  currency      String   @default("CNY")
+  originType    String?
+  originRef     String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   family        Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
@@ -97,133 +115,286 @@ model Expense {
 }
 
 model Asset {
-  id          String   @id @default(cuid())
-  familyId    String
-  name        String
-  type        String
-  category    String?
-  value       Decimal  @db.Decimal(15, 2)
-  costBasis   Decimal? @db.Decimal(15, 2)
-  currency    String   @default("CNY")
+  id           String    @id @default(cuid())
+  familyId     String
+  name         String
+  type         String
+  category     String?
+  value        Decimal   @db.Decimal(15, 2)
+  costBasis    Decimal?  @db.Decimal(15, 2)
+  currency     String    @default("CNY")
   purchaseDate DateTime?
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  family      Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  description  String?
+  version      Int       @default(1)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  family       Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
 
   @@index([familyId])
   @@index([type])
 }
 
 model Liability {
-  id          String   @id @default(cuid())
-  familyId    String
-  name        String
-  type        String
-  amount      Decimal  @db.Decimal(15, 2)
-  interestRate Decimal? @db.Decimal(5, 4)
-  startDate   DateTime?
-  endDate     DateTime?
-  currency    String   @default("CNY")
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  family      Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  id           String    @id @default(cuid())
+  familyId     String
+  name         String
+  type         String
+  amount       Decimal   @db.Decimal(15, 2)
+  interestRate Decimal?  @db.Decimal(5, 4)
+  startDate    DateTime?
+  endDate      DateTime?
+  currency     String    @default("CNY")
+  description  String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  family       Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
 
   @@index([familyId])
   @@index([type])
 }
 
 model File {
-  id         String   @id @default(cuid())
-  familyId   String
-  userId     String
-  name       String
-  path       String
-  type       String
-  phash      String?
-  size       Int
-  mimeType   String
-  uploadedAt DateTime @default(now())
-  family     Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String           @id @default(cuid())
+  familyId        String
+  userId          String
+  name            String
+  path            String
+  type            String
+  phash           String?
+  size            Int
+  mimeType        String
+  uploadedAt      DateTime         @default(now())
+  family          Family           @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   aiConversations AiConversation[]
+  aiProposals     AiProposal[]
 
   @@index([familyId])
   @@index([userId])
 }
 
 model AiConversation {
-  id         String   @id @default(cuid())
-  familyId   String
-  userId     String
-  content    String
-  response   String
-  type       String
-  fileId     String?
-  createdAt  DateTime @default(now())
-  family     Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  file       File?    @relation(fields: [fileId], references: [id], onDelete: SetNull)
+  id          String       @id @default(cuid())
+  familyId    String
+  userId      String
+  content     String
+  response    String
+  type        String
+  fileId      String?
+  createdAt   DateTime     @default(now())
+  family      Family       @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  file        File?        @relation(fields: [fileId], references: [id], onDelete: SetNull)
+  aiProposals AiProposal[]
 
   @@index([familyId])
   @@index([userId])
 }
 
 model Budget {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   familyId  String
-  family    Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  family    Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
   category  String
-  amount    Decimal  @db.Decimal(15, 2)
-  period    String   @default("MONTHLY")
+  amount    Decimal   @db.Decimal(15, 2)
+  period    String    @default("MONTHLY")
   startDate DateTime
   endDate   DateTime?
   createdBy String
-  user      User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  user      User      @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@index([familyId])
   @@index([category])
 }
 
 model RecurringTransaction {
-  id              String   @id @default(cuid())
-  familyId        String
-  family          Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  type            String
-  category        String
-  amount          Decimal  @db.Decimal(15, 2)
-  description     String?
-  frequency       String
-  interval        Int      @default(1)
-  nextDate        DateTime
-  endDate         DateTime?
-  isActive        Boolean  @default(true)
-  lastExecutedAt  DateTime?
-  createdBy       String
-  user            User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String               @id @default(cuid())
+  familyId       String
+  family         Family               @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  type           String
+  category       String
+  amount         Decimal              @db.Decimal(15, 2)
+  description    String?
+  frequency      String
+  interval       Int                  @default(1)
+  nextDate       DateTime
+  endDate        DateTime?
+  isActive       Boolean              @default(true)
+  lastExecutedAt DateTime?
+  version        Int                  @default(1)
+  createdBy      String
+  user           User                 @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  executions     RecurringExecution[]
+  deletedAt      DateTime?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
 
   @@index([familyId])
   @@index([nextDate])
 }
 
-model Goal {
-  id            String   @id @default(cuid())
+model RecurringExecution {
+  id                     String               @id @default(cuid())
+  familyId               String
+  recurringTransactionId String
+  scheduledFor           DateTime
+  status                 String               @default("PROCESSING")
+  idempotencyKey         String               @db.VarChar(255)
+  entryType              String?
+  entryId                String?
+  mutationId             String?              @db.Uuid
+  resultJson             Json?
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+  family                 Family               @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  recurringTransaction   RecurringTransaction @relation(fields: [recurringTransactionId], references: [id], onDelete: NoAction)
+
+  @@unique([recurringTransactionId, scheduledFor], map: "RecurringExecution_occurrence_key")
+  @@index([familyId, scheduledFor])
+}
+
+model IdempotencyRecord {
+  id           String       @id @default(uuid()) @db.Uuid
+  familyId     String
+  actorScope   String       @db.VarChar(255)
+  operation    String       @db.VarChar(64)
+  key          String       @db.VarChar(255)
+  payloadHash  String       @db.Char(64)
+  httpStatus   Int?
+  responseJson Json?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  family       Family       @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  auditEvents  AuditEvent[]
+
+  @@unique([familyId, actorScope, operation, key], map: "IdempotencyRecord_scope_key")
+  @@index([familyId, createdAt])
+}
+
+model AuditEvent {
+  id            String            @id @default(uuid()) @db.Uuid
   familyId      String
-  family        Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  title         String
-  type          String   // "SAVING" | "DEBT_PAYOFF" | "INVESTMENT"
-  targetAmount  Decimal  @db.Decimal(15, 2)
-  deadline      DateTime?
-  isCompleted   Boolean  @default(false)
-  createdBy     String
-  user          User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  mutationId    String            @db.Uuid
+  actorUserId   String?
+  actorSnapshot Json
+  action        String            @db.VarChar(64)
+  entity        String            @db.VarChar(64)
+  entityId      String
+  before        Json?
+  after         Json?
+  createdAt     DateTime          @default(now())
+  family        Family            @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  mutation      IdempotencyRecord @relation(fields: [mutationId], references: [id], onDelete: NoAction)
+  actor         User?             @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([familyId, createdAt])
+  @@index([mutationId])
+  @@index([entity, entityId])
+}
+
+model Goal {
+  id           String    @id @default(cuid())
+  familyId     String
+  family       Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  title        String
+  type         String // "SAVING" | "DEBT_PAYOFF" | "INVESTMENT"
+  targetAmount Decimal   @db.Decimal(15, 2)
+  deadline     DateTime?
+  isCompleted  Boolean   @default(false)
+  createdBy    String
+  user         User      @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@index([familyId])
+}
+
+model ImportBatch {
+  id            String      @id @default(cuid())
+  familyId      String
+  actorUserId   String
+  format        String
+  fileHash      String      @db.Char(64)
+  parserVersion String
+  previewHash   String      @db.Char(64)
+  status        String      @default("PREVIEWED")
+  rowCount      Int         @default(0)
+  expiresAt     DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  family        Family      @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  actor         User        @relation(fields: [actorUserId], references: [id], onDelete: Cascade)
+  rows          ImportRow[]
+
+  @@index([familyId, createdAt])
+  @@index([familyId, status])
+  @@index([familyId, previewHash])
+  @@index([actorUserId])
+}
+
+model ImportRow {
+  id               String      @id @default(cuid())
+  batchId          String
+  rowNumber        Int
+  canonicalPayload Json
+  validationErrors Json?
+  status           String      @default("VALID")
+  resultEntityType String?
+  resultEntityId   String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  batch            ImportBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@unique([batchId, rowNumber])
+  @@index([batchId, status])
+}
+
+model AiProposal {
+  id                   String           @id @default(cuid())
+  familyId             String
+  actorUserId          String?
+  actorSnapshot        Json
+  sourceType           String           @db.VarChar(32)
+  sourceConversationId String?
+  sourceFileId         String?
+  originalPayload      Json
+  originalHash         String           @db.Char(64)
+  confirmedPayload     Json?
+  confirmedHash        String?          @db.Char(64)
+  status               String           @default("PROPOSED") @db.VarChar(32)
+  version              Int              @default(1)
+  expiresAt            DateTime
+  resultJson           Json?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  family               Family           @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  actor                User?            @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  sourceConversation   AiConversation?  @relation(fields: [sourceConversationId], references: [id], onDelete: SetNull)
+  sourceFile           File?            @relation(fields: [sourceFileId], references: [id], onDelete: SetNull)
+  items                AiProposalItem[]
+
+  @@index([familyId, createdAt])
+  @@index([familyId, status, expiresAt])
+  @@index([actorUserId])
+  @@index([sourceConversationId])
+  @@index([sourceFileId])
+  @@map("AIProposal")
+}
+
+model AiProposalItem {
+  id            String     @id @default(cuid())
+  proposalId    String
+  ordinal       Int
+  typedAction   String     @db.VarChar(64)
+  canonicalData Json
+  resultJson    Json?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  proposal      AiProposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  @@unique([proposalId, ordinal])
+  @@index([proposalId, typedAction])
+  @@map("AIProposalItem")
 }

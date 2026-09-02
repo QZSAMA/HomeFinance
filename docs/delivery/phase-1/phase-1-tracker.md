@@ -1,0 +1,131 @@
+
+# HomeFinance Phase 1 任务追踪表
+
+- 任务系统：Phase 1 可信账本与质量门禁
+- 唯一事实源：本文件
+- 设计规格：docs/superpowers/specs/2026-08-28-homefinance-phase1-design.md
+- 开发基线：codex/phase0-remediation@081084a
+- 实施分支：codex/phase1-ledger-trust
+- 当前快照：2026-09-02；P1-A 已将 Income/Expense 和普通 Asset HTTP mutation 接入统一 Ledger/Balance，P1-B 已有数据库仲裁幂等与 20 路并发证据，P1-C 已完成服务端 Import batch/hash、原子 confirm 和前端迁移，P1-D 已完成 Recurring occurrence exactly-once。P1-E-01 提交 `5a564c9` 关闭 text chat 的预确认自动执行，P1-E-02 提交 `732eafd` 新增 server-owned AiProposal/AiProposalItem schema、hash/version/status/expiry/source/result 合同，P1-E-03 提交 `7f6c366` 将 text/OCR 四个 proposal-producing paths 接入 persistence，P1-E-04 提交 `cdfcb67` 实现 proposal 抢占、Ledger 写入、审计、结果持久化和幂等重放，P1-E-05 提交 `d945e65` 及 `c769a78` 完成刷新恢复、确认 ID 传递和 EXECUTED 状态展示，P1-E-06 及 `6704300` 移除旧 AI 直写执行器并保留严格 proposal confirmation adapter，P1-E-07 的 `fc50633`、`d204201`、`bdabe7b` 已将 AI Asset/Liability confirmation 接入 transaction-scoped Balance mutation，P1-A-08 的 `310e6ca`、`d180d60`、`c644d50` 已完成普通 Asset CRUD 的事务、幂等、审计、cacheVersion 和版本 CAS 迁移。P1-A-09 已完成设计并等待书面规格审阅；后端 build/Prisma 通过；AI proposal confirmation/route 真实 PostgreSQL 集成当前切片 25/25，完整 integration 12 suites / 80 tests；后端全量单元 50 suites / 417 tests，coverage 为 statements 75.81%、branches 60.04%、functions 70.85%、lines 76.67%，已达到全局 60% 门槛；前端全量测试 7 files/19 tests、lint 和 build 通过但保留 16 条既有 warning 及主 chunk 警告。当前分支已应用 11 个 migration。Playwright/Compose harness 已实现但本机 Docker 不可用，故真实 E2E 和 Redis/MinIO/Compose 仍 BLOCKED。普通 Liability CRUD、balance query/valuation/currency conversion、production-like populated restore、staging/release 和 Graphify semantic refresh 仍未完成。
+- P1-C-04/C-05 快照（2026-09-01）：`66970be` 已将 confirm 切换为严格 batch/hash/categoryPatch 合同，服务端重新校验所有 canonical rows，在单一 PostgreSQL transaction 内通过 Ledger adapter 写入并更新 ImportBatch/ImportRow；真实测试证明 invalid row、tamper、expiry、cross-family、重复确认和客户端 items 均零账本副作用，并验证同 key replay 与双路并发一个成功/一个 409。相关集成套件现为 7 suites / 41 tests，前端仍需完成 batch/hash 状态迁移。
+- P1-C-06 快照（2026-09-01）：`50530b5` 已将 ImportPage/service 接入 batch/hash 合同，读取 CORS 响应头、展示 batch、仅发送 categoryPatch 和稳定 `Idempotency-Key`；前端 4 files / 13 tests、lint、build 通过，保留既有 16 条 lint warnings 和主 chunk 警告，浏览器 E2E、刷新恢复和 release observation 仍未完成。
+
+## 1. 状态和字段规则
+
+生命周期：BACKLOG → EVIDENCE_CONFIRMED → READY → RED_REPRODUCED → GREEN_MINIMAL → REFACTORED → REGRESSION_VERIFIED → IN_REVIEW → MERGED → RELEASED → OBSERVED → DONE。
+
+健康度：ON_TRACK、AT_RISK、BLOCKED。BLOCKED 不替代生命周期，必须保留实际停留状态、原因、解除责任人和复查日期。CANCELLED 必须链接范围变更或 ADR。
+
+证据状态：DESIGNED、NOT_RUN、BLOCKED、PASS-MOCK、PASS-REAL、PASS-E2E、OBSERVED、FAILED、WAIVED。
+
+任务字段固定为：id、type、epic、title、outcome、priority、state、health、dri、approver、reviewers、depends_on、blocked_by、acceptance、evidence、adr、rollback、target、next_action、updated、mirror。
+
+依赖格式：hard:P1-A-03@REGRESSION_VERIFIED、decision:ADR-0001@ACCEPTED、external:POSTGRES_TEST_ENV@AVAILABLE。只维护 depends_on，反向 blocks 由查询推导。
+
+## 2. 基线证据
+
+| 项目 | 证据状态 | 说明 |
+|---|---|---|
+| Phase 0 后端 26 suites / 241 tests | PASS-MOCK | 历史证据，081084a，本轮未重跑 |
+| Phase 0 前端 5 tests | PASS-MOCK | 历史证据，081084a |
+| backend coverage | PASS-REAL | 当前 coverage 执行 50 suites / 417 tests，所有行为断言通过；statements 75.81%、branches 60.04%、functions 70.85%、lines 76.67%，达到未降低的全局 60% threshold；OCR/MinIO fixtures 有既有 console.warn |
+| PostgreSQL migration/业务并发 | PASS-REAL | PostgreSQL 18.1；11 migrations 的增量/fresh deploy、schema/约束/cascade、P1-B coordinator replay/revision、P1-A Income/Expense/Asset HTTP CRUD、P1-C atomic import、P1-D recurring exactly-once、P1-E-02 proposal persistence、P1-E-03 AI proposal routes，以及 P1-G-02 角色矩阵均已通过（12 suites / 80 tests） |
+| Redis 故障恢复 | NOT_RUN | 现有主要为 mock |
+| MinIO 生命周期 | NOT_RUN | 现有主要为 mock |
+| Compose 全栈 | BLOCKED | Compose/健康检查已定义，但本机 Docker Desktop/CLI 不可用，未执行真实服务验证 |
+| Playwright | BLOCKED | 4 个 Chromium 旅程可被 `npx playwright test --list` 发现；`npm run test:e2e` 在 Docker preflight 阻塞，未产生 PASS-E2E |
+| Phase 1 功能 | PASS-MOCK + PASS-REAL + E2E BLOCKED | app/server/db、Ledger/coordinator、Income/Expense、Import、Recurring 和 AI proposal schema/route persistence 已验证；text/OCR 确认前零 executor 调用、viewer/non-member 零副作用（PASS-MOCK + PASS-REAL），AiProposal/Item migration/constraints 为 PASS-REAL。原子确认、upload 外部路径、对象隔离、Compose/E2E 和 release observation 仍未闭环 |
+
+## 3. 责任边界
+
+| 角色 | 责任 |
+|---|---|
+| Delivery DRI | 实现、TDD、状态和证据卡 |
+| Repository Owner | 范围、书面规格、合并和工程验收 |
+| Technical Approver | 架构、事务、迁移和 API |
+| Finance/Product Owner | 期间、币种、分类、导入策略、目标、后台 actor |
+| Security Reviewer | family、角色、AI 确认、篡改、重放、零副作用 |
+| QA/Evidence Owner | integration、E2E、真实环境和证据 |
+| Release Owner | migration、发布、回滚和观察 |
+| Agent | 在互斥写集内分析、编码、测试和提出风险，不代替批准人 |
+
+## 4. 任务表
+
+| ID | 类型 | Epic | 任务与结果 | 优先级 | 状态 | 健康 | DRI | Approver | 依赖 | 验收 | 证据 | ADR | 回滚/下一动作 | 更新 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| P1-0-01 | TASK | P1-0 | 冻结 Phase 1 分支基线 | P0 | DONE | ON_TRACK | Delivery DRI | Repository Owner | — | 从 081084a 创建分支且工作树干净 | evidence/P1-0-01.md | — | 不合并 main；提交治理文件 | 2026-08-28 |
+| P1-0-02 | TASK | P1-0 | 建立 tracker 和证据卡规则 | P0 | IN_REVIEW | ON_TRACK | Delivery DRI | Repository Owner | hard:P1-0-01@DONE | 单一状态源、状态机、字段、DoR/DoD 明确 | evidence/P1-0-02.md | — | 保留审查文档；审阅书面规格 | 2026-08-28 |
+| P1-0-03 | TASK | P1-0 | 提交详细设计规格 | P0 | IN_REVIEW | ON_TRACK | Delivery DRI | Repository Owner | hard:P1-0-01@DONE | 架构、数据流、API、TDD、门禁、回滚完整 | evidence/P1-0-03.md | ADR-0001~0005 | 审阅前不实施；请用户审阅 | 2026-08-28 |
+| P1-0-04 | TASK | P1-0 | 建立所有写入口与角色矩阵 | P0 | EVIDENCE_CONFIRMED | ON_TRACK | Delivery DRI | Security Reviewer | hard:P1-0-03@IN_REVIEW | routes、roles、families、外部副作用可追踪 | evidence/P1-0-04.md | ADR-0001 | 写首个 RBAC RED | 2026-08-28 |
+| P1-0-05 | DECISION | P1-0 | 批准 Ledger、事务、幂等合同 | P0 | DONE | ON_TRACK | Delivery DRI | Repository Owner | hard:P1-0-03@IN_REVIEW | service boundary、operation、audit、revision 明确 | evidence/P1-0-05.md | ADR-0001, ADR-0002 | ADR-0001/0002 已正式 Accepted；进入 schema RED | 2026-08-28 |
+| P1-0-06 | DECISION | P1-0 | 批准 Import、AI mutation 合同 | P0 | DONE | ON_TRACK | Delivery DRI | Finance/Product Owner | hard:P1-0-03@IN_REVIEW; exception:RepositoryOwner@2026-09-01 | 整批原子、proposal-only、编辑/hash 明确 | evidence/P1-0-06.md | ADR-0003, ADR-0004 | 方案 B 与执行已获明确批准；ADR-0003/0004 Accepted；不回退 partial/auto write | 2026-09-01 |
+| P1-0-07 | GATE | P1-0 | 冻结测试和环境基线 | P0 | EVIDENCE_CONFIRMED | AT_RISK | QA/Evidence Owner | Repository Owner | hard:P1-0-03@IN_REVIEW | 命令、套件、coverage、依赖、环境如实记录 | evidence/P1-0-07.md | — | 环境不可用标 BLOCKED；获取 PG | 2026-08-28 |
+| P1-G-00 | TASK | P1-G | 分离 app/server/db 启动边界 | P0 | REFACTORED | AT_RISK | Delivery DRI | Technical Approver | hard:P1-0-03@DONE | app import 无 listener/Redis/MinIO 副作用 | evidence/P1-G-00.md | ADR-0001 | build、focused 和 256 个默认单元测试通过；补足全局 branch coverage 后再推进 `REGRESSION_VERIFIED` | 2026-08-28 |
+| P1-A-01 | TASK | P1-A | 固化 Income/Expense CRUD 特征测试 | P0 | REFACTORED | AT_RISK | Ledger Agent | Technical Approver | hard:P1-0-04@READY | 响应兼容、family 隔离、viewer 拒绝 | evidence/P1-A-01.md | ADR-0001 | 16 route contracts 与 authenticated-member HTTP→PG CRUD 通过；补全角色矩阵，coverage 达标后再验证 | 2026-08-31 |
+| P1-A-02 | TASK | P1-A | 定义 Ledger command/result/error | P0 | REFACTORED | AT_RISK | Ledger Agent | Technical Approver | hard:P1-0-05@ACCEPTED | service 不依赖 Express，错误稳定 | evidence/P1-A-02.md | ADR-0001, ADR-0002 | top-level effectiveDate 合同已通过 12 个 focused tests；待 route/schema 和全局 coverage 门禁 | 2026-08-28 |
+| P1-A-03 | TASK | P1-A | 建立 Ledger 事务编排骨架 | P0 | REFACTORED | AT_RISK | Ledger Agent | Technical Approver | hard:P1-A-02@REGRESSION_VERIFIED; hard:P1-G-00@REGRESSION_VERIFIED | policy、idempotency、write、audit 同 transaction | evidence/P1-A-03.md | ADR-0001, ADR-0002 | real PostgreSQL rollback injection 已证明空 resourceId 后 Income、IdempotencyRecord、AuditEvent 零持久化；coverage 依赖未满足，禁止 route adoption | 2026-08-31 |
+| P1-A-04 | TASK | P1-A | 迁移 Income create/update/delete | P0 | REFACTORED | AT_RISK | API Agent | Technical Approver | hard:P1-A-03@REGRESSION_VERIFIED; exception:RepositoryOwner@2026-08-31 | route 无直接 Income mutation，响应兼容 | evidence/P1-A-04.md | ADR-0001, ADR-0002 | Ledger route adapter / 16 contracts / authenticated-member HTTP→PG CRUD 通过；补覆盖率和安全复核；回退单入口、不双写 | 2026-08-31 |
+| P1-A-05 | TASK | P1-A | 迁移 Expense create/update/delete | P0 | REFACTORED | AT_RISK | API Agent | Technical Approver | hard:P1-A-03@REGRESSION_VERIFIED; exception:RepositoryOwner@2026-08-31 | route 无直接 Expense mutation，响应兼容 | evidence/P1-A-05.md | ADR-0001, ADR-0002 | Ledger route adapter / cache regression / 16 contracts / authenticated-member HTTP→PG CRUD 通过；补覆盖率和安全复核；回退单入口、不双写 | 2026-08-31 |
+| P1-A-06 | TASK | P1-A | 增加乐观版本并发合同 | P1 | REFACTORED | AT_RISK | Database Agent | Technical Approver | hard:P1-A-04@REGRESSION_VERIFIED; hard:P1-A-05@REGRESSION_VERIFIED | 相同 version 竞争一个成功、一个 409 | evidence/P1-A-06.md | ADR-0002 | PostgreSQL predicate PASS-REAL，Income/Expense route 已传播 `If-Match` 并真实验证 stale 409；待并发 HTTP、coverage 和依赖状态关闭 | 2026-08-31 |
+| P1-A-07 | GATE | P1-A | 禁止受控入口绕过 Ledger | P0 | REGRESSION_VERIFIED | AT_RISK | Security Reviewer | Repository Owner | hard:P1-A-04@REGRESSION_VERIFIED; hard:P1-A-05@REGRESSION_VERIFIED | 源码检查和 route tests 无直接账目写入 | evidence/P1-A-07.md | ADR-0001 | AI 旧 direct executor 已由 `6704300` 移除，普通 Asset 已由 P1-A-08 迁移；继续审计 Liability/其他 mutation，兼容 URL 未移除前不得关闭 | 2026-09-01 |
+| P1-A-08 | TASK | P1-A | 迁移普通 Asset CRUD 到 Ledger/Balance | P0 | REGRESSION_VERIFIED | AT_RISK | API Agent | Technical Approver | hard:P1-A-03@REGRESSION_VERIFIED; exception:RepositoryOwner@2026-09-01 | route 无直接 Prisma mutation；member create/update/delete 具备事务、幂等、审计、cacheVersion 和版本 CAS；viewer/非成员/stale version 零副作用 | evidence/P1-A-08.md | ADR-0001, ADR-0002, ADR-0007 | `310e6ca`/`d180d60`/`c644d50` 完成 Balance service、Asset transaction adapter、route adoption、version migration 和 15 个 route contracts；真实 PostgreSQL 4/4、完整 integration 12 suites/80 tests；普通 Liability CRUD、估值/币种换算与外部门禁仍开放 | 2026-09-01 |
+| P1-A-09 | TASK | P1-A | 迁移普通 Liability CRUD 到 Ledger/Balance | P0 | DESIGNED | ON_TRACK | API Agent | Technical Approver | hard:P1-A-03@REGRESSION_VERIFIED; exception:RepositoryOwner@2026-09-02 | route 无直接 Prisma mutation；member create/update/delete 具备事务、幂等、审计、cacheVersion 和版本 CAS；viewer/非成员/stale version 零副作用 | evidence/P1-A-09.md | ADR-0001, ADR-0002, ADR-0007 | 设计已提交，待书面规格审阅；审阅后创建实施计划，先写聚焦 RED；保持单入口、不双写、不扩大到估值/汇率 | 2026-09-02 |
+| P1-B-01 | TASK | P1-B | 新增 IdempotencyRecord schema/migration | P0 | REFACTORED | AT_RISK | Database Agent | Technical Approver | hard:P1-0-05@DONE; decision:ADR-0002@ACCEPTED | family/actor/operation/key 唯一 | evidence/P1-B-01.md | ADR-0002 | `17c2644` fresh PG migration/unique/default/version PASS-REAL；待并发 replay/upgrade/restore 后评审 | 2026-08-28 |
+| P1-B-02 | TASK | P1-B | 实现 payload hash/coordinator | P0 | REFACTORED | AT_RISK | Ledger Agent | Technical Approver | hard:P1-B-01@REGRESSION_VERIFIED; hard:P1-A-02@REGRESSION_VERIFIED | 相同 key/hash 重放一份结果 | evidence/P1-B-02.md | ADR-0002 | 纯合同为 PASS-MOCK；P1-B-04 已补真实 adapter/replay 证据；route adoption 仍未完成 | 2026-08-28 |
+| P1-B-03 | TASK | P1-B | 固化 key 冲突错误 | P0 | REGRESSION_VERIFIED | AT_RISK | Ledger Agent | Security Reviewer | hard:P1-B-02@REGRESSION_VERIFIED; external:POSTGRES_TEST_ENV@AVAILABLE | 同 key/不同 hash 409；Income、IdempotencyRecord、AuditEvent 与 revision 零变化 | evidence/P1-B-03.md | ADR-0002 | localhost:5433 PASS-REAL；冲突重用不新增事实且不推进 revision；route adoption、P1-B-04 偶发 INTERNAL_ERROR 分类、upgrade/restore、staging/release 与全局 coverage 仍为门禁 | 2026-08-31 |
+| P1-B-04 | GATE | P1-B | 真实 PostgreSQL 并发仲裁 | P0 | REGRESSION_VERIFIED | AT_RISK | Database Agent | QA/Evidence Owner | hard:P1-B-02@REGRESSION_VERIFIED; external:POSTGRES_TEST_ENV@AVAILABLE | 20 并发一条账且可 replay | evidence/P1-B-04.md | ADR-0002 | localhost:5433 全套重跑通过；映射前原始 Prisma 异常现保留在非枚举 `DomainError.cause`，但尚未在真实偶发故障中采样；route adoption 与全局 coverage 仍是后续门禁 | 2026-08-31 |
+| P1-B-05 | GATE | P1-B | 验证 revision/幂等一致 | P0 | REGRESSION_VERIFIED | AT_RISK | Database Agent | Technical Approver | hard:P1-B-04@REGRESSION_VERIFIED; external:POSTGRES_TEST_ENV@AVAILABLE | 20 路同命令 revision 只前进一次；completed replay 不新增事实且不前进 revision | evidence/P1-B-05.md | ADR-0001, ADR-0002 | localhost:5433 PASS-REAL；不手工 bump trigger；route adoption、P1-B-04 偶发 INTERNAL_ERROR 分类、upgrade/restore、staging/release 与全局 coverage 仍为门禁 | 2026-08-31 |
+| P1-C-01 | TASK | P1-C | 固化 import 资源限制 | P1 | REFACTORED | AT_RISK | Import Agent | Security Reviewer | hard:P1-0-06@ACCEPTED | byte/row/field limit 边界返回 413 | evidence/P1-C-01.md | ADR-0003 | 10 MiB/10,000 行/512 字段限制已 PASS；推进 P1-C-02 ImportBatch/ImportRow schema，不改变旧 confirm 直到新合同具备 | 2026-09-01 |
+| P1-C-02 | TASK | P1-C | 新增 ImportBatch/ImportRow schema | P0 | REFACTORED | AT_RISK | Database Agent | Technical Approver | hard:P1-B-01@REGRESSION_VERIFIED | hash/version/status 可追踪 | evidence/P1-C-02.md | ADR-0003 | `d101816` additive migration/schema/constraints/cascade PASS-REAL；推进 P1-C-03 server-owned preview，不接入旧 confirm | 2026-09-01 |
+| P1-C-03 | TASK | P1-C | 持久化服务端 preview | P0 | REGRESSION_VERIFIED | AT_RISK | Import Agent | Technical Approver | hard:P1-C-02@REGRESSION_VERIFIED | preview 由服务端持有 batch/row 和 hash，旧数组响应保持兼容；confirm 仍未切换 | evidence/P1-C-03.md | ADR-0003 | `persistImportPreview` + CORS headers + HTTP→PG PASS-REAL；下一步写 batch-only/tamper RED | 2026-09-01 |
+| P1-C-04 | TASK | P1-C | 实现整批原子 confirm | P0 | REGRESSION_VERIFIED | AT_RISK | Import Agent | Finance/Product Owner | hard:P1-C-03@REGRESSION_VERIFIED; hard:P1-B-02@REGRESSION_VERIFIED | 任意行失败账目为零 | evidence/P1-C-04.md | ADR-0003 | `66970be` batch-only confirm / server canonical rows / transaction-backed Ledger / zero-write invalid path PASS-REAL；前端仍待迁移 | 2026-09-01 |
+| P1-C-05 | GATE | P1-C | 验证 import retry/replay/concurrency | P0 | REGRESSION_VERIFIED | AT_RISK | QA/Evidence Owner | Technical Approver | hard:P1-C-04@REGRESSION_VERIFIED; external:POSTGRES_TEST_ENV@AVAILABLE | 并发 confirm 只提交一次 | evidence/P1-C-05.md | ADR-0002, ADR-0003 | localhost:5433 PASS-REAL；同 key replay、不同 key duplicate rejection、双路 concurrent claim 已验证；distinct-key loser response policy、upgrade/restore、staging/release 与全局 coverage 仍为门禁 | 2026-09-01 |
+| P1-C-06 | TASK | P1-C | 更新前端 import 状态流程 | P1 | REGRESSION_VERIFIED | AT_RISK | Frontend Agent | Repository Owner | hard:P1-C-04@REGRESSION_VERIFIED | 显示 batch、失败行、确认状态 | evidence/P1-C-06.md | ADR-0003 | `50530b5` batch/hash service + page state + stable key PASS-MOCK；刷新恢复、E2E、warning/bundle 和 release observation 仍为门禁 | 2026-09-01 |
+| P1-D-01 | TASK | P1-D | 新增 RecurringExecution schema | P0 | REGRESSION_VERIFIED | AT_RISK | Database Agent | Technical Approver | hard:P1-B-01@REGRESSION_VERIFIED | rule+scheduledFor 唯一 | evidence/P1-D-01.md | ADR-0002, ADR-0006 | `370b2d9` additive execution/tombstone migrations、fresh 9 migrations 和 PostgreSQL 约束通过；待 populated upgrade/restore、release observation | 2026-09-01 |
+| P1-D-02 | TASK | P1-D | 实现 recurring 同事务执行 | P0 | REGRESSION_VERIFIED | AT_RISK | Recurring Agent | Technical Approver | hard:P1-D-01@REGRESSION_VERIFIED; hard:P1-A-03@REGRESSION_VERIFIED | entry/execution/nextDate 同提交 | evidence/P1-D-02.md | ADR-0002, ADR-0006 | `370b2d9` transaction-backed Ledger、规则条件推进、审计/幂等和 rollback PASS-REAL；待 release observation | 2026-09-01 |
+| P1-D-03 | TASK | P1-D | 迁移 recurring route 到 Ledger | P0 | REGRESSION_VERIFIED | AT_RISK | Recurring Agent | Technical Approver | hard:P1-D-02@REGRESSION_VERIFIED | route 无直接写账 | evidence/P1-D-03.md | ADR-0001, ADR-0002, ADR-0006 | route 无直接 Income/Expense/规则推进；前端发送 scheduledFor 并复用 occurrence key；待 browser E2E | 2026-09-01 |
+| P1-D-04 | GATE | P1-D | 覆盖 recurring 并发/失效/边界 | P0 | REGRESSION_VERIFIED | AT_RISK | QA/Evidence Owner | Technical Approver | hard:P1-D-03@REGRESSION_VERIFIED | 20 并发一条 entry；失效不写 | evidence/P1-D-04.md | ADR-0002, ADR-0006 | PostgreSQL 6 个 recurring integration cases PASS；外部 PG blocker 已解除，待 coverage、restore、E2E、staging/release | 2026-09-01 |
+| P1-E-01 | TASK | P1-E | 固化 text AI 自动写账 RED | P0 | REFACTORED | AT_RISK | AI Agent | Security Reviewer | hard:P1-0-04@READY; exception:RepositoryOwner@2026-09-01 | 确认前账目不变 | evidence/P1-E-01.md | ADR-0004 | `5a564c9` text actions → proposedActions、零 executeActions PASS-MOCK；推进 P1-E-02 server-owned proposal schema 和真实零账本证据 | 2026-09-01 |
+| P1-E-02 | TASK | P1-E | 新增 AIProposal/Item 合同 | P0 | REGRESSION_VERIFIED | AT_RISK | Database Agent | Technical Approver | hard:P1-B-01@REGRESSION_VERIFIED; hard:P1-0-06@DONE; exception:RepositoryOwner@2026-09-01 | 状态、version、hash、来源和过期可追踪 | evidence/P1-E-02.md | ADR-0004 | `732eafd` additive schema、10 migrations、约束/cascade、existing/fresh PG PASS-REAL；推进 P1-E-03，待 restore/release | 2026-09-01 |
+| P1-E-03 | TASK | P1-E | chat/OCR 统一 proposal-only | P0 | REGRESSION_VERIFIED | AT_RISK | AI Agent | Security Reviewer | hard:P1-E-01@REGRESSION_VERIFIED; hard:P1-E-02@REGRESSION_VERIFIED | AI provider 输出绝不直接写账 | evidence/P1-E-03.md | ADR-0004 | `7f6c366`：chat/OCR 四个 proposal-producing paths 写入 server-owned AiProposal/Item，current membership/source 校验、canonical hash/TTL、malformed/role negative tests、real PostgreSQL route 零账本证据；确认事务已由 `cdfcb67` 接入，legacy adapter、外部依赖、E2E/release remain open | 2026-09-01 |
+| P1-E-04 | TASK | P1-E | 实现 AI 显式确认事务 | P0 | REGRESSION_VERIFIED | AT_RISK | AI Agent | Technical Approver | hard:P1-E-03@REGRESSION_VERIFIED; hard:P1-A-03@REGRESSION_VERIFIED | proposal 抢占、mutation、audit 同事务 | evidence/P1-E-04.md | ADR-0001, ADR-0002, ADR-0004 | `cdfcb67`：同一事务内条件抢占 proposal、Ledger mutation、item result、AuditEvent 和 EXECUTED result；同 key replay / distinct-key conflict / concurrency 已验证；Balance action 与外部发布观察仍开放 | 2026-09-01 |
+| P1-E-05 | TASK | P1-E | 更新前端 proposal 编辑/确认 | P1 | REGRESSION_VERIFIED | AT_RISK | Frontend Agent | Repository Owner | hard:P1-E-04@REGRESSION_VERIFIED | 用户可编辑、确认、取消、查看状态 | evidence/P1-E-05.md | ADR-0004 | `d945e65`/`c769a78`：history 恢复 server-owned proposal、确认优先使用 proposal item ID，并恢复 EXECUTED 结果状态；取消、多标签和浏览器 E2E 仍开放 | 2026-09-01 |
+| P1-E-06 | GATE | P1-E | 覆盖 viewer/篡改/重放/过期 | P0 | REGRESSION_VERIFIED | AT_RISK | Security Reviewer | Repository Owner | hard:P1-E-04@REGRESSION_VERIFIED | 恶意/越权路径零账本副作用 | evidence/P1-E-06.md | ADR-0004 | `e295e54` + AI route PostgreSQL 17/17，`6704300` 移除旧 direct executor：viewer/non-member、跨 family、篡改、过期、重复/未知 item、缺 key、同 key 改 payload、executed 二次确认和并发均有负向证据；legacy adapter、E2E 与 release 仍开放 | 2026-09-01 |
+| P1-E-07 | TASK | P1-E | AI Asset/Liability transaction-scoped Balance mutation | P0 | REGRESSION_VERIFIED | AT_RISK | AI Agent | Technical Approver | hard:P1-E-03@REGRESSION_VERIFIED; hard:P1-A-03@REGRESSION_VERIFIED; decision:ADR-0004@ACCEPTED | create_asset/create_liability 经过 Balance service，在 proposal 同一 transaction 内原子提交、审计、幂等和重放；viewer/篡改/失败零副作用 | evidence/P1-E-07.md | ADR-0001, ADR-0002, ADR-0004, ADR-0007 | `fc50633`/`d204201`/`bdabe7b` 完成 focused RED→GREEN、transaction adapter、Balance service、proposal dispatch/type matching；focused 18/18，AI PG confirmation/route 25/25，完整 PG 12 suites/80 tests；coverage 50/417、branches 60.04% 已通过；普通 Liability CRUD、Balance query/valuation/currency conversion、Docker/Compose/Playwright、Redis/MinIO、restore、release observation 与 Graphify semantic refresh 仍开放 | 2026-09-01 |
+| P1-F-01 | DECISION | P1-F | 批准 timezone/period window | P1 | BACKLOG | ON_TRACK | Delivery DRI | Finance/Product Owner | hard:P1-0-03@IN_REVIEW | half-open、family timezone、边界明确 | evidence/P1-F-01.md | ADR-0005 | 未批准不改统计语义；形成 ADR | 2026-08-28 |
+| P1-F-02 | DECISION | P1-F | 批准 base currency/缺失汇率 | P1 | BACKLOG | ON_TRACK | Delivery DRI | Finance/Product Owner | hard:P1-0-03@IN_REVIEW | 分币种、不虚假求和、回填明确 | evidence/P1-F-02.md | ADR-0005 | 未批准保守拒绝；形成 ADR | 2026-08-28 |
+| P1-F-03 | TASK | P1-F | 让 Budget period 约束统计窗口 | P1 | BACKLOG | ON_TRACK | Backend Agent | Finance/Product Owner | hard:P1-F-01@ACCEPTED | 月/季/年边界正确 | evidence/P1-F-03.md | ADR-0005 | 入口回退；写 period RED | 2026-08-28 |
+| P1-F-04 | TASK | P1-F | 隔离 Goal contribution 计算 | P1 | BACKLOG | ON_TRACK | Backend Agent | Finance/Product Owner | hard:P1-F-01@ACCEPTED | 多目标不污染、可解释 | evidence/P1-F-04.md | ADR-0005 | 保留旧只读路径；写 RED | 2026-08-28 |
+| P1-F-05 | GATE | P1-F | 建立三表 reconciliation fixtures | P0 | BACKLOG | ON_TRACK | QA/Evidence Owner | Finance/Product Owner | hard:P1-F-01@ACCEPTED; hard:P1-F-02@ACCEPTED | net income/cash flow/balance/dashboard 恒等式 | evidence/P1-F-05.md | ADR-0005 | 未知不渲染为零；建 fixture | 2026-08-28 |
+| P1-G-01 | GATE | P1-G | 真实 PostgreSQL migration/事务 | P0 | REFACTORED | AT_RISK | QA/Evidence Owner | Release Owner | external:POSTGRES_TEST_ENV@AVAILABLE | migration、trigger、rollback、concurrency PASS-REAL | evidence/P1-G-01.md | ADR-0001, ADR-0002 | 现有 test DB 增量至 11 migrations，fresh deploy、Asset version 与 AI proposal constraints PASS-REAL；待 production-like populated restore/staging | 2026-09-01 |
+| P1-G-02 | GATE | P1-G | 完成角色×方法×入口矩阵 | P0 | REFACTORED | AT_RISK | Security Reviewer | Repository Owner | hard:P1-0-04@READY | 401/403/200/2xx 且零副作用 | evidence/P1-G-02.md | ADR-0001 | 非外部路径正向 member/admin 2xx 已 PASS-REAL；继续 AI/upload 外部依赖、对象隔离和全局 coverage 后再验证 | 2026-09-01 |
+| P1-G-03 | TASK | P1-G | 补齐前端 mutation 行为测试 | P1 | REGRESSION_VERIFIED | AT_RISK | Frontend Agent | QA/Evidence Owner | hard:P1-0-03@IN_REVIEW | error/loading/confirm/replay 可测 | evidence/P1-G-03.md | — | Import/Recurring stable-key 合同和 AIPage server-owned proposal、reload 后 pending/EXECUTED 恢复均有组件/服务测试；当前前端 AI focused 6/6，浏览器 E2E、多标签和 lint warning 清理仍开放 | 2026-09-01 |
+| P1-G-04 | GATE | P1-G | 建立 Playwright 关键旅程 | P1 | IN_REVIEW | AT_RISK | Integration Agent | QA/Evidence Owner | hard:P1-G-00@REGRESSION_VERIFIED | login/switch/CRUD/report/viewer/import/AI | evidence/P1-G-04.md | — | harness 已实现且 4 tests 可发现；启动 Docker 后执行真实 Playwright，不能以静态发现代替 PASS-E2E | 2026-09-01 |
+| P1-G-05 | GATE | P1-G | Redis/MinIO/Compose 故障恢复 | P0 | BLOCKED | AT_RISK | Integration Agent | Release Owner | external:COMPOSE_ENV@AVAILABLE | down/up、授权、生命周期、降级 PASS-REAL | evidence/P1-G-05.md | — | 本机 Docker unavailable；先在 Docker-capable host 执行 G-04，再补 Redis/MinIO failure/recovery 和 object isolation | 2026-09-01 |
+| P1-G-06 | GATE | P1-G | coverage/lint/advisory 门禁 | P1 | IN_REVIEW | AT_RISK | QA/Evidence Owner | Repository Owner | hard:P1-0-07@REGRESSION_VERIFIED | coverage 真执行、warning 不增、high 有处置 | evidence/P1-G-06.md | — | backend coverage 50 suites / 417 tests、branches 60.04% 已 PASS-REAL；frontend lint/build 通过但保留 16 条既有 warning，backend/frontend high advisory 尚无本轮处置；Graphify semantic refresh 仍待可用 runner | 2026-09-01 |
+| P1-H-01 | TASK | P1-H | 同步 API、ADR、memory、风险 | P0 | REGRESSION_VERIFIED | AT_RISK | Delivery DRI | Repository Owner | hard:P1-A-07@REGRESSION_VERIFIED | 长期事实和证据一致 | evidence/P1-H-01.md | ADR-0001~0007 | 本次 Asset route adoption、AI confirmation/history 事实已同步；Liability/Balance query、Graphify semantic refresh、外部依赖与发布观察仍需单独门禁 | 2026-09-01 |
+| P1-H-02 | TASK | P1-H | 增量更新和复核 Graphify | P1 | IN_REVIEW | AT_RISK | Delivery DRI | Technical Approver | hard:P1-H-01@REGRESSION_VERIFIED | EXTRACTED/INFERRED 边有结论 | evidence/P1-H-02.md | — | 当前图 827 nodes / 822 edges、194 communities；已复核 Balance/Asset 导航节点；semantic incremental refresh 仍待可用 runner，禁止 AST-only 覆盖 reviewed semantic graph | 2026-09-01 |
+| P1-H-03 | GATE | P1-H | migration/发布/回滚演练 | P0 | BLOCKED | AT_RISK | Release Owner | Repository Owner | hard:P1-G-01@PASS-REAL; hard:P1-G-05@PASS-REAL | staging RELEASED 后 OBSERVED | evidence/P1-H-03.md | — | 前向修复/恢复；安排 staging | 2026-08-28 |
+| P1-H-04 | GATE | P1-H | Phase 1 退出评审 | P0 | BACKLOG | ON_TRACK | Repository Owner | Repository Owner | hard:P1-H-03@OBSERVED; hard:P1-G-04@PASS-E2E; hard:P1-F-05@REGRESSION_VERIFIED | 无未接受 P0/P1，退出证据齐全 | evidence/P1-H-04.md | — | 失败保持原状态；生成快照 | 2026-08-28 |
+
+## 5. Definition of Ready
+
+任务进入 READY 前必须具备唯一 ID、结果、范围、DRI、Approver、优先级；源码 route/service/schema 和 family/role 范围；首个 RED 的文件、测试名、fixture、命令和预期失败；授权、重试、并发、异常、日期、币种语义；migration、兼容、回滚路径；对应财务/安全/产品决策。
+
+任务明细中的 reviewers、blocked_by、target 和 mirror 使用证据卡或本节补充登记；它们不另建状态源。当前阻塞登记如下：
+
+| 任务 | blocked_by | 解除责任人 | 复查 |
+|---|---|---|---|
+| P1-G-05 | external:COMPOSE_ENV@AVAILABLE | Integration Agent / Release Owner | Compose 环境可用后立即复查 |
+
+目标日期不在环境和批准条件明确前虚构；GitHub mirror 只在创建 Issue 后回填，Markdown 状态仍是唯一事实源。
+
+## 6. Definition of Done
+
+必须有真实 RED、最小 GREEN、REFACTOR 后绿色；相关 build、lint、unit、integration、coverage、component、E2E 证据；安全负向矩阵；财务边界和 reconciliation；无部分提交、重复事实和越权副作用；migration 和回滚演练；API、ADR、project memory、审计风险、Graphify 同步；已 RELEASED 并 OBSERVED；无未处理高风险或有正式接受责任人和到期日。
+
+## 7. 证据卡规则与 GitHub 镜像
+
+每个任务对应 evidence/<ID>.md，固定记录 baseline commit、branch/commit、source evidence、affected family/role/route/table、RED 命令和失败、GREEN、REFACTOR、regression、security matrix、database/migration、frontend/E2E、release environment、observed result、rollback rehearsal、ADR/memory/Graphify updates、remaining risks。N/A 必须说明原因。
+
+Markdown 是主库，GitHub Issue/Project 只是镜像。Issue 标题为 [P1-A-01] 任务名；字段映射 state→Status、health→Health、priority→Priority、epic→Epic、dri→Assignee。GitHub 状态变更必须通过 PR 更新本文件；冲突以默认分支最新 tracker 为准；每周检查漂移。

@@ -249,6 +249,50 @@ describe('Database Integration Tests', () => {
   });
 
   describe('事务与并发', () => {
+    test('家庭数据 INSERT/UPDATE/DELETE 应在同一事务内推进持久缓存版本', async () => {
+      const before = await prisma.family.findUniqueOrThrow({ where: { id: familyId } });
+
+      const expense = await prisma.expense.create({
+        data: {
+          familyId,
+          createdBy: userId,
+          category: '餐饮',
+          amount: 88,
+          date: new Date(),
+        },
+      });
+
+      const afterInsert = await prisma.family.findUniqueOrThrow({ where: { id: familyId } });
+      expect(afterInsert.cacheVersion).toBe(before.cacheVersion + 1);
+
+      await prisma.expense.update({
+        where: { id: expense.id },
+        data: { amount: 99 },
+      });
+      const afterUpdate = await prisma.family.findUniqueOrThrow({ where: { id: familyId } });
+      expect(afterUpdate.cacheVersion).toBe(afterInsert.cacheVersion + 1);
+
+      await prisma.expense.delete({ where: { id: expense.id } });
+      const afterDelete = await prisma.family.findUniqueOrThrow({ where: { id: familyId } });
+      expect(afterDelete.cacheVersion).toBe(afterUpdate.cacheVersion + 1);
+    });
+
+    test('家庭数据 mutation 回滚时持久缓存版本也应回滚', async () => {
+      const before = await prisma.family.findUniqueOrThrow({ where: { id: familyId } });
+
+      await expect(
+        prisma.$transaction(async (tx) => {
+          await tx.income.create({
+            data: { familyId, createdBy: userId, category: '工资', amount: 1000, date: new Date() },
+          });
+          throw new Error('rollback cache revision');
+        }),
+      ).rejects.toThrow('rollback cache revision');
+
+      const after = await prisma.family.findUniqueOrThrow({ where: { id: familyId } });
+      expect(after.cacheVersion).toBe(before.cacheVersion);
+    });
+
     test('应支持事务回滚', async () => {
       const initialCount = await prisma.income.count({ where: { familyId } });
 

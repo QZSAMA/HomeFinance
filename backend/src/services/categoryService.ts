@@ -1,4 +1,4 @@
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 
 /**
  * 基于历史交易描述推荐类别

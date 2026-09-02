@@ -11,11 +11,19 @@ const CATEGORY_OPTIONS = [
   '工资', '奖金', '投资收益', '兼职收入', '租金收入', '其他',
 ];
 
+const createImportRequestKey = () => (
+  globalThis.crypto?.randomUUID?.()
+  ?? `import-${Date.now()}-${Math.random().toString(36).slice(2)}`
+);
+
 const ImportPage = () => {
   const { currentFamily } = useFamilyStore();
   const [format, setFormat] = useState<'alipay' | 'wechat'>('alipay');
   const [file, setFile] = useState<File | null>(null);
   const [items, setItems] = useState<ImportedTransaction[]>([]);
+  const [batchId, setBatchId] = useState('');
+  const [previewHash, setPreviewHash] = useState('');
+  const [confirmRequestKey, setConfirmRequestKey] = useState('');
   const [parsing, setParsing] = useState(false);
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState('');
@@ -35,13 +43,19 @@ const ImportPage = () => {
     setParsing(true);
     try {
       const result = await previewCSV(currentFamily.id, file, format);
-      setItems(result);
-      if (result.length === 0) {
+      setItems(result.items);
+      setBatchId(result.batchId);
+      setPreviewHash(result.previewHash);
+      setConfirmRequestKey('');
+      if (result.items.length === 0) {
         setError('CSV 文件中未识别到任何交易记录');
       }
     } catch (err: any) {
       setError(err.response?.data?.error || '解析失败');
       setItems([]);
+      setBatchId('');
+      setPreviewHash('');
+      setConfirmRequestKey('');
     } finally {
       setParsing(false);
     }
@@ -55,12 +69,30 @@ const ImportPage = () => {
     if (items.length === 0) return;
     setError('');
     setSuccessMsg('');
+    if (!batchId || !previewHash) {
+      setError('导入预览批次已失效，请重新解析文件');
+      return;
+    }
     setImporting(true);
     try {
-      const count = await confirmImport(currentFamily.id, items);
+      const requestKey = confirmRequestKey || createImportRequestKey();
+      setConfirmRequestKey(requestKey);
+      const categoryPatch = Object.fromEntries(
+        items.flatMap((item, idx) => item.category ? [[String(idx + 1), item.category]] : []),
+      );
+      const count = await confirmImport(
+        currentFamily.id,
+        batchId,
+        previewHash,
+        categoryPatch,
+        requestKey,
+      );
       setSuccessMsg(`成功导入 ${count} 条记录`);
       setItems([]);
       setFile(null);
+      setBatchId('');
+      setPreviewHash('');
+      setConfirmRequestKey('');
     } catch (err: any) {
       setError(err.response?.data?.error || '导入失败');
     } finally {
@@ -86,13 +118,17 @@ const ImportPage = () => {
             </select>
           </div>
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">CSV 文件</label>
+            <label htmlFor="import-file" className="block text-sm font-medium text-gray-700 mb-1">CSV 文件</label>
             <input
+              id="import-file"
               type="file"
               accept=".csv"
               onChange={(e) => {
                 setFile(e.target.files?.[0] || null);
                 setItems([]);
+                setBatchId('');
+                setPreviewHash('');
+                setConfirmRequestKey('');
                 setSuccessMsg('');
               }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -109,17 +145,18 @@ const ImportPage = () => {
       </div>
 
       {error && (
-        <div className="mb-4 text-red-700 text-sm bg-red-50 p-3 rounded">{error}</div>
+        <div role="alert" className="mb-4 text-red-700 text-sm bg-red-50 p-3 rounded">{error}</div>
       )}
       {successMsg && (
-        <div className="mb-4 text-green-700 text-sm bg-green-50 p-3 rounded">{successMsg}</div>
+        <div role="status" className="mb-4 text-green-700 text-sm bg-green-50 p-3 rounded">{successMsg}</div>
       )}
 
-      {items.length > 0 && (
+      {items.length > 0 && batchId && previewHash && (
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
             <div className="text-sm text-gray-700">
               共识别 <span className="font-semibold">{items.length}</span> 条记录，可编辑类别后确认导入
+              <span className="ml-3 text-xs text-gray-500">批次: {batchId}</span>
             </div>
             <button
               onClick={handleConfirm}

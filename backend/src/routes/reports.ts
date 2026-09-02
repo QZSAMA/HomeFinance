@@ -1,30 +1,16 @@
 import { Router } from 'express';
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { cacheMiddleware } from '../middleware/cache';
+import { requireFamilyAccess } from '../middleware/familyAccess';
+import { calculateNetCashFlow, classifyCashFlowCategory } from '../utils/reportFormulas';
 import { toNumber } from '../utils/decimal';
 
 const router = Router({ mergeParams: true });
 
-const checkFamilyAccess = async (familyId: string, userId: string) => {
-  const membership = await prisma.familyMember.findUnique({
-    where: {
-      familyId_userId: {
-        familyId,
-        userId
-      }
-    }
-  });
-  return membership;
-};
-
-router.get('/balance-sheet', authMiddleware, cacheMiddleware(300), async (req: AuthRequest, res) => {
+router.get('/balance-sheet', authMiddleware, requireFamilyAccess, cacheMiddleware(300), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
 
     const assets = await prisma.asset.findMany({ where: { familyId } });
     const liabilities = await prisma.liability.findMany({ where: { familyId } });
@@ -58,13 +44,9 @@ router.get('/balance-sheet', authMiddleware, cacheMiddleware(300), async (req: A
   }
 });
 
-router.get('/income-statement', authMiddleware, cacheMiddleware(300), async (req: AuthRequest, res) => {
+router.get('/income-statement', authMiddleware, requireFamilyAccess, cacheMiddleware(300), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
 
     const startDate = req.query.startDate as string;
     const endDate = req.query.endDate as string;
@@ -116,13 +98,9 @@ router.get('/income-statement', authMiddleware, cacheMiddleware(300), async (req
   }
 });
 
-router.get('/cash-flow', authMiddleware, cacheMiddleware(300), async (req: AuthRequest, res) => {
+router.get('/cash-flow', authMiddleware, requireFamilyAccess, cacheMiddleware(300), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
 
     const startDate = req.query.startDate as string;
     const endDate = req.query.endDate as string;
@@ -137,28 +115,24 @@ router.get('/cash-flow', authMiddleware, cacheMiddleware(300), async (req: AuthR
     const incomes = await prisma.income.findMany({ where });
     const expenses = await prisma.expense.findMany({ where });
 
-    const operatingIncome = incomes.filter((i) => 
-      ['工资', '薪资', '兼职', '经营'].some((k) => i.category.includes(k)) || 
-      i.category === 'SALARY' || i.category === 'BUSINESS'
+    const operatingIncome = incomes.filter(
+      (income) => classifyCashFlowCategory(income.category, 'income') === 'operating',
     );
-    const investmentIncome = incomes.filter((i) => 
-      ['投资', '利息', '股息', '理财'].some((k) => i.category.includes(k)) ||
-      i.category === 'INVESTMENT' || i.category === 'INTEREST'
+    const investmentIncome = incomes.filter(
+      (income) => classifyCashFlowCategory(income.category, 'income') === 'investing',
     );
-    const otherIncome = incomes.filter((i) => 
-      !operatingIncome.includes(i) && !investmentIncome.includes(i)
+    const otherIncome = incomes.filter(
+      (income) => classifyCashFlowCategory(income.category, 'income') === 'other',
     );
 
-    const livingExpense = expenses.filter((e) => 
-      ['餐饮', '交通', '购物', '娱乐', '医疗', '教育', '日用'].some((k) => e.category.includes(k)) ||
-      e.category === 'FOOD' || e.category === 'TRANSPORT' || e.category === 'SHOPPING' ||
-      e.category === 'ENTERTAINMENT' || e.category === 'HEALTHCARE' || e.category === 'EDUCATION'
+    const livingExpense = expenses.filter(
+      (expense) => classifyCashFlowCategory(expense.category, 'expense') === 'operating',
     );
-    const investmentExpense = expenses.filter((e) => 
-      ['投资', '理财'].some((k) => e.category.includes(k))
+    const investmentExpense = expenses.filter(
+      (expense) => classifyCashFlowCategory(expense.category, 'expense') === 'investing',
     );
-    const otherExpense = expenses.filter((e) => 
-      !livingExpense.includes(e) && !investmentExpense.includes(e)
+    const otherExpense = expenses.filter(
+      (expense) => classifyCashFlowCategory(expense.category, 'expense') === 'other',
     );
 
     const totalOperatingIncome = operatingIncome.reduce((s, i) => s + toNumber(i.amount), 0);
@@ -172,7 +146,13 @@ router.get('/cash-flow', authMiddleware, cacheMiddleware(300), async (req: AuthR
     const operatingCashFlow = totalOperatingIncome - totalLivingExpense;
     const investingCashFlow = totalInvestmentIncome - totalInvestmentExpense;
     const financingCashFlow = 0;
-    const netCashFlow = operatingCashFlow + investingCashFlow + financingCashFlow;
+    const otherCashFlow = totalOtherIncome - totalOtherExpense;
+    const netCashFlow = calculateNetCashFlow({
+      operating: operatingCashFlow,
+      investing: investingCashFlow,
+      financing: financingCashFlow,
+      other: otherCashFlow,
+    });
 
     res.json({
       operating: {
@@ -192,7 +172,8 @@ router.get('/cash-flow', authMiddleware, cacheMiddleware(300), async (req: AuthR
       },
       other: {
         income: totalOtherIncome,
-        expense: totalOtherExpense
+        expense: totalOtherExpense,
+        net: otherCashFlow
       },
       netCashFlow,
       startDate: startDate || null,
@@ -204,13 +185,9 @@ router.get('/cash-flow', authMiddleware, cacheMiddleware(300), async (req: AuthR
   }
 });
 
-router.get('/summary', authMiddleware, cacheMiddleware(300), async (req: AuthRequest, res) => {
+router.get('/summary', authMiddleware, requireFamilyAccess, cacheMiddleware(300), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
 
     const now = new Date();
     const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);

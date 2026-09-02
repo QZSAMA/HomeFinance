@@ -14,6 +14,17 @@ export interface ConversationRecord {
   type: 'chat' | 'analysis' | 'ocr';
   fileId: string | null;
   createdAt: string;
+  proposal?: {
+    id: string;
+    version: number;
+    originalHash: string;
+    expiresAt: string;
+    status: string;
+    items: AIAction[];
+    result?: {
+      actions?: ConfirmedAiAction[];
+    } | null;
+  };
 }
 
 export type OCRSource = 'vision' | 'tesseract' | 'merged';
@@ -32,6 +43,7 @@ export interface OCRResult {
 export interface AIAction {
   type: string;
   data: Record<string, any>;
+  proposalItemId?: string;
 }
 
 export interface OCRResponse {
@@ -41,6 +53,11 @@ export interface OCRResponse {
   fileId: string | null;
   proposedActions?: AIAction[];
   duplicateFlags?: boolean[];
+  proposalId?: string;
+  proposalVersion?: number;
+  proposalHash?: string;
+  proposalExpiresAt?: string;
+  proposalItems?: AIAction[];
 }
 
 export interface ActionResult {
@@ -57,7 +74,40 @@ export interface ChatResponse {
   proposedActions?: AIAction[];
   duplicateFlags?: boolean[];
   fileIds?: string[];
+  proposalId?: string;
+  proposalVersion?: number;
+  proposalHash?: string;
+  proposalExpiresAt?: string;
+  proposalItems?: AIAction[];
   aiConfigured: boolean;
+}
+
+export interface ConfirmAiProposalInput {
+  familyId: string;
+  proposalId: string;
+  expectedVersion: number;
+  expectedHash: string;
+  actions: AIAction[];
+}
+
+export interface ConfirmedAiAction {
+  ordinal: number;
+  type: string;
+  resourceId: string;
+  version?: number;
+}
+
+export interface ConfirmAiProposalResponse {
+  operationId: string;
+  resourceId: string;
+  version?: number;
+  deduplicated: boolean;
+  record?: {
+    proposalId: string;
+    status: 'EXECUTED';
+    version: number;
+    actions: ConfirmedAiAction[];
+  };
 }
 
 export const sendChat = async (
@@ -92,11 +142,19 @@ export const sendOCR = async (familyId: string, image: string): Promise<OCRRespo
   return response.data;
 };
 
-export const executeProposedActions = async (
-  familyId: string,
-  actions: AIAction[]
-): Promise<{ actions: ActionResult[]; aiConfigured: boolean }> => {
-  const response = await api.post(`/families/${familyId}/ai/execute-actions`, { actions });
+export const confirmAiProposal = async (
+  input: ConfirmAiProposalInput,
+  idempotencyKey: string,
+): Promise<ConfirmAiProposalResponse> => {
+  const response = await api.post<ConfirmAiProposalResponse>(
+    `/families/${input.familyId}/ai/proposals/${input.proposalId}/confirm`,
+    {
+      expectedVersion: input.expectedVersion,
+      expectedHash: input.expectedHash,
+      actions: input.actions,
+    },
+    { headers: { 'Idempotency-Key': idempotencyKey } },
+  );
   return response.data;
 };
 

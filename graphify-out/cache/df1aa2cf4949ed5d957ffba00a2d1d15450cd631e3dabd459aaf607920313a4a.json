@@ -1,0 +1,1 @@
+{"nodes": [{"id": "redis_shared_client", "label": "Shared Redis Client", "file_type": "code", "source_file": "backend/src/config/redis.ts", "source_location": "lines 1-17", "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}

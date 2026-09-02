@@ -3,8 +3,8 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import authRoutes from './auth';
 
-// Mock the app module where prisma is exported
-jest.mock('../app', () => ({
+// Mock the dedicated Prisma module used by the route
+jest.mock('../db/prisma', () => ({
   prisma: {
     user: {
       findUnique: jest.fn(),
@@ -13,7 +13,7 @@ jest.mock('../app', () => ({
   },
 }));
 
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 
 const mockedPrisma = prisma as any;
 

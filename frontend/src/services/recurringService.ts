@@ -41,7 +41,24 @@ export const updateRecurring = (familyId: string, id: string, data: Partial<Recu
 export const deleteRecurring = (familyId: string, id: string) =>
   api.delete(`/families/${familyId}/recurring/${id}`).then((r) => r.data);
 
-export const executeRecurring = (familyId: string, id: string) =>
-  api.post<{ message: string; nextDate: string; isActive: boolean }>(
-    `/families/${familyId}/recurring/${id}/execute`
-  ).then((r) => r.data);
+export interface RecurringExecutionResult {
+  message: string;
+  executionId: string;
+  operationId?: string;
+  resourceId?: string;
+  entryId: string;
+  nextDate: string;
+  isActive: boolean;
+  deduplicated: boolean;
+}
+
+export const executeRecurring = (
+  familyId: string,
+  id: string,
+  scheduledFor: string,
+  idempotencyKey: string,
+) => api.post<RecurringExecutionResult>(
+  `/families/${familyId}/recurring/${id}/execute`,
+  { scheduledFor },
+  { headers: { 'Idempotency-Key': idempotencyKey } },
+).then((r) => r.data);

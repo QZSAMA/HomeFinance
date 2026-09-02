@@ -70,4 +70,20 @@ describe('MinIO 配置 - presigned URL host', () => {
     expect(url).toContain('files.example.com');
     expect(url).not.toContain('minio:9000');
   });
+
+  it('将 bucket 初始化错误交给生命周期所有者处理', async () => {
+    const minio = require('minio') as { Client: jest.Mock };
+    const { ensureBucket } = require('./minio') as typeof import('./minio');
+    const internalClient = minio.Client.mock.results[0].value as {
+      bucketExists: jest.Mock;
+    };
+    const unavailable = new Error('MinIO unavailable');
+    internalClient.bucketExists.mockRejectedValueOnce(unavailable);
+    const error = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    await expect(ensureBucket()).rejects.toThrow('MinIO unavailable');
+
+    expect(error).not.toHaveBeenCalled();
+    error.mockRestore();
+  });
 });

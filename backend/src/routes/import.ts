@@ -1,32 +1,50 @@
-import { Router } from 'express';
+import { NextFunction, Request, Response, Router } from 'express';
 import multer from 'multer';
 import { z } from 'zod';
-import { prisma } from '../app';
-import { authMiddleware, AuthRequest } from '../middleware/auth';
-import { parseCSV } from '../services/importService';
+import { authMiddleware } from '../middleware/auth';
+import { FamilyAccessRequest, requireFamilyWriteAccess } from '../middleware/familyAccess';
+import {
+  confirmImportBatch,
+  ImportBatchValidationError,
+  parseCSV,
+  persistImportPreview,
+} from '../services/importService';
+import {
+  markIdempotencyReplay,
+  readIdempotencyKey,
+  sendLedgerMutationError,
+} from './ledgerRouteSupport';
+import {
+  assertImportRowsWithinLimit,
+  IMPORT_LIMITS,
+  ImportLimitError,
+} from '../services/importLimits';
 
 const router = Router({ mergeParams: true });
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: IMPORT_LIMITS.maxBytes },
+});
+
+const uploadCsv = (req: Request, res: Response, next: NextFunction) => {
+  upload.single('file')(req, res, (error: unknown) => {
+    if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({ error: 'IMPORT_LIMIT_EXCEEDED', limit: 'bytes' });
+    }
+    return next(error);
+  });
+};
 
 const VALID_FORMATS = ['alipay', 'wechat'];
 
-const checkFamilyAccess = async (familyId: string, userId: string) => {
-  const membership = await prisma.familyMember.findUnique({
-    where: { familyId_userId: { familyId, userId } },
-  });
-  return membership;
-};
-
-const itemSchema = z.object({
-  date: z.string().min(1),
-  description: z.string(),
-  amount: z.number().positive(),
-  type: z.enum(['INCOME', 'EXPENSE']),
-  category: z.string().optional(),
-});
+const confirmBatchSchema = z.object({
+  batchId: z.string().min(1),
+  expectedPreviewHash: z.string().regex(/^[0-9a-f]{64}$/),
+  categoryPatch: z.record(z.string(), z.string()).optional(),
+}).strict();
 
 // POST /csv — 上传 CSV 返回预览
-router.post('/csv', authMiddleware, upload.single('file'), async (req: AuthRequest, res) => {
+router.post('/csv', authMiddleware, requireFamilyWriteAccess, uploadCsv, async (req: FamilyAccessRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const format = req.body.format as string;
@@ -38,76 +56,65 @@ router.post('/csv', authMiddleware, upload.single('file'), async (req: AuthReque
       return res.status(400).json({ error: '请上传文件' });
     }
 
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
-
     const items = await parseCSV(req.file.buffer, format);
+    assertImportRowsWithinLimit(items);
+    const preview = await persistImportPreview({
+      familyId,
+      actorUserId: req.familyMembership!.userId,
+      format,
+      buffer: req.file.buffer,
+      items,
+    });
+    res.set({
+      'X-Import-Batch-Id': preview.batchId,
+      'X-Import-Preview-Hash': preview.previewHash,
+    });
     res.json(items);
   } catch (error) {
+    if (error instanceof ImportLimitError) {
+      return res.status(413).json({ error: error.code, limit: error.limit });
+    }
     console.error('解析 CSV 错误:', error);
     res.status(500).json({ error: 'CSV 解析失败' });
   }
 });
 
 // POST /confirm — 确认导入，批量创建 Income/Expense
-router.post('/confirm', authMiddleware, async (req: AuthRequest, res) => {
+router.post('/confirm', authMiddleware, requireFamilyWriteAccess, async (req: FamilyAccessRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
-
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
-
-    const { items } = req.body as { items: unknown[] };
-    if (!Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ error: 'items 不能为空' });
-    }
-
-    let successCount = 0;
-    const failedRows: Array<{ row: number; errors: string[] }> = [];
-    for (let i = 0; i < items.length; i++) {
-      const parsed = itemSchema.safeParse(items[i]);
-      if (!parsed.success) {
-        failedRows.push({
-          row: i + 1,
-          errors: parsed.error.issues.map((e) => `${e.path.join('.')}: ${e.message}`),
-        });
-        continue;
-      }
-      const item = parsed.data;
-      if (item.type === 'INCOME') {
-        await prisma.income.create({
-          data: {
-            familyId,
-            createdBy: req.userId!,
-            category: item.category || '其他收入',
-            amount: item.amount,
-            description: item.description || undefined,
-            date: new Date(item.date),
-          },
-        });
-      } else {
-        await prisma.expense.create({
-          data: {
-            familyId,
-            createdBy: req.userId!,
-            category: item.category || '其他支出',
-            amount: item.amount,
-            description: item.description || undefined,
-            date: new Date(item.date),
-          },
-        });
-      }
-      successCount++;
-    }
-
-    res.json({ successCount, failedRows });
+    const data = confirmBatchSchema.parse(req.body);
+    const result = await confirmImportBatch({
+      familyId,
+      actorUserId: req.familyMembership!.userId,
+      batchId: data.batchId,
+      expectedPreviewHash: data.expectedPreviewHash,
+      idempotencyKey: readIdempotencyKey(req),
+      categoryPatch: data.categoryPatch,
+    });
+    markIdempotencyReplay(result, res);
+    return res.json({
+      ...(result.record ?? { id: result.resourceId }),
+      operationId: result.operationId,
+      deduplicated: result.deduplicated,
+    });
   } catch (error) {
-    console.error('确认导入错误:', error);
-    res.status(500).json({ error: '服务器内部错误' });
+    if (error instanceof ImportBatchValidationError) {
+      return res.status(error.status).json({
+        error: error.message,
+        code: error.code,
+        retryable: error.retryable,
+        failedRows: error.failedRows,
+      });
+    }
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        error: error.errors[0].message,
+        code: 'VALIDATION_FAILED',
+        retryable: false,
+      });
+    }
+    return sendLedgerMutationError(error, res, '确认导入');
   }
 });
 

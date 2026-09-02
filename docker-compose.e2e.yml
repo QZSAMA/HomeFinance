@@ -1,0 +1,105 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: homefinance_e2e
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d homefinance_e2e"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+      start_period: 5s
+    volumes:
+      - postgres_e2e_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: e2e-minio-user
+      MINIO_ROOT_PASSWORD: e2e-minio-password
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9000/minio/health/live"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+      start_period: 5s
+    volumes:
+      - minio_e2e_data:/data
+
+  mock-ai:
+    build:
+      context: ./e2e/mock-ai
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:8787/health').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/homefinance_e2e?schema=public
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: e2e-only-jwt-secret-at-least-32-characters-long
+      JWT_EXPIRES_IN: 1h
+      CORS_ORIGIN: http://127.0.0.1:4173
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: e2e-minio-user
+      MINIO_SECRET_KEY: e2e-minio-password
+      MINIO_BUCKET: homefinance-e2e
+      MINIO_PUBLIC_ENDPOINT: minio
+      MINIO_PUBLIC_PORT: 9000
+      AI_BASE_URL: http://mock-ai:8787/v1
+      AI_API_KEY: e2e-deterministic-key
+      AI_MODEL: e2e-model
+      AI_VISION_MODEL: ''
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      mock-ai:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:8080/api/health').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:4173:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost/ || exit 1"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  postgres_e2e_data:
+  minio_e2e_data:

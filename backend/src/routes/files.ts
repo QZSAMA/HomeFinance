@@ -1,8 +1,9 @@
 import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { createFamilyWriteAccess, requireFamilyWriteAccess } from '../middleware/familyAccess';
 import { uploadFileBuffer, getFileUrl, deleteFile } from '../config/minio';
 import { computePHash, isSimilarImage } from '../utils/phash';
 import { toNumber } from '../utils/decimal';
@@ -82,7 +83,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-router.post('/upload', authMiddleware, upload.array('files', 10), async (req: AuthRequest, res) => {
+router.post('/upload', authMiddleware, requireFamilyWriteAccess, upload.array('files', 10), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const membership = await checkFamilyAccess(familyId, req.userId!);
@@ -166,7 +167,7 @@ router.post('/upload', authMiddleware, upload.array('files', 10), async (req: Au
   }
 });
 
-router.delete('/:id', authMiddleware, async (req: AuthRequest, res) => {
+router.delete('/:id', authMiddleware, createFamilyWriteAccess('无权删除文件'), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const id = req.params.id as string;

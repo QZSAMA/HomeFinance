@@ -1,5 +1,5 @@
 import { uploadFileBuffer } from '../config/minio';
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 import { computePHash } from '../utils/phash';
 
 /**

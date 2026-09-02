@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
+import {
+  requireFamilyAdminAccess,
+  requireFamilyMemberRemovalAccess,
+} from '../middleware/familyAccess';
 
 const router = Router();
 
@@ -138,7 +142,7 @@ router.get('/:id', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-router.put('/:id', authMiddleware, async (req: AuthRequest, res) => {
+router.put('/:id', authMiddleware, requireFamilyAdminAccess, async (req: AuthRequest, res) => {
   try {
     const id = req.params.id as string;
     const { name, description } = createFamilySchema.parse(req.body);
@@ -184,7 +188,7 @@ router.put('/:id', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-router.delete('/:id', authMiddleware, async (req: AuthRequest, res) => {
+router.delete('/:id', authMiddleware, requireFamilyAdminAccess, async (req: AuthRequest, res) => {
   try {
     const id = req.params.id as string;
 
@@ -210,7 +214,7 @@ router.delete('/:id', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-router.post('/:id/invite', authMiddleware, async (req: AuthRequest, res) => {
+router.post('/:id/invite', authMiddleware, requireFamilyAdminAccess, async (req: AuthRequest, res) => {
   try {
     const id = req.params.id as string;
     const { email, role } = inviteMemberSchema.parse(req.body);
@@ -281,7 +285,7 @@ router.post('/:id/invite', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-router.put('/:id/members/:memberId/role', authMiddleware, async (req: AuthRequest, res) => {
+router.put('/:id/members/:memberId/role', authMiddleware, requireFamilyAdminAccess, async (req: AuthRequest, res) => {
   try {
     const id = req.params.id as string;
     const memberId = req.params.memberId as string;
@@ -311,6 +315,15 @@ router.put('/:id/members/:memberId/role', authMiddleware, async (req: AuthReques
 
     if (!targetMember) {
       return res.status(404).json({ error: '成员不存在' });
+    }
+
+    if (targetMember.role === 'admin' && role !== 'admin') {
+      const adminCount = await prisma.familyMember.count({
+        where: { familyId: id, role: 'admin' },
+      });
+      if (adminCount <= 1) {
+        return res.status(400).json({ error: '至少需要一名管理员' });
+      }
     }
 
     await prisma.familyMember.update({
@@ -350,7 +363,7 @@ router.put('/:id/members/:memberId/role', authMiddleware, async (req: AuthReques
   }
 });
 
-router.delete('/:id/members/:memberId', authMiddleware, async (req: AuthRequest, res) => {
+router.delete('/:id/members/:memberId', authMiddleware, requireFamilyMemberRemovalAccess, async (req: AuthRequest, res) => {
   try {
     const id = req.params.id as string;
     const memberId = req.params.memberId as string;

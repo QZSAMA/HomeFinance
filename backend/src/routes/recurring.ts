@@ -1,9 +1,16 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
-import { calculateNextDate } from '../services/recurringService';
+import { requireFamilyAccess, requireFamilyWriteAccess } from '../middleware/familyAccess';
+import { executeRecurring } from '../services/recurringService';
+import { createPrismaRecurringExecutionStore } from '../services/prismaRecurringExecutionStore';
 import { parsePagination, paginateResponse } from '../utils/pagination';
+import {
+  markIdempotencyReplay,
+  readIdempotencyKey,
+  sendLedgerMutationError,
+} from './ledgerRouteSupport';
 
 const router = Router({ mergeParams: true });
 
@@ -24,31 +31,21 @@ const recurringSchema = z.object({
 });
 
 const recurringUpdateSchema = recurringSchema.partial();
-
-const checkFamilyAccess = async (familyId: string, userId: string) => {
-  const membership = await prisma.familyMember.findUnique({
-    where: {
-      familyId_userId: {
-        familyId,
-        userId,
-      },
-    },
-  });
-  return membership;
-};
+const recurringExecuteSchema = z.object({
+  scheduledFor: z.string().refine((value) => !Number.isNaN(Date.parse(value)), {
+    message: '执行日期格式不正确',
+  }).optional(),
+});
+const recurringExecutionStore = createPrismaRecurringExecutionStore(prisma);
 
 // GET /due — must be defined before /:id routes
-router.get('/due', authMiddleware, async (req: AuthRequest, res) => {
+router.get('/due', authMiddleware, requireFamilyAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
-
     const due = await prisma.recurringTransaction.findMany({
       where: {
         familyId,
+        deletedAt: null,
         isActive: true,
         nextDate: { lte: new Date() },
       },
@@ -62,30 +59,25 @@ router.get('/due', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-router.get('/', authMiddleware, async (req: AuthRequest, res) => {
+router.get('/', authMiddleware, requireFamilyAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
-
     const pagination = parsePagination(req);
     if (pagination) {
       const [list, total] = await Promise.all([
         prisma.recurringTransaction.findMany({
-          where: { familyId },
+          where: { familyId, deletedAt: null },
           orderBy: { createdAt: 'desc' },
           skip: pagination.skip,
           take: pagination.take,
         }),
-        prisma.recurringTransaction.count({ where: { familyId } }),
+        prisma.recurringTransaction.count({ where: { familyId, deletedAt: null } }),
       ]);
       return res.json(paginateResponse(list, total, pagination));
     }
 
     const list = await prisma.recurringTransaction.findMany({
-      where: { familyId },
+      where: { familyId, deletedAt: null },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -96,15 +88,10 @@ router.get('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-router.post('/', authMiddleware, async (req: AuthRequest, res) => {
+router.post('/', authMiddleware, requireFamilyWriteAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const data = recurringSchema.parse(req.body);
-
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
 
     const recurring = await prisma.recurringTransaction.create({
       data: {
@@ -132,89 +119,47 @@ router.post('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-router.post('/:id/execute', authMiddleware, async (req: AuthRequest, res) => {
+router.post('/:id/execute', authMiddleware, requireFamilyWriteAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
-    const id = req.params.id as string;
-
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
-
-    const rule = await prisma.recurringTransaction.findUnique({ where: { id } });
-    if (!rule || rule.familyId !== familyId) {
-      return res.status(404).json({ error: '规则不存在' });
-    }
-
-    const now = new Date();
-    const amount = Number(rule.amount);
-
-    // 按类型创建 Income 或 Expense 记录
-    if (rule.type === 'INCOME') {
-      await prisma.income.create({
-        data: {
-          familyId,
-          createdBy: req.userId!,
-          category: rule.category,
-          amount,
-          description: rule.description || undefined,
-          date: rule.nextDate,
-          source: '定期记账',
-        },
-      });
-    } else {
-      await prisma.expense.create({
-        data: {
-          familyId,
-          createdBy: req.userId!,
-          category: rule.category,
-          amount,
-          description: rule.description || undefined,
-          date: rule.nextDate,
-          paymentMethod: undefined,
-        },
-      });
-    }
-
-    // 计算下次执行日期
-    const nextNextDate = calculateNextDate(rule.nextDate, rule.frequency, rule.interval);
-    const shouldDeactivate = rule.endDate ? nextNextDate > rule.endDate : false;
-
-    await prisma.recurringTransaction.update({
-      where: { id },
-      data: {
-        lastExecutedAt: now,
-        nextDate: nextNextDate,
-        isActive: !shouldDeactivate,
-      },
-    });
-
-    const typeLabel = rule.type === 'INCOME' ? '收入' : '支出';
-    res.json({
-      message: `执行成功，已生成${typeLabel}记录 ¥${amount.toFixed(2)}`,
-      nextDate: nextNextDate,
-      isActive: !shouldDeactivate,
+    const data = recurringExecuteSchema.parse(req.body ?? {});
+    const result = await executeRecurring({
+      familyId,
+      actorId: req.userId!,
+      recurringId: req.params.id as string,
+      idempotencyKey: readIdempotencyKey(req),
+      ...(data.scheduledFor ? { scheduledFor: new Date(data.scheduledFor) } : {}),
+      now: new Date(),
+    }, recurringExecutionStore);
+    markIdempotencyReplay(result, res);
+    const amount = Number(result.entryRecord?.amount);
+    return res.json({
+      message: Number.isFinite(amount)
+        ? `执行成功，已生成账目记录 ¥${amount.toFixed(2)}`
+        : '执行成功，已生成账目记录',
+      executionId: result.executionId,
+      operationId: result.operationId,
+      resourceId: result.entryId,
+      entryId: result.entryId,
+      deduplicated: result.deduplicated,
+      nextDate: result.nextDate,
+      isActive: result.isActive,
     });
   } catch (error) {
-    console.error('执行定期规则错误:', error);
-    res.status(500).json({ error: '服务器内部错误' });
+    return sendLedgerMutationError(error, res, '定期规则');
   }
 });
 
-router.put('/:id', authMiddleware, async (req: AuthRequest, res) => {
+router.put('/:id', authMiddleware, requireFamilyWriteAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const id = req.params.id as string;
     const data = recurringUpdateSchema.parse(req.body);
 
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership || membership.role === 'viewer') {
-      return res.status(403).json({ error: '无权修改该数据' });
-    }
-
-    const rule = await prisma.recurringTransaction.findUnique({ where: { id } });
-    if (!rule || rule.familyId !== familyId) {
+    const rule = await prisma.recurringTransaction.findFirst({
+      where: { id, familyId, deletedAt: null },
+    });
+    if (!rule) {
       return res.status(404).json({ error: '记录不存在' });
     }
 
@@ -243,22 +188,22 @@ router.put('/:id', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-router.delete('/:id', authMiddleware, async (req: AuthRequest, res) => {
+router.delete('/:id', authMiddleware, requireFamilyWriteAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const id = req.params.id as string;
 
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership || membership.role === 'viewer') {
-      return res.status(403).json({ error: '无权删除该数据' });
-    }
-
-    const rule = await prisma.recurringTransaction.findUnique({ where: { id } });
-    if (!rule || rule.familyId !== familyId) {
+    const rule = await prisma.recurringTransaction.findFirst({
+      where: { id, familyId, deletedAt: null },
+    });
+    if (!rule) {
       return res.status(404).json({ error: '记录不存在' });
     }
 
-    await prisma.recurringTransaction.delete({ where: { id } });
+    await prisma.recurringTransaction.updateMany({
+      where: { id, familyId },
+      data: { isActive: false, deletedAt: new Date(), version: { increment: 1 } },
+    });
     res.json({ message: '删除成功' });
   } catch (error) {
     console.error('删除定期规则错误:', error);

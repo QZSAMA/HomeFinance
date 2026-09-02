@@ -1,13 +1,13 @@
 import { suggestCategory } from './categoryService';
 
-jest.mock('../app', () => ({
+jest.mock('../db/prisma', () => ({
   prisma: {
     expense: { findMany: jest.fn() },
     income: { findMany: jest.fn() },
   },
 }));
 
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
 
 const mockedPrisma = prisma as any;
 

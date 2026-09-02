@@ -8,6 +8,12 @@ export interface ImportedTransaction {
   category?: string;
 }
 
+export interface ImportPreview {
+  items: ImportedTransaction[];
+  batchId: string;
+  previewHash: string;
+}
+
 export const previewCSV = (familyId: string, file: File, format: 'alipay' | 'wechat') => {
   const formData = new FormData();
   formData.append('file', file);
@@ -16,10 +22,32 @@ export const previewCSV = (familyId: string, file: File, format: 'alipay' | 'wec
     .post<ImportedTransaction[]>(`/families/${familyId}/import/csv`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
-    .then((r) => r.data);
+    .then((r): ImportPreview => {
+      const batchId = r.headers['x-import-batch-id'];
+      const previewHash = r.headers['x-import-preview-hash'];
+      if (
+        typeof batchId !== 'string'
+        || !batchId
+        || typeof previewHash !== 'string'
+        || !/^[0-9a-f]{64}$/.test(previewHash)
+      ) {
+        throw new Error('服务器未返回有效的导入预览批次');
+      }
+      return { items: r.data, batchId, previewHash };
+    });
 };
 
-export const confirmImport = (familyId: string, items: ImportedTransaction[]) =>
+export const confirmImport = (
+  familyId: string,
+  batchId: string,
+  expectedPreviewHash: string,
+  categoryPatch: Record<string, string>,
+  idempotencyKey: string,
+) =>
   api
-    .post<{ successCount: number }>(`/families/${familyId}/import/confirm`, { items })
+    .post<{ successCount: number }>(
+      `/families/${familyId}/import/confirm`,
+      { batchId, expectedPreviewHash, categoryPatch },
+      { headers: { 'Idempotency-Key': idempotencyKey } },
+    )
     .then((r) => r.data.successCount);

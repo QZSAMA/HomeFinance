@@ -1,0 +1,101 @@
+{
+  "runs": [
+    {
+      "date": "2026-08-27T07:31:32.229918+00:00",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "files": 119
+    },
+    {
+      "date": "2026-08-27T07:46:40.919393+00:00",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "files": 127,
+      "mode": "incremental-final-docs"
+    },
+    {
+      "date": "2026-08-27T11:39:27.595643+00:00",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "files": 146
+    },
+    {
+      "date": "2026-08-31T03:29:47.181504+00:00",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "files": 5
+    },
+    {
+      "date": "2026-08-31T03:52:50.651139+00:00",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "files": 4,
+      "scope": "narrow semantic refresh; 3 source-backed EXTRACTED edges"
+    },
+    {
+      "date": "2026-08-31T04:15:04.476246+00:00",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "files": 6
+    },
+    {
+      "date": "2026-08-31T00:00:00+00:00",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "files": 221
+    },
+    {
+      "date": "2026-08-31T04:56:07.734672+00:00",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "files": 221
+    },
+    {
+      "date": "2026-08-31T05:53:54.520945+00:00",
+      "input_tokens": 13847,
+      "output_tokens": 873,
+      "files": 221
+    },
+    {
+      "date": "2026-08-31T06:21:20.766774+00:00",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "files": 221,
+      "scope": "incremental semantic refresh; P1-A-03 PostgreSQL rollback evidence; 13 source-backed EXTRACTED edges"
+    },
+    {
+      "date": "2026-08-31T07:13:39.982770+00:00",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "files": 222,
+      "metering": "unavailable for local semantic agent"
+    },
+    {
+      "date": "2026-08-31T07:45:13.363341+00:00",
+      "files": 5,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "scope": "incremental semantic refresh; P1-G-03 ImportPage accessibility and confirmation contracts; source provenance replacement"
+    },
+    {
+      "date": "2026-08-31T08:12:31.812906+00:00",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "files": 224
+    },
+    {
+      "date": "2026-08-31T08:36:07.714127+00:00",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "files": 224
+    },
+    {
+      "date": "2026-08-31T08:52:19.552775+00:00",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "files": 224
+    }
+  ],
+  "total_input_tokens": 13847,
+  "total_output_tokens": 873
+}

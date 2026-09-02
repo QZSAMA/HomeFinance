@@ -1,16 +1,20 @@
 import request from 'supertest';
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import recurringRoutes from './recurring';
 
-jest.mock('../app', () => ({
+const executeRecurring = jest.fn();
+
+jest.mock('../db/prisma', () => ({
   prisma: {
     familyMember: { findUnique: jest.fn() },
     recurringTransaction: {
       findMany: jest.fn(),
+      count: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      updateMany: jest.fn(),
       delete: jest.fn(),
     },
     income: { create: jest.fn() },
@@ -18,11 +22,21 @@ jest.mock('../app', () => ({
   },
 }));
 
+jest.mock('../services/recurringService', () => ({
+  executeRecurring: (...args: unknown[]) => executeRecurring(...args),
+}));
+
+jest.mock('../services/prismaRecurringExecutionStore', () => ({
+  createPrismaRecurringExecutionStore: jest.fn(() => ({ name: 'recurring-store' })),
+}));
+
 jest.mock('../middleware/cache', () => ({
   cacheMiddleware: () => (_req: any, _res: any, next: any) => next(),
 }));
 
-import { prisma } from '../app';
+import { prisma } from '../db/prisma';
+import { DomainError } from '../services/ledgerErrors';
+import recurringRoutes from './recurring';
 
 const mockedPrisma = prisma as any;
 
@@ -47,9 +61,12 @@ describe('Recurring Routes', () => {
       role: 'admin',
     });
     mockedPrisma.recurringTransaction.findMany.mockResolvedValue([]);
+    mockedPrisma.recurringTransaction.count.mockResolvedValue(0);
     mockedPrisma.recurringTransaction.findUnique.mockResolvedValue(null);
+    mockedPrisma.recurringTransaction.findFirst.mockResolvedValue(null);
     mockedPrisma.recurringTransaction.create.mockResolvedValue({});
     mockedPrisma.recurringTransaction.update.mockResolvedValue({});
+    mockedPrisma.recurringTransaction.updateMany.mockResolvedValue({ count: 1 });
     mockedPrisma.recurringTransaction.delete.mockResolvedValue({});
     mockedPrisma.income.create.mockResolvedValue({});
     mockedPrisma.expense.create.mockResolvedValue({});
@@ -194,27 +211,17 @@ describe('Recurring Routes', () => {
 
   describe('POST /api/families/:familyId/recurring/:id/execute', () => {
     test('executes an INCOME rule and advances nextDate', async () => {
-      mockedPrisma.recurringTransaction.findUnique.mockResolvedValue({
-        id: 'rec_1',
-        familyId: 'fam_1',
-        type: 'INCOME',
-        category: '工资',
-        amount: 15000,
-        description: '月度工资',
-        frequency: 'MONTHLY',
-        interval: 1,
-        nextDate: new Date('2026-07-01'),
-        endDate: null,
-        isActive: true,
-        lastExecutedAt: null,
-        createdBy: 'user_1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-      mockedPrisma.recurringTransaction.update.mockResolvedValue({
-        id: 'rec_1',
+      executeRecurring.mockResolvedValue({
+        executionId: 'execution-1',
+        operationId: 'operation-1',
+        resourceId: 'execution-1',
+        record: { id: 'execution-1', status: 'COMMITTED' },
+        version: 2,
+        deduplicated: false,
+        entryId: 'income-1',
+        entryRecord: { id: 'income-1', amount: 15000 },
         nextDate: new Date('2026-08-01'),
-        lastExecutedAt: new Date(),
+        isActive: true,
       });
 
       const res = await request(app)
@@ -223,41 +230,23 @@ describe('Recurring Routes', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.message).toContain('成功');
-      // 应创建 Income 记录
-      expect(mockedPrisma.income.create).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({
-          familyId: 'fam_1',
-          category: '工资',
-          amount: 15000,
-          createdBy: 'user_1',
-        }),
-      }));
-      // 应更新 nextDate
-      expect(mockedPrisma.recurringTransaction.update).toHaveBeenCalled();
-      const updateArgs = mockedPrisma.recurringTransaction.update.mock.calls[0][0];
-      expect(updateArgs.where.id).toBe('rec_1');
-      // nextDate 应推进一个月（8月）
-      const newNextDate = new Date(updateArgs.data.nextDate);
-      expect(newNextDate.getMonth()).toBe(7); // 8 月（0-indexed）
+      expect(executeRecurring).toHaveBeenCalled();
+      expect(mockedPrisma.income.create).not.toHaveBeenCalled();
+      expect(mockedPrisma.recurringTransaction.update).not.toHaveBeenCalled();
     });
 
     test('executes an EXPENSE rule', async () => {
-      mockedPrisma.recurringTransaction.findUnique.mockResolvedValue({
-        id: 'rec_2',
-        familyId: 'fam_1',
-        type: 'EXPENSE',
-        category: '房租',
-        amount: 5000,
-        description: '月度房租',
-        frequency: 'MONTHLY',
-        interval: 1,
-        nextDate: new Date('2026-07-01'),
-        endDate: null,
+      executeRecurring.mockResolvedValue({
+        executionId: 'execution-2',
+        operationId: 'operation-2',
+        resourceId: 'execution-2',
+        record: { id: 'execution-2', status: 'COMMITTED' },
+        version: 2,
+        deduplicated: false,
+        entryId: 'expense-1',
+        entryRecord: { id: 'expense-1', amount: 5000 },
+        nextDate: new Date('2026-08-01'),
         isActive: true,
-        lastExecutedAt: null,
-        createdBy: 'user_1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
       });
 
       const res = await request(app)
@@ -265,18 +254,16 @@ describe('Recurring Routes', () => {
         .set('Authorization', `Bearer ${createToken()}`);
 
       expect(res.status).toBe(200);
-      expect(mockedPrisma.expense.create).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({
-          familyId: 'fam_1',
-          category: '房租',
-          amount: 5000,
-          createdBy: 'user_1',
-        }),
-      }));
+      expect(executeRecurring).toHaveBeenCalled();
+      expect(mockedPrisma.expense.create).not.toHaveBeenCalled();
     });
 
     test('returns 404 when rule not found', async () => {
-      mockedPrisma.recurringTransaction.findUnique.mockResolvedValue(null);
+      executeRecurring.mockRejectedValue(new DomainError(
+        'RESOURCE_NOT_FOUND',
+        'The recurring rule was not found.',
+        404,
+      ));
 
       const res = await request(app)
         .post('/api/families/fam_1/recurring/nonexistent/execute')
@@ -288,7 +275,7 @@ describe('Recurring Routes', () => {
 
   describe('PUT /api/families/:familyId/recurring/:id', () => {
     test('updates a recurring transaction', async () => {
-      mockedPrisma.recurringTransaction.findUnique.mockResolvedValue({
+      mockedPrisma.recurringTransaction.findFirst.mockResolvedValue({
         id: 'rec_1',
         familyId: 'fam_1',
         type: 'INCOME',
@@ -315,7 +302,7 @@ describe('Recurring Routes', () => {
     });
 
     test('returns 404 when not found', async () => {
-      mockedPrisma.recurringTransaction.findUnique.mockResolvedValue(null);
+      mockedPrisma.recurringTransaction.findFirst.mockResolvedValue(null);
 
       const res = await request(app)
         .put('/api/families/fam_1/recurring/nonexistent')
@@ -328,7 +315,7 @@ describe('Recurring Routes', () => {
 
   describe('DELETE /api/families/:familyId/recurring/:id', () => {
     test('deletes a recurring transaction', async () => {
-      mockedPrisma.recurringTransaction.findUnique.mockResolvedValue({
+      mockedPrisma.recurringTransaction.findFirst.mockResolvedValue({
         id: 'rec_1',
         familyId: 'fam_1',
         createdBy: 'user_1',
@@ -339,7 +326,15 @@ describe('Recurring Routes', () => {
         .set('Authorization', `Bearer ${createToken()}`);
 
       expect(res.status).toBe(200);
-      expect(mockedPrisma.recurringTransaction.delete).toHaveBeenCalledWith({ where: { id: 'rec_1' } });
+      expect(mockedPrisma.recurringTransaction.updateMany).toHaveBeenCalledWith({
+        where: { id: 'rec_1', familyId: 'fam_1' },
+        data: {
+          isActive: false,
+          deletedAt: expect.any(Date),
+          version: { increment: 1 },
+        },
+      });
+      expect(mockedPrisma.recurringTransaction.delete).not.toHaveBeenCalled();
     });
 
     test('returns 403 for viewer role', async () => {

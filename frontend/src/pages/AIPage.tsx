@@ -4,12 +4,13 @@ import {
   sendChat,
   getHistory,
   undoAction,
-  executeProposedActions,
+  confirmAiProposal,
   getAnalysis,
   type ConversationRecord,
   type ActionResult,
   type AIAction,
 } from '../services/aiService';
+import { createIncome, createExpense } from '../services/financeService';
 
 /**
  * 压缩图片：将图片缩放到 maxWidth 以内，转为 JPEG base64
@@ -48,6 +49,12 @@ interface Message {
   proposedActions?: AIAction[];
   rawText?: string;
   duplicateFlags?: boolean[];
+  confirmationError?: string;
+  confirmationStatus?: string;
+  proposalId?: string;
+  proposalVersion?: number;
+  proposalHash?: string;
+  proposalItems?: AIAction[];
 }
 
 // 行内可编辑状态：actions 与 flags 必须同步，删除时索引一致
@@ -126,12 +133,40 @@ export default function AIPage() {
     try {
       const history = await getHistory(currentFamily.id);
       const formatted: Message[] = history
-        .filter((h: ConversationRecord) => h.type === 'chat')
+        .filter((h: ConversationRecord) => h.type === 'chat' || h.type === 'ocr')
         .reverse()
-        .flatMap((h: ConversationRecord) => [
-          { role: 'user' as const, content: h.content },
-          { role: 'assistant' as const, content: h.response || h.content },
-        ]);
+        .flatMap((h: ConversationRecord) => {
+          const proposal = h.proposal?.status === 'PROPOSED' ? h.proposal : undefined;
+          const executedActions: ActionResult[] = h.proposal?.status === 'EXECUTED'
+            ? (h.proposal.result?.actions ?? []).map((action) => ({
+              type: action.type,
+              status: 'success' as const,
+              message: '已记账',
+              record: { id: action.resourceId, version: action.version },
+            }))
+            : [];
+          const confirmationStatus = h.proposal && h.proposal.status !== 'PROPOSED'
+            ? h.proposal.status === 'EXECUTED'
+              ? `已完成 ${executedActions.length} 笔记账`
+              : `提案状态：${h.proposal.status}`
+            : undefined;
+          return [
+            { role: 'user' as const, content: h.content },
+            {
+              role: 'assistant' as const,
+              content: h.response || h.content,
+              ...(executedActions.length > 0 ? { actions: executedActions } : {}),
+              ...(confirmationStatus ? { confirmationStatus } : {}),
+              ...(proposal ? {
+                proposalId: proposal.id,
+                proposalVersion: proposal.version,
+                proposalHash: proposal.originalHash,
+                proposedActions: proposal.items,
+                proposalItems: proposal.items,
+              } : {}),
+            },
+          ];
+        });
       setMessages(formatted);
     } catch {
       // ignore history load errors
@@ -229,7 +264,18 @@ export default function AIPage() {
     }
 
     try {
-      const { response, actions, aiConfigured: configured, proposedActions, duplicateFlags, fileIds } =
+      const {
+        response,
+        actions,
+        aiConfigured: configured,
+        proposedActions,
+        duplicateFlags,
+        fileIds,
+        proposalId,
+        proposalVersion,
+        proposalHash,
+        proposalItems,
+      } =
         await sendChat(currentFamily.id, userMsg, imagesToSend);
       setAiConfigured(configured);
 
@@ -251,6 +297,10 @@ export default function AIPage() {
         actions: actions && actions.length > 0 ? actions : undefined,
         proposedActions,
         duplicateFlags,
+        proposalId,
+        proposalVersion,
+        proposalHash,
+        proposalItems,
       }]);
     } catch (error: any) {
       let msg: string;
@@ -301,19 +351,52 @@ export default function AIPage() {
     if (!currentFamily) return;
     const msg = messages[messageIdx];
     // 优先用编辑后的副本，回退到原始 proposedActions
-    const actionsToConfirm = editableActions[messageIdx]?.actions || msg?.proposedActions;
+    const actionsToConfirm = editableActions[messageIdx]?.actions
+      || msg?.proposalItems
+      || msg?.proposedActions;
     if (!actionsToConfirm || actionsToConfirm.length === 0) {
       alert('没有可确认的记账项');
       return;
     }
+    if (!msg?.proposalId || msg.proposalVersion === undefined || !msg.proposalHash) {
+      setMessages((prev) => prev.map((m, idx) => (
+        idx === messageIdx
+          ? { ...m, confirmationError: '此提议缺少服务端确认信息，请重新生成。' }
+          : m
+      )));
+      return;
+    }
 
+    setMessages((prev) => prev.map((m, idx) => (
+      idx === messageIdx
+        ? { ...m, confirmationError: undefined, confirmationStatus: undefined }
+        : m
+    )));
     setConfirmingIdx(messageIdx);
     try {
-      const { actions } = await executeProposedActions(currentFamily.id, actionsToConfirm);
+      const result = await confirmAiProposal({
+        familyId: currentFamily.id,
+        proposalId: msg.proposalId,
+        expectedVersion: msg.proposalVersion,
+        expectedHash: msg.proposalHash,
+        actions: actionsToConfirm,
+      }, `ai-confirm-${msg.proposalId}`);
+      const actions: ActionResult[] = (result.record?.actions ?? []).map((action) => ({
+        type: action.type,
+        status: 'success',
+        message: '已记账',
+        record: { id: action.resourceId, version: action.version },
+      }));
       // 确认成功：清空 proposedActions + editableActions，设置已执行的 actions
       setMessages((prev) => prev.map((m, idx) => {
         if (idx !== messageIdx) return m;
-        return { ...m, proposedActions: undefined, actions };
+        const successfulActionCount = actions.filter((action) => action.status === 'success').length;
+        return {
+          ...m,
+          proposedActions: undefined,
+          actions,
+          confirmationStatus: `已完成 ${successfulActionCount} 笔记账`,
+        };
       }));
       setEditableActions((prev) => {
         const next = { ...prev };
@@ -321,7 +404,10 @@ export default function AIPage() {
         return next;
       });
     } catch (error: any) {
-      alert(error.response?.data?.error || '确认记账失败，请稍后重试');
+      const confirmationError = error.response?.data?.error || '确认记账失败，请稍后重试';
+      setMessages((prev) => prev.map((m, idx) => (
+        idx === messageIdx ? { ...m, confirmationError } : m
+      )));
     } finally {
       setConfirmingIdx(null);
     }
@@ -415,7 +501,27 @@ export default function AIPage() {
 
     setManualSubmitting(messageIdx);
     try {
-      const { actions } = await executeProposedActions(currentFamily.id, [action]);
+      const record = action.type === 'create_income'
+        ? await createIncome(currentFamily.id, {
+          category: action.data.category,
+          amount: action.data.amount,
+          description: action.data.description,
+          date: action.data.date,
+          source: undefined,
+        })
+        : await createExpense(currentFamily.id, {
+          category: action.data.category,
+          amount: action.data.amount,
+          description: action.data.description,
+          date: action.data.date,
+          paymentMethod: undefined,
+        });
+      const actions: ActionResult[] = [{
+        type: action.type,
+        status: 'success',
+        message: '已记账',
+        record,
+      }];
       setMessages((prev) => prev.map((m, idx) => {
         if (idx !== messageIdx) return m;
         return { ...m, rawText: undefined, actions };
@@ -493,11 +599,21 @@ export default function AIPage() {
                 >
                   <pre className="whitespace-pre-wrap font-sans text-sm">{msg.content}</pre>
                 </div>
+                {msg.confirmationError && (
+                  <p role="alert" className="mt-2 text-sm text-red-700">
+                    {msg.confirmationError}
+                  </p>
+                )}
+                {msg.confirmationStatus && (
+                  <p role="status" className="mt-2 text-sm text-green-700">
+                    {msg.confirmationStatus}
+                  </p>
+                )}
                 {/* 提议动作卡片（OCR 识别后待确认，行内可编辑） */}
                 {msg.proposedActions && msg.proposedActions.length > 0 && (
                   <ProposedActionsCard
                     messageIdx={idx}
-                    proposedActions={msg.proposedActions}
+                    proposedActions={msg.proposalItems ?? msg.proposedActions}
                     editableActions={editableActions}
                     initEditable={initEditable}
                     updateEditableAction={updateEditableAction}

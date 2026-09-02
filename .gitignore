@@ -4,12 +4,19 @@ node_modules/
 .env.*.local
 dist/
 build/
+coverage/
+frontend/playwright-report/
+frontend/test-results/
+frontend/blob-report/
 .next/
 .nuxt/
 .vscode/
 .idea/
 .DS_Store
 *.log
-prisma/migrations/
 .trae/
 .tessdata/
+.worktrees/
+
+# Graphify outputs kept in version control do not include its ephemeral extraction cache.
+graphify-out/cache/
