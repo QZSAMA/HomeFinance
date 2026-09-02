@@ -164,6 +164,29 @@ describe('liability routes characterization', () => {
     expect(mockedPrisma.liability.create).not.toHaveBeenCalled();
   });
 
+  test('preserves optional Liability fields when dates and metadata are omitted', async () => {
+    const body = { ...liabilityBody } as Record<string, unknown>;
+    delete body.interestRate;
+    delete body.startDate;
+    delete body.endDate;
+    delete body.description;
+
+    const response = await request(app)
+      .post('/api/families/family-1/liabilities')
+      .set('Authorization', `Bearer ${tokenFor()}`)
+      .send(body);
+
+    expect(response.status).toBe(201);
+    expect(mockedBalance.createLiability).toHaveBeenCalledWith(expect.objectContaining({
+      payload: expect.objectContaining({
+        interestRate: undefined,
+        startDate: undefined,
+        endDate: undefined,
+        description: undefined,
+      }),
+    }), expect.any(Object));
+  });
+
   test('rejects malformed and forbidden liability creates', async () => {
     const invalid = await request(app)
       .post('/api/families/family-1/liabilities')
@@ -203,6 +226,22 @@ describe('liability routes characterization', () => {
       }),
     }), expect.any(Object));
     expect(mockedPrisma.liability.update).not.toHaveBeenCalled();
+  });
+
+  test('updates a Liability with optional dates omitted', async () => {
+    const body = { ...liabilityBody } as Record<string, unknown>;
+    delete body.startDate;
+    delete body.endDate;
+
+    const response = await request(app)
+      .put('/api/families/family-1/liabilities/liability-1')
+      .set('Authorization', `Bearer ${tokenFor()}`)
+      .send(body);
+
+    expect(response.status).toBe(200);
+    expect(mockedBalance.updateLiability).toHaveBeenCalledWith(expect.objectContaining({
+      payload: expect.objectContaining({ startDate: undefined, endDate: undefined }),
+    }), expect.any(Object));
   });
 
   test('maps a transactional liability not-found result to 404', async () => {
