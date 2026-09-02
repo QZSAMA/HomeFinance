@@ -205,6 +205,22 @@ describe('liability routes characterization', () => {
     expect(mockedPrisma.liability.create).toHaveBeenCalledTimes(0);
   });
 
+  test('rejects invalid Liability dates inside the mutation boundary', async () => {
+    mockedBalance.createLiability.mockRejectedValueOnce(new DomainError(
+      'VALIDATION_FAILED',
+      'startDate must be a valid date.',
+      400,
+    ));
+    const response = await request(app)
+      .post('/api/families/family-1/liabilities')
+      .set('Authorization', `Bearer ${tokenFor()}`)
+      .send({ ...liabilityBody, startDate: 'not-a-date' });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toMatchObject({ code: 'VALIDATION_FAILED', retryable: false });
+    expect(mockedBalance.createLiability).toHaveBeenCalledTimes(1);
+  });
+
   test('updates a liability through the transactional application service', async () => {
     const update = await request(app)
       .put('/api/families/family-1/liabilities/liability-1')

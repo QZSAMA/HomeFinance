@@ -437,4 +437,15 @@ describe('BalanceMutationService', () => {
     expect(assetTransaction.asset?.create).not.toHaveBeenCalled();
     expect(liabilityTransaction.liability?.create).not.toHaveBeenCalled();
   });
+
+  test('rejects invalid Liability dates before invoking the transaction writer', async () => {
+    const transaction = createTransaction();
+
+    await expect(createLiabilityInTransaction({
+      ...liabilityCommand,
+      payload: { ...liabilityCommand.payload, startDate: new Date('invalid') },
+    }, transaction)).rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 400 });
+
+    expect(transaction.liability?.create).not.toHaveBeenCalled();
+  });
 });
