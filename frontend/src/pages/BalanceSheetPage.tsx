@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useFamilyStore } from '../store/useFamilyStore';
 import { getBalanceSheet } from '../services/reportService';
 import { exportBalanceSheet } from '../services/exportService';
@@ -50,28 +50,27 @@ const formatMoney = (amount: number) => {
 
 const BalanceSheetPage = () => {
   const { currentFamily } = useFamilyStore();
+  const familyId = currentFamily?.id;
   const [data, setData] = useState<BalanceSheetData | null>(null);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
 
-  useEffect(() => {
-    if (currentFamily) {
-      loadData();
-    }
-  }, [currentFamily]);
-
-  const loadData = async () => {
-    if (!currentFamily) return;
+  const loadData = useCallback(async () => {
+    if (!familyId) return;
     setLoading(true);
     try {
-      const result = await getBalanceSheet(currentFamily.id);
+      const result = await getBalanceSheet(familyId);
       setData(result);
     } catch (err) {
       console.error('加载资产负债表失败:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [familyId]);
+
+  useEffect(() => {
+    void loadData();
+  }, [loadData]);
 
   const formatMoneyFull = (amount: number) => {
     return new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(amount);

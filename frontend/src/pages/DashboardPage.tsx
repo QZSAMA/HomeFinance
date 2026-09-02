@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useFamilyStore } from '../store/useFamilyStore';
 import { getSummary, type SummaryResponse } from '../services/reportService';
 import IncomeExpenseChart from '../components/charts/IncomeExpenseChart';
@@ -6,22 +6,17 @@ import AssetAllocationChart from '../components/charts/AssetAllocationChart';
 
 const DashboardPage = () => {
   const { currentFamily } = useFamilyStore();
+  const familyId = currentFamily?.id;
   const [summary, setSummary] = useState<SummaryResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (currentFamily) {
-      loadSummary();
-    }
-  }, [currentFamily]);
-
-  const loadSummary = async () => {
-    if (!currentFamily) return;
+  const loadSummary = useCallback(async () => {
+    if (!familyId) return;
     setLoading(true);
     setError('');
     try {
-      const data = await getSummary(currentFamily.id);
+      const data = await getSummary(familyId);
       setSummary(data);
     } catch (err) {
       setError('加载数据失败');
@@ -29,7 +24,11 @@ const DashboardPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [familyId]);
+
+  useEffect(() => {
+    void loadSummary();
+  }, [loadSummary]);
 
   const formatMoney = (amount: number) => {
     return new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(amount);

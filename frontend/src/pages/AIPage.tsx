@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useFamilyStore } from '../store/useFamilyStore';
 import {
   sendChat,
@@ -101,6 +101,7 @@ const ANALYSIS_KEYWORDS = ['分析报告', '财务分析', '生成报告', '出�
 
 export default function AIPage() {
   const { currentFamily } = useFamilyStore();
+  const familyId = currentFamily?.id;
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
@@ -119,19 +120,13 @@ export default function AIPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (currentFamily) {
-      loadHistory();
-    }
-  }, [currentFamily]);
-
-  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const loadHistory = async () => {
-    if (!currentFamily) return;
+  const loadHistory = useCallback(async () => {
+    if (!familyId) return;
     try {
-      const history = await getHistory(currentFamily.id);
+      const history = await getHistory(familyId);
       const formatted: Message[] = history
         .filter((h: ConversationRecord) => h.type === 'chat' || h.type === 'ocr')
         .reverse()
@@ -171,7 +166,11 @@ export default function AIPage() {
     } catch {
       // ignore history load errors
     }
-  };
+  }, [familyId]);
+
+  useEffect(() => {
+    void loadHistory();
+  }, [loadHistory]);
 
   // composer 模式：选择图片后压缩并加入待发送列表（不立即 OCR）
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {

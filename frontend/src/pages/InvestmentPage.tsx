@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useFamilyStore } from '../store/useFamilyStore';
 import { getSummary } from '../services/reportService';
 import AssetAllocationChart from '../components/charts/AssetAllocationChart';
@@ -32,20 +32,15 @@ const categoryColors: Record<string, string> = {
 
 const InvestmentPage = () => {
   const { currentFamily } = useFamilyStore();
+  const familyId = currentFamily?.id;
   const [data, setData] = useState<InvestmentData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (currentFamily) {
-      loadData();
-    }
-  }, [currentFamily]);
-
-  const loadData = async () => {
-    if (!currentFamily) return;
+  const loadData = useCallback(async () => {
+    if (!familyId) return;
     setLoading(true);
     try {
-      const summary = await getSummary(currentFamily.id);
+      const summary = await getSummary(familyId);
       setData({
         totalAssets: summary.balanceSheet.totalAssets,
         allocation: summary.investmentAllocation || [],
@@ -55,7 +50,11 @@ const InvestmentPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [familyId]);
+
+  useEffect(() => {
+    void loadData();
+  }, [loadData]);
 
   const formatMoney = (amount: number) => {
     return new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(amount);

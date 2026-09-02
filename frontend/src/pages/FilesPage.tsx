@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useFamilyStore } from '../store/useFamilyStore';
 import {
   getFiles,
@@ -11,6 +11,7 @@ import {
 
 export default function FilesPage() {
   const { currentFamily } = useFamilyStore();
+  const familyId = currentFamily?.id;
   const [files, setFiles] = useState<FileRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -19,20 +20,14 @@ export default function FilesPage() {
   const [uploadMessage, setUploadMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (currentFamily) {
-      loadData();
-    }
-  }, [currentFamily]);
-
-  const loadData = async () => {
-    if (!currentFamily) return;
+  const loadData = useCallback(async () => {
+    if (!familyId) return;
     setLoading(true);
     setError('');
     try {
       const [fileList, dupResult] = await Promise.all([
-        getFiles(currentFamily.id),
-        checkDuplicates(currentFamily.id),
+        getFiles(familyId),
+        checkDuplicates(familyId),
       ]);
       setFiles(fileList);
       setDuplicates(dupResult.duplicates);
@@ -41,7 +36,11 @@ export default function FilesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [familyId]);
+
+  useEffect(() => {
+    void loadData();
+  }, [loadData]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
