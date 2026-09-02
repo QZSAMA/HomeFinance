@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getFamilies } from '../services/familyService';
 import { useFamilyStore } from '../store/useFamilyStore';
 
@@ -6,15 +6,11 @@ const FamilySelector = () => {
   const [loading, setLoading] = useState(true);
   const { currentFamily, setCurrentFamily, families, setFamilies } = useFamilyStore();
 
-  useEffect(() => {
-    loadFamilies();
-  }, []);
-
-  const loadFamilies = async () => {
+  const loadFamilies = useCallback(async () => {
     try {
       const data = await getFamilies();
       setFamilies(data);
-      if (data.length > 0 && !currentFamily) {
+      if (data.length > 0 && !useFamilyStore.getState().currentFamily) {
         setCurrentFamily(data[0]);
       }
     } catch (err) {
@@ -22,7 +18,11 @@ const FamilySelector = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setCurrentFamily, setFamilies]);
+
+  useEffect(() => {
+    void loadFamilies();
+  }, [loadFamilies]);
 
   if (loading) {
     return <div className="text-sm text-gray-500">加载中...</div>;

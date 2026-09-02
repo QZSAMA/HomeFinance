@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getFamilies, createFamily, inviteMember, removeMember } from '../services/familyService';
 import type { Family } from '../types';
 import { useAuthStore } from '../store/useAuthStore';
@@ -18,11 +18,7 @@ const FamiliesPage = () => {
   const { user } = useAuthStore();
   const { setFamilies: setStoreFamilies, setCurrentFamily } = useFamilyStore();
 
-  useEffect(() => {
-    loadFamilies();
-  }, []);
-
-  const loadFamilies = async () => {
+  const loadFamilies = useCallback(async () => {
     try {
       const data = await getFamilies();
       setFamilies(data);
@@ -32,7 +28,11 @@ const FamiliesPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setStoreFamilies]);
+
+  useEffect(() => {
+    void loadFamilies();
+  }, [loadFamilies]);
 
   const handleCreateFamily = async (e: React.FormEvent) => {
     e.preventDefault();
