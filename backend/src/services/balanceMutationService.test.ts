@@ -137,6 +137,13 @@ const createMutationStore = (): FinancialMutationStore => {
       }),
     },
     asset,
+    liability: {
+      create: jest.fn(async ({ data }: any) => ({
+        id: 'liability-1',
+        version: 1,
+        ...data,
+      })),
+    },
     auditEvent: { create: jest.fn(async () => ({ id: 'audit-1' })) },
   } as unknown as LedgerTransactionClient;
 
@@ -147,6 +154,7 @@ const assetApplicationService = balanceMutationService as unknown as {
   createAsset: (command: CreateAssetCommand, store: FinancialMutationStore) => Promise<Record<string, unknown>>;
   updateAsset: (command: CreateAssetCommand & { assetId: string; expectedVersion?: number }, store: FinancialMutationStore) => Promise<Record<string, unknown>>;
   deleteAsset: (command: Pick<CreateAssetCommand, 'familyId' | 'actorId' | 'source' | 'idempotencyKey'> & { assetId: string; expectedVersion?: number }, store: FinancialMutationStore) => Promise<Record<string, unknown>>;
+  createLiability: (command: CreateLiabilityCommand, store: FinancialMutationStore) => Promise<Record<string, unknown>>;
 };
 
 describe('BalanceMutationService', () => {
@@ -161,6 +169,23 @@ describe('BalanceMutationService', () => {
 
     expect(result).toMatchObject({
       resourceId: 'asset-1',
+      version: 1,
+      deduplicated: false,
+    });
+  });
+
+  test('coordinates a manual Liability create through the shared mutation boundary', async () => {
+    const store = createMutationStore();
+
+    const result = await assetApplicationService.createLiability({
+      ...liabilityCommand,
+      source: 'MANUAL',
+      idempotencyKey: 'manual-liability-create-1',
+    }, store);
+
+    expect(result).toMatchObject({
+      operationId: expect.any(String),
+      resourceId: 'liability-1',
       version: 1,
       deduplicated: false,
     });

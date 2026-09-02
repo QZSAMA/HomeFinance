@@ -117,21 +117,23 @@ describe('liability routes characterization', () => {
     expect(mockedPrisma.liability.findMany).not.toHaveBeenCalled();
   });
 
-  test('creates a liability and converts date strings for Prisma', async () => {
+  test('creates a liability and passes normalized dates to the transactional service', async () => {
     const response = await request(app)
       .post('/api/families/family-1/liabilities')
       .set('Authorization', `Bearer ${tokenFor()}`)
       .send(liabilityBody);
 
     expect(response.status).toBe(201);
-    expect(mockedPrisma.liability.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        familyId: 'family-1',
+    expect(mockedBalance.createLiability).toHaveBeenCalledWith(expect.objectContaining({
+      familyId: 'family-1',
+      actorId: 'member-1',
+      payload: expect.objectContaining({
         amount: 350000,
         startDate: new Date(liabilityBody.startDate),
         endDate: new Date(liabilityBody.endDate),
       }),
-    });
+    }), expect.any(Object));
+    expect(mockedPrisma.liability.create).not.toHaveBeenCalled();
   });
 
   test('creates a liability through the transactional application service', async () => {
@@ -237,7 +239,7 @@ describe('liability routes characterization', () => {
       .get('/api/families/family-1/liabilities')
       .set('Authorization', `Bearer ${tokenFor()}`);
 
-    mockedPrisma.liability.create.mockRejectedValueOnce(new Error('database unavailable'));
+    mockedBalance.createLiability.mockRejectedValueOnce(new Error('database unavailable'));
     const create = await request(app)
       .post('/api/families/family-1/liabilities')
       .set('Authorization', `Bearer ${tokenFor()}`)

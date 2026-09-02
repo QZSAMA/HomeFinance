@@ -143,6 +143,18 @@ const assetMutationData = (command: CreateAssetCommand) => ({
   description: optionalText(command.payload.description, 'description'),
 });
 
+const liabilityMutationData = (command: CreateLiabilityCommand) => ({
+  familyId: command.familyId,
+  name: requireText(command.payload.name, 'name'),
+  type: requireText(command.payload.type, 'type'),
+  amount: requireNonNegativeAmount(command.payload.amount, 'amount'),
+  interestRate: optionalNonNegativeAmount(command.payload.interestRate, 'interestRate'),
+  startDate: optionalDate(command.payload.startDate, 'startDate'),
+  endDate: optionalDate(command.payload.endDate, 'endDate'),
+  currency: normalizeCurrency(command.payload.currency),
+  description: optionalText(command.payload.description, 'description'),
+});
+
 export async function createAssetInTransaction(
   command: CreateAssetCommand,
   transaction: LedgerTransactionClient,
@@ -278,21 +290,34 @@ export async function createLiabilityInTransaction(
   transaction: LedgerTransactionClient,
 ): Promise<MutationExecutionResult<LedgerRecord>> {
   validateCommandScope(command);
-  const payload = {
-    familyId: command.familyId,
-    name: requireText(command.payload.name, 'name'),
-    type: requireText(command.payload.type, 'type'),
-    amount: requireNonNegativeAmount(command.payload.amount, 'amount'),
-    interestRate: optionalNonNegativeAmount(command.payload.interestRate, 'interestRate'),
-    startDate: optionalDate(command.payload.startDate, 'startDate'),
-    endDate: optionalDate(command.payload.endDate, 'endDate'),
-    currency: normalizeCurrency(command.payload.currency),
-    description: optionalText(command.payload.description, 'description'),
-  };
+  const payload = liabilityMutationData(command);
   const record = await requireLiabilityStore(transaction).create({ data: payload });
   return {
     resourceId: record.id,
     record,
     version: record.version,
   };
+}
+
+export async function createLiability(
+  command: CreateLiabilityCommand,
+  store: FinancialMutationStore,
+): Promise<MutationResult<LedgerRecord>> {
+  validateCommandScope(command);
+  const payload = liabilityMutationData(command);
+
+  return coordinateFinancialMutation(
+    {
+      familyId: command.familyId,
+      actorId: command.actorId,
+      source: command.source,
+      idempotencyKey: command.idempotencyKey,
+      operation: 'CREATE_LIABILITY',
+      requestPayload: { source: command.source, payload },
+      httpStatus: 201,
+      audit: { action: 'CREATE', entity: 'Liability' },
+    },
+    store,
+    async (transaction) => createLiabilityInTransaction(command, transaction),
+  );
 }

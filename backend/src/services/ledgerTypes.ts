@@ -123,6 +123,7 @@ export type FinancialMutationOperation =
   | 'CREATE_INCOME'
   | 'CREATE_EXPENSE'
   | 'CREATE_ASSET'
+  | 'CREATE_LIABILITY'
   | 'UPDATE_INCOME'
   | 'UPDATE_EXPENSE'
   | 'UPDATE_ASSET'
