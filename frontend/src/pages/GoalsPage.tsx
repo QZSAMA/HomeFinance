@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   RadialBarChart,
   RadialBar,
@@ -30,6 +30,7 @@ const formatMoney = (amount: number) =>
 
 const GoalsPage = () => {
   const { currentFamily } = useFamilyStore();
+  const familyId = currentFamily?.id;
   const [progress, setProgress] = useState<GoalProgress[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -42,22 +43,22 @@ const GoalsPage = () => {
     deadline: '',
   });
 
-  const load = async () => {
-    if (!currentFamily) return;
+  const load = useCallback(async () => {
+    if (!familyId) return;
     setLoading(true);
     try {
-      const data = await getGoalProgress(currentFamily.id);
+      const data = await getGoalProgress(familyId);
       setProgress(data);
     } catch (err: any) {
       setError(err.response?.data?.error || '加载失败');
     } finally {
       setLoading(false);
     }
-  };
+  }, [familyId]);
 
   useEffect(() => {
-    if (currentFamily) load();
-  }, [currentFamily]);
+    void load();
+  }, [load]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useFamilyStore } from '../store/useFamilyStore';
 import {
   getRecurring,
@@ -18,6 +18,7 @@ const createRecurringRequestKey = () => (
 
 const RecurringPage = () => {
   const { currentFamily } = useFamilyStore();
+  const familyId = currentFamily?.id;
   const [list, setList] = useState<RecurringTransaction[]>([]);
   const [dueList, setDueList] = useState<RecurringTransaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,13 +42,13 @@ const RecurringPage = () => {
   const incomeCategories = ['工资', '奖金', '投资收益', '兼职收入', '租金收入', '其他收入'];
   const expenseCategories = ['餐饮', '交通', '购物', '娱乐', '医疗', '教育', '住房', '水电', '通讯', '其他支出'];
 
-  const loadData = async () => {
-    if (!currentFamily) return;
+  const loadData = useCallback(async () => {
+    if (!familyId) return;
     setLoading(true);
     try {
       const [all, due] = await Promise.all([
-        getRecurring(currentFamily.id),
-        getDueRecurring(currentFamily.id),
+        getRecurring(familyId),
+        getDueRecurring(familyId),
       ]);
       setList(all);
       setDueList(due);
@@ -56,13 +57,11 @@ const RecurringPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [familyId]);
 
   useEffect(() => {
-    if (currentFamily) {
-      loadData();
-    }
-  }, [currentFamily]);
+    void loadData();
+  }, [loadData]);
 
   const resetForm = () => {
     setFormData({

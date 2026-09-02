@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useFamilyStore } from '../store/useFamilyStore';
 import {
   getLiabilities,
@@ -19,6 +19,7 @@ const liabilityTypes = [
 
 const LiabilitiesPage = () => {
   const { currentFamily } = useFamilyStore();
+  const familyId = currentFamily?.id;
   const [liabilities, setLiabilities] = useState<Liability[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -36,17 +37,11 @@ const LiabilitiesPage = () => {
     description: '',
   });
 
-  useEffect(() => {
-    if (currentFamily) {
-      loadLiabilities();
-    }
-  }, [currentFamily]);
-
-  const loadLiabilities = async () => {
-    if (!currentFamily) return;
+  const loadLiabilities = useCallback(async () => {
+    if (!familyId) return;
     setLoading(true);
     try {
-      const data = await getLiabilities(currentFamily.id);
+      const data = await getLiabilities(familyId);
       setLiabilities(data);
     } catch (err) {
       setError('加载负债失败');
@@ -54,7 +49,11 @@ const LiabilitiesPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [familyId]);
+
+  useEffect(() => {
+    void loadLiabilities();
+  }, [loadLiabilities]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

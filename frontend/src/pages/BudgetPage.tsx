@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useFamilyStore } from '../store/useFamilyStore';
 import {
   getBudgetProgress,
@@ -17,6 +17,7 @@ const PERIOD_LABELS: Record<string, string> = {
 
 const BudgetPage = () => {
   const { currentFamily } = useFamilyStore();
+  const familyId = currentFamily?.id;
   const [progress, setProgress] = useState<BudgetProgress[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -30,25 +31,23 @@ const BudgetPage = () => {
     endDate: '',
   });
 
-  useEffect(() => {
-    if (currentFamily) {
-      loadProgress();
-    }
-  }, [currentFamily]);
-
-  const loadProgress = async () => {
-    if (!currentFamily) return;
+  const loadProgress = useCallback(async () => {
+    if (!familyId) return;
     setLoading(true);
     setError('');
     try {
-      const data = await getBudgetProgress(currentFamily.id);
+      const data = await getBudgetProgress(familyId);
       setProgress(data);
     } catch (err: any) {
       setError(err.response?.data?.error || '加载预算失败');
     } finally {
       setLoading(false);
     }
-  };
+  }, [familyId]);
+
+  useEffect(() => {
+    void loadProgress();
+  }, [loadProgress]);
 
   const openCreateModal = () => {
     setEditingId(null);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useFamilyStore } from '../store/useFamilyStore';
 import {
   getIncomes,
@@ -19,6 +19,7 @@ import { suggestCategory } from '../services/categoryService';
 
 const TransactionsPage = () => {
   const { currentFamily } = useFamilyStore();
+  const familyId = currentFamily?.id;
   const [activeTab, setActiveTab] = useState<'income' | 'expense'>('income');
   const [incomes, setIncomes] = useState<Income[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -41,21 +42,15 @@ const TransactionsPage = () => {
   const incomeCategories = ['工资', '奖金', '投资收益', '兼职收入', '租金收入', '其他收入'];
   const expenseCategories = ['餐饮', '交通', '购物', '娱乐', '医疗', '教育', '住房', '水电', '通讯', '其他支出'];
 
-  useEffect(() => {
-    if (currentFamily) {
-      loadData();
-    }
-  }, [currentFamily, activeTab]);
-
-  const loadData = async () => {
-    if (!currentFamily) return;
+  const loadData = useCallback(async () => {
+    if (!familyId) return;
     setLoading(true);
     try {
       if (activeTab === 'income') {
-        const data = await getIncomes(currentFamily.id);
+        const data = await getIncomes(familyId);
         setIncomes(data);
       } else {
-        const data = await getExpenses(currentFamily.id);
+        const data = await getExpenses(familyId);
         setExpenses(data);
       }
     } catch (err) {
@@ -64,7 +59,11 @@ const TransactionsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [familyId, activeTab]);
+
+  useEffect(() => {
+    void loadData();
+  }, [loadData]);
 
   const checkDuplicate = async () => {
     if (!currentFamily || !formData.amount || !formData.date) return;
@@ -215,7 +214,7 @@ const TransactionsPage = () => {
       if (suggested) {
         setFormData((prev) => ({ ...prev, category: suggested }));
       }
-    } catch (err) {
+    } catch {
       // 静默失败
     }
   };

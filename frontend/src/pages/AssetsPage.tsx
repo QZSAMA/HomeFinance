@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useFamilyStore } from '../store/useFamilyStore';
 import {
   getAssets,
@@ -20,6 +20,7 @@ const assetTypes = [
 
 const AssetsPage = () => {
   const { currentFamily } = useFamilyStore();
+  const familyId = currentFamily?.id;
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -37,17 +38,11 @@ const AssetsPage = () => {
     description: '',
   });
 
-  useEffect(() => {
-    if (currentFamily) {
-      loadAssets();
-    }
-  }, [currentFamily]);
-
-  const loadAssets = async () => {
-    if (!currentFamily) return;
+  const loadAssets = useCallback(async () => {
+    if (!familyId) return;
     setLoading(true);
     try {
-      const data = await getAssets(currentFamily.id);
+      const data = await getAssets(familyId);
       setAssets(data);
     } catch (err) {
       setError('加载资产失败');
@@ -55,7 +50,11 @@ const AssetsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [familyId]);
+
+  useEffect(() => {
+    void loadAssets();
+  }, [loadAssets]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
