@@ -68,6 +68,21 @@ const createClient = () => {
         createdAt: new Date('2026-08-31T00:00:00.000Z'),
         updatedAt: new Date('2026-08-31T00:00:00.000Z'),
       })),
+      findFirst: jest.fn(async ({ where }) => ({
+        id: where.id,
+        familyId: where.familyId,
+        version: 2,
+        name: 'Mortgage',
+        type: 'MORTGAGE',
+        amount: new Prisma.Decimal('4567.89'),
+        interestRate: new Prisma.Decimal('0.0325'),
+        startDate: null,
+        endDate: null,
+        currency: 'CNY',
+        description: null,
+      })),
+      updateMany: jest.fn(async () => ({ count: 1 })),
+      deleteMany: jest.fn(async () => ({ count: 1 })),
     },
     auditEvent: { create: jest.fn(async ({ data }) => ({ id: 'audit-1', ...data })) },
   };
@@ -233,6 +248,47 @@ describe('Prisma financial mutation store', () => {
       amount: 4567.89,
       interestRate: 0.0325,
     });
+  });
+
+  test('keeps Liability reads and CAS predicates family-scoped while converting Decimal fields', async () => {
+    const { client, transaction } = createClient();
+    const store = createPrismaFinancialMutationStore(client);
+
+    const result = await store.$transaction(async (tx) => ({
+      found: await (tx as any).liability.findFirst({
+        where: { id: 'liability-1', familyId: 'family-1' },
+      }),
+      updated: await (tx as any).liability.updateMany({
+        where: { id: 'liability-1', familyId: 'family-1', version: 2 },
+        data: {
+          name: 'Mortgage',
+          type: 'MORTGAGE',
+          amount: 4500,
+          interestRate: null,
+          startDate: null,
+          endDate: null,
+          currency: 'CNY',
+          description: null,
+          version: { increment: 1 },
+        },
+      }),
+      deleted: await (tx as any).liability.deleteMany({
+        where: { id: 'liability-1', familyId: 'family-1', version: 3 },
+      }),
+    }));
+
+    expect(transaction.liability.findFirst).toHaveBeenCalledWith({
+      where: { id: 'liability-1', familyId: 'family-1' },
+    });
+    expect(transaction.liability.updateMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: { id: 'liability-1', familyId: 'family-1', version: 2 },
+    }));
+    expect(transaction.liability.deleteMany).toHaveBeenCalledWith({
+      where: { id: 'liability-1', familyId: 'family-1', version: 3 },
+    });
+    expect(result.found).toMatchObject({ familyId: 'family-1', amount: 4567.89, version: 2 });
+    expect(result.updated).toEqual({ count: 1 });
+    expect(result.deleted).toEqual({ count: 1 });
   });
 
   test('rejects unsupported or invalid JSON before the persistence adapter writes it', async () => {

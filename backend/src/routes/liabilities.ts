@@ -2,8 +2,22 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../db/prisma';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
-import { requireFamilyWriteAccess } from '../middleware/familyAccess';
+import { requireFamilyAccess, requireFamilyWriteAccess } from '../middleware/familyAccess';
+import {
+  createLiability,
+  deleteLiability,
+  updateLiability,
+} from '../services/balanceMutationService';
+import { createPrismaFinancialMutationStore } from '../services/prismaFinancialMutationStore';
 import { parsePagination, paginateResponse } from '../utils/pagination';
+import {
+  markIdempotencyReplay,
+  mutationDeleteResponse,
+  mutationResource,
+  readExpectedVersion,
+  readIdempotencyKey,
+  sendLedgerMutationError,
+} from './ledgerRouteSupport';
 
 const router = Router({ mergeParams: true });
 
@@ -18,25 +32,11 @@ const liabilitySchema = z.object({
   description: z.string().optional()
 });
 
-const checkFamilyAccess = async (familyId: string, userId: string) => {
-  const membership = await prisma.familyMember.findUnique({
-    where: {
-      familyId_userId: {
-        familyId,
-        userId
-      }
-    }
-  });
-  return membership;
-};
+const financialMutationStore = createPrismaFinancialMutationStore(prisma);
 
-router.get('/', authMiddleware, async (req: AuthRequest, res) => {
+router.get('/', authMiddleware, requireFamilyAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
 
     const pagination = parsePagination(req);
     if (pagination) {
@@ -68,14 +68,12 @@ router.post('/', authMiddleware, requireFamilyWriteAccess, async (req: AuthReque
   try {
     const familyId = req.params.familyId as string;
     const data = liabilitySchema.parse(req.body);
-
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
-
-    const liability = await prisma.liability.create({
-      data: {
+    const result = await createLiability({
+      familyId,
+      actorId: req.userId!,
+      source: 'MANUAL',
+      idempotencyKey: readIdempotencyKey(req),
+      payload: {
         name: data.name,
         type: data.type,
         amount: data.amount,
@@ -84,17 +82,13 @@ router.post('/', authMiddleware, requireFamilyWriteAccess, async (req: AuthReque
         endDate: data.endDate ? new Date(data.endDate) : undefined,
         currency: data.currency,
         description: data.description,
-        familyId
-      }
-    });
+      },
+    }, financialMutationStore);
 
-    res.status(201).json(liability);
+    markIdempotencyReplay(result, res);
+    return res.status(201).json(mutationResource(result));
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: error.errors[0].message });
-    }
-    console.error('创建负债错误:', error);
-    res.status(500).json({ error: '服务器内部错误' });
+    return sendLedgerMutationError(error, res, '创建负债');
   }
 });
 
@@ -103,23 +97,14 @@ router.put('/:id', authMiddleware, requireFamilyWriteAccess, async (req: AuthReq
     const familyId = req.params.familyId as string;
     const id = req.params.id as string;
     const data = liabilitySchema.parse(req.body);
-
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership || membership.role === 'viewer') {
-      return res.status(403).json({ error: '无权修改该数据' });
-    }
-
-    const liability = await prisma.liability.findUnique({
-      where: { id }
-    });
-
-    if (!liability || liability.familyId !== familyId) {
-      return res.status(404).json({ error: '记录不存在' });
-    }
-
-    const updated = await prisma.liability.update({
-      where: { id },
-      data: {
+    const result = await updateLiability({
+      familyId,
+      actorId: req.userId!,
+      source: 'MANUAL',
+      idempotencyKey: readIdempotencyKey(req),
+      liabilityId: id,
+      expectedVersion: readExpectedVersion(req),
+      payload: {
         name: data.name,
         type: data.type,
         amount: data.amount,
@@ -127,44 +112,32 @@ router.put('/:id', authMiddleware, requireFamilyWriteAccess, async (req: AuthReq
         startDate: data.startDate ? new Date(data.startDate) : undefined,
         endDate: data.endDate ? new Date(data.endDate) : undefined,
         currency: data.currency,
-        description: data.description
-      }
-    });
+        description: data.description,
+      },
+    }, financialMutationStore);
 
-    res.json(updated);
+    markIdempotencyReplay(result, res);
+    return res.json(mutationResource(result));
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: error.errors[0].message });
-    }
-    console.error('更新负债错误:', error);
-    res.status(500).json({ error: '服务器内部错误' });
+    return sendLedgerMutationError(error, res, '更新负债');
   }
 });
 
 router.delete('/:id', authMiddleware, requireFamilyWriteAccess, async (req: AuthRequest, res) => {
   try {
-    const familyId = req.params.familyId as string;
-    const id = req.params.id as string;
+    const result = await deleteLiability({
+      familyId: req.params.familyId as string,
+      actorId: req.userId!,
+      source: 'MANUAL',
+      idempotencyKey: readIdempotencyKey(req),
+      liabilityId: req.params.id as string,
+      expectedVersion: readExpectedVersion(req),
+    }, financialMutationStore);
 
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership || membership.role === 'viewer') {
-      return res.status(403).json({ error: '无权删除该数据' });
-    }
-
-    const liability = await prisma.liability.findUnique({
-      where: { id }
-    });
-
-    if (!liability || liability.familyId !== familyId) {
-      return res.status(404).json({ error: '记录不存在' });
-    }
-
-    await prisma.liability.delete({ where: { id } });
-
-    res.json({ message: '删除成功' });
+    markIdempotencyReplay(result, res);
+    return res.json(mutationDeleteResponse(result));
   } catch (error) {
-    console.error('删除负债错误:', error);
-    res.status(500).json({ error: '服务器内部错误' });
+    return sendLedgerMutationError(error, res, '删除负债');
   }
 });
 

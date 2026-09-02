@@ -78,4 +78,14 @@ describe('Phase 1 additive ledger persistence contract', () => {
       'ALTER TABLE "RecurringTransaction" ADD COLUMN "deletedAt" TIMESTAMP(3)',
     );
   });
+
+  test('declares versioned Liability persistence and additive migration', () => {
+    const schema = readSchema();
+    const liabilityMigration = readMigration('20260902100000_add_liability_version');
+
+    expect(schema).toMatch(/model Liability[\s\S]*version\s+Int\s+@default\(1\)/);
+    expect(liabilityMigration).toContain('ADD COLUMN "version" INTEGER NOT NULL DEFAULT 1');
+    expect(liabilityMigration).toContain('Liability_version_check');
+    expect(liabilityMigration).toContain('CHECK ("version" > 0)');
+  });
 });

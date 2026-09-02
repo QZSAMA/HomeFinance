@@ -136,6 +136,7 @@ model Asset {
 
 model Liability {
   id           String    @id @default(cuid())
+  version      Int       @default(1)
   familyId     String
   name         String
   type         String

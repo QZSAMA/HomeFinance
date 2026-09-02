@@ -87,6 +87,11 @@ export type UpdateAssetCommand = CreateAssetCommand & {
   expectedVersion?: number;
 };
 
+export type UpdateLiabilityCommand = CreateLiabilityCommand & {
+  liabilityId: string;
+  expectedVersion?: number;
+};
+
 export type DeleteIncomeCommand = Pick<
   CreateIncomeCommand,
   'familyId' | 'actorId' | 'source' | 'idempotencyKey' | 'effectiveDate'
@@ -111,6 +116,14 @@ export type DeleteAssetCommand = Pick<
   expectedVersion?: number;
 };
 
+export type DeleteLiabilityCommand = Pick<
+  CreateLiabilityCommand,
+  'familyId' | 'actorId' | 'source' | 'idempotencyKey'
+> & {
+  liabilityId: string;
+  expectedVersion?: number;
+};
+
 export interface MutationResult<TRecord = unknown> {
   operationId: string;
   resourceId: string;
@@ -123,12 +136,15 @@ export type FinancialMutationOperation =
   | 'CREATE_INCOME'
   | 'CREATE_EXPENSE'
   | 'CREATE_ASSET'
+  | 'CREATE_LIABILITY'
   | 'UPDATE_INCOME'
   | 'UPDATE_EXPENSE'
   | 'UPDATE_ASSET'
+  | 'UPDATE_LIABILITY'
   | 'DELETE_INCOME'
   | 'DELETE_EXPENSE'
   | 'DELETE_ASSET'
+  | 'DELETE_LIABILITY'
   | 'EXECUTE_RECURRING'
   | 'CONFIRM_IMPORT_BATCH'
   | 'CONFIRM_AI_PROPOSAL';
@@ -344,6 +360,26 @@ export interface LedgerTransactionClient {
         description?: string | null;
       };
     }): Promise<LedgerRecord>;
+    findFirst(args: {
+      where: { id: string; familyId: string };
+    }): Promise<LedgerRecord | null>;
+    updateMany(args: {
+      where: { id: string; familyId: string; version: number };
+      data: {
+        name: string;
+        type: string;
+        amount: number;
+        interestRate?: number | null;
+        startDate?: Date | null;
+        endDate?: Date | null;
+        currency: string;
+        description?: string | null;
+        version: { increment: number };
+      };
+    }): Promise<{ count: number }>;
+    deleteMany(args: {
+      where: { id: string; familyId: string; version: number };
+    }): Promise<{ count: number }>;
   };
   auditEvent: {
     create(args: {
