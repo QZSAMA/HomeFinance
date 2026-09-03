@@ -576,7 +576,7 @@ export const createGoalContribution: (command: CreateGoalContributionCommand) =>
 
 The private helpers used below are defined in `goalContributionService.ts`: `assertWritableMembership`, `assertSourceBelongsToFamily`, `claimIdempotency`, `recordMutationAuditAndResult` and `toResult`; each receives the transaction client and never performs work outside that transaction.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 test('keeps two goals isolated and rejects the same source twice', async () => {
@@ -592,13 +592,13 @@ test('viewer, cross-family source and invalid currency have zero writes', async 
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend; npm test -- --runInBand src/services/goalContributionService.test.ts src/routes/goals.test.ts src/tests/goalContribution.integration.test.ts`
 
 Expected: FAIL because progress currently reads global assets/liabilities and no contribution table/service exists.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Add `Goal.currency` with a CNY/family-base backfill and the additive contribution table/checks. Implement a transaction that authorizes membership before idempotency/source lookup, validates same-family goal/source, claims the scoped idempotency key, inserts one contribution, writes audit/replay metadata, and maps a source-key race to `GOAL_CONTRIBUTION_CONFLICT` (409):
 
@@ -620,13 +620,13 @@ return prisma.$transaction(async (tx) => {
 
 Add `POST /:goalId/contributions` and update `/progress` to aggregate only that goal’s contributions; no contribution means `currentAmount: null`, `percentage: null`, `progressStatus: 'unavailable'`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend; npm test -- --runInBand src/services/goalContributionService.test.ts src/routes/goals.test.ts src/tests/goalContribution.integration.test.ts; npm run build`
 
 Expected: focused service/route tests and build PASS. With PostgreSQL available, run the integration suite and verify concurrent same-source submissions leave one contribution.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/prisma backend/src/services/goalContributionService.ts backend/src/services/goalContributionService.test.ts backend/src/routes/goals.ts backend/src/routes/goals.test.ts backend/src/tests/goalContribution.integration.test.ts

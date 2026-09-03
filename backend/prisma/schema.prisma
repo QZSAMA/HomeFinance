@@ -22,6 +22,7 @@ model User {
   budgets               Budget[]
   recurringTransactions RecurringTransaction[]
   goals                 Goal[]
+  goalContributions     GoalContribution[]
   auditEvents           AuditEvent[]
   importBatches         ImportBatch[]
   aiProposals           AiProposal[]
@@ -47,6 +48,7 @@ model Family {
   recurringTransactions RecurringTransaction[]
   recurringExecutions   RecurringExecution[]
   goals                 Goal[]
+  goalContributions     GoalContribution[]
   idempotencyRecords    IdempotencyRecord[]
   auditEvents           AuditEvent[]
   importBatches         ImportBatch[]
@@ -298,20 +300,45 @@ model AuditEvent {
 }
 
 model Goal {
-  id           String    @id @default(cuid())
-  familyId     String
-  family       Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  title        String
-  type         String // "SAVING" | "DEBT_PAYOFF" | "INVESTMENT"
-  targetAmount Decimal   @db.Decimal(15, 2)
-  deadline     DateTime?
-  isCompleted  Boolean   @default(false)
-  createdBy    String
-  user         User      @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id            String             @id @default(cuid())
+  familyId      String
+  family        Family             @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  title         String
+  type          String // "SAVING" | "DEBT_PAYOFF" | "INVESTMENT"
+  targetAmount  Decimal            @db.Decimal(15, 2)
+  currency      String             @default("CNY")
+  deadline      DateTime?
+  isCompleted   Boolean            @default(false)
+  createdBy     String
+  user          User               @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  contributions GoalContribution[]
 
   @@index([familyId])
+}
+
+model GoalContribution {
+  id               String   @id @default(cuid())
+  familyId         String
+  goalId           String
+  sourceType       String
+  sourceId         String?
+  amount           Decimal  @db.Decimal(15, 2)
+  currency         String
+  contributionDate DateTime
+  allocationKey    String   @db.VarChar(255)
+  sourceKey        String   @db.VarChar(255)
+  createdBy        String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  family           Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  goal             Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  user             User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@unique([familyId, allocationKey], map: "GoalContribution_allocation_key")
+  @@unique([familyId, sourceKey], map: "GoalContribution_source_key")
+  @@index([familyId, goalId, contributionDate])
 }
 
 model ImportBatch {

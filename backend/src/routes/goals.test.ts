@@ -3,8 +3,13 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import goalRoutes from './goals';
 
+jest.mock('../services/goalContributionService', () => ({
+  createGoalContribution: jest.fn(),
+}));
+
 jest.mock('../db/prisma', () => ({
   prisma: {
+    family: { findUnique: jest.fn() },
     familyMember: { findUnique: jest.fn() },
     goal: {
       findMany: jest.fn(),
@@ -15,12 +20,15 @@ jest.mock('../db/prisma', () => ({
     },
     asset: { findMany: jest.fn() },
     liability: { findMany: jest.fn() },
+    goalContribution: { findMany: jest.fn(), create: jest.fn() },
   },
 }));
 
 import { prisma } from '../db/prisma';
+import { createGoalContribution } from '../services/goalContributionService';
 
 const mockedPrisma = prisma as any;
+const mockedCreateGoalContribution = createGoalContribution as jest.Mock;
 
 const app = express();
 app.use(express.json());
@@ -49,6 +57,16 @@ describe('Goal Routes', () => {
     mockedPrisma.goal.delete.mockResolvedValue({});
     mockedPrisma.asset.findMany.mockResolvedValue([]);
     mockedPrisma.liability.findMany.mockResolvedValue([]);
+    mockedPrisma.goalContribution.findMany.mockResolvedValue([]);
+    mockedPrisma.goalContribution.create.mockResolvedValue({
+      id: 'gc1', goalId: 'g1', amount: 100, currency: 'CNY',
+      contributionDate: new Date('2026-09-03'), sourceType: 'MANUAL', sourceId: null,
+    });
+    mockedPrisma.family.findUnique.mockResolvedValue({ baseCurrency: 'CNY' });
+    mockedCreateGoalContribution.mockResolvedValue({
+      id: 'gc1', goalId: 'g1', amount: 100, currency: 'CNY',
+      contributionDate: new Date('2026-09-03'), sourceType: 'MANUAL', sourceId: null, deduplicated: false,
+    });
   });
 
   describe('POST /api/families/:familyId/goals', () => {
@@ -144,12 +162,11 @@ describe('Goal Routes', () => {
   });
 
   describe('GET /api/families/:familyId/goals/progress', () => {
-    test('returns progress for SAVING goal (net worth)', async () => {
+    test('returns progress from explicit contributions for SAVING goal', async () => {
       mockedPrisma.goal.findMany.mockResolvedValue([
-        { id: 'g1', familyId: 'fam_1', title: '储蓄', type: 'SAVING', targetAmount: 100000, deadline: null, isCompleted: false },
+        { id: 'g1', familyId: 'fam_1', title: '储蓄', type: 'SAVING', targetAmount: 100000, currency: 'CNY', deadline: null, isCompleted: false },
       ]);
-      mockedPrisma.asset.findMany.mockResolvedValue([{ value: 150000 }]);
-      mockedPrisma.liability.findMany.mockResolvedValue([{ amount: 50000 }]);
+      mockedPrisma.goalContribution.findMany.mockResolvedValue([{ goalId: 'g1', amount: 150000, currency: 'CNY' }]);
 
       const res = await request(app)
         .get('/api/families/fam_1/goals/progress')
@@ -160,13 +177,11 @@ describe('Goal Routes', () => {
       expect(res.body[0].percentage).toBe(100);
     });
 
-    test('returns progress for DEBT_PAYOFF goal', async () => {
+    test('returns progress for DEBT_PAYOFF goal from its own contributions', async () => {
       mockedPrisma.goal.findMany.mockResolvedValue([
-        { id: 'g2', familyId: 'fam_1', title: '还清信用卡', type: 'DEBT_PAYOFF', targetAmount: 50000, deadline: null, isCompleted: false },
+        { id: 'g2', familyId: 'fam_1', title: '还清信用卡', type: 'DEBT_PAYOFF', targetAmount: 50000, currency: 'CNY', deadline: null, isCompleted: false },
       ]);
-      // 当前还有 20000 负债 → 已还 30000
-      mockedPrisma.asset.findMany.mockResolvedValue([]);
-      mockedPrisma.liability.findMany.mockResolvedValue([{ amount: 20000 }]);
+      mockedPrisma.goalContribution.findMany.mockResolvedValue([{ goalId: 'g2', amount: 30000, currency: 'CNY' }]);
 
       const res = await request(app)
         .get('/api/families/fam_1/goals/progress')
@@ -177,6 +192,19 @@ describe('Goal Routes', () => {
       expect(res.body[0].percentage).toBe(60);
     });
 
+    test('returns unavailable progress when no contribution is linked', async () => {
+      mockedPrisma.goal.findMany.mockResolvedValue([
+        { id: 'g3', familyId: 'fam_1', title: '旅行', type: 'SAVING', targetAmount: 5000, currency: 'CNY' },
+      ]);
+
+      const res = await request(app)
+        .get('/api/families/fam_1/goals/progress')
+        .set('Authorization', `Bearer ${createToken()}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body[0]).toMatchObject({ currentAmount: null, percentage: null, progressStatus: 'unavailable' });
+    });
+
     test('returns 403 for non-member', async () => {
       mockedPrisma.familyMember.findUnique.mockResolvedValue(null);
 
@@ -185,6 +213,22 @@ describe('Goal Routes', () => {
         .set('Authorization', `Bearer ${createToken()}`);
 
       expect(res.status).toBe(403);
+    });
+  });
+
+  describe('POST /api/families/:familyId/goals/:goalId/contributions', () => {
+    test('creates an explicit goal contribution', async () => {
+      const res = await request(app)
+        .post('/api/families/fam_1/goals/g1/contributions')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .set('Idempotency-Key', 'goal-contribution-1')
+        .send({ sourceType: 'MANUAL', amount: 100, currency: 'cny', allocationKey: 'manual-1' });
+
+      expect(res.status).toBe(201);
+      expect(res.body.id).toBe('gc1');
+      expect(mockedCreateGoalContribution).toHaveBeenCalledWith(expect.objectContaining({
+        familyId: 'fam_1', goalId: 'g1', currency: 'CNY', idempotencyKey: 'goal-contribution-1',
+      }));
     });
   });
 
