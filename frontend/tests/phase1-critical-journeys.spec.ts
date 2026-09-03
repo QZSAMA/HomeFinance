@@ -65,7 +65,7 @@ async function addTransaction(
   const path = type === 'income' ? '/incomes' : '/expenses';
   const creation = page.waitForResponse((response) => (
     response.request().method() === 'POST'
-    && response.url().includes(path)
+    && new URL(response.url()).pathname.endsWith(path)
   ));
   await dialog.getByRole('button', { name: '确认', exact: true }).click();
   await expect((await creation).status()).toBe(201);
