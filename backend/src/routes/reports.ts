@@ -21,6 +21,7 @@ import { toNumber } from '../utils/decimal';
 const router = Router({ mergeParams: true });
 
 type FamilySettings = { timezone: string; baseCurrency: string };
+const VALUATION_RULE_VERSION = 'current-snapshot-v1';
 
 const loadFamilySettings = async (familyId: string): Promise<FamilySettings> => {
   const family = await prisma.family.findUnique({
@@ -93,9 +94,9 @@ const scalarDifference = (income: number | null, expense: number | null): number
   income === null || expense === null ? null : income - expense
 );
 
-const combineConversionStatus = (left: CurrencySummary, right: CurrencySummary): CurrencySummary['conversionStatus'] => {
-  if (left.conversionStatus === 'partial' || right.conversionStatus === 'partial') return 'partial';
-  if (left.conversionStatus === 'unavailable' || right.conversionStatus === 'unavailable') return 'unavailable';
+const combineConversionStatus = (...summaries: CurrencySummary[]): CurrencySummary['conversionStatus'] => {
+  if (summaries.some((summary) => summary.conversionStatus === 'partial')) return 'partial';
+  if (summaries.some((summary) => summary.conversionStatus === 'unavailable')) return 'unavailable';
   return 'exact';
 };
 
@@ -111,6 +112,7 @@ router.get('/balance-sheet', authMiddleware, requireFamilyAccess, cacheMiddlewar
   try {
     const familyId = req.params.familyId as string;
     const settings = await loadFamilySettings(familyId);
+    const valuationAsOf = new Date();
 
     const assets = await prisma.asset.findMany({ where: { familyId } });
     const liabilities = await prisma.liability.findMany({ where: { familyId } });
@@ -141,8 +143,8 @@ router.get('/balance-sheet', authMiddleware, requireFamilyAccess, cacheMiddlewar
       conversionStatus: combineConversionStatus(assetSummary, liabilitySummary),
       reconciliationStatus: totalAssets !== null && totalLiabilities !== null && netWorth !== null
         && reconcileBalanceSheet(totalAssets, totalLiabilities, netWorth) ? 'passed' : 'unavailable',
-      valuationAsOf: new Date().toISOString(),
-      valuationRuleVersion: 'current-snapshot-v1',
+      valuationAsOf: valuationAsOf.toISOString(),
+      valuationRuleVersion: VALUATION_RULE_VERSION,
     });
   } catch (error) {
     return reportError(error, res, '获取资产负债表错误:');
@@ -351,6 +353,7 @@ router.get('/summary', authMiddleware, requireFamilyAccess, cacheMiddleware(300)
     const lastMonthIncome = lastIncomeSummary.totalInBaseCurrency;
     const thisMonthExpense = thisExpenseSummary.totalInBaseCurrency;
     const lastMonthExpense = lastExpenseSummary.totalInBaseCurrency;
+    const netIncome = scalarDifference(thisMonthIncome, thisMonthExpense);
 
     const incomeChange = lastMonthIncome !== null && thisMonthIncome !== null && lastMonthIncome > 0
       ? ((thisMonthIncome - lastMonthIncome) / lastMonthIncome) * 100 
@@ -385,9 +388,29 @@ router.get('/summary', authMiddleware, requireFamilyAccess, cacheMiddleware(300)
 
     const investmentAllocation = Object.entries(allocationMap).map(([category, value]) => ({
       category,
-      value,
+      value: totalAssets === null ? null : value,
       percentage: totalAssets !== null && totalAssets > 0 ? Number(((value / totalAssets) * 100).toFixed(2)) : totalAssets === null ? null : 0
     }));
+
+    const conversionStatus = combineConversionStatus(
+      assetSummary,
+      liabilitySummary,
+      thisIncomeSummary,
+      lastIncomeSummary,
+      thisExpenseSummary,
+      lastExpenseSummary,
+    );
+    const summaryReconciliationStatus = conversionStatus === 'exact'
+      && totalAssets !== null
+      && totalLiabilities !== null
+      && netWorth !== null
+      && thisMonthIncome !== null
+      && thisMonthExpense !== null
+      && netIncome !== null
+      && reconcileBalanceSheet(totalAssets, totalLiabilities, netWorth)
+      && reconcileIncome(thisMonthIncome, thisMonthExpense, netIncome)
+      ? 'passed'
+      : 'unavailable';
 
     res.json({
       balanceSheet: {
@@ -402,7 +425,7 @@ router.get('/summary', authMiddleware, requireFamilyAccess, cacheMiddleware(300)
         lastMonthExpense,
         incomeChange,
         expenseChange,
-        netIncome: scalarDifference(thisMonthIncome, thisMonthExpense)
+         netIncome
       },
       investmentAllocation,
       recentTransactions: {
@@ -413,11 +436,14 @@ router.get('/summary', authMiddleware, requireFamilyAccess, cacheMiddleware(300)
       baseCurrency: settings.baseCurrency,
       window: thisMonthWindow,
       previousWindow: lastMonthWindow,
+      valuationAsOf: now.toISOString(),
+      valuationRuleVersion: VALUATION_RULE_VERSION,
       totalsByCurrency: assetSummary.totalsByCurrency,
       liabilityTotalsByCurrency: liabilitySummary.totalsByCurrency,
-      conversionStatus: combineConversionStatus(assetSummary, liabilitySummary),
-      reconciliationStatus: totalAssets !== null && totalLiabilities !== null && netWorth !== null
-        && reconcileBalanceSheet(totalAssets, totalLiabilities, netWorth) ? 'passed' : 'unavailable',
+      incomeTotalsByCurrency: thisIncomeSummary.totalsByCurrency,
+      expenseTotalsByCurrency: thisExpenseSummary.totalsByCurrency,
+      conversionStatus,
+      reconciliationStatus: summaryReconciliationStatus,
     });
   } catch (error) {
     return reportError(error, res, '获取财务概览错误:');

@@ -4,6 +4,8 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import reportRoutes from '../routes/reports';
+import compareRoutes from '../routes/compare';
+import { resolvePeriodWindow } from '../services/periodWindowService';
 
 const prisma = new PrismaClient();
 const runId = randomUUID();
@@ -13,6 +15,7 @@ const familyId = `reports-period-family-${runId}`;
 const app = express();
 app.use(express.json());
 app.use('/api/families/:familyId/reports', reportRoutes);
+app.use('/api/compare', compareRoutes);
 
 const token = () => jwt.sign(
   { userId, email: `${userId}@example.test`, name: 'Reports integration' },
@@ -140,5 +143,106 @@ describe('Reports family period and currency semantics', () => {
     expect(response.status).toBe(200);
     expect(response.body.netCashFlow).toBe(125);
     expect(response.body.reconciliationStatus).toBe('passed');
+  });
+
+  test('keeps dashboard and standalone statements on one valuation and reconciliation contract', async () => {
+    const now = new Date();
+    const window = resolvePeriodWindow({
+      timezone: 'Asia/Shanghai',
+      kind: 'MONTHLY',
+      referenceInstant: now,
+    });
+    const date = new Date((window.startUtc.getTime() + window.endUtc.getTime()) / 2);
+    await prisma.asset.create({
+      data: { familyId, name: '现金', type: 'CASH', value: 150, currency: 'CNY' },
+    });
+    await prisma.liability.create({
+      data: { familyId, name: '信用卡', type: 'CREDIT_CARD', amount: 90, currency: 'CNY' },
+    });
+    await prisma.income.create({
+      data: { familyId, createdBy: userId, category: '工资', amount: 100, currency: 'CNY', date },
+    });
+    await prisma.expense.create({
+      data: { familyId, createdBy: userId, category: '餐饮', amount: 40, currency: 'CNY', date },
+    });
+
+    const [summary, incomeStatement, cashFlow, balanceSheet, compare] = await Promise.all([
+      request(app).get(`/api/families/${familyId}/reports/summary`).set('Authorization', `Bearer ${token()}`),
+      request(app).get(`/api/families/${familyId}/reports/income-statement`)
+        .query({ startDate: window.startLocal, endDate: window.endLocalExclusive })
+        .set('Authorization', `Bearer ${token()}`),
+      request(app).get(`/api/families/${familyId}/reports/cash-flow`)
+        .query({ startDate: window.startLocal, endDate: window.endLocalExclusive })
+        .set('Authorization', `Bearer ${token()}`),
+      request(app).get(`/api/families/${familyId}/reports/balance-sheet`).set('Authorization', `Bearer ${token()}`),
+      request(app).get('/api/compare/summary')
+        .query({ month: window.startLocal.slice(0, 7) })
+        .set('Authorization', `Bearer ${token()}`),
+    ]);
+
+    expect(summary.status).toBe(200);
+    expect(incomeStatement.status).toBe(200);
+    expect(cashFlow.status).toBe(200);
+    expect(balanceSheet.status).toBe(200);
+    expect(compare.status).toBe(200);
+    expect(summary.body.reconciliationStatus).toBe('passed');
+    expect(summary.body.valuationRuleVersion).toBe('current-snapshot-v1');
+    expect(compare.body[0].valuationRuleVersion).toBe('current-snapshot-v1');
+    expect(compare.body[0].reconciliationStatus).toBe('passed');
+    expect(summary.body.balanceSheet).toEqual({
+      totalAssets: balanceSheet.body.totalAssets,
+      totalLiabilities: balanceSheet.body.totalLiabilities,
+      netWorth: balanceSheet.body.netWorth,
+    });
+    expect(summary.body.incomeStatement.netIncome).toBe(incomeStatement.body.netIncome);
+    expect(cashFlow.body.netCashFlow).toBe(incomeStatement.body.netIncome);
+    expect(cashFlow.body.reconciliationStatus).toBe('passed');
+  });
+
+  test('propagates mixed-currency status across dashboard income and cash-flow totals', async () => {
+    const now = new Date();
+    const window = resolvePeriodWindow({
+      timezone: 'Asia/Shanghai',
+      kind: 'MONTHLY',
+      referenceInstant: now,
+    });
+    const date = new Date((window.startUtc.getTime() + window.endUtc.getTime()) / 2);
+    await prisma.income.createMany({
+      data: [
+        { familyId, createdBy: userId, category: '工资', amount: 100, currency: 'CNY', date },
+        { familyId, createdBy: userId, category: '海外', amount: 10, currency: 'USD', date },
+      ],
+    });
+
+    const response = await request(app)
+      .get(`/api/families/${familyId}/reports/summary`)
+      .set('Authorization', `Bearer ${token()}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.conversionStatus).toBe('unavailable');
+    expect(response.body.reconciliationStatus).toBe('unavailable');
+    expect(response.body.incomeStatement.thisMonthIncome).toBeNull();
+    expect(response.body.incomeStatement.netIncome).toBeNull();
+  });
+
+  test('does not expose fake investment allocation totals for mixed asset currencies', async () => {
+    await prisma.asset.createMany({
+      data: [
+        { familyId, name: '现金', type: 'CASH', value: 100, currency: 'CNY' },
+        { familyId, name: '股票', type: 'STOCK', value: 20, currency: 'USD' },
+      ],
+    });
+
+    const response = await request(app)
+      .get(`/api/families/${familyId}/reports/summary`)
+      .set('Authorization', `Bearer ${token()}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.investmentAllocation).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ category: 'CASH', value: null, percentage: null }),
+        expect.objectContaining({ category: 'STOCK', value: null, percentage: null }),
+      ]),
+    );
   });
 });

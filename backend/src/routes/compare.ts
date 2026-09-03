@@ -5,8 +5,10 @@ import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { DomainError } from '../services/ledgerErrors';
 import { resolvePeriodWindow } from '../services/periodWindowService';
 import { summarizeByCurrency, CurrencySummary } from '../services/currencySummaryService';
+import { reconcileBalanceSheet, reconcileIncome } from '../utils/reconciliation';
 
 const router = Router();
+const VALUATION_RULE_VERSION = 'current-snapshot-v1';
 
 const monthSchema = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, '月份必须使用 YYYY-MM 格式');
 
@@ -40,6 +42,7 @@ router.get('/summary', authMiddleware, async (req: AuthRequest, res) => {
       throw new DomainError('INVALID_PERIOD_WINDOW', parsedMonth.error.errors[0]?.message ?? '月份格式无效', 400);
     }
     const month = parsedMonth.data;
+    const valuationAsOf = new Date().toISOString();
     const userId = req.userId!;
     const memberships = await prisma.familyMember.findMany({
       where: { userId },
@@ -83,19 +86,39 @@ router.get('/summary', authMiddleware, async (req: AuthRequest, res) => {
         const incomeSummary = summarizeByCurrency(currencyRows(incomes, 'amount', baseCurrency), baseCurrency);
         const expenseSummary = summarizeByCurrency(currencyRows(expenses, 'amount', baseCurrency), baseCurrency);
 
+        const conversionStatus = combineConversionStatus(assetSummary, liabilitySummary, incomeSummary, expenseSummary);
+        const totalAssets = assetSummary.totalInBaseCurrency;
+        const totalLiabilities = liabilitySummary.totalInBaseCurrency;
+        const netWorth = scalarDifference(totalAssets, totalLiabilities);
+        const thisMonthIncome = incomeSummary.totalInBaseCurrency;
+        const thisMonthExpense = expenseSummary.totalInBaseCurrency;
+        const reconciliationStatus = conversionStatus === 'exact'
+          && totalAssets !== null
+          && totalLiabilities !== null
+          && netWorth !== null
+          && thisMonthIncome !== null
+          && thisMonthExpense !== null
+          && reconcileBalanceSheet(totalAssets, totalLiabilities, netWorth)
+          && reconcileIncome(thisMonthIncome, thisMonthExpense, thisMonthIncome - thisMonthExpense)
+          ? 'passed'
+          : 'unavailable';
+
         return {
           familyId,
           familyName,
-          totalAssets: assetSummary.totalInBaseCurrency,
-          totalLiabilities: liabilitySummary.totalInBaseCurrency,
-          netWorth: scalarDifference(assetSummary.totalInBaseCurrency, liabilitySummary.totalInBaseCurrency),
-          thisMonthIncome: incomeSummary.totalInBaseCurrency,
-          thisMonthExpense: expenseSummary.totalInBaseCurrency,
+          totalAssets,
+          totalLiabilities,
+          netWorth,
+          thisMonthIncome,
+          thisMonthExpense,
           totalAssetsByCurrency: assetSummary.totalsByCurrency,
           totalLiabilitiesByCurrency: liabilitySummary.totalsByCurrency,
           thisMonthIncomeByCurrency: incomeSummary.totalsByCurrency,
           thisMonthExpenseByCurrency: expenseSummary.totalsByCurrency,
-          conversionStatus: combineConversionStatus(assetSummary, liabilitySummary, incomeSummary, expenseSummary),
+          conversionStatus,
+          reconciliationStatus,
+          valuationAsOf,
+          valuationRuleVersion: VALUATION_RULE_VERSION,
           window,
           timezone,
           baseCurrency,
@@ -114,5 +137,4 @@ router.get('/summary', authMiddleware, async (req: AuthRequest, res) => {
 });
 
 export default router;
-
 
