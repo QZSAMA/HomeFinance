@@ -648,7 +648,7 @@ export interface Family { /* existing fields */ timezone: string; baseCurrency?:
 export const createFamily = (name: string, description?: string, timezone?: string): Promise<Family>;
 ```
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```tsx
 test('defaults the create form to Shanghai and submits a selected IANA timezone', async () => {
@@ -668,13 +668,13 @@ test('shows an existing family timezone without an edit control', async () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
-Run: `cd frontend; npm test -- --runInBand src/pages/FamiliesPage.test.tsx`
+Run: `cd frontend; npm test -- src/pages/FamiliesPage.test.tsx`
 
 Expected: FAIL because Family has no timezone type, service does not send it, and the form has no field.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Use a controlled `<input list>` or searchable select built from `Intl.supportedValuesOf('timeZone')` plus `UTC`/`Asia/Shanghai`; keep a fallback list and allow a typed IANA candidate for browsers without the API:
 
@@ -689,13 +689,13 @@ const timezoneOptions = typeof Intl.supportedValuesOf === 'function'
 
 Reset the field to Shanghai after successful creation. Render the returned family timezone as read-only text in cards/details. Surface `INVALID_TIMEZONE` from the configured API client; do not add a PUT control.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
-Run: `cd frontend; npm test -- --runInBand src/pages/FamiliesPage.test.tsx; npm run lint; npm run build`
+Run: `cd frontend; npm test -- src/pages/FamiliesPage.test.tsx; npm run lint; npm run build`
 
 Expected: focused test, lint with zero warning lines, and build PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/types/index.ts frontend/src/services/familyService.ts frontend/src/pages/FamiliesPage.tsx frontend/src/pages/FamiliesPage.test.tsx
@@ -721,7 +721,7 @@ git commit -m "feat: configure family timezone at creation"
 - Date inputs remain date-only; when the user selects an inclusive end day, client date arithmetic sends the next local calendar date as exclusive `endDate` without `Date.parse`/UTC subtraction.
 - `null` scalar totals render `—` plus the reason from `conversionStatus`; no `|| 0` fallback for financial values.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```tsx
 test('renders unavailable mixed-currency totals instead of zero', async () => {
@@ -748,13 +748,13 @@ test('sends the next local date for an inclusive end-date control', async () => 
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
-Run: `cd frontend; npm test -- --runInBand src/pages/ReportsPage.test.tsx src/pages/FinancialReportPages.test.tsx src/pages/GoalsPage.test.tsx src/pages/BudgetPage.test.tsx src/pages/ComparePage.test.tsx`
+Run: `cd frontend; npm test -- src/pages/ReportsPage.test.tsx src/pages/FinancialReportPages.test.tsx src/pages/GoalsPage.test.tsx src/pages/BudgetPage.test.tsx src/pages/ComparePage.test.tsx`
 
 Expected: FAIL because existing pages format null as CNY zero and pass the selected end date directly.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Update service interfaces, use the configured Axios API client consistently, and centralize safe formatting:
 
@@ -768,13 +768,13 @@ const formatWindow = (window: PeriodWindow) => `${window.startLocal} – ${windo
 
 Add period/timezone labels, render grouped currency rows, suppress mixed-currency aggregate charts, and show reconciliation failure as an alert/status region. Goal cards show contribution-based progress or “尚未建立贡献关联”; budget cards show their currency and bounded window; compare cards show each family’s local month/window.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
-Run: `cd frontend; npm test -- --runInBand src/pages/ReportsPage.test.tsx src/pages/FinancialReportPages.test.tsx src/pages/GoalsPage.test.tsx src/pages/BudgetPage.test.tsx src/pages/ComparePage.test.tsx; npm run lint; npm run build`
+Run: `cd frontend; npm test -- src/pages/ReportsPage.test.tsx src/pages/FinancialReportPages.test.tsx src/pages/GoalsPage.test.tsx src/pages/BudgetPage.test.tsx src/pages/ComparePage.test.tsx; npm run lint; npm run build`
 
 Expected: focused tests, lint and build PASS; existing assertions remain intact.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/services frontend/src/pages
