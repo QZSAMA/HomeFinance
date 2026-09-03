@@ -33,6 +33,7 @@ model Family {
   description           String?
   cacheVersion          Int                    @default(0)
   baseCurrency          String                 @default("CNY")
+  timezone              String                 @default("Asia/Shanghai") @db.VarChar(64)
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
   members               FamilyMember[]

@@ -48,7 +48,7 @@
 
 **Interfaces:**
 - Produces `DEFAULT_FAMILY_TIMEZONE`, `normalizeFamilyTimezone(value: unknown): string`, `isSupportedFamilyTimezone(value: unknown): boolean`。
-- `normalizeFamilyTimezone` 对空值使用默认值；对 `UTC` 和可被 `Intl.DateTimeFormat` 解析的 IANA 值返回规范标识；其他输入抛 `DomainError('INVALID_TIMEZONE', 'Invalid IANA timezone.', 400)`。
+- `normalizeFamilyTimezone` 仅对字段省略（`undefined`）使用默认值；显式 `null` 或空字符串无效。对 `UTC` 和可被 `Intl.DateTimeFormat` 解析的 IANA 值返回规范标识；其他输入抛 `DomainError('INVALID_TIMEZONE', 'Invalid IANA timezone.', 400)`。
 
 - [ ] **Step 1: Write the failing test**
 
@@ -95,7 +95,7 @@ Add the new codes to `DomainErrorCode`, then implement the value object without 
 export const DEFAULT_FAMILY_TIMEZONE = 'Asia/Shanghai';
 
 export const normalizeFamilyTimezone = (value: unknown): string => {
-  if (value === undefined || value === null || value === '') return DEFAULT_FAMILY_TIMEZONE;
+  if (value === undefined) return DEFAULT_FAMILY_TIMEZONE;
   if (typeof value !== 'string') throw new DomainError('INVALID_TIMEZONE', 'Invalid IANA timezone.', 400);
   const candidate = value.trim();
   if (candidate === 'UTC') return 'UTC';

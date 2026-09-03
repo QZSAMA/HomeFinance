@@ -6,6 +6,8 @@ import {
   requireFamilyAdminAccess,
   requireFamilyMemberRemovalAccess,
 } from '../middleware/familyAccess';
+import { DomainError } from '../services/ledgerErrors';
+import { normalizeFamilyTimezone } from '../services/timezoneService';
 
 const router = Router();
 
@@ -13,7 +15,8 @@ const router = Router();
 
 const createFamilySchema = z.object({
   name: z.string().min(2, '家庭名称至少2位'),
-  description: z.string().optional()
+  description: z.string().optional(),
+  timezone: z.unknown().optional(),
 });
 
 const inviteMemberSchema = z.object({
@@ -59,12 +62,14 @@ router.get('/', authMiddleware, async (req: AuthRequest, res) => {
 
 router.post('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
-    const { name, description } = createFamilySchema.parse(req.body);
+    const { name, description, timezone: requestedTimezone } = createFamilySchema.parse(req.body);
+    const timezone = normalizeFamilyTimezone(requestedTimezone);
 
     const family = await prisma.family.create({
       data: {
         name,
         description,
+        timezone,
         members: {
           create: {
             userId: req.userId!,
@@ -89,6 +94,9 @@ router.post('/', authMiddleware, async (req: AuthRequest, res) => {
 
     res.status(201).json(family);
   } catch (error) {
+    if (error instanceof DomainError) {
+      return res.status(error.status).json({ error: error.message, code: error.code });
+    }
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: error.errors[0].message });
     }
@@ -145,6 +153,12 @@ router.get('/:id', authMiddleware, async (req: AuthRequest, res) => {
 router.put('/:id', authMiddleware, requireFamilyAdminAccess, async (req: AuthRequest, res) => {
   try {
     const id = req.params.id as string;
+    if (Object.prototype.hasOwnProperty.call(req.body, 'timezone')) {
+      return res.status(409).json({
+        error: '家庭时区创建后不可修改',
+        code: 'FAMILY_TIMEZONE_IMMUTABLE',
+      });
+    }
     const { name, description } = createFamilySchema.parse(req.body);
 
     const membership = await prisma.familyMember.findUnique({
