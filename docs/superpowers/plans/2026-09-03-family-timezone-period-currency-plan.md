@@ -342,7 +342,7 @@ export const reconcileBalanceSheet = (assets: number, liabilities: number, netWo
 export const reconcilePerCurrency: (income: CurrencySummary, expense: CurrencySummary) => Record<string, number>;
 ```
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 test('groups mixed currencies and refuses a fake base total', () => {
@@ -362,13 +362,13 @@ test('keeps all reconciliation identities explicit', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend; npm test -- --runInBand src/services/currencySummaryService.test.ts src/utils/reconciliation.test.ts`
 
 Expected: FAIL because no summaries/formulas exist.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Normalize currencies to uppercase three-letter codes, sum with Decimal-safe decimal arithmetic, round only at response serialization, and return `null` whenever any non-base currency lacks a complete rate:
 
@@ -392,13 +392,13 @@ Do not expose a “known subtotal” as `totalInBaseCurrency`. Reconciliation he
 
 `normalizeCurrency`, `serializeCents` and `convertAll` remain private helpers in `currencySummaryService.ts`; `convertAll` is called only when every non-base currency has a positive, finite rate for the same valuation instant.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend; npm test -- --runInBand src/services/currencySummaryService.test.ts src/utils/reconciliation.test.ts`
 
 Expected: PASS for empty, zero, negative net, mixed, partial-rate and invalid-currency cases.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/services/currencySummaryService.ts backend/src/services/currencySummaryService.test.ts backend/src/utils/reconciliation.ts backend/src/utils/reconciliation.test.ts backend/src/services/ledgerErrors.ts

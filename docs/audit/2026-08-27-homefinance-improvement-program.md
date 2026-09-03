@@ -163,7 +163,7 @@ flowchart LR
 - 目标增加 baseline/current contribution 或 goal-account allocation，不再让所有目标共享全局净值。
 - 财务 query 使用 DB `aggregate/groupBy`，预算一次查询返回 category totals。
 
-2026-09-03 进度记录：P1-F-01/02 的决策已由 ADR-0005 Accepted；`1d2872b` 已将 Family 时区以 additive migration、IANA 校验和创建后不可变触发器落地，`3d5db10` 已提供 family-local half-open PeriodWindow 纯服务并通过上海、闰年和 DST 测试。预算/报表/目标/币种/对账接入仍是后续门禁，不能据此宣称财务语义整体闭环。
+2026-09-03 进度记录：P1-F-01/02 的决策已由 ADR-0005 Accepted；`1d2872b` 已将 Family 时区以 additive migration、IANA 校验和创建后不可变触发器落地，`3d5db10` 已提供 family-local half-open PeriodWindow 纯服务并通过上海、闰年和 DST 测试，`7af352b` 已提供 Decimal-safe currency summary/reconciliation 纯服务。预算/报表/目标/币种/对账路由接入、估值和 as-of 规则仍是后续门禁，不能据此宣称财务语义整体闭环。
 
 ### 5.5 Epic P1-E：测试与 CI
 
