@@ -11,8 +11,8 @@ export const getFamily = async (id: string): Promise<Family> => {
   return response.data;
 };
 
-export const createFamily = async (name: string, description?: string): Promise<Family> => {
-  const response = await api.post<Family>('/families', { name, description });
+export const createFamily = async (name: string, description?: string, timezone = 'Asia/Shanghai'): Promise<Family> => {
+  const response = await api.post<Family>('/families', { name, description, timezone });
   return response.data;
 };
 

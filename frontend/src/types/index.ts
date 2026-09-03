@@ -21,6 +21,8 @@ export interface Family {
   createdAt: string;
   updatedAt: string;
   members: FamilyMember[];
+  timezone: string;
+  baseCurrency?: string;
 }
 
 export interface AuthState {

@@ -15,6 +15,7 @@ const family = {
   createdAt: '2026-09-02T00:00:00.000Z',
   updatedAt: '2026-09-02T00:00:00.000Z',
   members: [],
+  timezone: 'Asia/Shanghai',
 };
 
 const cashFlowData = {
@@ -63,7 +64,7 @@ describe('financial report date filters', () => {
     fireEvent.change(endDate, { target: { value: '2026-08-31' } });
     fireEvent.click(screen.getByRole('button', { name: '查询' }));
     await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(
-      '/api/families/family-1/reports/income-statement?startDate=2026-08-01&endDate=2026-08-31',
+      '/api/families/family-1/reports/income-statement?startDate=2026-08-01&endDate=2026-09-01',
     ));
 
     fetchMock.mockClear();
@@ -86,7 +87,7 @@ describe('financial report date filters', () => {
     fireEvent.change(endDate, { target: { value: '2026-08-31' } });
     fireEvent.click(screen.getByRole('button', { name: '查询' }));
     await waitFor(() => expect(getCashFlowMock).toHaveBeenCalledWith(
-      'family-1', '2026-08-01', '2026-08-31',
+      'family-1', '2026-08-01', '2026-09-01',
     ));
 
     getCashFlowMock.mockClear();
@@ -94,5 +95,30 @@ describe('financial report date filters', () => {
     await waitFor(() => expect(getCashFlowMock).toHaveBeenCalledWith(
       'family-1', undefined, undefined,
     ));
+  });
+
+  it('renders unavailable income totals with grouped currencies instead of zero', async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        totalIncome: null,
+        totalExpense: null,
+        netIncome: null,
+        incomeByCategory: {},
+        expenseByCategory: {},
+        totalsByCurrency: { CNY: 100, USD: 20 },
+        expenseTotalsByCurrency: { CNY: 40, USD: 5 },
+        baseCurrency: 'CNY',
+        conversionStatus: 'unavailable',
+        startDate: null,
+        endDate: null,
+      }),
+    });
+
+    render(<IncomeStatementPage />);
+
+    expect((await screen.findAllByText(/暂无法合计/))[0]).toBeVisible();
+    expect(screen.getByText(/US\$20\.00/)).toBeVisible();
+    expect(screen.queryByText('¥0.00')).not.toBeInTheDocument();
   });
 });

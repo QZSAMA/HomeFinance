@@ -14,6 +14,7 @@ const family = {
   createdAt: '2026-09-02T00:00:00.000Z',
   updatedAt: '2026-09-02T00:00:00.000Z',
   members: [],
+  timezone: 'Asia/Shanghai',
 };
 
 const secondFamily = { ...family, id: 'family-2', name: '第二个家庭' };

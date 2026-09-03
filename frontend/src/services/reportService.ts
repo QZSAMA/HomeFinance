@@ -1,68 +1,115 @@
 import api from './api';
 
+export type ConversionStatus = 'exact' | 'unavailable' | 'partial';
+export type ReconciliationStatus = 'passed' | 'unavailable' | 'failed';
+export interface PeriodWindow {
+  timezone: string;
+  startUtc: string;
+  endUtc: string;
+  startLocal: string;
+  endLocalExclusive: string;
+}
+export interface MoneySummary {
+  totalsByCurrency: Record<string, number>;
+  totalInBaseCurrency: number | null;
+  baseCurrency: string;
+  conversionStatus: ConversionStatus;
+}
+
 export interface InvestmentAllocationItem {
   category: string;
-  value: number;
-  percentage: number;
+  value: number | null;
+  percentage: number | null;
 }
 
 export interface InvestmentAllocationResponse {
-  totalValue: number;
+  totalValue: number | null;
   allocation: InvestmentAllocationItem[];
 }
 
 export interface BalanceSheetResponse {
-  totalAssets: number;
-  totalLiabilities: number;
-  netWorth: number;
-  assets: Record<string, number>;
-  liabilities: Record<string, number>;
+  totalAssets: number | null;
+  totalLiabilities: number | null;
+  netWorth: number | null;
+  assets: Record<string, number | null>;
+  liabilities: Record<string, number | null>;
   assetList: any[];
   liabilityList: any[];
+  timezone?: string;
+  baseCurrency?: string;
+  window?: PeriodWindow;
+  totalsByCurrency?: Record<string, number>;
+  liabilityTotalsByCurrency?: Record<string, number>;
+  conversionStatus?: ConversionStatus;
+  reconciliationStatus?: ReconciliationStatus;
+  assetsByCurrency?: Record<string, Record<string, number>>;
+  liabilitiesByCurrency?: Record<string, Record<string, number>>;
 }
 
 export interface IncomeStatementResponse {
-  totalIncome: number;
-  totalExpense: number;
-  netIncome: number;
-  incomeByCategory: Record<string, number>;
-  expenseByCategory: Record<string, number>;
+  totalIncome: number | null;
+  totalExpense: number | null;
+  netIncome: number | null;
+  incomeByCategory: Record<string, number | null>;
+  expenseByCategory: Record<string, number | null>;
   incomes: any[];
   expenses: any[];
   startDate: string | null;
   endDate: string | null;
+  timezone?: string;
+  baseCurrency?: string;
+  window?: PeriodWindow;
+  totalsByCurrency?: Record<string, number>;
+  expenseTotalsByCurrency?: Record<string, number>;
+  conversionStatus?: ConversionStatus;
+  reconciliationStatus?: ReconciliationStatus;
+  netIncomeByCurrency?: Record<string, number>;
 }
 
 export interface CashFlowResponse {
-  operating: { income: number; expense: number; net: number };
-  investing: { income: number; expense: number; net: number };
-  financing: { income: number; expense: number; net: number };
-  other: { income: number; expense: number; net: number };
-  netCashFlow: number;
+  operating: { income: number | null; expense: number | null; net: number | null };
+  investing: { income: number | null; expense: number | null; net: number | null };
+  financing: { income: number | null; expense: number | null; net: number | null };
+  other: { income: number | null; expense: number | null; net: number | null };
+  netCashFlow: number | null;
   startDate: string | null;
   endDate: string | null;
+  timezone?: string;
+  baseCurrency?: string;
+  window?: PeriodWindow;
+  totalsByCurrency?: Record<string, number>;
+  expenseTotalsByCurrency?: Record<string, number>;
+  conversionStatus?: ConversionStatus;
+  reconciliationStatus?: ReconciliationStatus;
 }
 
 export interface SummaryResponse {
   balanceSheet: {
-    totalAssets: number;
-    totalLiabilities: number;
-    netWorth: number;
+    totalAssets: number | null;
+    totalLiabilities: number | null;
+    netWorth: number | null;
   };
   incomeStatement: {
-    thisMonthIncome: number;
-    lastMonthIncome: number;
-    thisMonthExpense: number;
-    lastMonthExpense: number;
-    incomeChange: number;
-    expenseChange: number;
-    netIncome: number;
+    thisMonthIncome: number | null;
+    lastMonthIncome: number | null;
+    thisMonthExpense: number | null;
+    lastMonthExpense: number | null;
+    incomeChange: number | null;
+    expenseChange: number | null;
+    netIncome: number | null;
   };
   investmentAllocation: InvestmentAllocationItem[];
   recentTransactions: {
     incomes: any[];
     expenses: any[];
   };
+  timezone?: string;
+  baseCurrency?: string;
+  window?: PeriodWindow;
+  conversionStatus?: ConversionStatus;
+  reconciliationStatus?: ReconciliationStatus;
+  totalsByCurrency?: Record<string, number>;
+  liabilityTotalsByCurrency?: Record<string, number>;
 }
 
 export const getBalanceSheet = async (familyId: string): Promise<BalanceSheetResponse> => {

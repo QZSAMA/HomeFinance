@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useFamilyStore } from '../store/useFamilyStore';
 import { getBalanceSheet } from '../services/reportService';
+import { formatAggregate, formatGroupedCurrency } from '../utils/financialFormatting';
 import { exportBalanceSheet } from '../services/exportService';
 import {
   BarChart,
@@ -14,11 +15,16 @@ import {
 } from 'recharts';
 
 interface BalanceSheetData {
-  totalAssets: number;
-  totalLiabilities: number;
-  netWorth: number;
-  assets: Record<string, number>;
-  liabilities: Record<string, number>;
+  totalAssets: number | null;
+  totalLiabilities: number | null;
+  netWorth: number | null;
+  assets: Record<string, number | null>;
+  liabilities: Record<string, number | null>;
+  baseCurrency?: string;
+  totalsByCurrency?: Record<string, number>;
+  liabilityTotalsByCurrency?: Record<string, number>;
+  conversionStatus?: 'exact' | 'unavailable' | 'partial';
+  reconciliationStatus?: 'passed' | 'unavailable' | 'failed';
 }
 
 const assetTypeLabels: Record<string, string> = {
@@ -38,14 +44,6 @@ const liabilityTypeLabels: Record<string, string> = {
   CREDIT_CARD: '信用卡',
   PERSONAL_LOAN: '个人贷款',
   OTHER: '其他',
-};
-
-const formatMoney = (amount: number) => {
-  return new Intl.NumberFormat('zh-CN', {
-    style: 'currency',
-    currency: 'CNY',
-    maximumFractionDigits: 0,
-  }).format(amount);
 };
 
 const BalanceSheetPage = () => {
@@ -72,11 +70,14 @@ const BalanceSheetPage = () => {
     void loadData();
   }, [loadData]);
 
-  const formatMoneyFull = (amount: number) => {
-    return new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(amount);
-  };
+  const formatMoneyFull = (amount: number | null | undefined) => formatAggregate(
+    amount,
+    data?.baseCurrency ?? currentFamily?.baseCurrency ?? 'CNY',
+    data?.conversionStatus ?? 'exact',
+  );
 
-  const formatPercentage = (value: number, total: number) => {
+  const formatPercentage = (value: number | null, total: number | null) => {
+    if (value === null || total === null) return '—';
     if (total === 0) return '0%';
     return `${((value / total) * 100).toFixed(1)}%`;
   };
@@ -96,16 +97,16 @@ const BalanceSheetPage = () => {
   // 构造资产 vs 负债对比图表数据：合并所有类型，每项展示资产和负债金额
   const buildChartData = () => {
     if (!data) return [];
-    const assetEntries = Object.entries(data.assets).map(([type, value]) => ({
+    const assetEntries = Object.entries(data.assets).flatMap(([type, value]) => value === null ? [] : [{
       name: assetTypeLabels[type] || type,
       资产: value,
       负债: 0,
-    }));
-    const liabilityEntries = Object.entries(data.liabilities).map(([type, value]) => ({
+    }]);
+    const liabilityEntries = Object.entries(data.liabilities).flatMap(([type, value]) => value === null ? [] : [{
       name: liabilityTypeLabels[type] || type,
       资产: 0,
       负债: value,
-    }));
+    }]);
     // 合并：资产项和负债项分开列出，便于对比
     return [...assetEntries, ...liabilityEntries];
   };
@@ -133,23 +134,29 @@ const BalanceSheetPage = () => {
         </button>
       </div>
 
+      {!loading && data?.conversionStatus && data.conversionStatus !== 'exact' && (
+        <div role="alert" className="mb-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800">
+          {formatAggregate(null, data.baseCurrency ?? currentFamily.baseCurrency ?? 'CNY', data.conversionStatus)}
+          <div className="mt-1 text-sm">资产：{formatGroupedCurrency(data.totalsByCurrency)}；负债：{formatGroupedCurrency(data.liabilityTotalsByCurrency)}</div>
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
         <div className="bg-white rounded-lg shadow p-6">
           <div className="text-sm text-gray-500 mb-1">总资产</div>
-          <div className="text-2xl font-bold text-indigo-600">{loading ? '--' : formatMoneyFull(data?.totalAssets || 0)}</div>
+          <div className="text-2xl font-bold text-indigo-600">{loading ? '--' : formatMoneyFull(data?.totalAssets)}</div>
         </div>
         <div className="bg-white rounded-lg shadow p-6">
           <div className="text-sm text-gray-500 mb-1">总负债</div>
-          <div className="text-2xl font-bold text-red-600">{loading ? '--' : formatMoneyFull(data?.totalLiabilities || 0)}</div>
+          <div className="text-2xl font-bold text-red-600">{loading ? '--' : formatMoneyFull(data?.totalLiabilities)}</div>
         </div>
         <div className="bg-white rounded-lg shadow p-6">
           <div className="text-sm text-gray-500 mb-1">净资产</div>
-          <div className="text-2xl font-bold text-green-600">{loading ? '--' : formatMoneyFull(data?.netWorth || 0)}</div>
+          <div className="text-2xl font-bold text-green-600">{loading ? '--' : formatMoneyFull(data?.netWorth)}</div>
         </div>
       </div>
 
       {/* 资产 vs 负债对比柱状图 */}
-      {loading ? null : hasChartData ? (
+      {loading ? null : data?.conversionStatus !== 'exact' ? null : hasChartData ? (
         <div className="bg-white rounded-lg shadow mb-6">
           <div className="p-6 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900">资产 vs 负债对比</h2>
@@ -160,7 +167,7 @@ const BalanceSheetPage = () => {
                 <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
                 <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `¥${(v / 1000).toFixed(0)}k`} />
-                <Tooltip formatter={(value: any) => formatMoney(Number(value))} />
+                <Tooltip formatter={(value: any) => formatMoneyFull(Number(value))} />
                 <Legend />
                 <Bar dataKey="资产" fill="#6366f1" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="负债" fill="#ef4444" radius={[4, 4, 0, 0]} />
@@ -189,13 +196,13 @@ const BalanceSheetPage = () => {
                       <span className="text-sm text-gray-700">{formatMoneyFull(value)}</span>
                     </div>
                     <span className="text-sm text-gray-500">
-                      {formatPercentage(value, data?.totalAssets || 0)}
+                      {formatPercentage(value, data?.totalAssets ?? null)}
                     </span>
                   </div>
                 ))}
                 <div className="pt-4 border-t border-gray-200 flex items-center justify-between">
                   <span className="font-medium text-gray-900">合计</span>
-                  <span className="font-bold text-indigo-600">{formatMoneyFull(data?.totalAssets || 0)}</span>
+                  <span className="font-bold text-indigo-600">{formatMoneyFull(data?.totalAssets)}</span>
                 </div>
               </div>
             )}
@@ -220,13 +227,13 @@ const BalanceSheetPage = () => {
                       <span className="text-sm text-gray-700">{formatMoneyFull(value)}</span>
                     </div>
                     <span className="text-sm text-gray-500">
-                      {formatPercentage(value, data?.totalLiabilities || 0)}
+                      {formatPercentage(value, data?.totalLiabilities ?? null)}
                     </span>
                   </div>
                 ))}
                 <div className="pt-4 border-t border-gray-200 flex items-center justify-between">
                   <span className="font-medium text-gray-900">合计</span>
-                  <span className="font-bold text-red-600">{formatMoneyFull(data?.totalLiabilities || 0)}</span>
+                  <span className="font-bold text-red-600">{formatMoneyFull(data?.totalLiabilities)}</span>
                 </div>
               </div>
             )}

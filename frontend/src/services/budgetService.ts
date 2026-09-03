@@ -1,10 +1,12 @@
 import api from './api';
+import type { ConversionStatus, PeriodWindow } from './reportService';
 
 export interface Budget {
   id: string;
   familyId: string;
   category: string;
   amount: number;
+  currency?: string;
   period: string;
   startDate: string;
   endDate: string | null;
@@ -15,12 +17,18 @@ export interface Budget {
 
 export interface BudgetProgress {
   budget: Budget;
-  spent: number;
-  remaining: number;
-  percentage: number;
+  spent: number | null;
+  remaining: number | null;
+  percentage: number | null;
+  totalsByCurrency?: Record<string, number>;
+  conversionStatus?: ConversionStatus;
+  window?: PeriodWindow;
+  timezone?: string;
+  baseCurrency?: string;
 }
 
-export type BudgetInput = Omit<Budget, 'id' | 'familyId' | 'createdBy' | 'createdAt' | 'updatedAt' | 'endDate'> & {
+export type BudgetInput = Omit<Budget, 'id' | 'familyId' | 'createdBy' | 'createdAt' | 'updatedAt' | 'endDate' | 'currency'> & {
+  currency?: string;
   endDate?: string;
 };
 

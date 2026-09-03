@@ -14,40 +14,63 @@ import {
 } from 'recharts';
 import CashFlowChart from '../components/charts/CashFlowChart';
 import AssetAllocationChart from '../components/charts/AssetAllocationChart';
+import { formatAggregate, formatGroupedCurrency, nextLocalDate } from '../utils/financialFormatting';
+import type { ConversionStatus, PeriodWindow, ReconciliationStatus } from '../services/reportService';
 
 // ===== 类型定义 =====
 interface BalanceSheetData {
-  totalAssets: number;
-  totalLiabilities: number;
-  netWorth: number;
-  assets: Record<string, number>;
-  liabilities: Record<string, number>;
+  totalAssets: number | null;
+  totalLiabilities: number | null;
+  netWorth: number | null;
+  assets: Record<string, number | null>;
+  liabilities: Record<string, number | null>;
+  timezone?: string;
+  baseCurrency?: string;
+  window?: PeriodWindow;
+  totalsByCurrency?: Record<string, number>;
+  liabilityTotalsByCurrency?: Record<string, number>;
+  conversionStatus?: ConversionStatus;
+  reconciliationStatus?: ReconciliationStatus;
 }
 
 interface IncomeStatementData {
-  totalIncome: number;
-  totalExpense: number;
-  netIncome: number;
-  incomeByCategory: Record<string, number>;
-  expenseByCategory: Record<string, number>;
+  totalIncome: number | null;
+  totalExpense: number | null;
+  netIncome: number | null;
+  incomeByCategory: Record<string, number | null>;
+  expenseByCategory: Record<string, number | null>;
   startDate: string | null;
   endDate: string | null;
+  timezone?: string;
+  baseCurrency?: string;
+  window?: PeriodWindow;
+  totalsByCurrency?: Record<string, number>;
+  expenseTotalsByCurrency?: Record<string, number>;
+  conversionStatus?: ConversionStatus;
+  reconciliationStatus?: ReconciliationStatus;
 }
 
 interface CashFlowData {
-  operating: { income: number; expense: number; net: number };
-  investing: { income: number; expense: number; net: number };
-  financing: { income: number; expense: number; net: number };
-  other: { income: number; expense: number; net: number };
-  netCashFlow: number;
+  operating: { income: number | null; expense: number | null; net: number | null };
+  investing: { income: number | null; expense: number | null; net: number | null };
+  financing: { income: number | null; expense: number | null; net: number | null };
+  other: { income: number | null; expense: number | null; net: number | null };
+  netCashFlow: number | null;
   startDate: string | null;
   endDate: string | null;
+  timezone?: string;
+  baseCurrency?: string;
+  window?: PeriodWindow;
+  totalsByCurrency?: Record<string, number>;
+  expenseTotalsByCurrency?: Record<string, number>;
+  conversionStatus?: ConversionStatus;
+  reconciliationStatus?: ReconciliationStatus;
 }
 
 interface InvestmentAllocation {
   category: string;
-  value: number;
-  percentage: number;
+  value: number | null;
+  percentage: number | null;
 }
 
 // ===== 常量 =====
@@ -69,16 +92,23 @@ const categoryColors: Record<string, string> = {
   STOCK: '#6366f1', BOND: '#22c55e', GOLD: '#f59e0b', CASH: '#3b82f6', OTHER: '#64748b',
 };
 
-const formatMoney = (amount: number) =>
-  new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(amount);
+const formatMoney = (
+  amount: number | null | undefined,
+  currency = 'CNY',
+  conversionStatus: ConversionStatus = 'exact',
+) => formatAggregate(amount, currency, conversionStatus);
 
 const formatMoneyShort = (amount: number) =>
   new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY', maximumFractionDigits: 0 }).format(amount);
 
-const formatPercentage = (value: number, total: number) => {
+const formatPercentage = (value: number | null, total: number | null) => {
+  if (value === null || total === null) return '—';
   if (total === 0) return '0%';
   return `${((value / total) * 100).toFixed(1)}%`;
 };
+
+const isUnavailable = (status?: ConversionStatus) => status !== undefined && status !== 'exact';
+const isReconciliationFailed = (status?: ReconciliationStatus) => status === 'failed';
 
 // ===== Section 1: 资产负债表 =====
 function BalanceSheetSection({ familyId }: { familyId: string }) {
@@ -130,12 +160,12 @@ function BalanceSheetSection({ familyId }: { familyId: string }) {
 
   const chartData = (() => {
     if (!data) return [];
-    const assetEntries = Object.entries(data.assets).map(([type, value]) => ({
+    const assetEntries = Object.entries(data.assets).flatMap(([type, value]) => value === null ? [] : [{
       name: assetTypeLabels[type] || type, 资产: value, 负债: 0,
-    }));
-    const liabilityEntries = Object.entries(data.liabilities).map(([type, value]) => ({
+    }]);
+    const liabilityEntries = Object.entries(data.liabilities).flatMap(([type, value]) => value === null ? [] : [{
       name: liabilityTypeLabels[type] || type, 资产: 0, 负债: value,
-    }));
+    }]);
     return [...assetEntries, ...liabilityEntries];
   })();
   const hasChartData = chartData.some(item => item.资产 > 0 || item.负债 > 0);
@@ -162,18 +192,27 @@ function BalanceSheetSection({ familyId }: { familyId: string }) {
         </div>
       ) : (
         <>
+      {!loading && isUnavailable(data?.conversionStatus) && (
+        <div role="alert" className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          {formatAggregate(null, data?.baseCurrency ?? 'CNY', data?.conversionStatus)}
+          <div className="mt-1">资产：{formatGroupedCurrency(data?.totalsByCurrency)}；负债：{formatGroupedCurrency(data?.liabilityTotalsByCurrency)}</div>
+        </div>
+      )}
+      {!loading && isReconciliationFailed(data?.reconciliationStatus) && (
+        <div role="alert" className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">资产负债表未通过勾稽校验</div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-lg shadow p-5">
           <div className="text-sm text-gray-500 mb-1">总资产</div>
-          <div className="text-xl font-bold text-indigo-600">{loading ? '--' : formatMoney(data?.totalAssets || 0)}</div>
+          <div className="text-xl font-bold text-indigo-600">{loading ? '--' : formatMoney(data?.totalAssets, data?.baseCurrency, data?.conversionStatus)}</div>
         </div>
         <div className="bg-white rounded-lg shadow p-5">
           <div className="text-sm text-gray-500 mb-1">总负债</div>
-          <div className="text-xl font-bold text-red-600">{loading ? '--' : formatMoney(data?.totalLiabilities || 0)}</div>
+          <div className="text-xl font-bold text-red-600">{loading ? '--' : formatMoney(data?.totalLiabilities, data?.baseCurrency, data?.conversionStatus)}</div>
         </div>
         <div className="bg-white rounded-lg shadow p-5">
           <div className="text-sm text-gray-500 mb-1">净资产</div>
-          <div className="text-xl font-bold text-green-600">{loading ? '--' : formatMoney(data?.netWorth || 0)}</div>
+          <div className="text-xl font-bold text-green-600">{loading ? '--' : formatMoney(data?.netWorth, data?.baseCurrency, data?.conversionStatus)}</div>
         </div>
       </div>
 
@@ -208,14 +247,14 @@ function BalanceSheetSection({ familyId }: { familyId: string }) {
                   <div key={type} className="flex items-center justify-between">
                     <div className="flex items-center">
                       <span className="px-2 py-1 bg-indigo-50 text-indigo-700 rounded text-xs mr-3">{assetTypeLabels[type] || type}</span>
-                      <span className="text-sm text-gray-700">{formatMoney(value)}</span>
+                      <span className="text-sm text-gray-700">{formatMoney(value, data?.baseCurrency, data?.conversionStatus)}</span>
                     </div>
-                    <span className="text-sm text-gray-500">{formatPercentage(value, data?.totalAssets || 0)}</span>
+                    <span className="text-sm text-gray-500">{formatPercentage(value, data?.totalAssets ?? null)}</span>
                   </div>
                 ))}
                 <div className="pt-3 border-t border-gray-200 flex items-center justify-between">
                   <span className="font-medium text-gray-900">合计</span>
-                  <span className="font-bold text-indigo-600">{formatMoney(data?.totalAssets || 0)}</span>
+                  <span className="font-bold text-indigo-600">{formatMoney(data?.totalAssets, data?.baseCurrency, data?.conversionStatus)}</span>
                 </div>
               </div>
             )}
@@ -230,14 +269,14 @@ function BalanceSheetSection({ familyId }: { familyId: string }) {
                   <div key={type} className="flex items-center justify-between">
                     <div className="flex items-center">
                       <span className="px-2 py-1 bg-red-50 text-red-700 rounded text-xs mr-3">{liabilityTypeLabels[type] || type}</span>
-                      <span className="text-sm text-gray-700">{formatMoney(value)}</span>
+                      <span className="text-sm text-gray-700">{formatMoney(value, data?.baseCurrency, data?.conversionStatus)}</span>
                     </div>
-                    <span className="text-sm text-gray-500">{formatPercentage(value, data?.totalLiabilities || 0)}</span>
+                    <span className="text-sm text-gray-500">{formatPercentage(value, data?.totalLiabilities ?? null)}</span>
                   </div>
                 ))}
                 <div className="pt-3 border-t border-gray-200 flex items-center justify-between">
                   <span className="font-medium text-gray-900">合计</span>
-                  <span className="font-bold text-red-600">{formatMoney(data?.totalLiabilities || 0)}</span>
+                  <span className="font-bold text-red-600">{formatMoney(data?.totalLiabilities, data?.baseCurrency, data?.conversionStatus)}</span>
                 </div>
               </div>
             )}
@@ -269,7 +308,7 @@ function IncomeStatementSection({ familyId }: { familyId: string }) {
       const result = await getIncomeStatement(
         familyId,
         requestedStart || undefined,
-        requestedEnd || undefined,
+        requestedEnd ? nextLocalDate(requestedEnd) : undefined,
       );
       if (requestId === requestIdRef.current) {
         setData(result);
@@ -304,6 +343,7 @@ function IncomeStatementSection({ familyId }: { familyId: string }) {
         <div>
           <h2 className="text-xl font-bold text-gray-900">利润表</h2>
           <p className="text-sm text-gray-500 mt-1">家庭收支情况分析</p>
+          {data?.window && <p className="text-xs text-gray-400 mt-1">统计窗口：{data.window.startLocal} – {data.window.endLocalExclusive}（{data.window.timezone}）</p>}
         </div>
       </div>
 
@@ -356,19 +396,29 @@ function IncomeStatementSection({ familyId }: { familyId: string }) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-white rounded-lg shadow p-5">
             <div className="text-sm text-gray-500 mb-1">总收入</div>
-            <div className="text-xl font-bold text-green-600">{loading ? '--' : formatMoney(data?.totalIncome || 0)}</div>
+            <div className="text-xl font-bold text-green-600">{loading ? '--' : formatMoney(data?.totalIncome, data?.baseCurrency, data?.conversionStatus)}</div>
           </div>
           <div className="bg-white rounded-lg shadow p-5">
             <div className="text-sm text-gray-500 mb-1">总支出</div>
-            <div className="text-xl font-bold text-red-600">{loading ? '--' : formatMoney(data?.totalExpense || 0)}</div>
+            <div className="text-xl font-bold text-red-600">{loading ? '--' : formatMoney(data?.totalExpense, data?.baseCurrency, data?.conversionStatus)}</div>
           </div>
           <div className="bg-white rounded-lg shadow p-5">
             <div className="text-sm text-gray-500 mb-1">净收益</div>
-            <div className={`text-xl font-bold ${(data?.netIncome || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {loading ? '--' : formatMoney(data?.netIncome || 0)}
+            <div className={`text-xl font-bold ${(data?.netIncome ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {loading ? '--' : formatMoney(data?.netIncome, data?.baseCurrency, data?.conversionStatus)}
             </div>
           </div>
         </div>
+      )}
+
+      {!error && !loading && isUnavailable(data?.conversionStatus) && (
+        <div role="alert" className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          {formatAggregate(null, data?.baseCurrency ?? 'CNY', data?.conversionStatus)}
+          <div className="mt-1">收入：{formatGroupedCurrency(data?.totalsByCurrency)}；支出：{formatGroupedCurrency(data?.expenseTotalsByCurrency)}</div>
+        </div>
+      )}
+      {!error && !loading && isReconciliationFailed(data?.reconciliationStatus) && (
+        <div role="alert" className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">利润表未通过勾稽校验</div>
       )}
 
       {!error && (
@@ -382,14 +432,14 @@ function IncomeStatementSection({ familyId }: { familyId: string }) {
                     <div key={category} className="flex items-center justify-between">
                       <div className="flex items-center">
                         <span className="px-2 py-1 bg-green-50 text-green-700 rounded text-xs mr-3">{category}</span>
-                        <span className="text-sm text-gray-700">{formatMoney(value)}</span>
+                        <span className="text-sm text-gray-700">{formatMoney(value, data?.baseCurrency, data?.conversionStatus)}</span>
                       </div>
-                      <span className="text-sm text-gray-500">{formatPercentage(value, data?.totalIncome || 0)}</span>
+                      <span className="text-sm text-gray-500">{formatPercentage(value, data?.totalIncome ?? null)}</span>
                     </div>
                   ))}
                   <div className="pt-3 border-t border-gray-200 flex items-center justify-between">
                     <span className="font-medium text-gray-900">合计</span>
-                    <span className="font-bold text-green-600">{formatMoney(data?.totalIncome || 0)}</span>
+                    <span className="font-bold text-green-600">{formatMoney(data?.totalIncome, data?.baseCurrency, data?.conversionStatus)}</span>
                   </div>
                 </div>
               )}
@@ -404,14 +454,14 @@ function IncomeStatementSection({ familyId }: { familyId: string }) {
                     <div key={category} className="flex items-center justify-between">
                       <div className="flex items-center">
                         <span className="px-2 py-1 bg-red-50 text-red-700 rounded text-xs mr-3">{category}</span>
-                        <span className="text-sm text-gray-700">{formatMoney(value)}</span>
+                        <span className="text-sm text-gray-700">{formatMoney(value, data?.baseCurrency, data?.conversionStatus)}</span>
                       </div>
-                      <span className="text-sm text-gray-500">{formatPercentage(value, data?.totalExpense || 0)}</span>
+                      <span className="text-sm text-gray-500">{formatPercentage(value, data?.totalExpense ?? null)}</span>
                     </div>
                   ))}
                   <div className="pt-3 border-t border-gray-200 flex items-center justify-between">
                     <span className="font-medium text-gray-900">合计</span>
-                    <span className="font-bold text-red-600">{formatMoney(data?.totalExpense || 0)}</span>
+                    <span className="font-bold text-red-600">{formatMoney(data?.totalExpense, data?.baseCurrency, data?.conversionStatus)}</span>
                   </div>
                 </div>
               )}
@@ -442,7 +492,7 @@ function CashFlowSection({ familyId }: { familyId: string }) {
       const result = await getCashFlow(
         familyId,
         requestedStart || undefined,
-        requestedEnd || undefined,
+        requestedEnd ? nextLocalDate(requestedEnd) : undefined,
       );
       if (requestId === requestIdRef.current) {
         setData(result);
@@ -477,6 +527,7 @@ function CashFlowSection({ familyId }: { familyId: string }) {
         <div>
           <h2 className="text-xl font-bold text-gray-900">现金流量表</h2>
           <p className="text-sm text-gray-500 mt-1">家庭现金流动分析</p>
+          {data?.window && <p className="text-xs text-gray-400 mt-1">统计窗口：{data.window.startLocal} – {data.window.endLocalExclusive}（{data.window.timezone}）</p>}
         </div>
       </div>
 
@@ -525,43 +576,52 @@ function CashFlowSection({ familyId }: { familyId: string }) {
         </div>
       ) : (
         <>
+      {!loading && isUnavailable(data?.conversionStatus) && (
+        <div role="alert" className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          {formatAggregate(null, data?.baseCurrency ?? 'CNY', data?.conversionStatus)}
+          <div className="mt-1">收入：{formatGroupedCurrency(data?.totalsByCurrency)}；支出：{formatGroupedCurrency(data?.expenseTotalsByCurrency)}</div>
+        </div>
+      )}
+      {!loading && isReconciliationFailed(data?.reconciliationStatus) && (
+        <div role="alert" className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">现金流量表未通过勾稽校验</div>
+      )}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-lg shadow p-5">
           <div className="text-sm text-gray-500 mb-1">经营现金流</div>
-          <div className={`text-lg font-bold ${(data?.operating.net || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {loading ? '--' : formatMoney(data?.operating.net || 0)}
+          <div className={`text-lg font-bold ${(data?.operating.net ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            {loading ? '--' : formatMoney(data?.operating.net, data?.baseCurrency, data?.conversionStatus)}
           </div>
         </div>
         <div className="bg-white rounded-lg shadow p-5">
           <div className="text-sm text-gray-500 mb-1">投资现金流</div>
-          <div className={`text-lg font-bold ${(data?.investing.net || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {loading ? '--' : formatMoney(data?.investing.net || 0)}
+          <div className={`text-lg font-bold ${(data?.investing.net ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            {loading ? '--' : formatMoney(data?.investing.net, data?.baseCurrency, data?.conversionStatus)}
           </div>
         </div>
         <div className="bg-white rounded-lg shadow p-5">
           <div className="text-sm text-gray-500 mb-1">筹资现金流</div>
-          <div className={`text-lg font-bold ${(data?.financing.net || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {loading ? '--' : formatMoney(data?.financing.net || 0)}
+          <div className={`text-lg font-bold ${(data?.financing.net ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            {loading ? '--' : formatMoney(data?.financing.net, data?.baseCurrency, data?.conversionStatus)}
           </div>
         </div>
         <div className="bg-white rounded-lg shadow p-5">
           <div className="text-sm text-gray-500 mb-1">净现金流</div>
-          <div className={`text-lg font-bold ${(data?.netCashFlow || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {loading ? '--' : formatMoney(data?.netCashFlow || 0)}
+          <div className={`text-lg font-bold ${(data?.netCashFlow ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            {loading ? '--' : formatMoney(data?.netCashFlow, data?.baseCurrency, data?.conversionStatus)}
           </div>
         </div>
       </div>
 
-      {!loading && data && (
+      {!loading && data && data.conversionStatus === 'exact' && (
         <div className="bg-white rounded-lg shadow mb-6">
           <div className="p-5 border-b border-gray-200">
             <h3 className="text-base font-semibold text-gray-900">现金流对比</h3>
           </div>
           <div className="p-5">
             <CashFlowChart
-              operating={data.operating}
-              investing={data.investing}
-              financing={data.financing}
+              operating={{ income: data.operating.income ?? 0, expense: data.operating.expense ?? 0, net: data.operating.net ?? 0 }}
+              investing={{ income: data.investing.income ?? 0, expense: data.investing.expense ?? 0, net: data.investing.net ?? 0 }}
+              financing={{ income: data.financing.income ?? 0, expense: data.financing.expense ?? 0, net: data.financing.net ?? 0 }}
             />
           </div>
         </div>
@@ -579,16 +639,16 @@ function CashFlowSection({ familyId }: { familyId: string }) {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <div className="text-sm text-gray-500 mb-1">{section.labels[0]}</div>
-                    <div className="text-lg font-bold text-green-600">{formatMoney((data as any)?.[section.dataKey].income || 0)}</div>
+                    <div className="text-lg font-bold text-green-600">{formatMoney((data as any)?.[section.dataKey].income, data?.baseCurrency, data?.conversionStatus)}</div>
                   </div>
                   <div>
                     <div className="text-sm text-gray-500 mb-1">{section.labels[1]}</div>
-                    <div className="text-lg font-bold text-red-600">{formatMoney((data as any)?.[section.dataKey].expense || 0)}</div>
+                    <div className="text-lg font-bold text-red-600">{formatMoney((data as any)?.[section.dataKey].expense, data?.baseCurrency, data?.conversionStatus)}</div>
                   </div>
                   <div>
                     <div className="text-sm text-gray-500 mb-1">{section.labels[2]}</div>
-                    <div className={`text-lg font-bold ${(data as any)?.[section.dataKey].net >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {formatMoney((data as any)?.[section.dataKey].net || 0)}
+                    <div className={`text-lg font-bold ${((data as any)?.[section.dataKey].net ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {formatMoney((data as any)?.[section.dataKey].net, data?.baseCurrency, data?.conversionStatus)}
                     </div>
                   </div>
                 </div>
@@ -603,11 +663,11 @@ function CashFlowSection({ familyId }: { familyId: string }) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <div className="text-sm text-gray-500 mb-1">其他收入</div>
-                  <div className="text-lg font-bold text-green-600">{formatMoney(data?.other.income || 0)}</div>
+                  <div className="text-lg font-bold text-green-600">{formatMoney(data?.other.income, data?.baseCurrency, data?.conversionStatus)}</div>
                 </div>
                 <div>
                   <div className="text-sm text-gray-500 mb-1">其他支出</div>
-                  <div className="text-lg font-bold text-red-600">{formatMoney(data?.other.expense || 0)}</div>
+                  <div className="text-lg font-bold text-red-600">{formatMoney(data?.other.expense, data?.baseCurrency, data?.conversionStatus)}</div>
                 </div>
               </div>
             )}
@@ -622,7 +682,15 @@ function CashFlowSection({ familyId }: { familyId: string }) {
 
 // ===== Section 4: 投资配置 =====
 function InvestmentSection({ familyId }: { familyId: string }) {
-  const [data, setData] = useState<{ totalAssets: number; allocation: InvestmentAllocation[] } | null>(null);
+  const [data, setData] = useState<{
+    totalAssets: number | null;
+    allocation: InvestmentAllocation[];
+    baseCurrency?: string;
+    window?: PeriodWindow;
+    totalsByCurrency?: Record<string, number>;
+    conversionStatus?: ConversionStatus;
+    reconciliationStatus?: ReconciliationStatus;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const requestIdRef = useRef(0);
@@ -639,6 +707,11 @@ function InvestmentSection({ familyId }: { familyId: string }) {
         setData({
           totalAssets: summary.balanceSheet.totalAssets,
           allocation: summary.investmentAllocation || [],
+          baseCurrency: summary.baseCurrency,
+          window: summary.window,
+          totalsByCurrency: summary.totalsByCurrency,
+          conversionStatus: summary.conversionStatus,
+          reconciliationStatus: summary.reconciliationStatus,
         });
       }
     } catch {
@@ -665,6 +738,7 @@ function InvestmentSection({ familyId }: { familyId: string }) {
         <div>
           <h2 className="text-xl font-bold text-gray-900">投资配置</h2>
           <p className="text-sm text-gray-500 mt-1">家庭资产配置分析</p>
+          {data?.window && <p className="text-xs text-gray-400 mt-1">估值窗口：{data.window.startLocal} – {data.window.endLocalExclusive}（{data.window.timezone}）</p>}
         </div>
       </div>
 
@@ -674,21 +748,30 @@ function InvestmentSection({ familyId }: { familyId: string }) {
         </div>
       ) : (
         <>
+      {!loading && isUnavailable(data?.conversionStatus) && (
+        <div role="alert" className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          {formatAggregate(null, data?.baseCurrency ?? 'CNY', data?.conversionStatus)}
+          <div className="mt-1">资产：{formatGroupedCurrency(data?.totalsByCurrency)}</div>
+        </div>
+      )}
+      {!loading && isReconciliationFailed(data?.reconciliationStatus) && (
+        <div role="alert" className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">投资配置未通过资产勾稽校验</div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-lg shadow p-5">
           <div className="text-sm text-gray-500 mb-1">总资产</div>
-          <div className="text-xl font-bold text-indigo-600">{loading ? '--' : formatMoney(data?.totalAssets || 0)}</div>
+          <div className="text-xl font-bold text-indigo-600">{loading ? '--' : formatMoney(data?.totalAssets, data?.baseCurrency, data?.conversionStatus)}</div>
         </div>
         <div className="bg-white rounded-lg shadow p-5">
           <div className="text-sm text-gray-500 mb-1">权益类资产</div>
           <div className="text-xl font-bold text-purple-600">
-            {loading ? '--' : formatMoney(data?.allocation.find(a => a.category === 'STOCK')?.value || 0)}
+            {loading ? '--' : formatMoney(data?.allocation.find(a => a.category === 'STOCK')?.value, data?.baseCurrency, data?.conversionStatus)}
           </div>
         </div>
         <div className="bg-white rounded-lg shadow p-5">
           <div className="text-sm text-gray-500 mb-1">固收类资产</div>
           <div className="text-xl font-bold text-green-600">
-            {loading ? '--' : formatMoney(data?.allocation.find(a => a.category === 'BOND')?.value || 0)}
+            {loading ? '--' : formatMoney(data?.allocation.find(a => a.category === 'BOND')?.value, data?.baseCurrency, data?.conversionStatus)}
           </div>
         </div>
       </div>
@@ -697,10 +780,12 @@ function InvestmentSection({ familyId }: { familyId: string }) {
         <div className="bg-white rounded-lg shadow">
           <div className="p-5 border-b border-gray-200"><h3 className="text-base font-semibold text-gray-900">资产配置饼图</h3></div>
           <div className="p-5 flex items-center justify-center">
-            {loading ? <div className="text-center py-6 text-gray-500">加载中...</div> : (
+            {loading ? <div className="text-center py-6 text-gray-500">加载中...</div> : data?.conversionStatus !== 'exact' ? (
+              <div className="text-center py-6 text-gray-500">币种无法统一时暂不展示配置图</div>
+            ) : (
               <AssetAllocationChart
-                allocation={data?.allocation || []}
-                totalValue={data?.totalAssets}
+                allocation={(data?.allocation || []).flatMap((item) => item.value === null || item.percentage === null ? [] : [{ category: item.category, value: item.value, percentage: item.percentage }])}
+                totalValue={data?.totalAssets ?? undefined}
                 centerLabel="总资产"
               />
             )}
@@ -719,7 +804,7 @@ function InvestmentSection({ familyId }: { familyId: string }) {
                         <span className="text-sm text-gray-700">{categoryLabels[item.category]}</span>
                       </div>
                       <div className="flex items-center">
-                        <span className="text-sm text-gray-500 mr-2">{formatMoney(item.value)}</span>
+                        <span className="text-sm text-gray-500 mr-2">{formatMoney(item.value, data?.baseCurrency, data?.conversionStatus)}</span>
                         <span className="text-sm font-medium text-gray-900">{item.percentage}%</span>
                       </div>
                     </div>

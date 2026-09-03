@@ -4,12 +4,18 @@ import type { Family } from '../types';
 import { useAuthStore } from '../store/useAuthStore';
 import { useFamilyStore } from '../store/useFamilyStore';
 
+const DEFAULT_TIMEZONE = 'Asia/Shanghai';
+const TIMEZONE_OPTIONS = typeof Intl.supportedValuesOf === 'function'
+  ? Array.from(new Set([DEFAULT_TIMEZONE, 'UTC', ...Intl.supportedValuesOf('timeZone')])).sort()
+  : [DEFAULT_TIMEZONE, 'UTC', 'America/New_York', 'Europe/London'];
+
 const FamiliesPage = () => {
   const [families, setFamilies] = useState<Family[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newFamilyName, setNewFamilyName] = useState('');
   const [newFamilyDesc, setNewFamilyDesc] = useState('');
+  const [newFamilyTimezone, setNewFamilyTimezone] = useState(DEFAULT_TIMEZONE);
   const [selectedFamily, setSelectedFamily] = useState<Family | null>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
@@ -38,7 +44,7 @@ const FamiliesPage = () => {
     e.preventDefault();
     setError('');
     try {
-      const newFamily = await createFamily(newFamilyName, newFamilyDesc);
+      const newFamily = await createFamily(newFamilyName, newFamilyDesc, newFamilyTimezone);
       const updatedFamilies = [...families, newFamily];
       setFamilies(updatedFamilies);
       setStoreFamilies(updatedFamilies);
@@ -46,6 +52,7 @@ const FamiliesPage = () => {
       setShowCreateModal(false);
       setNewFamilyName('');
       setNewFamilyDesc('');
+      setNewFamilyTimezone(DEFAULT_TIMEZONE);
     } catch (err: any) {
       setError(err.response?.data?.error || '创建失败');
     }
@@ -133,6 +140,9 @@ const FamiliesPage = () => {
               {family.description && (
                 <p className="text-gray-500 text-sm mt-1">{family.description}</p>
               )}
+              <p className="text-sm text-gray-500 mt-2">
+                时区：<span className="font-medium text-gray-700">{family.timezone || DEFAULT_TIMEZONE}</span>
+              </p>
               <div className="mt-4 flex items-center justify-between">
                 <span className="text-sm text-gray-500">
                   {family.members.length} 位成员
@@ -158,10 +168,11 @@ const FamiliesPage = () => {
             )}
             <form onSubmit={handleCreateFamily} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="new-family-name" className="block text-sm font-medium text-gray-700 mb-1">
                   家庭名称
                 </label>
                 <input
+                  id="new-family-name"
                   type="text"
                   value={newFamilyName}
                   onChange={(e) => setNewFamilyName(e.target.value)}
@@ -171,16 +182,34 @@ const FamiliesPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="new-family-description" className="block text-sm font-medium text-gray-700 mb-1">
                   描述（可选）
                 </label>
                 <textarea
+                  id="new-family-description"
                   value={newFamilyDesc}
                   onChange={(e) => setNewFamilyDesc(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   rows={3}
                   placeholder="简单描述一下这个家庭"
                 />
+              </div>
+              <div>
+                <label htmlFor="family-timezone" className="block text-sm font-medium text-gray-700 mb-1">
+                  时区（创建后不可修改）
+                </label>
+                <input
+                  id="family-timezone"
+                  list="family-timezones"
+                  value={newFamilyTimezone}
+                  onChange={(e) => setNewFamilyTimezone(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+                <datalist id="family-timezones">
+                  {TIMEZONE_OPTIONS.map((timezone) => <option key={timezone} value={timezone} />)}
+                </datalist>
+                <p className="text-xs text-gray-500 mt-1">默认使用上海时区，可在创建时选择其他 IANA 时区。</p>
               </div>
               <div className="flex justify-end space-x-3 pt-4">
                 <button
@@ -215,6 +244,7 @@ const FamiliesPage = () => {
                 {selectedFamily.description && (
                   <p className="text-gray-500 text-sm mt-1">{selectedFamily.description}</p>
                 )}
+                <p className="text-sm text-gray-500 mt-1">时区：{selectedFamily.timezone || DEFAULT_TIMEZONE}（创建后不可修改）</p>
               </div>
               <button
                 onClick={() => setSelectedFamily(null)}

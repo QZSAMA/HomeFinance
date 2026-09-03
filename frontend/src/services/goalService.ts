@@ -1,4 +1,5 @@
 import api from './api';
+import type { ConversionStatus } from './reportService';
 
 export type GoalType = 'SAVING' | 'DEBT_PAYOFF' | 'INVESTMENT';
 
@@ -8,6 +9,7 @@ export interface Goal {
   title: string;
   type: GoalType;
   targetAmount: number;
+  currency?: string;
   deadline: string | null;
   isCompleted: boolean;
   createdBy: string;
@@ -17,14 +19,18 @@ export interface Goal {
 
 export interface GoalProgress {
   goal: Goal;
-  currentAmount: number;
-  percentage: number;
+  currentAmount: number | null;
+  percentage: number | null;
+  totalsByCurrency?: Record<string, number>;
+  conversionStatus?: ConversionStatus;
+  progressStatus?: 'exact' | 'unavailable';
 }
 
 export interface GoalInput {
   title: string;
   type: GoalType;
   targetAmount: number;
+  currency?: string;
   deadline?: string;
 }
 
