@@ -17,6 +17,7 @@ const family = {
   createdAt: '2026-08-27T00:00:00.000Z',
   updatedAt: '2026-08-27T00:00:00.000Z',
   members: [],
+  timezone: 'Asia/Shanghai',
 };
 
 const secondFamily = {
@@ -151,6 +152,28 @@ describe('ReportsPage income statement', () => {
     expect(screen.queryByText('¥0.00')).not.toBeInTheDocument();
   });
 
+  it('does not render unavailable mixed-currency totals as zero', async () => {
+    getIncomeStatementMock.mockResolvedValue({
+      ...incomeStatement,
+      totalIncome: null,
+      totalExpense: null,
+      netIncome: null,
+      totalsByCurrency: { CNY: 1234, USD: 20 },
+      expenseTotalsByCurrency: { CNY: 234, USD: 5 },
+      baseCurrency: 'CNY',
+      conversionStatus: 'unavailable',
+    });
+
+    render(<ReportsPage />);
+
+    const section = screen.getByRole('heading', { name: '利润表' }).closest('section');
+    expect(section).not.toBeNull();
+    await waitFor(() => expect(within(section!).getByRole('alert')).toHaveTextContent('暂无法合计'));
+    expect(within(section!).getByRole('alert')).toHaveTextContent('¥1,234.00');
+    expect(within(section!).getByRole('alert')).toHaveTextContent('US$20.00');
+    expect(within(section!).queryByText('¥0.00')).not.toBeInTheDocument();
+  });
+
   it('ignores a slower response from the previously selected family', async () => {
     const first = deferred<Awaited<ReturnType<typeof reportService.getBalanceSheet>>>();
     const second = deferred<Awaited<ReturnType<typeof reportService.getBalanceSheet>>>();
@@ -213,7 +236,7 @@ describe('ReportsPage income statement', () => {
     await waitFor(() => expect(getIncomeStatementMock).toHaveBeenCalledWith(
       family.id,
       '2026-08-01',
-      '2026-08-31',
+      '2026-09-01',
     ));
 
     getIncomeStatementMock.mockClear();

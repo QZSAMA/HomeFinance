@@ -8,6 +8,9 @@ jest.mock('../db/prisma', () => ({
     familyMember: {
       findUnique: jest.fn(),
     },
+    family: {
+      findUnique: jest.fn(),
+    },
     asset: {
       findMany: jest.fn(),
     },
@@ -50,6 +53,10 @@ describe('Report Routes', () => {
       familyId: 'fam_1',
       userId: 'user_1',
       role: 'admin',
+    });
+    mockedPrisma.family.findUnique.mockResolvedValue({
+      timezone: 'Asia/Shanghai',
+      baseCurrency: 'CNY',
     });
     mockedPrisma.asset.findMany.mockResolvedValue([]);
     mockedPrisma.liability.findMany.mockResolvedValue([]);
@@ -100,6 +107,61 @@ describe('Report Routes', () => {
       expect(Object.keys(res.body.incomeByCategory).length).toBe(1);
       expect(Object.keys(res.body.expenseByCategory).length).toBe(1);
       expect(res.body.incomes).toHaveLength(1);
+    });
+
+    test('uses the family-local half-open window and returns currency metadata', async () => {
+      mockedPrisma.income.findMany.mockResolvedValue([
+        { id: 'i1', category: '工资', amount: 100, currency: 'CNY', date: new Date('2026-08-15T00:00:00Z'), createdAt: new Date() },
+      ]);
+      mockedPrisma.expense.findMany.mockResolvedValue([
+        { id: 'e1', category: '餐饮', amount: 40, currency: 'CNY', date: new Date('2026-08-15T00:00:00Z'), createdAt: new Date() },
+      ]);
+
+      const res = await request(app)
+        .get('/api/families/fam_1/reports/income-statement?startDate=2026-08-01&endDate=2026-09-01')
+        .set('Authorization', `Bearer ${createToken()}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.window).toMatchObject({
+        startLocal: '2026-08-01',
+        endLocalExclusive: '2026-09-01',
+        timezone: 'Asia/Shanghai',
+      });
+      expect(res.body.totalsByCurrency).toEqual({ CNY: 100 });
+      expect(res.body.expenseTotalsByCurrency).toEqual({ CNY: 40 });
+      expect(res.body.reconciliationStatus).toBe('passed');
+      expect(mockedPrisma.income.findMany).toHaveBeenCalledWith(expect.objectContaining({
+        where: expect.objectContaining({
+          date: {
+            gte: new Date('2026-07-31T16:00:00.000Z'),
+            lt: new Date('2026-08-31T16:00:00.000Z'),
+          },
+        }),
+      }));
+    });
+
+    test('does not collapse mixed currencies inside one category', async () => {
+      mockedPrisma.income.findMany.mockResolvedValue([
+        { id: 'i1', category: '工资', amount: 100, currency: 'CNY', date: new Date(), createdAt: new Date() },
+        { id: 'i2', category: '工资', amount: 20, currency: 'USD', date: new Date(), createdAt: new Date() },
+      ]);
+
+      const res = await request(app)
+        .get('/api/families/fam_1/reports/income-statement')
+        .set('Authorization', `Bearer ${createToken()}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.incomeByCategory['工资']).toBeNull();
+      expect(res.body.incomeByCategoryByCurrency['工资']).toEqual({ CNY: 100, USD: 20 });
+    });
+
+    test('rejects an incomplete or malformed date window', async () => {
+      const res = await request(app)
+        .get('/api/families/fam_1/reports/income-statement?startDate=2026-08-01&startDate=2026-08-02')
+        .set('Authorization', `Bearer ${createToken()}`);
+
+      expect(res.status).toBe(400);
+      expect(res.body.code).toBe('INVALID_PERIOD_WINDOW');
     });
   });
 
@@ -276,6 +338,24 @@ describe('Report Routes', () => {
       Object.entries(res.body.liabilities).forEach(([, v]) => {
         expect(typeof v).toBe('number');
       });
+    });
+
+    test('does not create a fake total for mixed-currency assets', async () => {
+      mockedPrisma.asset.findMany.mockResolvedValue([
+        { id: 'a1', type: 'CASH', value: 100, currency: 'CNY', createdAt: new Date() },
+        { id: 'a2', type: 'STOCK', value: 20, currency: 'USD', createdAt: new Date() },
+      ]);
+      mockedPrisma.liability.findMany.mockResolvedValue([]);
+
+      const res = await request(app)
+        .get('/api/families/fam_1/reports/balance-sheet')
+        .set('Authorization', `Bearer ${createToken()}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.totalAssets).toBeNull();
+      expect(res.body.netWorth).toBeNull();
+      expect(res.body.totalsByCurrency).toEqual({ CNY: 100, USD: 20 });
+      expect(res.body.conversionStatus).toBe('unavailable');
     });
   });
 

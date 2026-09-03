@@ -2,8 +2,12 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../db/prisma';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
-import { requireFamilyWriteAccess } from '../middleware/familyAccess';
+import { requireFamilyAccess, requireFamilyWriteAccess } from '../middleware/familyAccess';
 import { parsePagination, paginateResponse } from '../utils/pagination';
+import { summarizeByCurrency } from '../services/currencySummaryService';
+import { createGoalContribution } from '../services/goalContributionService';
+import { DomainError } from '../services/ledgerErrors';
+import { readIdempotencyKey, markIdempotencyReplay } from './ledgerRouteSupport';
 
 const router = Router({ mergeParams: true });
 
@@ -11,6 +15,7 @@ const goalSchema = z.object({
   title: z.string().min(1, '标题不能为空'),
   type: z.enum(['SAVING', 'DEBT_PAYOFF', 'INVESTMENT']),
   targetAmount: z.number().positive('目标金额必须大于 0'),
+  currency: z.string().trim().regex(/^[A-Za-z]{3}$/, '币种必须是三位字母').transform((value) => value.toUpperCase()).optional(),
   deadline: z
     .string()
     .refine((val) => !isNaN(Date.parse(val)))
@@ -19,66 +24,78 @@ const goalSchema = z.object({
 
 const goalUpdateSchema = goalSchema.partial();
 
-const checkFamilyAccess = async (familyId: string, userId: string) => {
-  const membership = await prisma.familyMember.findUnique({
-    where: { familyId_userId: { familyId, userId } },
-  });
-  return membership;
+const contributionSchema = z.object({
+  sourceType: z.enum(['INCOME', 'EXPENSE', 'ASSET', 'LIABILITY', 'MANUAL']),
+  sourceId: z.string().min(1).optional(),
+  amount: z.number().positive('贡献金额必须大于 0'),
+  currency: z.string().trim().regex(/^[A-Za-z]{3}$/, '币种必须是三位字母').transform((value) => value.toUpperCase()).optional(),
+  contributionDate: z.string().refine((value) => !Number.isNaN(Date.parse(value)), '贡献日期格式不正确').optional(),
+  allocationKey: z.string().trim().min(1, '分配键不能为空'),
+});
+
+const sendError = (error: unknown, res: any, label: string) => {
+  if (error instanceof z.ZodError) return res.status(400).json({ error: error.errors[0].message, code: 'VALIDATION_FAILED' });
+  if (error instanceof DomainError) return res.status(error.status).json({ error: error.message, code: error.code, retryable: error.retryable });
+  console.error(label, error);
+  return res.status(500).json({ error: '服务器内部错误', code: 'INTERNAL_ERROR' });
+};
+
+const loadFamilyBaseCurrency = async (familyId: string): Promise<string> => {
+  const family = await prisma.family.findUnique({ where: { id: familyId }, select: { baseCurrency: true } });
+  if (!family) throw new DomainError('RESOURCE_NOT_FOUND', '家庭不存在', 404);
+  return family.baseCurrency;
 };
 
 // GET /progress — must be defined before /:id routes
-router.get('/progress', authMiddleware, async (req: AuthRequest, res) => {
+router.get('/progress', authMiddleware, requireFamilyAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
-
     const goals = await prisma.goal.findMany({
       where: { familyId },
       orderBy: { createdAt: 'desc' },
     });
 
-    const [assets, liabilities] = await Promise.all([
-      prisma.asset.findMany({ where: { familyId }, select: { value: true } }),
-      prisma.liability.findMany({ where: { familyId }, select: { amount: true } }),
-    ]);
-
-    const totalAssets = (assets as any[]).reduce((s, r) => s + Number(r.value), 0);
-    const totalLiabilities = (liabilities as any[]).reduce((s, r) => s + Number(r.amount), 0);
-    const netWorth = totalAssets - totalLiabilities;
+    const contributions = await prisma.goalContribution.findMany({
+      where: { familyId },
+      orderBy: { contributionDate: 'asc' },
+    });
+    const contributionsByGoal = new Map<string, any[]>();
+    for (const contribution of contributions) {
+      const rows = contributionsByGoal.get(contribution.goalId) ?? [];
+      rows.push(contribution);
+      contributionsByGoal.set(contribution.goalId, rows);
+    }
 
     const progress = goals.map((goal) => {
       const target = Number(goal.targetAmount);
-      let currentAmount = 0;
-      if (goal.type === 'SAVING') {
-        currentAmount = Math.max(0, netWorth);
-      } else if (goal.type === 'DEBT_PAYOFF') {
-        currentAmount = Math.max(0, target - totalLiabilities);
-      } else if (goal.type === 'INVESTMENT') {
-        currentAmount = Math.max(0, totalAssets);
-      }
-      currentAmount = Math.min(currentAmount, target);
-      const percentage = target > 0 ? Math.round((currentAmount / target) * 100) : 0;
-      return { goal, currentAmount, percentage };
+      const rows = contributionsByGoal.get(goal.id) ?? [];
+      const summary = summarizeByCurrency(
+        rows.map((row) => ({ amount: row.amount, currency: row.currency })),
+        goal.currency ?? 'CNY',
+      );
+      const currentAmount = rows.length === 0 || summary.totalInBaseCurrency === null
+        ? null
+        : Math.min(summary.totalInBaseCurrency, target);
+      const percentage = currentAmount === null || target <= 0 ? null : Math.round((currentAmount / target) * 100);
+      return {
+        goal,
+        currentAmount,
+        percentage,
+        totalsByCurrency: summary.totalsByCurrency,
+        conversionStatus: summary.conversionStatus,
+        progressStatus: currentAmount === null ? 'unavailable' : 'exact',
+      };
     });
 
     res.json(progress);
   } catch (error) {
-    console.error('获取目标进度错误:', error);
-    res.status(500).json({ error: '服务器内部错误' });
+    return sendError(error, res, '获取目标进度错误:');
   }
 });
 
-router.get('/', authMiddleware, async (req: AuthRequest, res) => {
+router.get('/', authMiddleware, requireFamilyAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
-
     const pagination = parsePagination(req);
     if (pagination) {
       const [goals, total] = await Promise.all([
@@ -108,11 +125,7 @@ router.post('/', authMiddleware, requireFamilyWriteAccess, async (req: AuthReque
   try {
     const familyId = req.params.familyId as string;
     const data = goalSchema.parse(req.body);
-
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
+    const baseCurrency = await loadFamilyBaseCurrency(familyId);
 
     const goal = await prisma.goal.create({
       data: {
@@ -120,6 +133,7 @@ router.post('/', authMiddleware, requireFamilyWriteAccess, async (req: AuthReque
         title: data.title,
         type: data.type,
         targetAmount: data.targetAmount,
+        currency: data.currency ?? baseCurrency,
         deadline: data.deadline ? new Date(data.deadline) : null,
         createdBy: req.userId!,
       },
@@ -135,16 +149,34 @@ router.post('/', authMiddleware, requireFamilyWriteAccess, async (req: AuthReque
   }
 });
 
+router.post('/:goalId/contributions', authMiddleware, requireFamilyWriteAccess, async (req: AuthRequest, res) => {
+  try {
+    const data = contributionSchema.parse(req.body);
+    const baseCurrency = await loadFamilyBaseCurrency(req.params.familyId as string);
+    const result = await createGoalContribution({
+      familyId: req.params.familyId as string,
+      actorUserId: req.userId!,
+      goalId: req.params.goalId as string,
+      sourceType: data.sourceType,
+      sourceId: data.sourceId,
+      amount: data.amount,
+      currency: data.currency ?? baseCurrency,
+      contributionDate: data.contributionDate ? new Date(data.contributionDate) : new Date(),
+      allocationKey: data.allocationKey,
+      idempotencyKey: readIdempotencyKey(req),
+    });
+    markIdempotencyReplay(result as any, res);
+    return res.status(result.deduplicated ? 200 : 201).json(result);
+  } catch (error) {
+    return sendError(error, res, '创建目标贡献错误:');
+  }
+});
+
 router.put('/:id', authMiddleware, requireFamilyWriteAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const id = req.params.id as string;
     const data = goalUpdateSchema.parse(req.body);
-
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership || membership.role === 'viewer') {
-      return res.status(403).json({ error: '无权修改该数据' });
-    }
 
     const goal = await prisma.goal.findUnique({ where: { id } });
     if (!goal || goal.familyId !== familyId) {
@@ -155,6 +187,7 @@ router.put('/:id', authMiddleware, requireFamilyWriteAccess, async (req: AuthReq
     if (data.title !== undefined) updateData.title = data.title;
     if (data.type !== undefined) updateData.type = data.type;
     if (data.targetAmount !== undefined) updateData.targetAmount = data.targetAmount;
+    if (data.currency !== undefined) updateData.currency = data.currency;
     if (data.deadline !== undefined) updateData.deadline = data.deadline ? new Date(data.deadline) : null;
 
     const updated = await prisma.goal.update({ where: { id }, data: updateData });
@@ -172,11 +205,6 @@ router.delete('/:id', authMiddleware, requireFamilyWriteAccess, async (req: Auth
   try {
     const familyId = req.params.familyId as string;
     const id = req.params.id as string;
-
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership || membership.role === 'viewer') {
-      return res.status(403).json({ error: '无权删除该数据' });
-    }
 
     const goal = await prisma.goal.findUnique({ where: { id } });
     if (!goal || goal.familyId !== familyId) {

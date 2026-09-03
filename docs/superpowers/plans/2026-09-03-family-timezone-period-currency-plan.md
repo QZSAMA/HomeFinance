@@ -48,9 +48,9 @@
 
 **Interfaces:**
 - Produces `DEFAULT_FAMILY_TIMEZONE`, `normalizeFamilyTimezone(value: unknown): string`, `isSupportedFamilyTimezone(value: unknown): boolean`。
-- `normalizeFamilyTimezone` 对空值使用默认值；对 `UTC` 和可被 `Intl.DateTimeFormat` 解析的 IANA 值返回规范标识；其他输入抛 `DomainError('INVALID_TIMEZONE', 'Invalid IANA timezone.', 400)`。
+- `normalizeFamilyTimezone` 仅对字段省略（`undefined`）使用默认值；显式 `null` 或空字符串无效。对 `UTC` 和可被 `Intl.DateTimeFormat` 解析的 IANA 值返回规范标识；其他输入抛 `DomainError('INVALID_TIMEZONE', 'Invalid IANA timezone.', 400)`。
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { DomainError } from './ledgerErrors';
@@ -81,13 +81,13 @@ test('does not depend on the process local timezone', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend; npm test -- --runInBand src/services/timezoneService.test.ts`
 
 Expected: FAIL because `timezoneService.ts` and the new error codes do not exist.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Add the new codes to `DomainErrorCode`, then implement the value object without a third-party date dependency:
 
@@ -95,7 +95,7 @@ Add the new codes to `DomainErrorCode`, then implement the value object without 
 export const DEFAULT_FAMILY_TIMEZONE = 'Asia/Shanghai';
 
 export const normalizeFamilyTimezone = (value: unknown): string => {
-  if (value === undefined || value === null || value === '') return DEFAULT_FAMILY_TIMEZONE;
+  if (value === undefined) return DEFAULT_FAMILY_TIMEZONE;
   if (typeof value !== 'string') throw new DomainError('INVALID_TIMEZONE', 'Invalid IANA timezone.', 400);
   const candidate = value.trim();
   if (candidate === 'UTC') return 'UTC';
@@ -115,13 +115,13 @@ export const isSupportedFamilyTimezone = (value: unknown): boolean => {
 };
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend; npm test -- --runInBand src/services/timezoneService.test.ts`
 
 Expected: PASS with all timezone cases green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/services/timezoneService.ts backend/src/services/timezoneService.test.ts backend/src/services/ledgerErrors.ts
@@ -142,7 +142,7 @@ git commit -m "feat: add family timezone value object"
 - GET list/detail return scalar `timezone`.
 - PUT returns HTTP 409 `{ error, code: 'FAMILY_TIMEZONE_IMMUTABLE' }` whenever the request owns a `timezone` property, before any update call.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add characterization tests before production changes:
 
@@ -172,13 +172,13 @@ test('rejects an attempted timezone update with zero side effects', async () => 
 
 The integration test creates a disposable family, confirms the migration default, executes `UPDATE "Family" SET timezone = 'UTC'`, and asserts PostgreSQL rejects it without changing the row.
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend; npm test -- --runInBand src/routes/families.test.ts src/tests/familyTimezone.integration.test.ts`
 
 Expected: mocked POST does not pass `timezone`, PUT silently strips the field, and the integration test cannot find the column/trigger.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Add the Prisma field and an additive migration:
 
@@ -200,13 +200,13 @@ CREATE TRIGGER "Family_timezone_immutable"
 
 In `families.ts`, normalize the POST value and check `Object.prototype.hasOwnProperty.call(req.body, 'timezone')` before PUT schema parsing. Preserve the existing `{ error }` field and add `code`; map `INVALID_TIMEZONE` to 400 and immutable attempts to 409. Keep creation open to any authenticated user, with the creator as the first admin.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend; npx prisma validate; npx prisma format --check; npm test -- --runInBand src/routes/families.test.ts src/tests/familyTimezone.integration.test.ts`
 
 Expected: focused mocks PASS; integration PASS when `RUN_INTEGRATION=1` and PostgreSQL is available, otherwise record BLOCKED without claiming real evidence.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/prisma/schema.prisma backend/prisma/migrations backend/src/routes/families.ts backend/src/routes/families.test.ts backend/src/tests/familyTimezone.integration.test.ts
@@ -242,7 +242,7 @@ export interface PeriodWindow {
 export const resolvePeriodWindow: (input: PeriodWindowInput) => PeriodWindow;
 ```
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 test('resolves a Shanghai month to a UTC half-open window', () => {
@@ -268,13 +268,13 @@ test('rejects an invalid date and keeps end exclusive', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend; npm test -- --runInBand src/services/periodWindowService.test.ts`
 
 Expected: FAIL because the service and `INVALID_PERIOD_WINDOW` do not exist.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Implement strict `YYYY-MM-DD` parsing, local calendar arithmetic for month/quarter/year, and a single `Intl.DateTimeFormat` adapter for local-midnight → UTC conversion. The adapter must choose the earlier valid instant for an ambiguous midnight and the first valid instant after a DST gap; it must never read `process.env.TZ` or call `new Date('YYYY-MM-DD')`:
 
@@ -299,13 +299,13 @@ if (endLocalExclusive <= startLocal) {
 
 `formatter`, `partsToPlainDateTime`, `plainDateTimeAsUtc`, `sameLocalMidnight` and `firstValidInstantAfterGap` are private helpers in this file; all exported results use the `PeriodWindow` interface above.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend; npm test -- --runInBand src/services/periodWindowService.test.ts`
 
 Expected: PASS for month, quarter, year, leap-year, Shanghai and DST cases.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/services/periodWindowService.ts backend/src/services/periodWindowService.test.ts backend/src/services/ledgerErrors.ts
@@ -342,7 +342,7 @@ export const reconcileBalanceSheet = (assets: number, liabilities: number, netWo
 export const reconcilePerCurrency: (income: CurrencySummary, expense: CurrencySummary) => Record<string, number>;
 ```
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 test('groups mixed currencies and refuses a fake base total', () => {
@@ -362,13 +362,13 @@ test('keeps all reconciliation identities explicit', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend; npm test -- --runInBand src/services/currencySummaryService.test.ts src/utils/reconciliation.test.ts`
 
 Expected: FAIL because no summaries/formulas exist.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Normalize currencies to uppercase three-letter codes, sum with Decimal-safe decimal arithmetic, round only at response serialization, and return `null` whenever any non-base currency lacks a complete rate:
 
@@ -392,13 +392,13 @@ Do not expose a “known subtotal” as `totalInBaseCurrency`. Reconciliation he
 
 `normalizeCurrency`, `serializeCents` and `convertAll` remain private helpers in `currencySummaryService.ts`; `convertAll` is called only when every non-base currency has a positive, finite rate for the same valuation instant.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend; npm test -- --runInBand src/services/currencySummaryService.test.ts src/utils/reconciliation.test.ts`
 
 Expected: PASS for empty, zero, negative net, mixed, partial-rate and invalid-currency cases.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/services/currencySummaryService.ts backend/src/services/currencySummaryService.test.ts backend/src/utils/reconciliation.ts backend/src/utils/reconciliation.test.ts backend/src/services/ledgerErrors.ts
@@ -417,7 +417,7 @@ git commit -m "feat: add conservative currency and reconciliation services"
 - `GET /reports/income-statement` and `/cash-flow` accept date-only `startDate` and `endDate`; the UI’s selected end day is converted to the next local date before request, so backend `endDate` is exclusive.
 - Balance sheet and dashboard include current `valuationAsOf`, `valuationRuleVersion`, currency summary and reconciliation status.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add a route fixture with a transaction exactly at the next local midnight and assert it is excluded; add CNY + USD assets and assert `totalAssets`/`netWorth` are `null` with `conversionStatus=unavailable`; add a cash-flow fixture covering all four classes and assert reconciliation.
 
@@ -428,13 +428,13 @@ expect(response.body.totalsByCurrency).toEqual({ CNY: 100, USD: 20 });
 expect(response.body.reconciliationStatus).toBe('passed');
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend; npm test -- --runInBand src/routes/reports.test.ts src/tests/reports.periodCurrency.integration.test.ts`
 
 Expected: FAIL because current code uses server-local dates, `lte`, and direct cross-currency reduction.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Replace route-local date construction with `resolvePeriodWindow`; use `gte/lt`; aggregate each entity by currency; compute category/net values per currency; attach `window`, `timezone`, `baseCurrency`, summaries and `reconciliationStatus`:
 
@@ -460,13 +460,13 @@ Preserve raw transaction lists and legacy scalar fields only when exact; otherwi
 
 `serializeReport` and `reconcilePerCurrency` are the private response adapters in `reports.ts`; `reconcilePerCurrency` is the pure helper exported by Task 4 and `serializeReport` maps its per-currency result to the existing endpoint field names without summing currencies.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend; npm test -- --runInBand src/routes/reports.test.ts src/tests/reports.periodCurrency.integration.test.ts`
 
 Expected: focused route tests PASS; run `npm run build` before commit.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/routes/reports.ts backend/src/routes/reports.test.ts backend/src/tests/reports.periodCurrency.integration.test.ts
@@ -489,7 +489,7 @@ git commit -m "feat: use family timezone and currency-safe reports"
 - Budget progress resolves `MONTHLY/QUARTERLY/YEARLY` with `resolvePeriodWindow`, bounded by explicit start/end, and uses `lt(endUtc)`.
 - Compare accepts `month=YYYY-MM` (required by the new contract); every family uses that local month in its own timezone and returns its own `window`, currency summary and nullable scalar totals.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 test('counts only the current family-local budget window', async () => {
@@ -508,13 +508,13 @@ test('does not mix family currencies in compare', async () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend; npm test -- --runInBand src/routes/budgets.test.ts src/routes/compare.test.ts src/tests/budgetCompare.periodCurrency.integration.test.ts`
 
 Expected: FAIL because period currently does not constrain progress consistently and compare adds all currencies.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Load family context through centralized `requireFamilyAccess` (remove route-local copies only where this slice touches them), resolve each period once, use bounded aggregate/groupBy queries rather than N+1 full-table loads, and pass rows to `summarizeByCurrency`:
 
@@ -530,13 +530,13 @@ For compare, validate `month` as `YYYY-MM`, capture one reference instant, and r
 
 `toLocalDate` is a private helper that formats a stored instant with the family timezone as `YYYY-MM-DD`; `now` is one `new Date()` captured at the start of the progress request and passed to every budget window.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend; npm test -- --runInBand src/routes/budgets.test.ts src/routes/compare.test.ts src/tests/budgetCompare.periodCurrency.integration.test.ts; npm run build`
 
 Expected: focused regression and backend build PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/routes/budgets.ts backend/src/routes/budgets.test.ts backend/src/routes/compare.ts backend/src/routes/compare.test.ts backend/src/tests/budgetCompare.periodCurrency.integration.test.ts backend/prisma
@@ -576,7 +576,7 @@ export const createGoalContribution: (command: CreateGoalContributionCommand) =>
 
 The private helpers used below are defined in `goalContributionService.ts`: `assertWritableMembership`, `assertSourceBelongsToFamily`, `claimIdempotency`, `recordMutationAuditAndResult` and `toResult`; each receives the transaction client and never performs work outside that transaction.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 test('keeps two goals isolated and rejects the same source twice', async () => {
@@ -592,13 +592,13 @@ test('viewer, cross-family source and invalid currency have zero writes', async 
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend; npm test -- --runInBand src/services/goalContributionService.test.ts src/routes/goals.test.ts src/tests/goalContribution.integration.test.ts`
 
 Expected: FAIL because progress currently reads global assets/liabilities and no contribution table/service exists.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Add `Goal.currency` with a CNY/family-base backfill and the additive contribution table/checks. Implement a transaction that authorizes membership before idempotency/source lookup, validates same-family goal/source, claims the scoped idempotency key, inserts one contribution, writes audit/replay metadata, and maps a source-key race to `GOAL_CONTRIBUTION_CONFLICT` (409):
 
@@ -620,13 +620,13 @@ return prisma.$transaction(async (tx) => {
 
 Add `POST /:goalId/contributions` and update `/progress` to aggregate only that goal’s contributions; no contribution means `currentAmount: null`, `percentage: null`, `progressStatus: 'unavailable'`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend; npm test -- --runInBand src/services/goalContributionService.test.ts src/routes/goals.test.ts src/tests/goalContribution.integration.test.ts; npm run build`
 
 Expected: focused service/route tests and build PASS. With PostgreSQL available, run the integration suite and verify concurrent same-source submissions leave one contribution.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/prisma backend/src/services/goalContributionService.ts backend/src/services/goalContributionService.test.ts backend/src/routes/goals.ts backend/src/routes/goals.test.ts backend/src/tests/goalContribution.integration.test.ts
@@ -648,7 +648,7 @@ export interface Family { /* existing fields */ timezone: string; baseCurrency?:
 export const createFamily = (name: string, description?: string, timezone?: string): Promise<Family>;
 ```
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```tsx
 test('defaults the create form to Shanghai and submits a selected IANA timezone', async () => {
@@ -668,13 +668,13 @@ test('shows an existing family timezone without an edit control', async () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
-Run: `cd frontend; npm test -- --runInBand src/pages/FamiliesPage.test.tsx`
+Run: `cd frontend; npm test -- src/pages/FamiliesPage.test.tsx`
 
 Expected: FAIL because Family has no timezone type, service does not send it, and the form has no field.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Use a controlled `<input list>` or searchable select built from `Intl.supportedValuesOf('timeZone')` plus `UTC`/`Asia/Shanghai`; keep a fallback list and allow a typed IANA candidate for browsers without the API:
 
@@ -689,13 +689,13 @@ const timezoneOptions = typeof Intl.supportedValuesOf === 'function'
 
 Reset the field to Shanghai after successful creation. Render the returned family timezone as read-only text in cards/details. Surface `INVALID_TIMEZONE` from the configured API client; do not add a PUT control.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
-Run: `cd frontend; npm test -- --runInBand src/pages/FamiliesPage.test.tsx; npm run lint; npm run build`
+Run: `cd frontend; npm test -- src/pages/FamiliesPage.test.tsx; npm run lint; npm run build`
 
 Expected: focused test, lint with zero warning lines, and build PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/types/index.ts frontend/src/services/familyService.ts frontend/src/pages/FamiliesPage.tsx frontend/src/pages/FamiliesPage.test.tsx
@@ -721,7 +721,7 @@ git commit -m "feat: configure family timezone at creation"
 - Date inputs remain date-only; when the user selects an inclusive end day, client date arithmetic sends the next local calendar date as exclusive `endDate` without `Date.parse`/UTC subtraction.
 - `null` scalar totals render `—` plus the reason from `conversionStatus`; no `|| 0` fallback for financial values.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```tsx
 test('renders unavailable mixed-currency totals instead of zero', async () => {
@@ -748,13 +748,13 @@ test('sends the next local date for an inclusive end-date control', async () => 
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
-Run: `cd frontend; npm test -- --runInBand src/pages/ReportsPage.test.tsx src/pages/FinancialReportPages.test.tsx src/pages/GoalsPage.test.tsx src/pages/BudgetPage.test.tsx src/pages/ComparePage.test.tsx`
+Run: `cd frontend; npm test -- src/pages/ReportsPage.test.tsx src/pages/FinancialReportPages.test.tsx src/pages/GoalsPage.test.tsx src/pages/BudgetPage.test.tsx src/pages/ComparePage.test.tsx`
 
 Expected: FAIL because existing pages format null as CNY zero and pass the selected end date directly.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Update service interfaces, use the configured Axios API client consistently, and centralize safe formatting:
 
@@ -768,13 +768,13 @@ const formatWindow = (window: PeriodWindow) => `${window.startLocal} – ${windo
 
 Add period/timezone labels, render grouped currency rows, suppress mixed-currency aggregate charts, and show reconciliation failure as an alert/status region. Goal cards show contribution-based progress or “尚未建立贡献关联”; budget cards show their currency and bounded window; compare cards show each family’s local month/window.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
-Run: `cd frontend; npm test -- --runInBand src/pages/ReportsPage.test.tsx src/pages/FinancialReportPages.test.tsx src/pages/GoalsPage.test.tsx src/pages/BudgetPage.test.tsx src/pages/ComparePage.test.tsx; npm run lint; npm run build`
+Run: `cd frontend; npm test -- src/pages/ReportsPage.test.tsx src/pages/FinancialReportPages.test.tsx src/pages/GoalsPage.test.tsx src/pages/BudgetPage.test.tsx src/pages/ComparePage.test.tsx; npm run lint; npm run build`
 
 Expected: focused tests, lint and build PASS; existing assertions remain intact.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/services frontend/src/pages

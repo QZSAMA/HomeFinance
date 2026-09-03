@@ -1,14 +1,22 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useFamilyStore } from '../store/useFamilyStore';
+import { formatAggregate, formatGroupedCurrency, nextLocalDate } from '../utils/financialFormatting';
+import type { PeriodWindow } from '../services/reportService';
 
 interface IncomeStatementData {
-  totalIncome: number;
-  totalExpense: number;
-  netIncome: number;
-  incomeByCategory: Record<string, number>;
-  expenseByCategory: Record<string, number>;
+  totalIncome: number | null;
+  totalExpense: number | null;
+  netIncome: number | null;
+  incomeByCategory: Record<string, number | null>;
+  expenseByCategory: Record<string, number | null>;
   startDate: string | null;
   endDate: string | null;
+  baseCurrency?: string;
+  window?: PeriodWindow;
+  totalsByCurrency?: Record<string, number>;
+  expenseTotalsByCurrency?: Record<string, number>;
+  conversionStatus?: 'exact' | 'unavailable' | 'partial';
+  reconciliationStatus?: 'passed' | 'unavailable' | 'failed';
 }
 
 const IncomeStatementPage = () => {
@@ -26,7 +34,7 @@ const IncomeStatementPage = () => {
       let url = `/api/families/${familyId}/reports/income-statement`;
       const params = new URLSearchParams();
       if (requestedStart) params.append('startDate', requestedStart);
-      if (requestedEnd) params.append('endDate', requestedEnd);
+      if (requestedEnd) params.append('endDate', nextLocalDate(requestedEnd));
       if (params.size > 0) url += `?${params.toString()}`;
 
       const response = await fetch(url);
@@ -55,11 +63,14 @@ const IncomeStatementPage = () => {
     void loadData('', '');
   };
 
-  const formatMoney = (amount: number) => {
-    return new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(amount);
-  };
+  const formatMoney = (amount: number | null | undefined) => formatAggregate(
+    amount,
+    data?.baseCurrency ?? currentFamily?.baseCurrency ?? 'CNY',
+    data?.conversionStatus ?? 'exact',
+  );
 
-  const formatPercentage = (value: number, total: number) => {
+  const formatPercentage = (value: number | null, total: number | null) => {
+    if (value === null || total === null) return '—';
     if (total === 0) return '0%';
     return `${((value / total) * 100).toFixed(1)}%`;
   };
@@ -74,6 +85,7 @@ const IncomeStatementPage = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">利润表</h1>
           <p className="text-gray-500 mt-1">家庭收支情况分析</p>
+          {data?.window && <p className="text-xs text-gray-400 mt-1">统计窗口：{data.window.startLocal} – {data.window.endLocalExclusive}（{data.window.timezone}）</p>}
         </div>
       </div>
 
@@ -117,19 +129,26 @@ const IncomeStatementPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
         <div className="bg-white rounded-lg shadow p-6">
           <div className="text-sm text-gray-500 mb-1">总收入</div>
-          <div className="text-2xl font-bold text-green-600">{loading ? '--' : formatMoney(data?.totalIncome || 0)}</div>
+          <div className="text-2xl font-bold text-green-600">{loading ? '--' : formatMoney(data?.totalIncome)}</div>
         </div>
         <div className="bg-white rounded-lg shadow p-6">
           <div className="text-sm text-gray-500 mb-1">总支出</div>
-          <div className="text-2xl font-bold text-red-600">{loading ? '--' : formatMoney(data?.totalExpense || 0)}</div>
+          <div className="text-2xl font-bold text-red-600">{loading ? '--' : formatMoney(data?.totalExpense)}</div>
         </div>
         <div className="bg-white rounded-lg shadow p-6">
           <div className="text-sm text-gray-500 mb-1">净收益</div>
-          <div className={`text-2xl font-bold ${(data?.netIncome || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {loading ? '--' : formatMoney(data?.netIncome || 0)}
+          <div className={`text-2xl font-bold ${(data?.netIncome ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            {loading ? '--' : formatMoney(data?.netIncome)}
           </div>
         </div>
       </div>
+
+      {!loading && data?.conversionStatus && data.conversionStatus !== 'exact' && (
+        <div role="alert" className="mb-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800">
+          {formatAggregate(null, data.baseCurrency ?? currentFamily.baseCurrency ?? 'CNY', data.conversionStatus)}
+          <div className="mt-1 text-sm">收入：{formatGroupedCurrency(data.totalsByCurrency)}；支出：{formatGroupedCurrency(data.expenseTotalsByCurrency)}</div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         <div className="bg-white rounded-lg shadow">
@@ -150,13 +169,13 @@ const IncomeStatementPage = () => {
                       <span className="text-sm text-gray-700">{formatMoney(value)}</span>
                     </div>
                     <span className="text-sm text-gray-500">
-                      {formatPercentage(value, data?.totalIncome || 0)}
+                      {formatPercentage(value, data?.totalIncome ?? null)}
                     </span>
                   </div>
                 ))}
                 <div className="pt-4 border-t border-gray-200 flex items-center justify-between">
                   <span className="font-medium text-gray-900">合计</span>
-                  <span className="font-bold text-green-600">{formatMoney(data?.totalIncome || 0)}</span>
+                  <span className="font-bold text-green-600">{formatMoney(data?.totalIncome)}</span>
                 </div>
               </div>
             )}
@@ -181,13 +200,13 @@ const IncomeStatementPage = () => {
                       <span className="text-sm text-gray-700">{formatMoney(value)}</span>
                     </div>
                     <span className="text-sm text-gray-500">
-                      {formatPercentage(value, data?.totalExpense || 0)}
+                      {formatPercentage(value, data?.totalExpense ?? null)}
                     </span>
                   </div>
                 ))}
                 <div className="pt-4 border-t border-gray-200 flex items-center justify-between">
                   <span className="font-medium text-gray-900">合计</span>
-                  <span className="font-bold text-red-600">{formatMoney(data?.totalExpense || 0)}</span>
+                  <span className="font-bold text-red-600">{formatMoney(data?.totalExpense)}</span>
                 </div>
               </div>
             )}

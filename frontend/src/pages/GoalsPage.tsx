@@ -14,19 +14,13 @@ import {
   type GoalProgress,
   type GoalType,
 } from '../services/goalService';
+import { formatAggregate, formatGroupedCurrency } from '../utils/financialFormatting';
 
 const TYPE_LABELS: Record<GoalType, string> = {
   SAVING: '储蓄',
   DEBT_PAYOFF: '还债',
   INVESTMENT: '投资',
 };
-
-const formatMoney = (amount: number) =>
-  new Intl.NumberFormat('zh-CN', {
-    style: 'currency',
-    currency: 'CNY',
-    maximumFractionDigits: 0,
-  }).format(amount);
 
 const GoalsPage = () => {
   const { currentFamily } = useFamilyStore();
@@ -140,6 +134,15 @@ const GoalsPage = () => {
         </button>
       </div>
 
+      {progress.some((item) => item.progressStatus === 'unavailable' || (item.conversionStatus && item.conversionStatus !== 'exact')) && (
+        <div role="alert" className="mb-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800">
+          暂无法合计（缺少可靠汇率）
+          <div className="mt-1 text-sm">
+            {progress.filter((item) => item.totalsByCurrency).map((item) => formatGroupedCurrency(item.totalsByCurrency)).join(' · ')}
+          </div>
+        </div>
+      )}
+
       {progress.length === 0 ? (
         <div className="text-center py-12 text-gray-500 bg-white rounded-lg shadow">
           暂无目标，点击右上角创建第一个目标
@@ -147,7 +150,9 @@ const GoalsPage = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {progress.map((item) => {
-            const data = [{ name: item.goal.title, value: item.percentage, fill: '#6366f1' }];
+            const data = [{ name: item.goal.title, value: item.percentage ?? 0, fill: '#6366f1' }];
+            const currency = item.goal.currency ?? currentFamily.baseCurrency ?? 'CNY';
+            const formatMoney = (amount: number | null | undefined) => formatAggregate(amount, currency, item.conversionStatus ?? 'exact');
             const deadline = item.goal.deadline
               ? new Date(item.goal.deadline)
               : null;
@@ -159,11 +164,11 @@ const GoalsPage = () => {
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">{item.goal.title}</h3>
-                    <span className="text-xs text-gray-500">
-                      {TYPE_LABELS[item.goal.type]} · 目标 {formatMoney(item.goal.targetAmount)}
-                    </span>
+                  <span className="text-xs text-gray-500">
+                      {TYPE_LABELS[item.goal.type]} · 目标 {formatMoney(item.goal.targetAmount)} · {currency}
+                  </span>
                   </div>
-                  {item.percentage >= 100 && (
+                  {item.percentage !== null && item.percentage >= 100 && (
                     <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">
                       已完成
                     </span>
@@ -184,15 +189,15 @@ const GoalsPage = () => {
                   </ResponsiveContainer>
                 </div>
                 <div className="text-center -mt-24 mb-12 pointer-events-none">
-                  <div className="text-2xl font-bold text-indigo-600">{item.percentage}%</div>
+                  <div className="text-2xl font-bold text-indigo-600">{item.percentage === null ? '—' : `${item.percentage}%`}</div>
                   <div className="text-xs text-gray-500">
-                    {formatMoney(item.currentAmount)}
+                    {item.progressStatus === 'unavailable' ? '尚未建立贡献关联' : formatMoney(item.currentAmount)}
                   </div>
                 </div>
                 <div className="mt-2 text-sm text-gray-600 space-y-1">
                   <div className="flex justify-between">
                     <span>当前进度</span>
-                    <span>{formatMoney(item.currentAmount)}</span>
+                    <span>{item.progressStatus === 'unavailable' ? '尚未建立贡献关联' : formatMoney(item.currentAmount)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>目标金额</span>
@@ -207,6 +212,9 @@ const GoalsPage = () => {
                     </div>
                   )}
                 </div>
+                {item.totalsByCurrency && Object.keys(item.totalsByCurrency).length > 1 && (
+                  <p className="mt-2 text-xs text-gray-500">各币种贡献：{formatGroupedCurrency(item.totalsByCurrency)}</p>
+                )}
                 <div className="flex justify-end mt-4 space-x-2">
                   <button
                     onClick={() => handleEdit(item)}

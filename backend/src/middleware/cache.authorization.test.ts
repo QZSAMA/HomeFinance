@@ -7,6 +7,9 @@ jest.mock('../db/prisma', () => ({
     familyMember: {
       findUnique: jest.fn(),
     },
+    family: {
+      findUnique: jest.fn(),
+    },
     asset: {
       findMany: jest.fn(),
     },
@@ -57,6 +60,7 @@ describe('report cache authorization', () => {
         ? { familyId, userId, role: 'member', family: { cacheVersion: 0 } }
         : null;
     });
+    mockedPrisma.family.findUnique.mockResolvedValue({ timezone: 'Asia/Shanghai', baseCurrency: 'CNY' });
     mockedPrisma.asset.findMany.mockResolvedValue([
       {
         id: 'private-asset',

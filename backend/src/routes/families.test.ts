@@ -70,8 +70,7 @@ describe('Family Routes', () => {
   describe('POST /api/families', () => {
     test('creates a new family', async () => {
       mockedPrisma.family.create.mockResolvedValue({
-        id: 'fam_1',
-        name: 'New Family',
+        id: 'fam_1', name: 'New Family', timezone: 'Asia/Shanghai',
         members: [{ userId: 'user_1', role: 'admin' }],
       });
 
@@ -82,6 +81,49 @@ describe('Family Routes', () => {
 
       expect(res.status).toBe(201);
       expect(res.body.name).toBe('New Family');
+    });
+
+    test('defaults omitted timezone to Asia/Shanghai', async () => {
+      mockedPrisma.family.create.mockResolvedValue({
+        id: 'fam_1', name: 'New Family', timezone: 'Asia/Shanghai', members: [],
+      });
+
+      const res = await request(app)
+        .post('/api/families')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ name: 'New Family' });
+
+      expect(res.status).toBe(201);
+      expect(mockedPrisma.family.create).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ timezone: 'Asia/Shanghai' }),
+      }));
+    });
+
+    test('persists an explicit IANA timezone', async () => {
+      mockedPrisma.family.create.mockResolvedValue({
+        id: 'fam_1', name: 'New Family', timezone: 'America/New_York', members: [],
+      });
+
+      const res = await request(app)
+        .post('/api/families')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ name: 'New Family', timezone: 'America/New_York' });
+
+      expect(res.status).toBe(201);
+      expect(mockedPrisma.family.create).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ timezone: 'America/New_York' }),
+      }));
+    });
+
+    test('rejects an invalid timezone without creating a family', async () => {
+      const res = await request(app)
+        .post('/api/families')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ name: 'New Family', timezone: 'CST' });
+
+      expect(res.status).toBe(400);
+      expect(res.body.code).toBe('INVALID_TIMEZONE');
+      expect(mockedPrisma.family.create).not.toHaveBeenCalled();
     });
 
     test('rejects short name', async () => {
@@ -115,6 +157,23 @@ describe('Family Routes', () => {
         .set('Authorization', `Bearer ${createToken()}`);
 
       expect(res.status).toBe(403);
+    });
+  });
+
+  describe('PUT /api/families/:id', () => {
+    test('rejects timezone changes before any update side effect', async () => {
+      mockedPrisma.familyMember.findUnique.mockResolvedValue({
+        familyId: 'fam_1', userId: 'user_1', role: 'admin',
+      });
+
+      const res = await request(app)
+        .put('/api/families/fam_1')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .send({ name: 'Renamed', description: 'x', timezone: 'UTC' });
+
+      expect(res.status).toBe(409);
+      expect(res.body.code).toBe('FAMILY_TIMEZONE_IMMUTABLE');
+      expect(mockedPrisma.family.update).not.toHaveBeenCalled();
     });
   });
 

@@ -7,6 +7,9 @@ jest.mock('../db/prisma', () => ({
     familyMember: {
       findUnique: jest.fn(),
     },
+    family: {
+      findUnique: jest.fn(),
+    },
     asset: {
       findMany: jest.fn(),
     },
@@ -103,6 +106,7 @@ describe('report cache invalidation', () => {
       createdAt: new Date('2026-01-01T00:00:00.000Z'),
       family: { cacheVersion },
     }));
+    mockedPrisma.family.findUnique.mockResolvedValue({ timezone: 'Asia/Shanghai', baseCurrency: 'CNY' });
     mockedPrisma.asset.findMany.mockResolvedValue([]);
     mockedPrisma.liability.findMany.mockResolvedValue([]);
     mockedPrisma.income.findMany.mockResolvedValue([]);

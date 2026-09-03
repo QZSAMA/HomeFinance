@@ -3,6 +3,7 @@ import { useFamilyStore } from '../store/useFamilyStore';
 import { getSummary, type SummaryResponse } from '../services/reportService';
 import IncomeExpenseChart from '../components/charts/IncomeExpenseChart';
 import AssetAllocationChart from '../components/charts/AssetAllocationChart';
+import { formatAggregate, formatGroupedCurrency } from '../utils/financialFormatting';
 
 const DashboardPage = () => {
   const { currentFamily } = useFamilyStore();
@@ -30,9 +31,11 @@ const DashboardPage = () => {
     void loadSummary();
   }, [loadSummary]);
 
-  const formatMoney = (amount: number) => {
-    return new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(amount);
-  };
+  const formatMoney = (amount: number | null | undefined) => formatAggregate(
+    amount,
+    summary?.baseCurrency ?? currentFamily?.baseCurrency ?? 'CNY',
+    summary?.conversionStatus ?? 'exact',
+  );
 
   if (!currentFamily) {
     return <div className="text-center py-12 text-gray-500">请先选择或创建一个家庭</div>;
@@ -57,6 +60,15 @@ const DashboardPage = () => {
   }
 
   if (!summary) return null;
+
+  const reportIsExact = (summary.conversionStatus ?? 'exact') === 'exact';
+  const thisMonthIncome = summary.incomeStatement.thisMonthIncome;
+  const thisMonthExpense = summary.incomeStatement.thisMonthExpense;
+  const lastMonthIncome = summary.incomeStatement.lastMonthIncome;
+  const lastMonthExpense = summary.incomeStatement.lastMonthExpense;
+  const allocationForChart = summary.investmentAllocation
+    .filter((item) => item.value !== null && item.percentage !== null)
+    .map((item) => ({ category: item.category, value: item.value as number, percentage: item.percentage as number }));
 
   return (
     <div>
@@ -100,7 +112,7 @@ const DashboardPage = () => {
             <div>
               <p className="text-sm text-gray-500">净资产</p>
               <p className={`text-2xl font-bold mt-1 ${
-                summary.balanceSheet.netWorth >= 0 ? 'text-green-600' : 'text-red-600'
+                (summary.balanceSheet.netWorth ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'
               }`}>
                 {formatMoney(summary.balanceSheet.netWorth)}
               </p>
@@ -111,6 +123,13 @@ const DashboardPage = () => {
           </div>
         </div>
       </div>
+
+      {!reportIsExact && (
+        <div role="alert" className="mb-8 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800">
+          暂无法合计（缺少可靠汇率）
+          <div className="mt-1 text-sm">资产：{formatGroupedCurrency(summary.totalsByCurrency)}；负债：{formatGroupedCurrency(summary.liabilityTotalsByCurrency)}</div>
+        </div>
+      )}
 
       {/* 本月收支 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -128,8 +147,8 @@ const DashboardPage = () => {
                 className="bg-green-500 h-2 rounded-full"
                 style={{
                   width: `${Math.min(100, 
-                    (summary.incomeStatement.thisMonthIncome / 
-                      Math.max(summary.incomeStatement.thisMonthIncome + summary.incomeStatement.thisMonthExpense, 1)) * 100
+                    thisMonthIncome === null || thisMonthExpense === null ? 0 : (thisMonthIncome /
+                      Math.max(thisMonthIncome + thisMonthExpense, 1)) * 100
                   )}%`
                 }}
               ></div>
@@ -144,7 +163,7 @@ const DashboardPage = () => {
               <div className="flex justify-between items-center">
                 <span className="text-gray-700 font-medium">本月结余</span>
                 <span className={`font-bold ${
-                  summary.incomeStatement.netIncome >= 0 ? 'text-green-600' : 'text-red-600'
+                  (summary.incomeStatement.netIncome ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'
                 }`}>
                   {formatMoney(summary.incomeStatement.netIncome)}
                 </span>
@@ -152,21 +171,21 @@ const DashboardPage = () => {
             </div>
             <div className="flex justify-between text-sm text-gray-500">
               <span>
-                收入环比: {summary.incomeStatement.incomeChange >= 0 ? '+' : ''}
-                {summary.incomeStatement.incomeChange.toFixed(1)}%
+                收入环比: {summary.incomeStatement.incomeChange === null ? '—' : `${summary.incomeStatement.incomeChange >= 0 ? '+' : ''}${summary.incomeStatement.incomeChange.toFixed(1)}%`}
               </span>
               <span>
-                支出环比: {summary.incomeStatement.expenseChange >= 0 ? '+' : ''}
-                {summary.incomeStatement.expenseChange.toFixed(1)}%
+                支出环比: {summary.incomeStatement.expenseChange === null ? '—' : `${summary.incomeStatement.expenseChange >= 0 ? '+' : ''}${summary.incomeStatement.expenseChange.toFixed(1)}%`}
               </span>
             </div>
             <div className="pt-2">
-              <IncomeExpenseChart
-                thisMonthIncome={summary.incomeStatement.thisMonthIncome}
-                thisMonthExpense={summary.incomeStatement.thisMonthExpense}
-                lastMonthIncome={summary.incomeStatement.lastMonthIncome}
-                lastMonthExpense={summary.incomeStatement.lastMonthExpense}
-              />
+              {reportIsExact && thisMonthIncome !== null && thisMonthExpense !== null && lastMonthIncome !== null && lastMonthExpense !== null ? (
+                <IncomeExpenseChart
+                  thisMonthIncome={thisMonthIncome}
+                  thisMonthExpense={thisMonthExpense}
+                  lastMonthIncome={lastMonthIncome}
+                  lastMonthExpense={lastMonthExpense}
+                />
+              ) : <div className="text-center py-8 text-gray-500">币种无法统一时暂不展示趋势图</div>}
             </div>
           </div>
         </div>
@@ -174,11 +193,13 @@ const DashboardPage = () => {
         {/* 投资配置 */}
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">投资配置</h3>
-          <AssetAllocationChart
-            allocation={summary.investmentAllocation}
-            totalValue={summary.balanceSheet.totalAssets}
-            centerLabel="总资产"
-          />
+          {reportIsExact && summary.balanceSheet.totalAssets !== null ? (
+            <AssetAllocationChart
+              allocation={allocationForChart}
+              totalValue={summary.balanceSheet.totalAssets}
+              centerLabel="总资产"
+            />
+          ) : <div className="text-center py-8 text-gray-500">币种无法统一时暂不展示配置图</div>}
         </div>
       </div>
 

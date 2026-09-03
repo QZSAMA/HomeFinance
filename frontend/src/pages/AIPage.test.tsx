@@ -18,6 +18,7 @@ const family = {
   createdAt: '2026-08-31T00:00:00.000Z',
   updatedAt: '2026-08-31T00:00:00.000Z',
   members: [],
+  timezone: 'Asia/Shanghai',
 };
 
 const sendChatMock = vi.mocked(aiService.sendChat);

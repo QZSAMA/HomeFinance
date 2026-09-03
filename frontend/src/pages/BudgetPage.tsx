@@ -8,6 +8,7 @@ import {
   type BudgetProgress,
   type BudgetInput,
 } from '../services/budgetService';
+import { formatAggregate, formatGroupedCurrency } from '../utils/financialFormatting';
 
 const PERIOD_LABELS: Record<string, string> = {
   MONTHLY: '每月',
@@ -107,10 +108,11 @@ const BudgetPage = () => {
     }
   };
 
-  const formatMoney = (amount: number) =>
-    new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(amount);
+  const formatMoney = (amount: number | null, currency = currentFamily?.baseCurrency ?? 'CNY', status: 'exact' | 'unavailable' | 'partial' = 'exact') =>
+    formatAggregate(amount, currency, status);
 
-  const getProgressColor = (percentage: number) => {
+  const getProgressColor = (percentage: number | null) => {
+    if (percentage === null) return 'bg-gray-300';
     if (percentage > 100) return 'bg-red-500';
     if (percentage >= 80) return 'bg-orange-500';
     return 'bg-green-500';
@@ -147,6 +149,15 @@ const BudgetPage = () => {
         </div>
       )}
 
+      {!loading && progress.some((item) => item.conversionStatus && item.conversionStatus !== 'exact') && (
+        <div role="alert" className="mb-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800">
+          暂无法合计（缺少可靠汇率）
+          <div className="mt-1 text-sm">
+            {progress.filter((item) => item.totalsByCurrency).map((item) => formatGroupedCurrency(item.totalsByCurrency)).join(' · ')}
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div className="text-center py-12 text-gray-500">加载中...</div>
       ) : progress.length === 0 ? (
@@ -167,6 +178,7 @@ const BudgetPage = () => {
                       ? ` ~ ${new Date(item.budget.endDate).toLocaleDateString('zh-CN')}`
                       : ' 起'}
                   </p>
+                  {item.window && <p className="text-xs text-gray-400 mt-1">统计窗口：{item.window.startLocal} – {item.window.endLocalExclusive}（{item.window.timezone}）</p>}
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -186,33 +198,36 @@ const BudgetPage = () => {
 
               <div className="flex justify-between items-baseline mb-2">
                 <div className="text-sm text-gray-600">
-                  已花费 <span className="font-medium text-gray-900">{formatMoney(item.spent)}</span>
+                  已花费 <span className="font-medium text-gray-900">{formatMoney(item.spent, item.budget.currency ?? item.baseCurrency, item.conversionStatus)}</span>
                   {' / '}
-                  预算 <span className="font-medium text-gray-900">{formatMoney(item.budget.amount)}</span>
+                  预算 <span className="font-medium text-gray-900">{formatMoney(item.budget.amount, item.budget.currency ?? item.baseCurrency)}</span>
                 </div>
-                <div className={`text-sm font-medium ${getPercentageTextColor(item.percentage)}`}>
-                  {item.percentage}%
+                <div className={`text-sm font-medium ${item.percentage === null ? 'text-gray-500' : getPercentageTextColor(item.percentage)}`}>
+                  {item.percentage === null ? '—' : `${item.percentage}%`}
                 </div>
               </div>
 
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div
                   className={`${getProgressColor(item.percentage)} h-3 rounded-full transition-all`}
-                  style={{ width: `${Math.min(100, item.percentage)}%` }}
+                  style={{ width: `${Math.min(100, item.percentage ?? 0)}%` }}
                 ></div>
               </div>
 
               <div className="flex justify-between text-xs text-gray-500 mt-2">
                 <span>
                   剩余{' '}
-                  <span className={item.remaining >= 0 ? 'text-gray-700' : 'text-red-600'}>
-                    {formatMoney(item.remaining)}
+                  <span className={item.remaining === null || item.remaining >= 0 ? 'text-gray-700' : 'text-red-600'}>
+                    {formatMoney(item.remaining, item.budget.currency ?? item.baseCurrency, item.conversionStatus)}
                   </span>
                 </span>
-                {item.percentage > 100 && (
+                {item.percentage !== null && item.percentage > 100 && (
                   <span className="text-red-600">已超出预算 {item.percentage - 100}%</span>
                 )}
               </div>
+              {item.totalsByCurrency && Object.keys(item.totalsByCurrency).length > 1 && (
+                <p className="mt-2 text-xs text-gray-500">各币种支出：{formatGroupedCurrency(item.totalsByCurrency)}</p>
+              )}
             </div>
           ))}
         </div>
