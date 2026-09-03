@@ -489,7 +489,7 @@ git commit -m "feat: use family timezone and currency-safe reports"
 - Budget progress resolves `MONTHLY/QUARTERLY/YEARLY` with `resolvePeriodWindow`, bounded by explicit start/end, and uses `lt(endUtc)`.
 - Compare accepts `month=YYYY-MM` (required by the new contract); every family uses that local month in its own timezone and returns its own `window`, currency summary and nullable scalar totals.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 test('counts only the current family-local budget window', async () => {
@@ -508,13 +508,13 @@ test('does not mix family currencies in compare', async () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend; npm test -- --runInBand src/routes/budgets.test.ts src/routes/compare.test.ts src/tests/budgetCompare.periodCurrency.integration.test.ts`
 
 Expected: FAIL because period currently does not constrain progress consistently and compare adds all currencies.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Load family context through centralized `requireFamilyAccess` (remove route-local copies only where this slice touches them), resolve each period once, use bounded aggregate/groupBy queries rather than N+1 full-table loads, and pass rows to `summarizeByCurrency`:
 
@@ -530,13 +530,13 @@ For compare, validate `month` as `YYYY-MM`, capture one reference instant, and r
 
 `toLocalDate` is a private helper that formats a stored instant with the family timezone as `YYYY-MM-DD`; `now` is one `new Date()` captured at the start of the progress request and passed to every budget window.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend; npm test -- --runInBand src/routes/budgets.test.ts src/routes/compare.test.ts src/tests/budgetCompare.periodCurrency.integration.test.ts; npm run build`
 
 Expected: focused regression and backend build PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/routes/budgets.ts backend/src/routes/budgets.test.ts backend/src/routes/compare.ts backend/src/routes/compare.test.ts backend/src/tests/budgetCompare.periodCurrency.integration.test.ts backend/prisma

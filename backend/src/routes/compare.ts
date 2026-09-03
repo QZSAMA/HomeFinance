@@ -1,68 +1,118 @@
 import { Router } from 'express';
+import { z } from 'zod';
 import { prisma } from '../db/prisma';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { DomainError } from '../services/ledgerErrors';
+import { resolvePeriodWindow } from '../services/periodWindowService';
+import { summarizeByCurrency, CurrencySummary } from '../services/currencySummaryService';
 
 const router = Router();
 
-const sumAmount = (records: Array<{ value?: any; amount?: any }>, field: 'value' | 'amount' = 'amount'): number =>
-  records.reduce((sum, r) => sum + Number(r[field] ?? 0), 0);
+const monthSchema = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, '月份必须使用 YYYY-MM 格式');
+
+const nextMonth = (month: string): string => {
+  const [year, monthNumber] = month.split('-').map(Number);
+  const nextYear = monthNumber === 12 ? year + 1 : year;
+  const nextMonthNumber = monthNumber === 12 ? 1 : monthNumber + 1;
+  return `${String(nextYear).padStart(4, '0')}-${String(nextMonthNumber).padStart(2, '0')}`;
+};
+
+const currencyRows = (rows: ReadonlyArray<any>, amountKey: 'value' | 'amount', baseCurrency: string) => rows.map((row) => ({
+  amount: row[amountKey],
+  currency: row.currency ?? baseCurrency,
+}));
+
+const scalarDifference = (left: number | null, right: number | null): number | null => (
+  left === null || right === null ? null : left - right
+);
+
+const combineConversionStatus = (...summaries: CurrencySummary[]): CurrencySummary['conversionStatus'] => {
+  if (summaries.some((summary) => summary.conversionStatus === 'partial')) return 'partial';
+  if (summaries.some((summary) => summary.conversionStatus === 'unavailable')) return 'unavailable';
+  return 'exact';
+};
 
 // GET /summary — 返回用户所有家庭的对比数据
 router.get('/summary', authMiddleware, async (req: AuthRequest, res) => {
   try {
+    const parsedMonth = monthSchema.safeParse(req.query.month);
+    if (!parsedMonth.success) {
+      throw new DomainError('INVALID_PERIOD_WINDOW', parsedMonth.error.errors[0]?.message ?? '月份格式无效', 400);
+    }
+    const month = parsedMonth.data;
     const userId = req.userId!;
     const memberships = await prisma.familyMember.findMany({
       where: { userId },
-      include: { family: true },
+      include: {
+        family: {
+          select: { id: true, name: true, timezone: true, baseCurrency: true },
+        },
+      },
     });
 
     if (memberships.length === 0) {
       return res.json([]);
     }
 
-    const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthStart = `${month}-01`;
+    const monthEndExclusive = `${nextMonth(month)}-01`;
 
     const results = await Promise.all(
       memberships.map(async (m) => {
         const familyId = m.familyId;
         const familyName = m.family.name;
+        const timezone = m.family.timezone ?? 'Asia/Shanghai';
+        const baseCurrency = m.family.baseCurrency ?? 'CNY';
+        const window = resolvePeriodWindow({
+          timezone,
+          kind: 'CUSTOM',
+          localStart: monthStart,
+          localEndExclusive: monthEndExclusive,
+        });
+        const dateWhere = { familyId, date: { gte: window.startUtc, lt: window.endUtc } };
 
         const [assets, liabilities, incomes, expenses] = await Promise.all([
-          prisma.asset.findMany({ where: { familyId }, select: { value: true } }),
-          prisma.liability.findMany({ where: { familyId }, select: { amount: true } }),
-          prisma.income.findMany({
-            where: { familyId, date: { gte: monthStart } },
-            select: { amount: true },
-          }),
-          prisma.expense.findMany({
-            where: { familyId, date: { gte: monthStart } },
-            select: { amount: true },
-          }),
+          prisma.asset.findMany({ where: { familyId }, select: { value: true, currency: true } }),
+          prisma.liability.findMany({ where: { familyId }, select: { amount: true, currency: true } }),
+          prisma.income.findMany({ where: dateWhere, select: { amount: true, currency: true } }),
+          prisma.expense.findMany({ where: dateWhere, select: { amount: true, currency: true } }),
         ]);
 
-        const totalAssets = sumAmount(assets as any[], 'value');
-        const totalLiabilities = sumAmount(liabilities as any[]);
-        const thisMonthIncome = sumAmount(incomes as any[]);
-        const thisMonthExpense = sumAmount(expenses as any[]);
+        const assetSummary = summarizeByCurrency(currencyRows(assets, 'value', baseCurrency), baseCurrency);
+        const liabilitySummary = summarizeByCurrency(currencyRows(liabilities, 'amount', baseCurrency), baseCurrency);
+        const incomeSummary = summarizeByCurrency(currencyRows(incomes, 'amount', baseCurrency), baseCurrency);
+        const expenseSummary = summarizeByCurrency(currencyRows(expenses, 'amount', baseCurrency), baseCurrency);
 
         return {
           familyId,
           familyName,
-          totalAssets,
-          totalLiabilities,
-          netWorth: totalAssets - totalLiabilities,
-          thisMonthIncome,
-          thisMonthExpense,
+          totalAssets: assetSummary.totalInBaseCurrency,
+          totalLiabilities: liabilitySummary.totalInBaseCurrency,
+          netWorth: scalarDifference(assetSummary.totalInBaseCurrency, liabilitySummary.totalInBaseCurrency),
+          thisMonthIncome: incomeSummary.totalInBaseCurrency,
+          thisMonthExpense: expenseSummary.totalInBaseCurrency,
+          totalAssetsByCurrency: assetSummary.totalsByCurrency,
+          totalLiabilitiesByCurrency: liabilitySummary.totalsByCurrency,
+          thisMonthIncomeByCurrency: incomeSummary.totalsByCurrency,
+          thisMonthExpenseByCurrency: expenseSummary.totalsByCurrency,
+          conversionStatus: combineConversionStatus(assetSummary, liabilitySummary, incomeSummary, expenseSummary),
+          window,
+          timezone,
+          baseCurrency,
         };
       })
     );
 
     res.json(results);
   } catch (error) {
+    if (error instanceof DomainError) {
+      return res.status(error.status).json({ error: error.message, code: error.code });
+    }
     console.error('获取家庭对比数据错误:', error);
-    res.status(500).json({ error: '服务器内部错误' });
+    return res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
 export default router;
+
+

@@ -58,12 +58,13 @@ describe('Compare Routes', () => {
 
       const res = await request(app)
         .get('/api/compare/summary')
+        .query({ month: '2026-09' })
         .set('Authorization', `Bearer ${createToken()}`);
 
       expect(res.status).toBe(200);
       expect(Array.isArray(res.body)).toBe(true);
       expect(res.body).toHaveLength(2);
-      expect(res.body[0]).toEqual({
+      expect(res.body[0]).toEqual(expect.objectContaining({
         familyId: 'fam_1',
         familyName: '张家',
         totalAssets: 100000,
@@ -71,8 +72,8 @@ describe('Compare Routes', () => {
         netWorth: 70000,
         thisMonthIncome: 15000,
         thisMonthExpense: 8000,
-      });
-      expect(res.body[1]).toEqual({
+      }));
+      expect(res.body[1]).toEqual(expect.objectContaining({
         familyId: 'fam_2',
         familyName: '李家',
         totalAssets: 50000,
@@ -80,7 +81,7 @@ describe('Compare Routes', () => {
         netWorth: 40000,
         thisMonthIncome: 8000,
         thisMonthExpense: 5000,
-      });
+      }));
     });
 
     test('returns empty array when user has no families', async () => {
@@ -88,6 +89,7 @@ describe('Compare Routes', () => {
 
       const res = await request(app)
         .get('/api/compare/summary')
+        .query({ month: '2026-09' })
         .set('Authorization', `Bearer ${createToken()}`);
 
       expect(res.status).toBe(200);
@@ -111,10 +113,11 @@ describe('Compare Routes', () => {
 
       const res = await request(app)
         .get('/api/compare/summary')
+        .query({ month: '2026-09' })
         .set('Authorization', `Bearer ${createToken()}`);
 
       expect(res.status).toBe(200);
-      expect(res.body[0]).toEqual({
+      expect(res.body[0]).toEqual(expect.objectContaining({
         familyId: 'fam_1',
         familyName: '空家庭',
         totalAssets: 0,
@@ -122,7 +125,7 @@ describe('Compare Routes', () => {
         netWorth: 0,
         thisMonthIncome: 0,
         thisMonthExpense: 0,
-      });
+      }));
     });
   });
 });

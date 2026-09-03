@@ -2,14 +2,18 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../db/prisma';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
-import { requireFamilyWriteAccess } from '../middleware/familyAccess';
+import { requireFamilyAccess, requireFamilyWriteAccess } from '../middleware/familyAccess';
 import { parsePagination, paginateResponse } from '../utils/pagination';
+import { PeriodKind, resolvePeriodWindow } from '../services/periodWindowService';
+import { summarizeByCurrency } from '../services/currencySummaryService';
+import { DomainError } from '../services/ledgerErrors';
 
 const router = Router({ mergeParams: true });
 
 const budgetSchema = z.object({
   category: z.string().min(1, '类别不能为空'),
   amount: z.number().positive('金额必须大于0'),
+  currency: z.string().trim().regex(/^[A-Za-z]{3}$/, '币种必须是三位字母').transform((value) => value.toUpperCase()).optional(),
   period: z.enum(['MONTHLY', 'QUARTERLY', 'YEARLY']).default('MONTHLY'),
   startDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: '开始日期格式不正确',
@@ -20,26 +24,77 @@ const budgetSchema = z.object({
     .optional(),
 });
 
-const checkFamilyAccess = async (familyId: string, userId: string) => {
-  const membership = await prisma.familyMember.findUnique({
-    where: {
-      familyId_userId: {
-        familyId,
-        userId,
-      },
-    },
+type FamilySettings = { timezone: string; baseCurrency: string };
+
+const loadFamilySettings = async (familyId: string): Promise<FamilySettings> => {
+  const family = await prisma.family.findUnique({
+    where: { id: familyId },
+    select: { timezone: true, baseCurrency: true },
   });
-  return membership;
+  if (!family) throw new DomainError('RESOURCE_NOT_FOUND', '家庭不存在', 404);
+  return family;
+};
+
+const toLocalDate = (instant: Date, timezone: string): string => {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    calendar: 'gregory',
+    numberingSystem: 'latn',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(instant);
+  const values = new Map(parts.filter((part) => part.type !== 'literal').map((part) => [part.type, part.value]));
+  return `${values.get('year')}-${values.get('month')}-${values.get('day')}`;
+};
+
+const resolveBudgetWindow = (
+  budget: { period: string; startDate: Date; endDate: Date | null },
+  settings: FamilySettings,
+  referenceInstant: Date,
+) => {
+  const kind = budget.period as PeriodKind;
+  const calendarWindow = resolvePeriodWindow({
+    timezone: settings.timezone,
+    kind,
+    referenceInstant,
+  });
+  const startLocal = [calendarWindow.startLocal, toLocalDate(budget.startDate, settings.timezone)]
+    .sort()
+    .at(-1)!;
+  const endCandidates = [calendarWindow.endLocalExclusive];
+  if (budget.endDate) endCandidates.push(toLocalDate(budget.endDate, settings.timezone));
+  const endLocalExclusive = endCandidates.sort()[0];
+  if (startLocal >= endLocalExclusive) {
+    return {
+      ...calendarWindow,
+      startLocal,
+      endLocalExclusive: startLocal,
+      startUtc: calendarWindow.endUtc,
+      endUtc: calendarWindow.endUtc,
+    };
+  }
+  return resolvePeriodWindow({
+    timezone: settings.timezone,
+    kind: 'CUSTOM',
+    localStart: startLocal,
+    localEndExclusive: endLocalExclusive,
+  });
+};
+
+const routeError = (error: unknown, res: any, label: string) => {
+  if (error instanceof DomainError) {
+    return res.status(error.status).json({ error: error.message, code: error.code });
+  }
+  console.error(label, error);
+  return res.status(500).json({ error: '服务器内部错误' });
 };
 
 // GET /progress — must be defined before /:id routes to avoid route shadowing
-router.get('/progress', authMiddleware, async (req: AuthRequest, res) => {
+router.get('/progress', authMiddleware, requireFamilyAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
+    const settings = await loadFamilySettings(familyId);
 
     const budgets = await prisma.budget.findMany({
       where: { familyId },
@@ -49,52 +104,51 @@ router.get('/progress', authMiddleware, async (req: AuthRequest, res) => {
     const now = new Date();
     const progress = await Promise.all(
       budgets.map(async (budget) => {
-        const startDate = budget.startDate;
-        const endDate = budget.endDate || now;
-        const effectiveStart = startDate > now ? startDate : startDate;
-        const effectiveEnd = endDate < now ? endDate : now;
-
-        const expenses = await prisma.expense.findMany({
+        const window = resolveBudgetWindow(budget, settings, now);
+        const grouped = await prisma.expense.groupBy({
+          by: ['currency'],
           where: {
             familyId,
             category: budget.category,
             date: {
-              gte: effectiveStart,
-              lte: effectiveEnd,
+              gte: window.startUtc,
+              lt: window.endUtc,
             },
           },
-          select: { amount: true },
+          _sum: { amount: true },
         });
-
-        const spent = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+        const spentSummary = summarizeByCurrency(
+          grouped.map((row) => ({ amount: row._sum.amount ?? 0, currency: row.currency })),
+          settings.baseCurrency,
+        );
+        const spent = spentSummary.totalInBaseCurrency;
         const budgetAmount = Number(budget.amount);
-        const remaining = budgetAmount - spent;
-        const percentage = budgetAmount > 0 ? Math.round((spent / budgetAmount) * 100) : 0;
+        const remaining = spent === null ? null : budgetAmount - spent;
+        const percentage = spent === null || budgetAmount <= 0 ? null : Math.round((spent / budgetAmount) * 100);
 
         return {
           budget,
           spent,
           remaining,
           percentage,
+          totalsByCurrency: spentSummary.totalsByCurrency,
+          conversionStatus: spentSummary.conversionStatus,
+          window,
+          timezone: settings.timezone,
+          baseCurrency: settings.baseCurrency,
         };
       })
     );
 
     res.json(progress);
   } catch (error) {
-    console.error('获取预算进度错误:', error);
-    res.status(500).json({ error: '服务器内部错误' });
+    return routeError(error, res, '获取预算进度错误:');
   }
 });
 
-router.get('/', authMiddleware, async (req: AuthRequest, res) => {
+router.get('/', authMiddleware, requireFamilyAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
-
     const pagination = parsePagination(req);
     if (pagination) {
       const [budgets, total] = await Promise.all([
@@ -125,17 +179,14 @@ router.post('/', authMiddleware, requireFamilyWriteAccess, async (req: AuthReque
   try {
     const familyId = req.params.familyId as string;
     const data = budgetSchema.parse(req.body);
-
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
+    const family = await loadFamilySettings(familyId);
 
     const budget = await prisma.budget.create({
       data: {
         familyId,
         category: data.category,
         amount: data.amount,
+        currency: data.currency ?? family.baseCurrency,
         period: data.period,
         startDate: new Date(data.startDate),
         endDate: data.endDate ? new Date(data.endDate) : null,
@@ -159,21 +210,18 @@ router.put('/:id', authMiddleware, requireFamilyWriteAccess, async (req: AuthReq
     const id = req.params.id as string;
     const data = budgetSchema.parse(req.body);
 
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership || membership.role === 'viewer') {
-      return res.status(403).json({ error: '无权修改该数据' });
-    }
-
     const budget = await prisma.budget.findUnique({ where: { id } });
     if (!budget || budget.familyId !== familyId) {
       return res.status(404).json({ error: '记录不存在' });
     }
 
+    const family = await loadFamilySettings(familyId);
     const updated = await prisma.budget.update({
       where: { id },
       data: {
         category: data.category,
         amount: data.amount,
+        currency: data.currency ?? budget.currency ?? family.baseCurrency,
         period: data.period,
         startDate: new Date(data.startDate),
         endDate: data.endDate ? new Date(data.endDate) : null,
@@ -194,11 +242,6 @@ router.delete('/:id', authMiddleware, requireFamilyWriteAccess, async (req: Auth
   try {
     const familyId = req.params.familyId as string;
     const id = req.params.id as string;
-
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership || membership.role === 'viewer') {
-      return res.status(403).json({ error: '无权删除该数据' });
-    }
 
     const budget = await prisma.budget.findUnique({ where: { id } });
     if (!budget || budget.familyId !== familyId) {

@@ -5,6 +5,9 @@ import budgetRoutes from './budgets';
 
 jest.mock('../db/prisma', () => ({
   prisma: {
+    family: {
+      findUnique: jest.fn(),
+    },
     familyMember: {
       findUnique: jest.fn(),
     },
@@ -17,6 +20,7 @@ jest.mock('../db/prisma', () => ({
     },
     expense: {
       findMany: jest.fn(),
+      groupBy: jest.fn(),
     },
   },
 }));
@@ -49,12 +53,18 @@ describe('Budget Routes', () => {
       userId: 'user_1',
       role: 'admin',
     });
+    mockedPrisma.family.findUnique.mockResolvedValue({
+      id: 'fam_1',
+      timezone: 'Asia/Shanghai',
+      baseCurrency: 'CNY',
+    });
     mockedPrisma.budget.findMany.mockResolvedValue([]);
     mockedPrisma.budget.findUnique.mockResolvedValue(null);
     mockedPrisma.budget.create.mockResolvedValue({});
     mockedPrisma.budget.update.mockResolvedValue({});
     mockedPrisma.budget.delete.mockResolvedValue({});
     mockedPrisma.expense.findMany.mockResolvedValue([]);
+    mockedPrisma.expense.groupBy.mockResolvedValue([]);
   });
 
   describe('POST /api/families/:familyId/budgets', () => {
@@ -268,9 +278,8 @@ describe('Budget Routes', () => {
         { id: 'b1', familyId: 'fam_1', category: '餐饮', amount: 5000, period: 'MONTHLY', startDate, endDate: null, createdBy: 'user_1', createdAt: new Date(), updatedAt: new Date() },
       ]);
       // Simulate 2000 spent on 餐饮 in current period
-      mockedPrisma.expense.findMany.mockResolvedValue([
-        { amount: 1500, category: '餐饮', date: new Date('2026-07-10') },
-        { amount: 500, category: '餐饮', date: new Date('2026-07-15') },
+      mockedPrisma.expense.groupBy.mockResolvedValue([
+        { currency: 'CNY', _sum: { amount: 2000 } },
       ]);
 
       const res = await request(app)
@@ -290,8 +299,8 @@ describe('Budget Routes', () => {
       mockedPrisma.budget.findMany.mockResolvedValue([
         { id: 'b1', familyId: 'fam_1', category: '餐饮', amount: 5000, period: 'MONTHLY', startDate, endDate: new Date('2026-07-31'), createdBy: 'user_1', createdAt: new Date(), updatedAt: new Date() },
       ]);
-      mockedPrisma.expense.findMany.mockResolvedValue([
-        { amount: 1000, category: '餐饮', date: new Date('2026-07-15') },
+      mockedPrisma.expense.groupBy.mockResolvedValue([
+        { currency: 'CNY', _sum: { amount: 1000 } },
       ]);
 
       const res = await request(app)
@@ -300,8 +309,9 @@ describe('Budget Routes', () => {
 
       expect(res.status).toBe(200);
       // Verify expense query was filtered by category and date range
-      expect(mockedPrisma.expense.findMany).toHaveBeenCalledWith(
+      expect(mockedPrisma.expense.groupBy).toHaveBeenCalledWith(
         expect.objectContaining({
+          by: ['currency'],
           where: expect.objectContaining({
             familyId: 'fam_1',
             category: '餐饮',

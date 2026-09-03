@@ -199,6 +199,7 @@ model Budget {
   family    Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
   category  String
   amount    Decimal   @db.Decimal(15, 2)
+  currency  String    @default("CNY")
   period    String    @default("MONTHLY")
   startDate DateTime
   endDate   DateTime?
