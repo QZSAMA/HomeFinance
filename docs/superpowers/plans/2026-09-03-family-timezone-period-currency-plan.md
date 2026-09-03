@@ -50,7 +50,7 @@
 - Produces `DEFAULT_FAMILY_TIMEZONE`, `normalizeFamilyTimezone(value: unknown): string`, `isSupportedFamilyTimezone(value: unknown): boolean`。
 - `normalizeFamilyTimezone` 仅对字段省略（`undefined`）使用默认值；显式 `null` 或空字符串无效。对 `UTC` 和可被 `Intl.DateTimeFormat` 解析的 IANA 值返回规范标识；其他输入抛 `DomainError('INVALID_TIMEZONE', 'Invalid IANA timezone.', 400)`。
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { DomainError } from './ledgerErrors';
@@ -81,13 +81,13 @@ test('does not depend on the process local timezone', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend; npm test -- --runInBand src/services/timezoneService.test.ts`
 
 Expected: FAIL because `timezoneService.ts` and the new error codes do not exist.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Add the new codes to `DomainErrorCode`, then implement the value object without a third-party date dependency:
 
@@ -115,13 +115,13 @@ export const isSupportedFamilyTimezone = (value: unknown): boolean => {
 };
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend; npm test -- --runInBand src/services/timezoneService.test.ts`
 
 Expected: PASS with all timezone cases green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/services/timezoneService.ts backend/src/services/timezoneService.test.ts backend/src/services/ledgerErrors.ts
@@ -142,7 +142,7 @@ git commit -m "feat: add family timezone value object"
 - GET list/detail return scalar `timezone`.
 - PUT returns HTTP 409 `{ error, code: 'FAMILY_TIMEZONE_IMMUTABLE' }` whenever the request owns a `timezone` property, before any update call.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add characterization tests before production changes:
 
@@ -172,13 +172,13 @@ test('rejects an attempted timezone update with zero side effects', async () => 
 
 The integration test creates a disposable family, confirms the migration default, executes `UPDATE "Family" SET timezone = 'UTC'`, and asserts PostgreSQL rejects it without changing the row.
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend; npm test -- --runInBand src/routes/families.test.ts src/tests/familyTimezone.integration.test.ts`
 
 Expected: mocked POST does not pass `timezone`, PUT silently strips the field, and the integration test cannot find the column/trigger.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Add the Prisma field and an additive migration:
 
@@ -200,13 +200,13 @@ CREATE TRIGGER "Family_timezone_immutable"
 
 In `families.ts`, normalize the POST value and check `Object.prototype.hasOwnProperty.call(req.body, 'timezone')` before PUT schema parsing. Preserve the existing `{ error }` field and add `code`; map `INVALID_TIMEZONE` to 400 and immutable attempts to 409. Keep creation open to any authenticated user, with the creator as the first admin.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend; npx prisma validate; npx prisma format --check; npm test -- --runInBand src/routes/families.test.ts src/tests/familyTimezone.integration.test.ts`
 
 Expected: focused mocks PASS; integration PASS when `RUN_INTEGRATION=1` and PostgreSQL is available, otherwise record BLOCKED without claiming real evidence.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/prisma/schema.prisma backend/prisma/migrations backend/src/routes/families.ts backend/src/routes/families.test.ts backend/src/tests/familyTimezone.integration.test.ts
@@ -242,7 +242,7 @@ export interface PeriodWindow {
 export const resolvePeriodWindow: (input: PeriodWindowInput) => PeriodWindow;
 ```
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 test('resolves a Shanghai month to a UTC half-open window', () => {
@@ -268,13 +268,13 @@ test('rejects an invalid date and keeps end exclusive', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend; npm test -- --runInBand src/services/periodWindowService.test.ts`
 
 Expected: FAIL because the service and `INVALID_PERIOD_WINDOW` do not exist.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Implement strict `YYYY-MM-DD` parsing, local calendar arithmetic for month/quarter/year, and a single `Intl.DateTimeFormat` adapter for local-midnight → UTC conversion. The adapter must choose the earlier valid instant for an ambiguous midnight and the first valid instant after a DST gap; it must never read `process.env.TZ` or call `new Date('YYYY-MM-DD')`:
 
@@ -299,13 +299,13 @@ if (endLocalExclusive <= startLocal) {
 
 `formatter`, `partsToPlainDateTime`, `plainDateTimeAsUtc`, `sameLocalMidnight` and `firstValidInstantAfterGap` are private helpers in this file; all exported results use the `PeriodWindow` interface above.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend; npm test -- --runInBand src/services/periodWindowService.test.ts`
 
 Expected: PASS for month, quarter, year, leap-year, Shanghai and DST cases.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/services/periodWindowService.ts backend/src/services/periodWindowService.test.ts backend/src/services/ledgerErrors.ts
