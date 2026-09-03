@@ -42,6 +42,8 @@ export interface BalanceSheetResponse {
   liabilityTotalsByCurrency?: Record<string, number>;
   conversionStatus?: ConversionStatus;
   reconciliationStatus?: ReconciliationStatus;
+  valuationAsOf?: string;
+  valuationRuleVersion?: string;
   assetsByCurrency?: Record<string, Record<string, number>>;
   liabilitiesByCurrency?: Record<string, Record<string, number>>;
 }
@@ -108,8 +110,12 @@ export interface SummaryResponse {
   window?: PeriodWindow;
   conversionStatus?: ConversionStatus;
   reconciliationStatus?: ReconciliationStatus;
+  valuationAsOf?: string;
+  valuationRuleVersion?: string;
   totalsByCurrency?: Record<string, number>;
   liabilityTotalsByCurrency?: Record<string, number>;
+  incomeTotalsByCurrency?: Record<string, number>;
+  expenseTotalsByCurrency?: Record<string, number>;
 }
 
 export const getBalanceSheet = async (familyId: string): Promise<BalanceSheetResponse> => {

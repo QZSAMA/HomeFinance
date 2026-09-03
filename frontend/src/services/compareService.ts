@@ -1,5 +1,5 @@
 import api from './api';
-import type { ConversionStatus, PeriodWindow } from './reportService';
+import type { ConversionStatus, PeriodWindow, ReconciliationStatus } from './reportService';
 
 export interface FamilyCompareItem {
   familyId: string;
@@ -14,6 +14,9 @@ export interface FamilyCompareItem {
   thisMonthIncomeByCurrency?: Record<string, number>;
   thisMonthExpenseByCurrency?: Record<string, number>;
   conversionStatus: ConversionStatus;
+  reconciliationStatus?: ReconciliationStatus;
+  valuationAsOf?: string;
+  valuationRuleVersion?: string;
   window: PeriodWindow;
   timezone: string;
   baseCurrency: string;
