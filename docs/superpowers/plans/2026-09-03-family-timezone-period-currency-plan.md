@@ -417,7 +417,7 @@ git commit -m "feat: add conservative currency and reconciliation services"
 - `GET /reports/income-statement` and `/cash-flow` accept date-only `startDate` and `endDate`; the UI’s selected end day is converted to the next local date before request, so backend `endDate` is exclusive.
 - Balance sheet and dashboard include current `valuationAsOf`, `valuationRuleVersion`, currency summary and reconciliation status.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add a route fixture with a transaction exactly at the next local midnight and assert it is excluded; add CNY + USD assets and assert `totalAssets`/`netWorth` are `null` with `conversionStatus=unavailable`; add a cash-flow fixture covering all four classes and assert reconciliation.
 
@@ -428,13 +428,13 @@ expect(response.body.totalsByCurrency).toEqual({ CNY: 100, USD: 20 });
 expect(response.body.reconciliationStatus).toBe('passed');
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend; npm test -- --runInBand src/routes/reports.test.ts src/tests/reports.periodCurrency.integration.test.ts`
 
 Expected: FAIL because current code uses server-local dates, `lte`, and direct cross-currency reduction.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Replace route-local date construction with `resolvePeriodWindow`; use `gte/lt`; aggregate each entity by currency; compute category/net values per currency; attach `window`, `timezone`, `baseCurrency`, summaries and `reconciliationStatus`:
 
@@ -460,13 +460,13 @@ Preserve raw transaction lists and legacy scalar fields only when exact; otherwi
 
 `serializeReport` and `reconcilePerCurrency` are the private response adapters in `reports.ts`; `reconcilePerCurrency` is the pure helper exported by Task 4 and `serializeReport` maps its per-currency result to the existing endpoint field names without summing currencies.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend; npm test -- --runInBand src/routes/reports.test.ts src/tests/reports.periodCurrency.integration.test.ts`
 
 Expected: focused route tests PASS; run `npm run build` before commit.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/routes/reports.ts backend/src/routes/reports.test.ts backend/src/tests/reports.periodCurrency.integration.test.ts
