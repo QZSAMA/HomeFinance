@@ -40,7 +40,15 @@ jobs:
 
       - name: Run Playwright E2E suite
         working-directory: frontend
+        env:
+          E2E_KEEP_STACK: '1'
         run: npm run test:e2e
+
+      - name: Dump Compose diagnostics on failure
+        if: failure()
+        run: |
+          docker compose -p homefinance-e2e -f docker-compose.e2e.yml ps || true
+          docker compose -p homefinance-e2e -f docker-compose.e2e.yml logs --no-color frontend backend || true
 
       - name: Upload Playwright artifacts on failure
         if: failure()
@@ -52,3 +60,7 @@ jobs:
             frontend/test-results
           if-no-files-found: ignore
           retention-days: 14
+
+      - name: Tear down E2E stack
+        if: always()
+        run: docker compose -p homefinance-e2e -f docker-compose.e2e.yml down --volumes --remove-orphans
