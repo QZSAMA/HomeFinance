@@ -1,17 +1,31 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getFamilies } from '../services/familyService';
-import { useFamilyStore } from '../store/useFamilyStore';
+import {
+  getPersistedCurrentFamilyId,
+  useFamilyStore,
+} from '../store/useFamilyStore';
 
 const FamilySelector = () => {
   const [loading, setLoading] = useState(true);
   const { currentFamily, setCurrentFamily, families, setFamilies } = useFamilyStore();
+  const mountedRef = useRef(true);
 
   const loadFamilies = useCallback(async () => {
     try {
       const data = await getFamilies();
+      if (!mountedRef.current) return;
       setFamilies(data);
-      if (data.length > 0 && !useFamilyStore.getState().currentFamily) {
+      const live = useFamilyStore.getState().currentFamily;
+      const persistedId = getPersistedCurrentFamilyId();
+      const preferred = data.find((item) => item.id === persistedId)
+        ?? (live ? data.find((item) => item.id === live.id) : undefined);
+
+      if (preferred) {
+        if (live?.id !== preferred.id || live !== preferred) setCurrentFamily(preferred);
+      } else if (data.length > 0) {
         setCurrentFamily(data[0]);
+      } else {
+        setCurrentFamily(null);
       }
     } catch (err) {
       console.error('加载家庭列表失败:', err);
@@ -21,7 +35,11 @@ const FamilySelector = () => {
   }, [setCurrentFamily, setFamilies]);
 
   useEffect(() => {
+    mountedRef.current = true;
     void loadFamilies();
+    return () => {
+      mountedRef.current = false;
+    };
   }, [loadFamilies]);
 
   if (loading) {

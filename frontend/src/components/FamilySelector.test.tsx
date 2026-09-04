@@ -1,4 +1,4 @@
-import { act, render, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import FamilySelector from './FamilySelector';
 import * as familyService from '../services/familyService';
@@ -20,6 +20,18 @@ const family = {
 const secondFamily = { ...family, id: 'family-2', name: '第二个家庭' };
 const getFamiliesMock = vi.mocked(familyService.getFamilies);
 
+function createStorage(): Storage {
+  const values = new Map<string, string>();
+  return {
+    get length() { return values.size; },
+    clear: () => values.clear(),
+    getItem: (key) => values.get(key) ?? null,
+    key: (index) => Array.from(values.keys())[index] ?? null,
+    removeItem: (key) => { values.delete(key); },
+    setItem: (key, value) => { values.set(key, value); },
+  } as Storage;
+}
+
 function deferred<T>() {
   let resolve!: (value: T) => void;
   const promise = new Promise<T>((resolvePromise) => {
@@ -30,12 +42,14 @@ function deferred<T>() {
 
 describe('FamilySelector loading', () => {
   beforeEach(() => {
+    vi.stubGlobal('localStorage', createStorage());
     useFamilyStore.setState({ currentFamily: null, families: [] });
     getFamiliesMock.mockReset();
   });
 
   afterEach(() => {
     vi.clearAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it('loads families once and selects the first family when none is selected', async () => {
@@ -64,5 +78,26 @@ describe('FamilySelector loading', () => {
     });
 
     expect(useFamilyStore.getState().currentFamily?.id).toBe(secondFamily.id);
+  });
+
+  it('restores the persisted family after a full store reset', async () => {
+    getFamiliesMock.mockResolvedValue([family, secondFamily]);
+    act(() => useFamilyStore.getState().setCurrentFamily(secondFamily));
+    useFamilyStore.setState({ currentFamily: null, families: [] });
+
+    render(<FamilySelector />);
+
+    await waitFor(() => expect(useFamilyStore.getState().currentFamily?.id).toBe(secondFamily.id));
+    expect(screen.getByRole('combobox')).toHaveValue(secondFamily.id);
+  });
+
+  it('falls back to the first authorized family when the persisted id is absent', async () => {
+    getFamiliesMock.mockResolvedValue([family, secondFamily]);
+    localStorage.setItem('homefinance.currentFamilyId', 'revoked-family');
+
+    render(<FamilySelector />);
+
+    await waitFor(() => expect(useFamilyStore.getState().currentFamily?.id).toBe(family.id));
+    expect(localStorage.getItem('homefinance.currentFamilyId')).toBe(family.id);
   });
 });

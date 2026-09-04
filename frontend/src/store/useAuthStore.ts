@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { User } from '../types';
 import { login as loginApi, register as registerApi, logout as logoutApi } from '../services/authService';
+import { useFamilyStore } from './useFamilyStore';
 
 interface AuthStore {
   user: User | null;
@@ -58,6 +59,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     } finally {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      useFamilyStore.getState().setCurrentFamily(null);
       set({ user: null, token: null, isAuthenticated: false, isLoading: false });
     }
   },
