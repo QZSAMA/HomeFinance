@@ -154,7 +154,7 @@ test.describe.serial('P1-G-04 critical browser journeys', () => {
     await adminPage.goto('/families');
     await adminPage.getByRole('heading', { name: familyBName, exact: true }).click();
     await adminPage.getByRole('button', { name: '+ 邀请成员', exact: true }).click();
-    const inviteDialog = adminPage.locator('div.fixed.inset-0').last();
+    const inviteDialog = adminPage.getByRole('heading', { name: '邀请成员', exact: true }).locator('..');
     await inviteDialog.locator('input[type="email"]').fill(viewer.email);
     await inviteDialog.locator('select').selectOption('viewer');
     await inviteDialog.getByRole('button', { name: '邀请', exact: true }).click();
