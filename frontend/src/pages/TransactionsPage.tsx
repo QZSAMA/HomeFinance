@@ -116,6 +116,7 @@ const TransactionsPage = () => {
           });
           setIncomes(incomes.map((item) => (item.id === editingId ? updatedIncome : item)));
           setShowEditModal(false);
+          setEditingId(null);
         } else {
           const newIncome = await createIncome(currentFamily.id, {
             amount,
@@ -138,6 +139,7 @@ const TransactionsPage = () => {
           });
           setExpenses(expenses.map((item) => (item.id === editingId ? updatedExpense : item)));
           setShowEditModal(false);
+          setEditingId(null);
         } else {
           const newExpense = await createExpense(currentFamily.id, {
             amount,
@@ -259,6 +261,7 @@ const TransactionsPage = () => {
           <button
             onClick={() => {
               resetForm();
+              setEditingId(null);
               setShowAddModal(true);
             }}
             className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
@@ -493,6 +496,7 @@ const TransactionsPage = () => {
                   onClick={() => {
                     setShowAddModal(false);
                     setShowEditModal(false);
+                    setEditingId(null);
                     resetForm();
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
