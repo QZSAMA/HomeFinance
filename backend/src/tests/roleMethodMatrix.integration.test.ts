@@ -14,6 +14,13 @@ import incomeRoutes from '../routes/incomes';
 import importRoutes from '../routes/import';
 import liabilityRoutes from '../routes/liabilities';
 import recurringRoutes from '../routes/recurring';
+import { deleteFile } from '../config/minio';
+
+jest.mock('../config/minio', () => ({
+  uploadFileBuffer: jest.fn(),
+  getFileUrl: jest.fn(),
+  deleteFile: jest.fn().mockResolvedValue(undefined),
+}));
 
 const prisma = new PrismaClient();
 const runId = randomUUID();
@@ -393,6 +400,7 @@ describe('Phase 1 real PostgreSQL role x method matrix', () => {
       .delete(`/api/families/${familyId}/files/${file.id}`)
       .set('Authorization', `Bearer ${tokens.admin}`);
     expect(fileDeleted.status).toBe(200);
+    expect(deleteFile).toHaveBeenCalledWith(file.path);
   });
 
   test('restricts family administration to admins and preserves the final administrator', async () => {
