@@ -9,8 +9,12 @@ import {
   LEGACY_MIGRATIONS,
   assertDatabaseName,
   assertMigrationInventory,
+  buildPgCommand,
+  buildPrismaEnvironment,
+  buildRestoreCommands,
+  createLegacyPrismaDirectory,
 } from './lib/database.mjs';
-import { canonicalize, compareManifest } from './lib/manifest.mjs';
+import { CURRENT_TABLES, canonicalize, compareManifest } from './lib/manifest.mjs';
 import { redact, runChecked } from './lib/process.mjs';
 
 const rehearsalRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -111,4 +115,80 @@ test('legacy fixture contains two isolated populated families and no real identi
     assert.match(sql, new RegExp(`INSERT INTO "${table}"`));
   }
   assert.doesNotMatch(sql, /@(gmail|qq|163|outlook)\./i);
+});
+
+test('database commands remain inside the fixed postgres service and allow-list', () => {
+  assert.deepEqual(
+    buildPgCommand('homefinance_rehearsal_app', ['psql', '-Atc', 'SELECT 1']),
+    [
+      'compose',
+      '-p',
+      'homefinance-release-rehearsal',
+      '-f',
+      'docker-compose.release-rehearsal.yml',
+      'exec',
+      '-T',
+      'postgres',
+      'psql',
+      '-U',
+      'postgres',
+      '-d',
+      'homefinance_rehearsal_app',
+      '-Atc',
+      'SELECT 1',
+    ],
+  );
+  assert.throws(() => buildPgCommand('production', ['psql']), /refusing database name/);
+});
+
+test('Prisma URL is fixed to loopback rehearsal PostgreSQL', () => {
+  const env = buildPrismaEnvironment('homefinance_rehearsal_app');
+  assert.equal(
+    env.DATABASE_URL,
+    'postgresql://postgres:rehearsal-postgres-password@127.0.0.1:55433/homefinance_rehearsal_app?schema=public',
+  );
+});
+
+test('restore replaces only the app database through the control database', () => {
+  const commands = buildRestoreCommands('homefinance_rehearsal_app', 'current.dump');
+  assert.deepEqual(
+    commands.map((entry) => entry.database),
+    [
+      'homefinance_rehearsal_control',
+      'homefinance_rehearsal_control',
+      'homefinance_rehearsal_control',
+      'homefinance_rehearsal_app',
+    ],
+  );
+  assert.match(commands[0].sql, /pg_terminate_backend/);
+  assert.match(commands[1].sql, /DROP DATABASE "homefinance_rehearsal_app"/);
+  assert.match(commands[2].sql, /CREATE DATABASE "homefinance_rehearsal_app"/);
+  assert.equal(commands[3].args.at(-1), '/rehearsal/current.dump');
+});
+
+test('legacy Prisma cut is materialized below OS temp and cleans up idempotently', () => {
+  const legacyPrisma = createLegacyPrismaDirectory();
+  try {
+    assert.equal(readFileSync(legacyPrisma.schemaPath, 'utf8').includes('generator client'), true);
+    for (const migration of LEGACY_MIGRATIONS) {
+      assert.equal(
+        readFileSync(
+          resolve(dirname(legacyPrisma.schemaPath), 'migrations', migration, 'migration.sql'),
+          'utf8',
+        ).length > 0,
+        true,
+      );
+    }
+  } finally {
+    legacyPrisma.cleanup();
+    legacyPrisma.cleanup();
+  }
+});
+
+test('current manifest counts every Prisma model', () => {
+  const schema = readFileSync(resolve(rehearsalRoot, 'backend/prisma/schema.prisma'), 'utf8');
+  const models = [...schema.matchAll(/^model\s+(\w+)\s+\{([\s\S]*?)^\}/gm)]
+    .map((match) => match[2].match(/@@map\("([^"]+)"\)/)?.[1] ?? match[1])
+    .sort();
+  assert.deepEqual([...CURRENT_TABLES].sort(), models);
 });
