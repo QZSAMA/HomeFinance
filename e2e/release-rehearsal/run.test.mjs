@@ -278,3 +278,34 @@ test('runner discovery prints exactly nine checkpoints without Docker access', (
     'idempotent-migrate-and-final-cleanup',
   ]);
 });
+
+test('workflow is read-only, bounded, and tears down unconditionally', () => {
+  const yaml = readFileSync(resolve(rehearsalRoot, '.github/workflows/release-rehearsal.yml'), 'utf8');
+  for (const clause of [
+    'contents: read',
+    'timeout-minutes: 30',
+    'actions/checkout@v5',
+    'actions/setup-node@v5',
+    'if: always()',
+    'down --volumes --remove-orphans',
+  ]) {
+    assert.match(yaml, new RegExp(clause.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')));
+  }
+  assert.doesNotMatch(yaml, /push:\s*\n\s*tags:/);
+  assert.doesNotMatch(yaml, /secrets\.|environment:\s*staging|docker login|gh release/i);
+});
+
+test('staging runbook preserves external blocker and observation contract', () => {
+  const text = readFileSync(resolve(rehearsalRoot, 'docs/runbooks/staging-release-and-recovery.md'), 'utf8');
+  for (const phrase of [
+    'GitHub Environment `staging`',
+    'immutable image digest',
+    '30 one-minute samples',
+    'previous image digest',
+    'fresh database',
+    'forward fix',
+    'P1-H-03 remains `BLOCKED`',
+  ]) {
+    assert.match(text, new RegExp(phrase.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')));
+  }
+});
