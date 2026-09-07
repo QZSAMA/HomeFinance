@@ -152,7 +152,7 @@ test.describe.serial('P1-G-04 critical browser journeys', () => {
 
   test('viewer mutation is denied and leaves the ledger unchanged', async () => {
     await adminPage.goto('/families');
-    await adminPage.getByText(familyBName, { exact: true }).click();
+    await adminPage.getByRole('heading', { name: familyBName, exact: true }).click();
     await adminPage.getByRole('button', { name: '+ 邀请成员', exact: true }).click();
     const inviteDialog = adminPage.locator('div.fixed.inset-0').last();
     await inviteDialog.locator('input[type="email"]').fill(viewer.email);
