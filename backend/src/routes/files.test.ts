@@ -10,7 +10,7 @@ jest.mock('../db/prisma', () => ({
     },
     file: {
       findMany: jest.fn(),
-      findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
       delete: jest.fn(),
     },
@@ -29,8 +29,12 @@ jest.mock('../utils/phash', () => ({
 }));
 
 import { prisma } from '../db/prisma';
+import { deleteFile, getFileUrl, uploadFileBuffer } from '../config/minio';
 
 const mockedPrisma = prisma as any;
+const mockedUploadFileBuffer = uploadFileBuffer as jest.MockedFunction<typeof uploadFileBuffer>;
+const mockedGetFileUrl = getFileUrl as jest.MockedFunction<typeof getFileUrl>;
+const mockedDeleteFile = deleteFile as jest.MockedFunction<typeof deleteFile>;
 
 const app = express();
 app.use(express.json());
@@ -51,11 +55,15 @@ describe('File Routes', () => {
       familyId: 'fam_1',
       userId: 'user_1',
       role: 'admin',
+      family: { cacheVersion: 0 },
     });
     mockedPrisma.file.findMany.mockResolvedValue([]);
-    mockedPrisma.file.findUnique.mockResolvedValue(null);
+    mockedPrisma.file.findFirst.mockResolvedValue(null);
     mockedPrisma.file.create.mockResolvedValue({});
     mockedPrisma.file.delete.mockResolvedValue({});
+    mockedUploadFileBuffer.mockResolvedValue('test-path');
+    mockedGetFileUrl.mockResolvedValue('http://localhost:9000/test-url');
+    mockedDeleteFile.mockResolvedValue(undefined);
   });
 
   describe('GET /api/families/:familyId/files', () => {
@@ -82,6 +90,25 @@ describe('File Routes', () => {
         .set('Authorization', `Bearer ${createToken()}`);
 
       expect(res.status).toBe(403);
+    });
+
+    test('authorizes list before file metadata or URL signing', async () => {
+      mockedPrisma.familyMember.findUnique.mockResolvedValue(null);
+
+      const res = await request(app)
+        .get('/api/families/fam_1/files')
+        .set('Authorization', `Bearer ${createToken()}`);
+
+      expect(res.status).toBe(403);
+      expect(mockedPrisma.file.findMany).not.toHaveBeenCalled();
+      expect(mockedGetFileUrl).not.toHaveBeenCalled();
+    });
+
+    test('returns 401 before membership lookup when unauthenticated', async () => {
+      const res = await request(app).get('/api/families/fam_1/files');
+
+      expect(res.status).toBe(401);
+      expect(mockedPrisma.familyMember.findUnique).not.toHaveBeenCalled();
     });
   });
 
@@ -116,11 +143,51 @@ describe('File Routes', () => {
       expect(res.status).toBe(400);
       expect(res.body.error).toBe('没有上传文件');
     });
+
+    test('authorizes upload before object or file-row work', async () => {
+      mockedPrisma.familyMember.findUnique.mockResolvedValue(null);
+
+      const res = await request(app)
+        .post('/api/families/fam_1/files/upload')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .attach('files', Buffer.from('blocked'), 'blocked.txt');
+
+      expect(res.status).toBe(403);
+      expect(mockedUploadFileBuffer).not.toHaveBeenCalled();
+      expect(mockedPrisma.file.create).not.toHaveBeenCalled();
+    });
+
+    test('returns retryable 503 when object upload fails', async () => {
+      mockedUploadFileBuffer.mockRejectedValueOnce(new Error('MinIO unavailable'));
+
+      const res = await request(app)
+        .post('/api/families/fam_1/files/upload')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .attach('files', Buffer.from('not stored'), 'failed.txt');
+
+      expect(res.status).toBe(503);
+      expect(res.body.code).toBe('STORAGE_UNAVAILABLE');
+      expect(res.body.files).toBeUndefined();
+      expect(mockedPrisma.file.create).not.toHaveBeenCalled();
+    });
+
+    test('compensates the object when database create fails', async () => {
+      mockedPrisma.file.create.mockRejectedValueOnce(new Error('database unavailable'));
+
+      const res = await request(app)
+        .post('/api/families/fam_1/files/upload')
+        .set('Authorization', `Bearer ${createToken()}`)
+        .attach('files', Buffer.from('uploaded first'), 'compensate.txt');
+
+      expect(res.status).toBe(500);
+      const objectName = mockedUploadFileBuffer.mock.calls[0][0];
+      expect(mockedDeleteFile).toHaveBeenCalledWith(objectName);
+    });
   });
 
   describe('DELETE /api/families/:familyId/files/:id', () => {
     test('deletes a file successfully', async () => {
-      mockedPrisma.file.findUnique.mockResolvedValue({
+      mockedPrisma.file.findFirst.mockResolvedValue({
         id: 'f1',
         name: 'test.txt',
         path: 'fam_1/test.txt',
@@ -141,6 +208,7 @@ describe('File Routes', () => {
         familyId: 'fam_1',
         userId: 'user_1',
         role: 'viewer',
+        family: { cacheVersion: 0 },
       });
 
       const res = await request(app)
@@ -151,8 +219,21 @@ describe('File Routes', () => {
       expect(res.body.error).toBe('无权删除文件');
     });
 
+    test('authorizes delete before file-row or object work', async () => {
+      mockedPrisma.familyMember.findUnique.mockResolvedValue(null);
+
+      const res = await request(app)
+        .delete('/api/families/fam_1/files/f1')
+        .set('Authorization', `Bearer ${createToken()}`);
+
+      expect(res.status).toBe(403);
+      expect(mockedPrisma.file.findFirst).not.toHaveBeenCalled();
+      expect(mockedDeleteFile).not.toHaveBeenCalled();
+      expect(mockedPrisma.file.delete).not.toHaveBeenCalled();
+    });
+
     test('returns 404 when file not found', async () => {
-      mockedPrisma.file.findUnique.mockResolvedValue(null);
+      mockedPrisma.file.findFirst.mockResolvedValue(null);
 
       const res = await request(app)
         .delete('/api/families/fam_1/files/nonexistent')
@@ -160,6 +241,44 @@ describe('File Routes', () => {
 
       expect(res.status).toBe(404);
       expect(res.body.error).toBe('文件不存在');
+    });
+
+    test('returns retryable 503 and preserves the row when object delete fails', async () => {
+      mockedPrisma.file.findFirst.mockResolvedValue({
+        id: 'f1',
+        path: 'fam_1/test.txt',
+        familyId: 'fam_1',
+      });
+      mockedDeleteFile.mockRejectedValueOnce(new Error('MinIO unavailable'));
+
+      const res = await request(app)
+        .delete('/api/families/fam_1/files/f1')
+        .set('Authorization', `Bearer ${createToken()}`);
+
+      expect(res.status).toBe(503);
+      expect(res.body.code).toBe('STORAGE_UNAVAILABLE');
+      expect(mockedPrisma.file.delete).not.toHaveBeenCalled();
+    });
+
+    test('scopes file lookup by family and blocks cross-family object deletion', async () => {
+      mockedPrisma.familyMember.findUnique.mockResolvedValue({
+        familyId: 'fam_2',
+        userId: 'user_1',
+        role: 'admin',
+        family: { cacheVersion: 0 },
+      });
+      mockedPrisma.file.findFirst.mockResolvedValue(null);
+
+      const res = await request(app)
+        .delete('/api/families/fam_2/files/family-a-file')
+        .set('Authorization', `Bearer ${createToken()}`);
+
+      expect(res.status).toBe(404);
+      expect(mockedPrisma.file.findFirst).toHaveBeenCalledWith({
+        where: { id: 'family-a-file', familyId: 'fam_2' },
+      });
+      expect(mockedDeleteFile).not.toHaveBeenCalled();
+      expect(mockedPrisma.file.delete).not.toHaveBeenCalled();
     });
   });
 
@@ -192,6 +311,17 @@ describe('File Routes', () => {
       expect(res.body.duplicates).toHaveLength(1);
       expect(res.body.duplicates[0].file1).toBe('img1.jpg');
       expect(res.body.duplicates[0].file2).toBe('img2.jpg');
+    });
+
+    test('authorizes duplicate scan before file metadata access', async () => {
+      mockedPrisma.familyMember.findUnique.mockResolvedValue(null);
+
+      const res = await request(app)
+        .get('/api/families/fam_1/files/check-duplicates')
+        .set('Authorization', `Bearer ${createToken()}`);
+
+      expect(res.status).toBe(403);
+      expect(mockedPrisma.file.findMany).not.toHaveBeenCalled();
     });
   });
 });
