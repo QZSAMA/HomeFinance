@@ -77,7 +77,6 @@ export const REQUIRED_CURRENT_TABLES = Object.freeze([
 ]);
 
 export const REQUIRED_CURRENT_TRIGGERS = Object.freeze([
-  'AIProposal_bump_family_cache_version',
   'AiConversation_bump_family_cache_version',
   'Asset_bump_family_cache_version',
   'Budget_bump_family_cache_version',
@@ -106,6 +105,15 @@ export const REQUIRED_CURRENT_CONSTRAINTS = Object.freeze([
   'IdempotencyRecord_payloadHash_format_check',
   'Income_currency_check',
   'RecurringExecution_status_check',
+]);
+
+export const REQUIRED_CURRENT_INDEXES = Object.freeze([
+  'AIProposalItem_proposalId_ordinal_key',
+  'GoalContribution_allocation_key',
+  'GoalContribution_source_key',
+  'IdempotencyRecord_scope_key',
+  'ImportRow_batchId_rowNumber_key',
+  'RecurringExecution_occurrence_key',
 ]);
 
 export function canonicalize(value) {

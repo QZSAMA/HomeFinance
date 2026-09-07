@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { test } from 'node:test';
@@ -14,7 +15,15 @@ import {
   buildRestoreCommands,
   createLegacyPrismaDirectory,
 } from './lib/database.mjs';
-import { CURRENT_TABLES, canonicalize, compareManifest } from './lib/manifest.mjs';
+import {
+  CURRENT_TABLES,
+  REQUIRED_CURRENT_CONSTRAINTS,
+  REQUIRED_CURRENT_INDEXES,
+  REQUIRED_CURRENT_TABLES,
+  REQUIRED_CURRENT_TRIGGERS,
+  canonicalize,
+  compareManifest,
+} from './lib/manifest.mjs';
 import { assertIncomeStatement, requestApi } from './lib/api.mjs';
 import { redact, runChecked } from './lib/process.mjs';
 
@@ -194,6 +203,21 @@ test('current manifest counts every Prisma model', () => {
   assert.deepEqual([...CURRENT_TABLES].sort(), models);
 });
 
+test('required current database objects are source-backed by immutable migrations', () => {
+  const migrationSource = ALL_MIGRATIONS.map((migration) => readFileSync(
+    resolve(rehearsalRoot, 'backend/prisma/migrations', migration, 'migration.sql'),
+    'utf8',
+  )).join('\n');
+  for (const objectName of [
+    ...REQUIRED_CURRENT_TABLES,
+    ...REQUIRED_CURRENT_TRIGGERS,
+    ...REQUIRED_CURRENT_CONSTRAINTS,
+    ...REQUIRED_CURRENT_INDEXES,
+  ]) {
+    assert.equal(migrationSource.includes(`"${objectName}"`), true, `${objectName} is not migration-backed`);
+  }
+});
+
 test('API errors expose status/path but redact bearer tokens and bodies', async () => {
   const fakeFetch = async () => new Response(
     JSON.stringify({ token: 'secret-token' }),
@@ -233,4 +257,24 @@ test('income statement assertion requires the exact reconciliation identity', ()
     ),
     /netIncome/,
   );
+});
+
+test('runner discovery prints exactly nine checkpoints without Docker access', () => {
+  const result = spawnSync(process.execPath, ['e2e/release-rehearsal/run.mjs', '--list'], {
+    cwd: rehearsalRoot,
+    encoding: 'utf8',
+    env: { ...process.env, PATH: '' },
+  });
+  assert.equal(result.status, 0);
+  assert.deepEqual(result.stdout.trim().split(/\r?\n/), [
+    'migration-inventory-and-empty-target',
+    'legacy-schema-and-populated-fixture',
+    'pre-upgrade-backup-validated',
+    'populated-upgrade-preserves-legacy-facts',
+    'current-application-smoke-and-population',
+    'current-backup-validated',
+    'failed-release-restore',
+    'forward-recovery-from-pre-upgrade-backup',
+    'idempotent-migrate-and-final-cleanup',
+  ]);
 });
