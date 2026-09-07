@@ -15,6 +15,7 @@ import {
   createLegacyPrismaDirectory,
 } from './lib/database.mjs';
 import { CURRENT_TABLES, canonicalize, compareManifest } from './lib/manifest.mjs';
+import { assertIncomeStatement, requestApi } from './lib/api.mjs';
 import { redact, runChecked } from './lib/process.mjs';
 
 const rehearsalRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -191,4 +192,45 @@ test('current manifest counts every Prisma model', () => {
     .map((match) => match[2].match(/@@map\("([^"]+)"\)/)?.[1] ?? match[1])
     .sort();
   assert.deepEqual([...CURRENT_TABLES].sort(), models);
+});
+
+test('API errors expose status/path but redact bearer tokens and bodies', async () => {
+  const fakeFetch = async () => new Response(
+    JSON.stringify({ token: 'secret-token' }),
+    { status: 500 },
+  );
+  await assert.rejects(
+    requestApi('/fail', {
+      token: 'abc.def.ghi',
+      expectedStatus: 200,
+      fetchImpl: fakeFetch,
+    }),
+    (error) => error.message.includes('expected 200, received 500')
+      && !error.message.includes('abc.def.ghi')
+      && !error.message.includes('secret-token'),
+  );
+});
+
+test('income statement assertion requires the exact reconciliation identity', () => {
+  assert.doesNotThrow(() => assertIncomeStatement(
+    {
+      totalIncome: 120,
+      totalExpense: 113,
+      netIncome: 7,
+      reconciliationStatus: 'passed',
+    },
+    { income: 120, expense: 113, net: 7 },
+  ));
+  assert.throws(
+    () => assertIncomeStatement(
+      {
+        totalIncome: 120,
+        totalExpense: 113,
+        netIncome: 8,
+        reconciliationStatus: 'passed',
+      },
+      { income: 120, expense: 113, net: 7 },
+    ),
+    /netIncome/,
+  );
 });
