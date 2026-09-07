@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import {
   ALL_MIGRATIONS,
   ALLOWED_DATABASES,
@@ -9,6 +12,8 @@ import {
 } from './lib/database.mjs';
 import { canonicalize, compareManifest } from './lib/manifest.mjs';
 import { redact, runChecked } from './lib/process.mjs';
+
+const rehearsalRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 test('pins the legacy cut and complete migration inventory', () => {
   assert.deepEqual(LEGACY_MIGRATIONS, [
@@ -58,4 +63,52 @@ test('checked process failure reports redacted command and output', () => {
     () => runChecked(process.execPath, ['-e', "console.error('Bearer abc.def.ghi'); process.exit(7)"]),
     (error) => error.message.includes('exited 7') && !error.message.includes('abc.def.ghi'),
   );
+});
+
+test('compose is pinned, loopback-only, profiled, and disposable', () => {
+  const yaml = readFileSync(
+    resolve(rehearsalRoot, 'docker-compose.release-rehearsal.yml'),
+    'utf8',
+  );
+  for (const clause of [
+    'postgres:16-alpine',
+    'redis:7-alpine',
+    'minio/minio:RELEASE.2025-04-22T22-12-26Z',
+    '127.0.0.1:55433:5432',
+    '127.0.0.1:4180:8080',
+    'profiles: [application]',
+    'release_rehearsal_dumps:/rehearsal',
+  ]) {
+    assert.equal(yaml.includes(clause), true, `missing Compose clause: ${clause}`);
+  }
+  assert.doesNotMatch(yaml, /latest/);
+});
+
+test('legacy fixture contains two isolated populated families and no real identity', () => {
+  const sql = readFileSync(
+    resolve(rehearsalRoot, 'e2e/release-rehearsal/legacy-fixture.sql'),
+    'utf8',
+  );
+  for (const id of [
+    'legacy-family-a',
+    'legacy-family-b',
+    'legacy-admin-a',
+    'legacy-viewer-a',
+    'legacy-admin-b',
+  ]) {
+    assert.match(sql, new RegExp(id));
+  }
+  for (const table of [
+    'Income',
+    'Expense',
+    'Asset',
+    'Liability',
+    'Budget',
+    'RecurringTransaction',
+    'Goal',
+    'AiConversation',
+  ]) {
+    assert.match(sql, new RegExp(`INSERT INTO "${table}"`));
+  }
+  assert.doesNotMatch(sql, /@(gmail|qq|163|outlook)\./i);
 });
