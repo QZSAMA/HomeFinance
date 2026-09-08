@@ -1087,7 +1087,7 @@ Expected: clean worktree; no dump, backup, `.env`, browser artifact, bearer toke
 - Consumes: exact final SHA/run IDs/logs and same-SHA regression results.
 - Produces: durable `PASS-REAL (REHEARSAL)` evidence with P1-H-03 still `BLOCKED / AT_RISK`, P1-H-04 still open, and semantic Graphify refresh still pending.
 
-- [ ] **Step 1: Replace the P1-H-03 shell with exact observed evidence**
+- [x] **Step 1: Replace the P1-H-03 shell with exact observed evidence**
 
 Record:
 
@@ -1104,13 +1104,13 @@ Record:
 
 Set evidence to `PASS-REAL (REHEARSAL) + BLOCKED (STAGING)` and observed result to rehearsal-only.
 
-- [ ] **Step 2: Update tracker, memory, and audit conservatively**
+- [x] **Step 2: Update tracker, memory, and audit conservatively**
 
 Keep the P1-H-03 lifecycle state `BLOCKED` and health `AT_RISK`; update its next action to provision the protected `staging` GitHub Environment, immutable image digests, populated data, coordinated backup scope, and owner approvals. Keep P1-H-04 `BACKLOG`. Add the executable recovery facts to project memory and a dated audit addendum, but do not call the project production-ready.
 
 State that Graphify semantic refresh remains pending because the installed path is AST-only; do not change `graphify-out/`.
 
-- [ ] **Step 3: Cross-check status semantics and commit documentation**
+- [x] **Step 3: Cross-check status semantics and commit documentation**
 
 Run:
 
