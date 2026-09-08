@@ -283,6 +283,8 @@ HomeFinance 已经越过“概念 demo”阶段：它有真实数据模型、广
 
 2026-09-02 Phase 1 follow-up：P1-A-09 已在 `codex/phase1-ledger-trust` 完成普通 Liability CRUD 的事务化迁移。`03eb48b..62cabf7` 增加 additive `Liability.version` migration，将 GET/POST/PUT/DELETE 置于集中 family policy 与 Balance/coordinator 边界，并以本地 PostgreSQL 18.1 验证幂等 replay、20 路并发、版本 CAS、viewer/non-member 拒绝和事务回滚；默认后端 50 suites / 430 tests，coverage branches 60.01%，完整 integration 13 suites / 85 tests。该代码级风险不再保持“普通 Liability route 直接写入”状态，但 staging/release observation、Docker/Compose/Redis/MinIO、真实 Playwright、populated restore、估值/汇率语义和 Graphify semantic refresh 仍开放，因此项目仍不宜宣称生产就绪。
 
+2026-09-07 P1-G follow-up：P1-G-04 已以 Actions run `34075512188` 达到正常六服务 Compose/Chromium `PASS-E2E`；P1-G-05 随后在 `codex/p1-g05-infra-recovery@5332588`、Actions run `34091443392` 达到 disposable topology 的 `PASS-REAL`。该 run 在 Ubuntu 24.04.4 / Node 20.20.2 上验证 persisted stale Redis key、Redis outage 期间授权读写与 PostgreSQL `Family.cacheVersion` 新鲜度、无 backend restart 的 recovery MISS→HIT、真实 MinIO upload/list/stat/delete、outage 503 与 DB row 保留、unauthenticated/non-member/viewer/cross-family 对象隔离及恢复后的第二次生命周期；最后删除六容器、两个 disposable volume 和 network。Files route 的集中 policy、503 失败语义、family-scoped lookup 和 best-effort upload compensation 由 ADR-0008 记录。由此，基线中的“真实 Redis/MinIO recovery 和 file object isolation 未验证”风险已有测试环境实证，不再保持 `NOT_RUN`；但 production secrets/internal network、durable outbox/多文件原子性、populated restore、staging/release/rollback observation、高危依赖、历史估值/FX 和 semantic Graphify refresh 仍开放，因此不改变本报告“不适合直接公开生产”的结论。
+
 [1] QZSAMA. HomeFinance source code[CP/OL]. `b103e4221ae58d2cd09ee586d69f3cf90c79c146`, 2026-08-27.
 
 [2] HomeFinance. Family finance design specification[EB/OL]. `docs/superpowers/specs/2026-07-09-family-finance-design.md`, 2026-07-09.

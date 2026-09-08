@@ -3,7 +3,11 @@ import multer from 'multer';
 import path from 'path';
 import { prisma } from '../db/prisma';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
-import { createFamilyWriteAccess, requireFamilyWriteAccess } from '../middleware/familyAccess';
+import {
+  createFamilyWriteAccess,
+  requireFamilyAccess,
+  requireFamilyWriteAccess,
+} from '../middleware/familyAccess';
 import { uploadFileBuffer, getFileUrl, deleteFile } from '../config/minio';
 import { computePHash, isSimilarImage } from '../utils/phash';
 import { toNumber } from '../utils/decimal';
@@ -19,27 +23,17 @@ const upload = multer({
   },
 });
 
-const checkFamilyAccess = async (familyId: string, userId: string) => {
-  const membership = await prisma.familyMember.findUnique({
-    where: {
-      familyId_userId: {
-        familyId,
-        userId
-      }
-    }
-  });
-  return membership;
-};
-
 const IMAGE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg'];
 
-router.get('/', authMiddleware, async (req: AuthRequest, res) => {
+const sendStorageUnavailable = (res: any) => res.status(503).json({
+  error: '对象存储暂时不可用，请稍后重试',
+  code: 'STORAGE_UNAVAILABLE',
+});
+const requireFileWriteAccess = createFamilyWriteAccess('无权删除文件');
+
+router.get('/', authMiddleware, requireFamilyAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
 
     const pagination = parsePagination(req);
 
@@ -86,10 +80,6 @@ router.get('/', authMiddleware, async (req: AuthRequest, res) => {
 router.post('/upload', authMiddleware, requireFamilyWriteAccess, upload.array('files', 10), async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
 
     if (!req.files || (req.files as Express.Multer.File[]).length === 0) {
       return res.status(400).json({ error: '没有上传文件' });
@@ -136,21 +126,31 @@ router.post('/upload', authMiddleware, requireFamilyWriteAccess, upload.array('f
         });
       } catch (e) {
         console.error('Error uploading file to MinIO:', e);
-        continue;
+        return sendStorageUnavailable(res);
       }
 
-      const dbFile = await prisma.file.create({
-        data: {
-          name: file.originalname,
-          path: filename,
-          type: file.mimetype,
-          size: file.size,
-          mimeType: file.mimetype,
-          phash,
-          familyId,
-          userId: req.userId!
+      let dbFile;
+      try {
+        dbFile = await prisma.file.create({
+          data: {
+            name: file.originalname,
+            path: filename,
+            type: file.mimetype,
+            size: file.size,
+            mimeType: file.mimetype,
+            phash,
+            familyId,
+            userId: req.userId!
+          }
+        });
+      } catch (error) {
+        try {
+          await deleteFile(filename);
+        } catch (compensationError) {
+          console.error('Error compensating uploaded MinIO object:', compensationError);
         }
-      });
+        throw error;
+      }
 
       uploadedFiles.push(dbFile);
     }
@@ -167,18 +167,13 @@ router.post('/upload', authMiddleware, requireFamilyWriteAccess, upload.array('f
   }
 });
 
-router.delete('/:id', authMiddleware, createFamilyWriteAccess('无权删除文件'), async (req: AuthRequest, res) => {
+router.delete('/:id', authMiddleware, requireFileWriteAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
     const id = req.params.id as string;
 
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership || membership.role === 'viewer') {
-      return res.status(403).json({ error: '无权删除文件' });
-    }
-
-    const file = await prisma.file.findUnique({ where: { id } });
-    if (!file || file.familyId !== familyId) {
+    const file = await prisma.file.findFirst({ where: { id, familyId } });
+    if (!file) {
       return res.status(404).json({ error: '文件不存在' });
     }
 
@@ -186,6 +181,7 @@ router.delete('/:id', authMiddleware, createFamilyWriteAccess('无权删除文�
       await deleteFile(file.path);
     } catch (e) {
       console.error('Error deleting file from MinIO:', e);
+      return sendStorageUnavailable(res);
     }
 
     await prisma.file.delete({ where: { id } });
@@ -197,13 +193,9 @@ router.delete('/:id', authMiddleware, createFamilyWriteAccess('无权删除文�
   }
 });
 
-router.get('/check-duplicates', authMiddleware, async (req: AuthRequest, res) => {
+router.get('/check-duplicates', authMiddleware, requireFamilyAccess, async (req: AuthRequest, res) => {
   try {
     const familyId = req.params.familyId as string;
-    const membership = await checkFamilyAccess(familyId, req.userId!);
-    if (!membership) {
-      return res.status(403).json({ error: '无权访问该家庭' });
-    }
 
     const files = await prisma.file.findMany({
       where: {

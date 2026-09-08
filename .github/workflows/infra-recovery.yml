@@ -1,0 +1,45 @@
+name: Infrastructure Recovery
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: infra-recovery-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  compose-recovery:
+    name: Redis and MinIO recovery against Compose
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Start disposable Compose stack
+        run: docker compose -p homefinance-e2e -f docker-compose.e2e.yml up --build --detach --wait
+
+      - name: Run infrastructure recovery suite
+        env:
+          E2E_BASE_URL: http://127.0.0.1:4173/api
+        run: node e2e/infra-recovery/run.mjs
+
+      - name: Dump Compose diagnostics on failure
+        if: failure()
+        run: |
+          docker compose -p homefinance-e2e -f docker-compose.e2e.yml ps || true
+          docker compose -p homefinance-e2e -f docker-compose.e2e.yml logs --no-color backend redis minio || true
+
+      - name: Tear down recovery stack
+        if: always()
+        run: docker compose -p homefinance-e2e -f docker-compose.e2e.yml down --volumes --remove-orphans
