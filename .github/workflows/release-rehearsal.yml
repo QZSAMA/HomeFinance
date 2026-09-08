@@ -1,0 +1,41 @@
+name: Populated Release Rehearsal
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: release-rehearsal-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  populated-recovery:
+    name: Populated migration, backup, restore, and forward recovery
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - name: Install backend migration runtime
+        working-directory: backend
+        run: npm ci
+      - name: Verify rehearsal unit contracts
+        run: node --test e2e/release-rehearsal/run.test.mjs
+      - name: Run populated release rehearsal
+        run: node e2e/release-rehearsal/run.mjs
+      - name: Collect redacted Compose state on failure
+        if: failure()
+        run: docker compose -p homefinance-release-rehearsal -f docker-compose.release-rehearsal.yml --profile application ps || true
+      - name: Tear down rehearsal stack
+        if: always()
+        run: docker compose -p homefinance-release-rehearsal -f docker-compose.release-rehearsal.yml --profile application down --volumes --remove-orphans
