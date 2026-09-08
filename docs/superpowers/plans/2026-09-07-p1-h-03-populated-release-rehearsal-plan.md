@@ -1128,6 +1128,6 @@ git commit -m "docs: record P1-H-03 rehearsal evidence"
 git push origin codex/p1-h03-release-rehearsal
 ```
 
-- [ ] **Step 4: Wait for final documentation-head gates and stop at review**
+- [x] **Step 4: Wait for final documentation-head gates and stop at review**
 
-Wait for every PR check on the documentation head. Require the new rehearsal to repeat all nine checkpoints and cleanup; confirm branch/local/remote HEAD equality and clean status. Leave the PR Draft, do not merge or deploy, and report the remaining external staging prerequisites from the runbook.
+The documentation head `d7e21c01795393df37b7db13297132a75914bdeb` is equal across the local branch and `origin/codex/p1-h03-release-rehearsal`. PR #6 remains open and Draft. All reported PR checks passed: `Backend Integration Tests (Real DB)`, `Backend Tests`, `Frontend Build`, `Playwright against Compose`, `Populated migration, backup, restore, and forward recovery`, and `Redis and MinIO recovery against Compose`. Their workflow runs are CI `34199876323`, Browser E2E `34199876437`, Populated Release Rehearsal `34199876327`, and Infrastructure Recovery `34199876357`. The populated rehearsal repeated all nine checkpoints with `cleanup: true`; it recorded `pre-upgrade.dump` 33,009 bytes / SHA-256 `479997c86e47ecad857064b6d15480d3f7eadf97bc58b3d64741b66c3870c2f0` and `current.dump` 78,903 bytes / SHA-256 `21c9f96c86bbee640cdfd8e9d0d2224de61c74746749788ead8adc7db665f278`. Leave the PR Draft, do not merge or deploy, and report the remaining external staging prerequisites from the runbook.
