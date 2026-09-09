@@ -12,6 +12,7 @@ sha256sum -c "$BACKUP_DIR/SHA256SUMS"
 set -a
 . "$ENV_FILE"
 set +a
+RESTORE_BUCKET="${MINIO_BUCKET:-family-finance}"
 RUN_ID="restore-$(date -u +%Y%m%dT%H%M%SZ)"
 RESTORE_ROOT="$ROOT/restore/$RUN_ID"
 RESTORE_ENV="$RESTORE_ROOT/.env"
@@ -23,6 +24,7 @@ POSTGRES_VOLUME_NAME=homefinance-$RUN_ID-postgres-data
 REDIS_VOLUME_NAME=homefinance-$RUN_ID-redis-data
 MINIO_VOLUME_NAME=homefinance-$RUN_ID-minio-data
 POSTGRES_DB=homefinance_restore
+MINIO_BUCKET=$RESTORE_BUCKET
 EOF
 cleanup() {
   docker compose --env-file "$RESTORE_ENV" -f "$COMPOSE_FILE" down --volumes --remove-orphans || true
@@ -37,7 +39,7 @@ docker compose --env-file "$RESTORE_ENV" -f "$COMPOSE_FILE" up -d backend --wait
 docker compose --env-file "$RESTORE_ENV" -f "$COMPOSE_FILE" exec -T backend node -e "fetch('http://localhost:8080/api/health').then((r) => process.exit(r.ok ? 0 : 1))"
 docker compose --env-file "$RESTORE_ENV" -f "$COMPOSE_FILE" exec -T backend npx prisma migrate status
 docker run --rm --network "homefinance-$RUN_ID"_default \
-  -e MINIO_ROOT_USER -e MINIO_ROOT_PASSWORD -e MINIO_BUCKET \
+  -e MINIO_ROOT_USER -e MINIO_ROOT_PASSWORD -e MINIO_BUCKET="$RESTORE_BUCKET" \
   --entrypoint /bin/sh minio/mc:RELEASE.2025-05-21T01-59-54Z \
   -ec 'mc alias set rehearsal http://minio:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" && mc ls "rehearsal/$MINIO_BUCKET" >/dev/null'
 echo "disposable restore rehearsal completed: $RUN_ID"
