@@ -6,7 +6,7 @@ Date: 2026-09-09
 
 PR #7 commit `3272ada7fd0b057ac75f166c588405ac9fec0f46` passed its GitHub checks: backend tests, PostgreSQL integration tests, frontend build, Playwright against Compose, and Redis/MinIO recovery against Compose. The staging Environment exists in GitHub and requires review by `QZSAMA` before the `Deploy to staging` job can use its environment-scoped configuration.
 
-The follow-up staging configuration adds a digest-only three-image manifest (backend, frontend, deterministic mock-AI), an Environment-gated SSH deployment job, staged Compose activation with health and Prisma migration checks, workflow-side critical browser journeys, and failure diagnostics. Backup creates a PostgreSQL custom dump plus an archive of the named MinIO volume with checksums. Restore rehearsal verifies checksums and uses a separate Compose project and named volumes, never the active staging database.
+The follow-up configuration adds a digest-only three-image manifest (backend, frontend, deterministic mock-AI), an Environment-gated SSH deployment job, GitHub/VPS deployment serialization, staged candidate activation with health and Prisma migration checks, workflow-side critical browser journeys, and failure diagnostics. It advances the active manifest only after browser verification. A post-migration failure deliberately remains a forward-recovery incident rather than automatically starting an older application image. Staging disables public registration; the browser suite alone supplies an Environment-held registration key. Backup temporarily stops application writers and MinIO before creating the PostgreSQL custom dump plus named MinIO-volume archive with checksums. Restore rehearsal waits for isolated dependencies, then checks API health and Prisma migration state without touching the active staging database.
 
 Local static verification passed:
 
@@ -19,6 +19,15 @@ manifest schema PASS
 
 git diff --check
 PASS
+
+backend: npm test -- --runInBand src/routes/auth.test.ts
+PASS (11 tests)
+
+backend: npm run build
+PASS
+
+frontend: npm run lint && npm run build
+PASS (existing 870.23 kB chunk warning)
 ```
 
 ## Limits and remaining gates
