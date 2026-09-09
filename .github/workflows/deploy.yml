@@ -106,6 +106,7 @@ jobs:
           test -n "$STAGING_GHCR_TOKEN"
           test -n "$STAGING_E2E_REGISTRATION_KEY"
           test -n "$STAGING_URL"
+          test "${STAGING_URL#https://}" != "$STAGING_URL"
 
       - name: Deploy immutable manifest
         env:
