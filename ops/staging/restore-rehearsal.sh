@@ -31,8 +31,10 @@ cleanup() {
 trap cleanup EXIT
 docker volume create "homefinance-$RUN_ID-minio-data" >/dev/null
 docker run --rm -v "homefinance-$RUN_ID-minio-data:/target" -v "$BACKUP_DIR:/backup:ro" alpine:3.20.6 tar -C /target -xf /backup/minio-data.tar
-docker compose --env-file "$RESTORE_ENV" -f "$COMPOSE_FILE" up -d postgres redis minio
+docker compose --env-file "$RESTORE_ENV" -f "$COMPOSE_FILE" up -d --wait postgres redis minio
 docker compose --env-file "$RESTORE_ENV" -f "$COMPOSE_FILE" exec -T postgres pg_restore -U "$POSTGRES_USER" -d homefinance_restore < "$BACKUP_DIR/postgres.dump"
 docker compose --env-file "$RESTORE_ENV" -f "$COMPOSE_FILE" up -d backend --wait --wait-timeout 180
 docker compose --env-file "$RESTORE_ENV" -f "$COMPOSE_FILE" exec -T backend node -e "fetch('http://localhost:8080/api/health').then((r) => process.exit(r.ok ? 0 : 1))"
+docker compose --env-file "$RESTORE_ENV" -f "$COMPOSE_FILE" exec -T backend npx prisma migrate status
+tar -tf "$BACKUP_DIR/minio-data.tar" >/dev/null
 echo "disposable restore rehearsal completed: $RUN_ID"

@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'
 
+concurrency:
+  group: staging-deployment
+  cancel-in-progress: false
+
 jobs:
   build-and-push:
     name: Build and Push Docker Images
@@ -92,6 +96,7 @@ jobs:
           STAGING_SSH_PRIVATE_KEY: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
           STAGING_SSH_KNOWN_HOSTS: ${{ secrets.STAGING_SSH_KNOWN_HOSTS }}
           STAGING_GHCR_TOKEN: ${{ secrets.STAGING_GHCR_TOKEN }}
+          STAGING_E2E_REGISTRATION_KEY: ${{ secrets.STAGING_E2E_REGISTRATION_KEY }}
           STAGING_URL: ${{ vars.STAGING_URL }}
         run: |
           test -n "$STAGING_HOST"
@@ -99,6 +104,7 @@ jobs:
           test -n "$STAGING_SSH_PRIVATE_KEY"
           test -n "$STAGING_SSH_KNOWN_HOSTS"
           test -n "$STAGING_GHCR_TOKEN"
+          test -n "$STAGING_E2E_REGISTRATION_KEY"
           test -n "$STAGING_URL"
 
       - name: Deploy immutable manifest
@@ -138,7 +144,15 @@ jobs:
         working-directory: frontend
         env:
           E2E_BASE_URL: ${{ vars.STAGING_URL }}
+          E2E_REGISTRATION_KEY: ${{ secrets.STAGING_E2E_REGISTRATION_KEY }}
         run: npx playwright test
+
+      - name: Promote verified staging candidate
+        if: success()
+        env:
+          STAGING_HOST: ${{ secrets.STAGING_HOST }}
+          STAGING_SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+        run: ssh -i ~/.ssh/id_ed25519 -o BatchMode=yes "$STAGING_SSH_USER@$STAGING_HOST" 'sudo /opt/homefinance-staging/promote.sh'
 
       - name: Collect VPS diagnostics after deployment or E2E failure
         if: failure()

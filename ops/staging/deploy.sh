@@ -7,6 +7,8 @@ ENV_FILE="$ROOT/.env"
 test -r "$MANIFEST"
 test -r "$COMPOSE_FILE"
 test -r "$ENV_FILE"
+exec 9>"$ROOT/.deployment.lock"
+flock -n 9 || { echo "another staging deployment is in progress" >&2; exit 1; }
 python3 - "$MANIFEST" <<'PY'
 import json,re,sys
 m=json.load(open(sys.argv[1]))
@@ -19,7 +21,6 @@ mkdir -p "$ROOT/manifests" "$ROOT/evidence"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 LOG_FILE="$ROOT/evidence/deploy-$STAMP.log"
 cp "$MANIFEST" "$ROOT/manifests/candidate.json"
-cp "$ENV_FILE" "$ROOT/.env.previous"
 cp "$ENV_FILE" "$ROOT/.env.candidate"
 python3 - "$MANIFEST" "$ROOT/.env.candidate" <<'PY'
 import json,sys,os
@@ -35,13 +36,8 @@ if ! docker compose --env-file "$ROOT/.env.candidate" -f "$COMPOSE_FILE" config 
   || ! curl --fail --silent --show-error --retry 12 --retry-delay 5 http://127.0.0.1/api/health; then
   docker compose --env-file "$ROOT/.env.candidate" -f "$COMPOSE_FILE" ps | tee -a "$LOG_FILE" || true
   docker compose --env-file "$ROOT/.env.candidate" -f "$COMPOSE_FILE" logs --no-color | tee -a "$LOG_FILE" || true
-  docker compose --env-file "$ROOT/.env.previous" -f "$COMPOSE_FILE" up -d --wait --wait-timeout 180 | tee -a "$LOG_FILE" || true
-  rm -f "$ROOT/.env.candidate" "$ROOT/.env.previous" "$ROOT/manifests/candidate.json"
+  echo "candidate failed after startup; it remains running for diagnosis and forward recovery" | tee -a "$LOG_FILE"
   exit 1
 fi
-cp "$ROOT/manifests/active.json" "$ROOT/manifests/previous.json" 2>/dev/null || true
-mv "$ROOT/.env.candidate" "$ENV_FILE"
-rm -f "$ROOT/.env.previous"
-mv "$ROOT/manifests/candidate.json" "$ROOT/manifests/active.json"
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps > "$ROOT/evidence/deploy-$STAMP.ps"
-cp "$ROOT/manifests/active.json" "$ROOT/evidence/deploy-$STAMP.manifest.json"
+cp "$ROOT/manifests/candidate.json" "$ROOT/evidence/deploy-$STAMP.candidate.json"
