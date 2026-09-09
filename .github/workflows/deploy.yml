@@ -97,7 +97,6 @@ jobs:
           STAGING_SSH_KNOWN_HOSTS: ${{ secrets.STAGING_SSH_KNOWN_HOSTS }}
           STAGING_GHCR_TOKEN: ${{ secrets.STAGING_GHCR_TOKEN }}
           STAGING_E2E_REGISTRATION_KEY: ${{ secrets.STAGING_E2E_REGISTRATION_KEY }}
-          STAGING_URL: ${{ vars.STAGING_URL }}
         run: |
           test -n "$STAGING_HOST"
           test -n "$STAGING_SSH_USER"
@@ -105,8 +104,6 @@ jobs:
           test -n "$STAGING_SSH_KNOWN_HOSTS"
           test -n "$STAGING_GHCR_TOKEN"
           test -n "$STAGING_E2E_REGISTRATION_KEY"
-          test -n "$STAGING_URL"
-          test "${STAGING_URL#https://}" != "$STAGING_URL"
 
       - name: Deploy immutable manifest
         env:
@@ -141,10 +138,18 @@ jobs:
           npm ci
           npx playwright install --with-deps chromium
 
+      - name: Start encrypted browser tunnel
+        env:
+          STAGING_HOST: ${{ secrets.STAGING_HOST }}
+          STAGING_SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+        run: |
+          ssh -f -N -i ~/.ssh/id_ed25519 -o BatchMode=yes -L 127.0.0.1:4173:127.0.0.1:80 "$STAGING_SSH_USER@$STAGING_HOST"
+          curl --fail --silent --show-error --retry 12 --retry-delay 5 http://127.0.0.1:4173/api/health
+
       - name: Verify staging critical journeys
         working-directory: frontend
         env:
-          E2E_BASE_URL: ${{ vars.STAGING_URL }}
+          E2E_BASE_URL: http://127.0.0.1:4173
           E2E_REGISTRATION_KEY: ${{ secrets.STAGING_E2E_REGISTRATION_KEY }}
         run: npx playwright test
 
