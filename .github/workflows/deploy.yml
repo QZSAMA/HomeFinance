@@ -46,3 +46,20 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}/frontend:${{ steps.tag.outputs.VERSION }}
             ghcr.io/${{ github.repository }}/frontend:latest
+
+      - name: Resolve image digests
+        id: digest
+        run: |
+          echo "backend=$(docker buildx imagetools inspect ghcr.io/${{ github.repository }}/backend:${{ steps.tag.outputs.VERSION }} --format '{{json .Manifest.Digest}}' | tr -d '\"')" >> "$GITHUB_OUTPUT"
+          echo "frontend=$(docker buildx imagetools inspect ghcr.io/${{ github.repository }}/frontend:${{ steps.tag.outputs.VERSION }} --format '{{json .Manifest.Digest}}' | tr -d '\"')" >> "$GITHUB_OUTPUT"
+
+      - name: Write staging manifest
+        run: |
+          mkdir -p staging-manifest
+          cat > staging-manifest/deployment-manifest.json <<EOF
+          {"commit":"${GITHUB_SHA}","backendDigest":"${{ steps.digest.outputs.backend }}","frontendDigest":"${{ steps.digest.outputs.frontend }}","migrationHead":"$(find backend/prisma/migrations -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort | tail -1)","createdAt":"$(date -u +%Y-%m-%dT%H:%M:%SZ)"}
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: staging-deployment-manifest
+          path: staging-manifest/deployment-manifest.json
