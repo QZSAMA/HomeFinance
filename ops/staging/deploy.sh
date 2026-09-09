@@ -2,20 +2,46 @@
 set -euo pipefail
 ROOT="${STAGING_ROOT:-/opt/homefinance-staging}"
 MANIFEST="${1:?manifest path required}"
+COMPOSE_FILE="$ROOT/compose.staging.yml"
+ENV_FILE="$ROOT/.env"
 test -r "$MANIFEST"
-grep -Eq '"backendDigest"[[:space:]]*:[[:space:]]*"sha256:[a-f0-9]{64}"' "$MANIFEST"
-grep -Eq '"frontendDigest"[[:space:]]*:[[:space:]]*"sha256:[a-f0-9]{64}"' "$MANIFEST"
+test -r "$COMPOSE_FILE"
+test -r "$ENV_FILE"
+python3 - "$MANIFEST" <<'PY'
+import json,re,sys
+m=json.load(open(sys.argv[1]))
+for name in ('commit', 'migrationHead', 'createdAt'):
+    if not isinstance(m.get(name), str) or not m[name]: raise SystemExit(f'missing {name}')
+for name in ('backendDigest', 'frontendDigest', 'mockAiDigest'):
+    if not re.fullmatch(r'sha256:[a-f0-9]{64}', m.get(name, '')): raise SystemExit(f'invalid {name}')
+PY
 mkdir -p "$ROOT/manifests" "$ROOT/evidence"
+STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+LOG_FILE="$ROOT/evidence/deploy-$STAMP.log"
 cp "$MANIFEST" "$ROOT/manifests/candidate.json"
-python3 - "$MANIFEST" "$ROOT/.env" <<'PY'
+cp "$ENV_FILE" "$ROOT/.env.previous"
+cp "$ENV_FILE" "$ROOT/.env.candidate"
+python3 - "$MANIFEST" "$ROOT/.env.candidate" <<'PY'
 import json,sys,os
 m=json.load(open(sys.argv[1])); env=open(sys.argv[2]).read() if os.path.exists(sys.argv[2]) else ''
-lines=[x for x in env.splitlines() if not x.startswith(('BACKEND_IMAGE=','FRONTEND_IMAGE='))]
-lines += [f"BACKEND_IMAGE=ghcr.io/qzsama/homefinance/backend@{m['backendDigest']}", f"FRONTEND_IMAGE=ghcr.io/qzsama/homefinance/frontend@{m['frontendDigest']}"]
+lines=[x for x in env.splitlines() if not x.startswith(('BACKEND_IMAGE=','FRONTEND_IMAGE=','MOCK_AI_IMAGE='))]
+lines += [f"BACKEND_IMAGE=ghcr.io/qzsama/homefinance/backend@{m['backendDigest']}", f"FRONTEND_IMAGE=ghcr.io/qzsama/homefinance/frontend@{m['frontendDigest']}", f"MOCK_AI_IMAGE=ghcr.io/qzsama/homefinance/mock-ai@{m['mockAiDigest']}"]
 open(sys.argv[2],'w').write('\n'.join(lines)+'\n')
 PY
-docker compose --env-file "$ROOT/.env" -f "$ROOT/compose.staging.yml" config >/dev/null
-docker compose --env-file "$ROOT/.env" -f "$ROOT/compose.staging.yml" up -d
-docker compose --env-file "$ROOT/.env" -f "$ROOT/compose.staging.yml" ps
+if ! docker compose --env-file "$ROOT/.env.candidate" -f "$COMPOSE_FILE" config >/dev/null \
+  || ! docker compose --env-file "$ROOT/.env.candidate" -f "$COMPOSE_FILE" pull \
+  || ! docker compose --env-file "$ROOT/.env.candidate" -f "$COMPOSE_FILE" up -d --wait --wait-timeout 180 \
+  || ! docker compose --env-file "$ROOT/.env.candidate" -f "$COMPOSE_FILE" exec -T backend npx prisma migrate status \
+  || ! curl --fail --silent --show-error --retry 12 --retry-delay 5 http://127.0.0.1/api/health; then
+  docker compose --env-file "$ROOT/.env.candidate" -f "$COMPOSE_FILE" ps | tee -a "$LOG_FILE" || true
+  docker compose --env-file "$ROOT/.env.candidate" -f "$COMPOSE_FILE" logs --no-color | tee -a "$LOG_FILE" || true
+  docker compose --env-file "$ROOT/.env.previous" -f "$COMPOSE_FILE" up -d --wait --wait-timeout 180 | tee -a "$LOG_FILE" || true
+  rm -f "$ROOT/.env.candidate" "$ROOT/.env.previous" "$ROOT/manifests/candidate.json"
+  exit 1
+fi
 cp "$ROOT/manifests/active.json" "$ROOT/manifests/previous.json" 2>/dev/null || true
+mv "$ROOT/.env.candidate" "$ENV_FILE"
+rm -f "$ROOT/.env.previous"
 mv "$ROOT/manifests/candidate.json" "$ROOT/manifests/active.json"
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps > "$ROOT/evidence/deploy-$STAMP.ps"
+cp "$ROOT/manifests/active.json" "$ROOT/evidence/deploy-$STAMP.manifest.json"
