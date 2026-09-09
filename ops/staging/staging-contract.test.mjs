@@ -30,6 +30,8 @@ assert.match(restore, /up -d --wait postgres redis minio/);
 assert.match(restore, /prisma migrate status/);
 assert.match(restore, /minio\/mc/);
 assert.match(restore, /mc ls rehearsal\/\$MINIO_BUCKET/);
+assert.match(restore, /--entrypoint \/bin\/sh/);
+assert.match(restore, /-e MINIO_ROOT_USER/);
 assert.match(workflow, /Start encrypted browser tunnel/);
 assert.match(workflow, /-L 127\.0\.0\.1:4173:127\.0\.0\.1:80/);
 assert.match(workflow, /E2E_BASE_URL: http:\/\/127\.0\.0\.1:4173/);

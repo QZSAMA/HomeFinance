@@ -36,6 +36,8 @@ docker compose --env-file "$RESTORE_ENV" -f "$COMPOSE_FILE" exec -T postgres pg_
 docker compose --env-file "$RESTORE_ENV" -f "$COMPOSE_FILE" up -d backend --wait --wait-timeout 180
 docker compose --env-file "$RESTORE_ENV" -f "$COMPOSE_FILE" exec -T backend node -e "fetch('http://localhost:8080/api/health').then((r) => process.exit(r.ok ? 0 : 1))"
 docker compose --env-file "$RESTORE_ENV" -f "$COMPOSE_FILE" exec -T backend npx prisma migrate status
-docker run --rm --network "homefinance-$RUN_ID"_default minio/mc:RELEASE.2025-05-21T01-59-54Z \
-  sh -c "mc alias set rehearsal http://minio:9000 '$MINIO_ROOT_USER' '$MINIO_ROOT_PASSWORD' && mc ls rehearsal/$MINIO_BUCKET >/dev/null"
+docker run --rm --network "homefinance-$RUN_ID"_default \
+  -e MINIO_ROOT_USER -e MINIO_ROOT_PASSWORD -e MINIO_BUCKET \
+  --entrypoint /bin/sh minio/mc:RELEASE.2025-05-21T01-59-54Z \
+  -ec 'mc alias set rehearsal http://minio:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" && mc ls "rehearsal/$MINIO_BUCKET" >/dev/null'
 echo "disposable restore rehearsal completed: $RUN_ID"
