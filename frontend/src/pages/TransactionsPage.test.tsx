@@ -82,19 +82,23 @@ describe('TransactionsPage mutation mode', () => {
     suggestCategoryMock.mockResolvedValue(null);
   });
 
-  it('creates a new expense after editing an income instead of updating the income id', async () => {
+  it.each(['save', 'cancel'] as const)('creates a new expense after %s of an income edit instead of updating the income id', async (action) => {
     render(<TransactionsPage />);
 
     const incomeRow = await screen.findByText('工资收入');
     fireEvent.click(incomeRow.closest('tr')!.querySelector('button')!);
     const editDialog = screen.getByRole('heading', { name: '编辑收入' }).closest('div.fixed')!;
-    fireEvent.click(editDialog.querySelector('button[type="submit"]')!);
+    fireEvent.click(editDialog.querySelector(action === 'save' ? 'button[type="submit"]' : 'button[type="button"]')!);
 
-    await waitFor(() => expect(updateIncomeMock).toHaveBeenCalledWith(
-      family.id,
-      income.id,
-      expect.objectContaining({ amount: 100, category: '工资' }),
-    ));
+    if (action === 'save') {
+      await waitFor(() => expect(updateIncomeMock).toHaveBeenCalledWith(
+        family.id,
+        income.id,
+        expect.objectContaining({ amount: 100, category: '工资' }),
+      ));
+    } else {
+      expect(updateIncomeMock).not.toHaveBeenCalled();
+    }
     await waitFor(() => expect(screen.queryByRole('heading', { name: '编辑收入' })).not.toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: /^支出$/ }));

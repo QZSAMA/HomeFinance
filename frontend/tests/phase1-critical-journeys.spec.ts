@@ -14,6 +14,14 @@ const viewer = {
 };
 
 async function register(page: Page, account: { email: string; name: string }) {
+  const stagingRegistrationKey = process.env.E2E_REGISTRATION_KEY;
+  if (stagingRegistrationKey) {
+    await page.route('**/api/auth/register', async (route) => {
+      await route.continue({
+        headers: { ...route.request().headers(), 'X-Staging-Registration-Key': stagingRegistrationKey },
+      });
+    });
+  }
   await page.goto('/register');
   await page.locator('#name').fill(account.name);
   await page.locator('#email').fill(account.email);

@@ -24,9 +24,39 @@ app.use('/api/auth', authRoutes);
 describe('Auth Routes', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    delete process.env.REGISTRATION_ENABLED;
+    delete process.env.STAGING_E2E_REGISTRATION_KEY;
   });
 
   describe('POST /api/auth/register', () => {
+    test('rejects public registration when it is disabled for the runtime', async () => {
+      process.env.REGISTRATION_ENABLED = 'false';
+
+      const res = await request(app)
+        .post('/api/auth/register')
+        .send({ email: 'new@example.com', password: 'password123', name: 'New User' });
+
+      expect(res.status).toBe(403);
+      expect(res.body.error).toBe('当前环境未开放注册');
+      expect(mockedPrisma.user.findUnique).not.toHaveBeenCalled();
+    });
+
+    test('accepts a matching non-public staging registration key', async () => {
+      process.env.REGISTRATION_ENABLED = 'false';
+      process.env.STAGING_E2E_REGISTRATION_KEY = 'staging-test-key';
+      mockedPrisma.user.findUnique.mockResolvedValue(null);
+      mockedPrisma.user.create.mockResolvedValue({
+        id: 'user_1', email: 'new@example.com', name: 'New User', createdAt: new Date(),
+      } as any);
+
+      const res = await request(app)
+        .post('/api/auth/register')
+        .set('X-Staging-Registration-Key', 'staging-test-key')
+        .send({ email: 'new@example.com', password: 'password123', name: 'New User' });
+
+      expect(res.status).toBe(201);
+    });
+
     test('registers a new user successfully', async () => {
       mockedPrisma.user.findUnique.mockResolvedValue(null);
       mockedPrisma.user.create.mockResolvedValue({

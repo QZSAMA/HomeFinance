@@ -57,6 +57,7 @@ services:
       REDIS_URL: redis://redis:6379
       JWT_SECRET: e2e-only-jwt-secret-at-least-32-characters-long
       JWT_EXPIRES_IN: 1h
+      REGISTRATION_ENABLED: 'true'
       CORS_ORIGIN: http://127.0.0.1:4173
       MINIO_ENDPOINT: minio
       MINIO_PORT: 9000

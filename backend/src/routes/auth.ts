@@ -20,6 +20,13 @@ const loginSchema = z.object({
 
 router.post('/register', async (req, res) => {
   try {
+    const stagingKey = process.env.STAGING_E2E_REGISTRATION_KEY;
+    const acceptedStagingRegistration = Boolean(
+      stagingKey && req.get('X-Staging-Registration-Key') === stagingKey
+    );
+    if (process.env.REGISTRATION_ENABLED === 'false' && !acceptedStagingRegistration) {
+      return res.status(403).json({ error: '当前环境未开放注册' });
+    }
     const { email, password, name } = registerSchema.parse(req.body);
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
